@@ -1,0 +1,13 @@
+diff --git a/src/txn_antlr/txnparser.rs b/src/txn_antlr/txnparser.rs
+index 5a60986..94cadf3 100644
+--- a/src/txn_antlr/txnparser.rs
++++ b/src/txn_antlr/txnparser.rs
+@@ -6,6 +6,8 @@
+ #![allow(unused_imports)]
+ #![allow(unused_mut)]
+ #![allow(unused_braces)]
++#![allow(unused_parens)]
++#![allow(unused_variables)]
+ use antlr_rust::PredictionContextCache;
+ use antlr_rust::parser::{Parser, BaseParser, ParserRecog, ParserNodeType};
+ use antlr_rust::token_stream::TokenStream;

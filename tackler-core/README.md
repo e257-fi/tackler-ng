@@ -1,0 +1,10 @@
+# Tacker's Server API
+
+This will be Rusty version of Tackler's Server API: [tackler-core](https://tackler.e257.fi/docs/server-api/)
+
+== The tackler grammar and ANTLR parser generator
+
+See link:./tackler-core/src/parser/txn_antlr/readme.adoc[Parser definition] for grammar and lexer.
+
+The rust target for ANTLR is located here: https://github.com/rrevenantt/antlr4rust
+

@@ -1,0 +1,65 @@
+= Tackler-NG releases
+
+Currently published crates are:
+
+ tackler      = "0.1.0"
+ tackler-rs   = "0.1.0"
+ tackler-api  = "0.1.0"
+ tackler-core = "0.1.0"
+
+
+== Tackler release XX.YY.Z
+
+=== Development
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | TODO: XX.YY.Z
+|tackler-core | TODO: No changes
+|tackler-api  | TODO: No changes
+|tackler-rs   | TODO: No changes
+|===
+
+New features and changes in this release:
+
+ * ...
+ ** ...
+
+==== Fixes
+
+Fixes in this release ...
+
+
+==== Development
+
+Updated deps and tools:
+
+ * Dependencies
+ ** ...
+ * Build
+ ** ...
+ * Tests
+ ** ...
+
+'''
+
+
+=== Tackler release 23.1.1
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 0.1.0
+|tackler-core | 0.1.0
+|tackler-api  | 0.1.0
+|tackler-rs   | 0.1.0
+|===
+
+
+This is an initial POC release with ANTLR rust target.
+
+'''
+

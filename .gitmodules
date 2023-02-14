@@ -1,0 +1,3 @@
+[submodule "tackler-test-suite"]
+	path = suite
+	url = ../tackler-tests.git
