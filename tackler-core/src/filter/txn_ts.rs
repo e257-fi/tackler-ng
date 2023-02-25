@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2023 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,13 @@
  *
  */
 
-pub mod filter;
-pub mod kernel;
-pub mod math;
-pub mod model;
-pub mod parser;
+use crate::model::Transaction;
+use tackler_api::filters::TsFilter;
 
-#[cfg(test)]
-mod tests {
-    pub(crate) trait IndocWithMarker {
-        fn strip_margin(&self) -> String;
-    }
+use super::FilterTxn;
 
-    impl IndocWithMarker for str {
-        fn strip_margin(&self) -> String {
-            match self.strip_prefix('|') {
-                Some(s) => s.to_string().replace("\n|", "\n"),
-                None => self.replace("\n|", "\n"),
-            }
-        }
+impl FilterTxn for TsFilter {
+    fn filter(&self, txn: &Transaction) -> bool {
+        txn.header.timestamp.eq(&self.end)
     }
 }

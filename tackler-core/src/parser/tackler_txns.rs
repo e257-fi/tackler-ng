@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 use std::str;
 use std::str::FromStr;
 //use std::time::{SystemTime, UNIX_EPOCH};
-use git_hash::ObjectId;
+use gix_hash::ObjectId;
 
 use crate::model::{transaction, TxnData, Txns};
 use crate::parser::tackler_parser;

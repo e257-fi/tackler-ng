@@ -41,10 +41,13 @@ fn run() -> Result<i32, Box<dyn Error>> {
         let paths = tackler_rs::get_paths_by_ext(Path::new(&args[1]), "txn").unwrap();
         parser::paths_to_txns(paths)
     } else {
-        parser::git_to_txns(Path::new(&args[1]), "txns-1E1",
-                            "txn",
-                            GitInputSelector::Reference("main".to_string()))
-                            //GitInputSelector::CommitId("359400fa06c3e516a7133eea0d74f9a84310032a".to_string()))
+        parser::git_to_txns(
+            Path::new(&args[1]),
+            "txns-1E1",
+            "txn",
+            GitInputSelector::Reference("main".to_string()),
+        )
+        //GitInputSelector::CommitId("359400fa06c3e516a7133eea0d74f9a84310032a".to_string()))
     };
 
     println!("tackler: {}", env!("VERSION"));

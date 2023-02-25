@@ -27,6 +27,15 @@ pub struct Transaction {
     pub(crate) posts: Posts,
 }
 
+impl Default for Transaction {
+    fn default() -> Self {
+        Transaction {
+            header: TxnHeader::default(),
+            posts: Posts::default(),
+        }
+    }
+}
+
 impl Transaction {
     pub fn from(header: TxnHeader, posts: Posts) -> Result<Transaction, Box<dyn Error>> {
         let txn_sum = posting::txn_sum(&posts);

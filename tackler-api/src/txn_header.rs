@@ -21,7 +21,7 @@ use uuid::Uuid;
 
 use crate::{GeoPoint, Tags};
 
-#[derive(Debug, Eq)]
+#[derive(Default, Debug, Eq)]
 pub struct TxnHeader {
     pub timestamp: DateTime<FixedOffset>,
     pub code: Option<String>,
@@ -122,12 +122,12 @@ impl TxnHeader {
             // metadata
             self.uuid
                 .as_ref()
-                .map_or_else(String::default, |uuid| format!(
-                    "{indent}# uuid: {uuid}\n")),
+                .map_or_else(String::default, |uuid| format!("{indent}# uuid: {uuid}\n")),
             self.location
                 .as_ref()
                 .map_or_else(String::default, |geo| format!(
-                    "{indent}# location: {geo}\n")),
+                    "{indent}# location: {geo}\n"
+                )),
             self.tags
                 .as_ref()
                 .map_or_else(String::default, |tags| format!(
