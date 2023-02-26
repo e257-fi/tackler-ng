@@ -30,8 +30,12 @@ path = "src/lib.rs"
 [dependencies]
 chrono = { workspace = true, features = [ "serde" ] }
 indoc = { workspace = true }
+regex = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_regex = "1.1.0"
 uuid = { workspace = true }
 
+[dev-dependencies]
+tackler-rs = { path = "../tackler-rs", version = "0.2.0" }

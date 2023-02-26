@@ -15,51 +15,42 @@
  *
  */
 
-use crate::filters;
-use crate::filters::IndentDisplay;
-use filters::TxnFilter;
-
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-/// Data model for logical AND-filter
-///
-/// Actual filtering implementation is done by Trait [`FilterTxn`]
-///
-/// [`FilterTxn`]: ../tackler_core/filter/index.html
+use crate::filters::IndentDisplay;
+
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TxnFilterAND {
-    // todo: functionality, test
-    // todo-test: aa8aa459-b100-403e-98ea-7381ca58727d
-    // desc: "reject AND filter with only one filter"
-    #[serde(rename = "txnFilters")]
-    pub txn_filters: Vec<TxnFilter>,
+pub struct TxnFilterTxnComments {
+    #[serde(with = "serde_regex")]
+    pub regex: Regex,
 }
 
-impl IndentDisplay for TxnFilterAND {
+impl IndentDisplay for TxnFilterTxnComments {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        filters::logic_filter_indent_fmt("AND", indent, &self.txn_filters, f)
+        writeln!(f, "{indent}Txn Comments: \"{}\"", self.regex.as_str())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{FilterDefinition, NullaryFALSE, NullaryTRUE};
+    use crate::filters::{FilterDefinition, NullaryTRUE, TxnFilter, TxnFilterAND};
     use indoc::indoc;
+    use regex::Regex;
     use tackler_rs::IndocWithMarker;
 
     #[test]
-    // test: caa264f6-719f-49e9-9b56-3bdf0b0941ec
-    // desc: AND, JSON
-    fn and_json() {
-        let filter_json_str = r#"{"txnFilter":{"TxnFilterAND":{"txnFilters":[{"NullaryTRUE":{}},{"NullaryFALSE":{}}]}}}"#;
+    // test: de0054ff-92e2-4837-b223-40cbbeaa90de
+    // desc: TxnComments, JSON
+    fn txn_comments_json() {
+        let filter_json_str =
+            r#"{"txnFilter":{"TxnFilterTxnComments":{"regex":"(abc.*)|(def.*)"}}}"#;
 
         let filter_text_str = indoc! {
         "|Filter:
-         |  AND
-         |    All pass
-         |    None pass
+         |  Txn Comments: \"(abc.*)|(def.*)\"
          |"}
         .strip_margin();
 
@@ -68,7 +59,7 @@ mod tests {
         let tf = tf_res.unwrap();
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterAND(_) => assert!(true),
+            TxnFilter::TxnFilterTxnComments(_) => assert!(true),
             _ => assert!(false),
         }
 
@@ -77,27 +68,31 @@ mod tests {
     }
 
     #[test]
-    // test: deda9918-cba5-4b3d-85db-61a3a7e1128f
-    // desc: AND, Text
-    fn and_filt_text() {
+    // test: 5f08fe58-4451-4659-a684-d9725259ce2d
+    // desc: TxnComments, Text
+    fn txn_comments_text() {
         let filter_text_str = indoc! {
-        "|Filter:
-         |  AND
-         |    All pass
-         |    AND
-         |      All pass
-         |      None pass
-         |"}
+        r#"|Filter:
+           |  AND
+           |    Txn Comments: "(abc.*)|(def.*)"
+           |    AND
+           |      Txn Comments: "xyz"
+           |      All pass
+           |"#}
         .strip_margin();
 
         let tfd = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
-                    TxnFilter::NullaryTRUE(NullaryTRUE {}),
+                    TxnFilter::TxnFilterTxnComments(TxnFilterTxnComments {
+                        regex: Regex::new("(abc.*)|(def.*)").unwrap(),
+                    }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
+                            TxnFilter::TxnFilterTxnComments(TxnFilterTxnComments {
+                                regex: Regex::new("xyz").unwrap(),
+                            }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
-                            TxnFilter::NullaryFALSE(NullaryFALSE {}),
                         ],
                     }),
                 ],

@@ -15,51 +15,40 @@
  *
  */
 
-use crate::filters;
-use crate::filters::IndentDisplay;
-use filters::TxnFilter;
-
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
+use uuid::Uuid;
 
-/// Data model for logical AND-filter
-///
-/// Actual filtering implementation is done by Trait [`FilterTxn`]
-///
-/// [`FilterTxn`]: ../tackler_core/filter/index.html
+use crate::filters::IndentDisplay;
+
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TxnFilterAND {
-    // todo: functionality, test
-    // todo-test: aa8aa459-b100-403e-98ea-7381ca58727d
-    // desc: "reject AND filter with only one filter"
-    #[serde(rename = "txnFilters")]
-    pub txn_filters: Vec<TxnFilter>,
+pub struct TxnFilterTxnUUID {
+    pub uuid: Uuid,
 }
 
-impl IndentDisplay for TxnFilterAND {
+impl IndentDisplay for TxnFilterTxnUUID {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        filters::logic_filter_indent_fmt("AND", indent, &self.txn_filters, f)
+        writeln!(f, "{indent}Txn UUID: {}", self.uuid)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{FilterDefinition, NullaryFALSE, NullaryTRUE};
+    use crate::filters::{FilterDefinition, NullaryTRUE, TxnFilter, TxnFilterAND};
+    use crate::tests::IndocWithMarker;
     use indoc::indoc;
-    use tackler_rs::IndocWithMarker;
 
     #[test]
-    // test: caa264f6-719f-49e9-9b56-3bdf0b0941ec
-    // desc: AND, JSON
-    fn and_json() {
-        let filter_json_str = r#"{"txnFilter":{"TxnFilterAND":{"txnFilters":[{"NullaryTRUE":{}},{"NullaryFALSE":{}}]}}}"#;
+    // test: 9ad41df9-c153-458b-a941-3b4763c25548
+    // desc: TxnUUID, JSON
+    fn txn_uuid_json() {
+        let filter_json_str =
+            r#"{"txnFilter":{"TxnFilterTxnUUID":{"uuid":"8c913372-48e9-466c-a897-11b151548a19"}}}"#;
 
         let filter_text_str = indoc! {
         "|Filter:
-         |  AND
-         |    All pass
-         |    None pass
+         |  Txn UUID: 8c913372-48e9-466c-a897-11b151548a19
          |"}
         .strip_margin();
 
@@ -68,7 +57,7 @@ mod tests {
         let tf = tf_res.unwrap();
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterAND(_) => assert!(true),
+            TxnFilter::TxnFilterTxnUUID(_) => assert!(true),
             _ => assert!(false),
         }
 
@@ -77,27 +66,32 @@ mod tests {
     }
 
     #[test]
-    // test: deda9918-cba5-4b3d-85db-61a3a7e1128f
-    // desc: AND, Text
-    fn and_filt_text() {
+    // test: e388aecd-8500-4f89-98c6-9588199c104f
+    // desc: TxnUUID, Text
+    fn txn_uuid_text() {
         let filter_text_str = indoc! {
         "|Filter:
          |  AND
-         |    All pass
+         |    Txn UUID: 76a0f143-d64e-4497-b357-5ae2eb092219
          |    AND
+         |      Txn UUID: f01df5b5-18e2-477c-aaac-3e0b672b2729
          |      All pass
-         |      None pass
          |"}
         .strip_margin();
 
         let tfd = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
-                    TxnFilter::NullaryTRUE(NullaryTRUE {}),
+                    TxnFilter::TxnFilterTxnUUID(TxnFilterTxnUUID {
+                        uuid: Uuid::parse_str("76a0f143-d64e-4497-b357-5ae2eb092219").unwrap(),
+                    }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
+                            TxnFilter::TxnFilterTxnUUID(TxnFilterTxnUUID {
+                                uuid: Uuid::parse_str("f01df5b5-18e2-477c-aaac-3e0b672b2729")
+                                    .unwrap(),
+                            }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
-                            TxnFilter::NullaryFALSE(NullaryFALSE {}),
                         ],
                     }),
                 ],

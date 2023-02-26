@@ -18,11 +18,28 @@
 mod logic_and;
 mod logic_not;
 mod logic_or;
+mod txn_bbox_lat_lon;
+mod txn_bbox_lat_lon_alt;
+mod txn_code;
+mod txn_comments;
+mod txn_description;
+mod txn_tags;
+mod txn_ts_begin;
+mod txn_ts_end;
+mod txn_uuid;
 
-use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
+use crate::filters::txn_bbox_lat_lon::TxnFilterBBoxLatLon;
+use crate::filters::txn_bbox_lat_lon_alt::TxnFilterBBoxLatLonAlt;
+use crate::filters::txn_code::TxnFilterTxnCode;
+use crate::filters::txn_comments::TxnFilterTxnComments;
+use crate::filters::txn_description::TxnFilterTxnDescription;
+use crate::filters::txn_tags::TxnFilterTxnTags;
+use crate::filters::txn_ts_begin::TxnFilterTxnTSBegin;
+use crate::filters::txn_ts_end::TxnFilterTxnTSEnd;
+use crate::filters::txn_uuid::TxnFilterTxnUUID;
 pub use logic_and::TxnFilterAND;
 pub use logic_not::TxnFilterNOT;
 pub use logic_or::TxnFilterOR;
@@ -47,17 +64,16 @@ pub enum TxnFilter {
     TxnFilterOR(TxnFilterOR),
     TxnFilterNOT(TxnFilterNOT),
 
-    // // TXN Header
-    // TxnFilterTxnTSBegin(TxnFilterTxnTSBegin),
-    // TxnFilterTxnTSEnd(TxnFilterTxnTSEnd),
-    // TxnFilterTxnCode(TxnFilterTxnCode),
-    // TxnFilterTxnDescription(TxnFilterTxnDescription),
-    // TxnFilterTxnUUID(TxnFilterTxnUUID),
-    // TxnFilterBBoxLatLon(TxnFilterBBoxLatLon),
-    // TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt),
-    // TxnFilterTxnTags(TxnFilterTxnTags),
-    // TxnFilterTxnComments(TxnFilterTxnComments),
-    //
+    // TXN Header
+    TxnFilterTxnTSBegin(TxnFilterTxnTSBegin),
+    TxnFilterTxnTSEnd(TxnFilterTxnTSEnd),
+    TxnFilterTxnCode(TxnFilterTxnCode),
+    TxnFilterTxnDescription(TxnFilterTxnDescription),
+    TxnFilterTxnUUID(TxnFilterTxnUUID),
+    TxnFilterBBoxLatLon(TxnFilterBBoxLatLon),
+    TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt),
+    TxnFilterTxnTags(TxnFilterTxnTags),
+    TxnFilterTxnComments(TxnFilterTxnComments),
     // // TXN Postings
     // TxnFilterPostingAccount(TxnFilterPostingAccount),
     // TxnFilterPostingComment(TxnFilterPostingComment),
@@ -65,10 +81,6 @@ pub enum TxnFilter {
     // TxnFilterPostingAmountLess(TxnFilterPostingAmountLess),
     // TxnFilterPostingAmountGreater(TxnFilterPostingAmountGreater),
     // TxnFilterPostingCommodity(TxnFilterPostingCommodity),
-
-    //
-    PropFilter(PropFilter),
-    TsFilter(TsFilter),
 }
 
 impl Display for TxnFilter {
@@ -89,9 +101,16 @@ impl IndentDisplay for TxnFilter {
             TxnFilter::TxnFilterOR(tf) => tf.i_fmt(indent, f),
             TxnFilter::TxnFilterNOT(tf) => tf.i_fmt(indent, f),
 
-            // prop filters
-            TxnFilter::PropFilter(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TsFilter(tf) => tf.i_fmt(indent, f),
+            // txn header
+            TxnFilter::TxnFilterTxnTSBegin(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnTSEnd(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnCode(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnDescription(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnUUID(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterBBoxLatLon(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnTags(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnComments(tf) => tf.i_fmt(indent, f),
         }
     }
 }
@@ -133,28 +152,6 @@ fn logic_filter_indent_fmt(
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct PropFilter {
-    pub regex: String,
-}
-
-impl IndentDisplay for PropFilter {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{indent}prop filter: {}", self.regex)
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct TsFilter {
-    pub end: DateTime<FixedOffset>,
-}
-
-impl IndentDisplay for TsFilter {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{indent}timestamp filter: {}", self.end)
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
 pub struct FilterDefinition {
     #[serde(rename = "txnFilter")]
     pub txn_filter: TxnFilter,
@@ -162,6 +159,7 @@ pub struct FilterDefinition {
 
 impl Display for FilterDefinition {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Filter:\n{}", self.txn_filter)
+        writeln!(f, "Filter:")?;
+        self.txn_filter.i_fmt("  ", f)
     }
 }

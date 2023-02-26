@@ -43,3 +43,16 @@ pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>
 
     Ok(paths)
 }
+
+pub trait IndocWithMarker {
+    fn strip_margin(&self) -> String;
+}
+
+impl IndocWithMarker for str {
+    fn strip_margin(&self) -> String {
+        match self.strip_prefix('|') {
+            Some(s) => s.to_string().replace("\n|", "\n"),
+            None => self.replace("\n|", "\n"),
+        }
+    }
+}

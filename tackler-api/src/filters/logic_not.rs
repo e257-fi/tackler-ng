@@ -47,6 +47,7 @@ mod tests {
     use super::*;
     use crate::filters::{FilterDefinition, NullaryTRUE};
     use indoc::indoc;
+    use tackler_rs::IndocWithMarker;
 
     #[test]
     // test: 8416ffe5-f07b-4304-85ca-be3a3e15f5e7
@@ -55,10 +56,11 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"TxnFilterNOT":{"txnFilter":{"NullaryFALSE":{}}}}}"#;
 
         let filter_text_str = indoc! {
-            "Filter:
-               NOT
-                 None pass
-            "};
+        "|Filter:
+         |  NOT
+         |    None pass
+         |"}
+        .strip_margin();
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
         assert!(tf_res.is_ok());
@@ -78,11 +80,12 @@ mod tests {
     // desc: NOT, Text
     fn not_filt_text() {
         let filter_text_str = indoc! {
-            "Filter:
-               NOT
-                 NOT
-                   All pass
-            "};
+        "|Filter:
+         |  NOT
+         |    NOT
+         |      All pass
+         |"}
+        .strip_margin();
 
         let tfd = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterNOT(TxnFilterNOT {

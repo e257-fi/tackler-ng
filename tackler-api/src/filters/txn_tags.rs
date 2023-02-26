@@ -15,52 +15,42 @@
  *
  */
 
-use crate::filters;
-use crate::filters::IndentDisplay;
-use filters::TxnFilter;
-
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-/// Data model for logical AND-filter
-///
-/// Actual filtering implementation is done by Trait [`FilterTxn`]
-///
-/// [`FilterTxn`]: ../tackler_core/filter/index.html
+use crate::filters::IndentDisplay;
+
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TxnFilterAND {
-    // todo: functionality, test
-    // todo-test: aa8aa459-b100-403e-98ea-7381ca58727d
-    // desc: "reject AND filter with only one filter"
-    #[serde(rename = "txnFilters")]
-    pub txn_filters: Vec<TxnFilter>,
+pub struct TxnFilterTxnTags {
+    #[serde(with = "serde_regex")]
+    pub regex: Regex,
 }
 
-impl IndentDisplay for TxnFilterAND {
+impl IndentDisplay for TxnFilterTxnTags {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        filters::logic_filter_indent_fmt("AND", indent, &self.txn_filters, f)
+        writeln!(f, "{indent}Txn Tags: \"{}\"", self.regex.as_str())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{FilterDefinition, NullaryFALSE, NullaryTRUE};
+    use crate::filters::{FilterDefinition, NullaryTRUE, TxnFilter, TxnFilterAND};
+    use crate::tests::IndocWithMarker;
     use indoc::indoc;
-    use tackler_rs::IndocWithMarker;
+    use regex::Regex;
 
     #[test]
-    // test: caa264f6-719f-49e9-9b56-3bdf0b0941ec
-    // desc: AND, JSON
-    fn and_json() {
-        let filter_json_str = r#"{"txnFilter":{"TxnFilterAND":{"txnFilters":[{"NullaryTRUE":{}},{"NullaryFALSE":{}}]}}}"#;
+    // test: 38c85ae0-8c60-4533-946d-c80b788dc262
+    // desc: TxnTags, JSON
+    fn txn_tags_json() {
+        let filter_json_str = r#"{"txnFilter":{"TxnFilterTxnTags":{"regex":"(abc.*)|(def.*)"}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
-         |  AND
-         |    All pass
-         |    None pass
-         |"}
+        r#"|Filter:
+           |  Txn Tags: "(abc.*)|(def.*)"
+           |"#}
         .strip_margin();
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
@@ -68,7 +58,7 @@ mod tests {
         let tf = tf_res.unwrap();
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterAND(_) => assert!(true),
+            TxnFilter::TxnFilterTxnTags(_) => assert!(true),
             _ => assert!(false),
         }
 
@@ -77,27 +67,31 @@ mod tests {
     }
 
     #[test]
-    // test: deda9918-cba5-4b3d-85db-61a3a7e1128f
-    // desc: AND, Text
-    fn and_filt_text() {
+    // test: 423ccf5f-4dc7-49fb-a972-5a9c09717140
+    // desc: TxnTags, Text
+    fn txn_tags_text() {
         let filter_text_str = indoc! {
-        "|Filter:
-         |  AND
-         |    All pass
-         |    AND
-         |      All pass
-         |      None pass
-         |"}
+        r#"|Filter:
+           |  AND
+           |    Txn Tags: "(abc.*)|(def.*)"
+           |    AND
+           |      Txn Tags: "xyz"
+           |      All pass
+           |"#}
         .strip_margin();
 
         let tfd = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
-                    TxnFilter::NullaryTRUE(NullaryTRUE {}),
+                    TxnFilter::TxnFilterTxnTags(TxnFilterTxnTags {
+                        regex: Regex::new("(abc.*)|(def.*)").unwrap(),
+                    }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
+                            TxnFilter::TxnFilterTxnTags(TxnFilterTxnTags {
+                                regex: Regex::new("xyz").unwrap(),
+                            }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
-                            TxnFilter::NullaryFALSE(NullaryFALSE {}),
                         ],
                     }),
                 ],

@@ -15,51 +15,47 @@
  *
  */
 
-use crate::filters;
-use crate::filters::IndentDisplay;
-use filters::TxnFilter;
-
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-/// Data model for logical AND-filter
-///
-/// Actual filtering implementation is done by Trait [`FilterTxn`]
-///
-/// [`FilterTxn`]: ../tackler_core/filter/index.html
+use crate::filters::IndentDisplay;
+
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TxnFilterAND {
-    // todo: functionality, test
-    // todo-test: aa8aa459-b100-403e-98ea-7381ca58727d
-    // desc: "reject AND filter with only one filter"
-    #[serde(rename = "txnFilters")]
-    pub txn_filters: Vec<TxnFilter>,
+pub struct TxnFilterBBoxLatLon {
+    pub south: f64,
+    pub west: f64,
+    pub north: f64,
+    pub east: f64,
 }
 
-impl IndentDisplay for TxnFilterAND {
+impl IndentDisplay for TxnFilterBBoxLatLon {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        filters::logic_filter_indent_fmt("AND", indent, &self.txn_filters, f)
+        //                   North, East: geo:60.8,27.5
+        //                    South, West: geo:59.85,24
+        let my_indent = format!("{indent}  ");
+        writeln!(f, "{indent}Txn Bounding Box 2D\n{my_indent}North, East: geo:{},{}\n{my_indent}South, West: geo:{},{}",
+        self.north, self.east, self.south, self.west)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{FilterDefinition, NullaryFALSE, NullaryTRUE};
+    use crate::filters::{FilterDefinition, NullaryTRUE, TxnFilter, TxnFilterAND};
     use indoc::indoc;
     use tackler_rs::IndocWithMarker;
 
     #[test]
-    // test: caa264f6-719f-49e9-9b56-3bdf0b0941ec
-    // desc: AND, JSON
-    fn and_json() {
-        let filter_json_str = r#"{"txnFilter":{"TxnFilterAND":{"txnFilters":[{"NullaryTRUE":{}},{"NullaryFALSE":{}}]}}}"#;
+    // test: 05bfe9c0-0dc1-462a-b452-39c2eaf55d02
+    // desc: BBoxLatLon, JSON
+    fn txn_bbox_lat_lon_json() {
+        let filter_json_str = r#"{"txnFilter":{"TxnFilterBBoxLatLon":{"south":59.85,"west":24.0,"north":60.8,"east":27.5}}}"#;
 
         let filter_text_str = indoc! {
         "|Filter:
-         |  AND
-         |    All pass
-         |    None pass
+         |  Txn Bounding Box 2D
+         |    North, East: geo:60.8,27.5
+         |    South, West: geo:59.85,24
          |"}
         .strip_margin();
 
@@ -68,7 +64,7 @@ mod tests {
         let tf = tf_res.unwrap();
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterAND(_) => assert!(true),
+            TxnFilter::TxnFilterBBoxLatLon(_) => assert!(true),
             _ => assert!(false),
         }
 
@@ -77,27 +73,41 @@ mod tests {
     }
 
     #[test]
-    // test: deda9918-cba5-4b3d-85db-61a3a7e1128f
-    // desc: AND, Text
-    fn and_filt_text() {
+    // test: 89d31f9c-029f-47ce-acb9-ddfaaa089782
+    // desc: BBoxLatLon, Text
+    fn txn_bbox_lat_lon_text() {
         let filter_text_str = indoc! {
         "|Filter:
          |  AND
-         |    All pass
+         |    Txn Bounding Box 2D
+         |      North, East: geo:60.8,27.5
+         |      South, West: geo:59.85,24
          |    AND
+         |      Txn Bounding Box 2D
+         |        North, East: geo:60.8,27.5
+         |        South, West: geo:59.85,24
          |      All pass
-         |      None pass
          |"}
         .strip_margin();
 
         let tfd = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
-                    TxnFilter::NullaryTRUE(NullaryTRUE {}),
+                    TxnFilter::TxnFilterBBoxLatLon(TxnFilterBBoxLatLon {
+                        south: 59.85,
+                        west: 24.0,
+                        north: 60.8,
+                        east: 27.5,
+                    }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
+                            TxnFilter::TxnFilterBBoxLatLon(TxnFilterBBoxLatLon {
+                                south: 59.85,
+                                west: 24.0,
+                                north: 60.8,
+                                east: 27.5,
+                            }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
-                            TxnFilter::NullaryFALSE(NullaryFALSE {}),
                         ],
                     }),
                 ],

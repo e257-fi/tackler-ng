@@ -47,6 +47,7 @@ mod tests {
     use super::*;
     use crate::filters::{FilterDefinition, NullaryFALSE, NullaryTRUE};
     use indoc::indoc;
+    use tackler_rs::IndocWithMarker;
 
     #[test]
     // test: eddb393f-b8a4-4189-9280-40a911417b70
@@ -55,11 +56,12 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"TxnFilterOR":{"txnFilters":[{"NullaryTRUE":{}},{"NullaryFALSE":{}}]}}}"#;
 
         let filter_text_str = indoc! {
-            "Filter:
-               OR
-                 All pass
-                 None pass
-            "};
+        "|Filter:
+         |  OR
+         |    All pass
+         |    None pass
+         |"}
+        .strip_margin();
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
         assert!(tf_res.is_ok());
@@ -79,13 +81,14 @@ mod tests {
     // desc: OR, Text
     fn or_filt_text() {
         let filter_text_str = indoc! {
-            "Filter:
-               OR
-                 All pass
-                 OR
-                   All pass
-                   None pass
-            "};
+        "|Filter:
+         |  OR
+         |    All pass
+         |    OR
+         |      All pass
+         |      None pass
+         |"}
+        .strip_margin();
 
         let tfd = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterOR(TxnFilterOR {

@@ -24,8 +24,6 @@ mod logic_not;
 mod logic_or;
 mod nullary_false;
 mod nullary_true;
-mod txn_prop;
-mod txn_ts;
 
 /// Actual filtering implementation for [`TxnFilter`]
 ///
@@ -46,9 +44,16 @@ impl FilterTxn for TxnFilter {
             TxnFilter::TxnFilterOR(tf) => tf.filter(txn),
             TxnFilter::TxnFilterNOT(tf) => tf.filter(txn),
 
-            // txn property filters
-            TxnFilter::PropFilter(tf) => tf.filter(txn),
-            TxnFilter::TsFilter(tf) => tf.filter(txn),
+            // txn header
+            TxnFilter::TxnFilterTxnTSBegin(tf) => unimplemented!(),
+            TxnFilter::TxnFilterTxnTSEnd(tf) => unimplemented!(),
+            TxnFilter::TxnFilterTxnCode(tf) => unimplemented!(),
+            TxnFilter::TxnFilterTxnDescription(tf) => unimplemented!(),
+            TxnFilter::TxnFilterTxnUUID(tf) => unimplemented!(),
+            TxnFilter::TxnFilterBBoxLatLon(tf) => unimplemented!(),
+            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => unimplemented!(),
+            TxnFilter::TxnFilterTxnTags(tf) => unimplemented!(),
+            TxnFilter::TxnFilterTxnComments(tf) => unimplemented!(),
         }
     }
 }
@@ -56,12 +61,11 @@ impl FilterTxn for TxnFilter {
 #[cfg(test)]
 mod tests {
     use tackler_api::filters::{
-        FilterDefinition, NullaryFALSE, NullaryTRUE, PropFilter, TsFilter, TxnFilter, TxnFilterAND,
+        NullaryFALSE, NullaryTRUE, TxnFilter, TxnFilterAND,
         TxnFilterNOT, TxnFilterOR,
     };
 
     use super::*;
-    use chrono::{DateTime, FixedOffset};
 
     #[test]
     fn complex_and() {
