@@ -18,6 +18,12 @@
 mod logic_and;
 mod logic_not;
 mod logic_or;
+mod posting_account;
+mod posting_amount_equal;
+mod posting_amount_greater;
+mod posting_amount_less;
+mod posting_comment;
+mod posting_commodity;
 mod txn_bbox_lat_lon;
 mod txn_bbox_lat_lon_alt;
 mod txn_code;
@@ -28,9 +34,16 @@ mod txn_ts_begin;
 mod txn_ts_end;
 mod txn_uuid;
 
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
+use crate::filters::posting_account::TxnFilterPostingAccount;
+use crate::filters::posting_amount_equal::TxnFilterPostingAmountEqual;
+use crate::filters::posting_amount_greater::TxnFilterPostingAmountGreater;
+use crate::filters::posting_amount_less::TxnFilterPostingAmountLess;
+use crate::filters::posting_comment::TxnFilterPostingComment;
+use crate::filters::posting_commodity::TxnFilterPostingCommodity;
 use crate::filters::txn_bbox_lat_lon::TxnFilterBBoxLatLon;
 use crate::filters::txn_bbox_lat_lon_alt::TxnFilterBBoxLatLonAlt;
 use crate::filters::txn_code::TxnFilterTxnCode;
@@ -64,7 +77,7 @@ pub enum TxnFilter {
     TxnFilterOR(TxnFilterOR),
     TxnFilterNOT(TxnFilterNOT),
 
-    // TXN Header
+    // TXN Header filters
     TxnFilterTxnTSBegin(TxnFilterTxnTSBegin),
     TxnFilterTxnTSEnd(TxnFilterTxnTSEnd),
     TxnFilterTxnCode(TxnFilterTxnCode),
@@ -74,13 +87,14 @@ pub enum TxnFilter {
     TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt),
     TxnFilterTxnTags(TxnFilterTxnTags),
     TxnFilterTxnComments(TxnFilterTxnComments),
-    // // TXN Postings
-    // TxnFilterPostingAccount(TxnFilterPostingAccount),
-    // TxnFilterPostingComment(TxnFilterPostingComment),
-    // TxnFilterPostingAmountEqual(TxnFilterPostingAmountEqual),
-    // TxnFilterPostingAmountLess(TxnFilterPostingAmountLess),
-    // TxnFilterPostingAmountGreater(TxnFilterPostingAmountGreater),
-    // TxnFilterPostingCommodity(TxnFilterPostingCommodity),
+
+    // TXN Postings
+    TxnFilterPostingAccount(TxnFilterPostingAccount),
+    TxnFilterPostingComment(TxnFilterPostingComment),
+    TxnFilterPostingAmountEqual(TxnFilterPostingAmountEqual),
+    TxnFilterPostingAmountLess(TxnFilterPostingAmountLess),
+    TxnFilterPostingAmountGreater(TxnFilterPostingAmountGreater),
+    TxnFilterPostingCommodity(TxnFilterPostingCommodity),
 }
 
 impl Display for TxnFilter {
@@ -101,7 +115,7 @@ impl IndentDisplay for TxnFilter {
             TxnFilter::TxnFilterOR(tf) => tf.i_fmt(indent, f),
             TxnFilter::TxnFilterNOT(tf) => tf.i_fmt(indent, f),
 
-            // txn header
+            // txn header filters
             TxnFilter::TxnFilterTxnTSBegin(tf) => tf.i_fmt(indent, f),
             TxnFilter::TxnFilterTxnTSEnd(tf) => tf.i_fmt(indent, f),
             TxnFilter::TxnFilterTxnCode(tf) => tf.i_fmt(indent, f),
@@ -111,6 +125,14 @@ impl IndentDisplay for TxnFilter {
             TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.i_fmt(indent, f),
             TxnFilter::TxnFilterTxnTags(tf) => tf.i_fmt(indent, f),
             TxnFilter::TxnFilterTxnComments(tf) => tf.i_fmt(indent, f),
+
+            // posting filters
+            TxnFilter::TxnFilterPostingAccount(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterPostingComment(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterPostingAmountEqual(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterPostingAmountLess(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterPostingAmountGreater(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterPostingCommodity(tf) => tf.i_fmt(indent, f),
         }
     }
 }
@@ -149,6 +171,20 @@ fn logic_filter_indent_fmt(
         Ok(_) => Ok(()),
         Err(err) => Err(err),
     }
+}
+
+fn posting_filter_indent_fmt(
+    indent: &str,
+    target: &str,
+    regex: &str,
+    op: &str,
+    amount: &Decimal,
+    f: &mut Formatter<'_>,
+) -> std::fmt::Result {
+    let my_indent = format!("{indent}  ");
+    writeln!(f, "{indent}{target}")?;
+    writeln!(f, "{my_indent}account: \"{regex}\"")?;
+    writeln!(f, "{my_indent}amount {op} {amount}")
 }
 
 #[derive(Serialize, Deserialize, Debug)]

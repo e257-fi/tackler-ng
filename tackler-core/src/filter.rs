@@ -54,6 +54,14 @@ impl FilterTxn for TxnFilter {
             TxnFilter::TxnFilterBBoxLatLonAlt(tf) => unimplemented!(),
             TxnFilter::TxnFilterTxnTags(tf) => unimplemented!(),
             TxnFilter::TxnFilterTxnComments(tf) => unimplemented!(),
+
+            // txn posting filters
+            TxnFilter::TxnFilterPostingAccount(tf) => unimplemented!(),
+            TxnFilter::TxnFilterPostingComment(tf) => unimplemented!(),
+            TxnFilter::TxnFilterPostingAmountEqual(tf) => unimplemented!(),
+            TxnFilter::TxnFilterPostingAmountLess(tf) => unimplemented!(),
+            TxnFilter::TxnFilterPostingAmountGreater(tf) => unimplemented!(),
+            TxnFilter::TxnFilterPostingCommodity(tf) => unimplemented!(),
         }
     }
 }
