@@ -28,6 +28,7 @@ name = "tackler_api"
 path = "src/lib.rs"
 
 [dependencies]
+base64 = { workspace = true }
 chrono = { workspace = true, features = [ "serde" ] }
 indoc = { workspace = true }
 regex = { workspace = true }

@@ -15,15 +15,14 @@
  *
  */
 
-use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub struct GeoPoint {
-    pub lat: Decimal,
-    pub lon: Decimal,
-    pub alt: Option<Decimal>,
+    pub lat: f64,
+    pub lon: f64,
+    pub alt: Option<f64>,
 }
 
 impl Display for GeoPoint {
@@ -38,22 +37,19 @@ impl Display for GeoPoint {
     }
 }
 
+#[allow(clippy::manual_range_contains)]
 impl GeoPoint {
-    pub fn from(
-        lat: Decimal,
-        lon: Decimal,
-        alt: Option<Decimal>,
-    ) -> Result<GeoPoint, Box<dyn Error>> {
-        if lat < Decimal::from(-90) || Decimal::from(90) < lat {
+    pub fn from(lat: f64, lon: f64, alt: Option<f64>) -> Result<GeoPoint, Box<dyn Error>> {
+        if lat < -90.0 || 90.0 < lat {
             let msg = format!("Value out of specification for Latitude: {lat}");
             return Err(msg.into());
         }
-        if lon < Decimal::from(-180) || Decimal::from(180) < lon {
+        if lon < -180.0 || 180.0 < lon {
             let msg = format!("Value out of specification for Longitude: {lon}");
             return Err(msg.into());
         }
         if let Some(z) = alt.as_ref() {
-            if z < &Decimal::from(-6378137) {
+            if z < &-6378137.0 {
                 // Jules Verne: Voyage au centre de la Terre
                 let msg = format!("Value Out of specification for Altitude: {z}");
                 return Err(msg.into());

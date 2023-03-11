@@ -15,6 +15,7 @@
  *
  */
 
+mod filter_definition;
 mod logic_and;
 mod logic_not;
 mod logic_or;
@@ -38,21 +39,22 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
-use crate::filters::posting_account::TxnFilterPostingAccount;
-use crate::filters::posting_amount_equal::TxnFilterPostingAmountEqual;
-use crate::filters::posting_amount_greater::TxnFilterPostingAmountGreater;
-use crate::filters::posting_amount_less::TxnFilterPostingAmountLess;
-use crate::filters::posting_comment::TxnFilterPostingComment;
-use crate::filters::posting_commodity::TxnFilterPostingCommodity;
-use crate::filters::txn_bbox_lat_lon::TxnFilterBBoxLatLon;
-use crate::filters::txn_bbox_lat_lon_alt::TxnFilterBBoxLatLonAlt;
-use crate::filters::txn_code::TxnFilterTxnCode;
-use crate::filters::txn_comments::TxnFilterTxnComments;
-use crate::filters::txn_description::TxnFilterTxnDescription;
-use crate::filters::txn_tags::TxnFilterTxnTags;
-use crate::filters::txn_ts_begin::TxnFilterTxnTSBegin;
-use crate::filters::txn_ts_end::TxnFilterTxnTSEnd;
-use crate::filters::txn_uuid::TxnFilterTxnUUID;
+pub use crate::filters::filter_definition::FilterDefinition;
+pub use crate::filters::posting_account::TxnFilterPostingAccount;
+pub use crate::filters::posting_amount_equal::TxnFilterPostingAmountEqual;
+pub use crate::filters::posting_amount_greater::TxnFilterPostingAmountGreater;
+pub use crate::filters::posting_amount_less::TxnFilterPostingAmountLess;
+pub use crate::filters::posting_comment::TxnFilterPostingComment;
+pub use crate::filters::posting_commodity::TxnFilterPostingCommodity;
+pub use crate::filters::txn_bbox_lat_lon::TxnFilterBBoxLatLon;
+pub use crate::filters::txn_bbox_lat_lon_alt::TxnFilterBBoxLatLonAlt;
+pub use crate::filters::txn_code::TxnFilterTxnCode;
+pub use crate::filters::txn_comments::TxnFilterTxnComments;
+pub use crate::filters::txn_description::TxnFilterTxnDescription;
+pub use crate::filters::txn_tags::TxnFilterTxnTags;
+pub use crate::filters::txn_ts_begin::TxnFilterTxnTSBegin;
+pub use crate::filters::txn_ts_end::TxnFilterTxnTSEnd;
+pub use crate::filters::txn_uuid::TxnFilterTxnUUID;
 pub use logic_and::TxnFilterAND;
 pub use logic_not::TxnFilterNOT;
 pub use logic_or::TxnFilterOR;
@@ -185,17 +187,4 @@ fn posting_filter_indent_fmt(
     writeln!(f, "{indent}{target}")?;
     writeln!(f, "{my_indent}account: \"{regex}\"")?;
     writeln!(f, "{my_indent}amount {op} {amount}")
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct FilterDefinition {
-    #[serde(rename = "txnFilter")]
-    pub txn_filter: TxnFilter,
-}
-
-impl Display for FilterDefinition {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Filter:")?;
-        self.txn_filter.i_fmt("  ", f)
-    }
 }

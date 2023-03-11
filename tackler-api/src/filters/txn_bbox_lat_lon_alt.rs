@@ -33,8 +33,17 @@ pub struct TxnFilterBBoxLatLonAlt {
 impl IndentDisplay for TxnFilterBBoxLatLonAlt {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
         let my_indent = format!("{indent}  ");
-        writeln!(f, "{indent}Txn Bounding Box 3D\n{my_indent}North, East, Height: geo:{},{},{}\n{my_indent}South, West, Depth:  geo:{},{},{}",
-                 self.north, self.east, self.height, self.south, self.west, self.depth)
+        writeln!(f, "{indent}Txn Bounding Box 3D")?;
+        writeln!(
+            f,
+            "{my_indent}North, East, Height: geo:{},{},{}",
+            self.north, self.east, self.height
+        )?;
+        writeln!(
+            f,
+            "{my_indent}South, West, Depth:  geo:{},{},{}",
+            self.south, self.west, self.depth
+        )
     }
 }
 

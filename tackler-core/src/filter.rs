@@ -24,6 +24,21 @@ mod logic_not;
 mod logic_or;
 mod nullary_false;
 mod nullary_true;
+mod posting_account;
+mod posting_amount_equal;
+mod posting_amount_greater;
+mod posting_amount_less;
+mod posting_comment;
+mod posting_commodity;
+mod txn_bbox_lat_lon;
+mod txn_bbox_lat_lon_alt;
+mod txn_code;
+mod txn_comments;
+mod txn_description;
+mod txn_tags;
+mod txn_ts_begin;
+mod txn_ts_end;
+mod txn_uuid;
 
 /// Actual filtering implementation for [`TxnFilter`]
 ///
@@ -35,7 +50,7 @@ pub trait FilterTxn {
 impl FilterTxn for TxnFilter {
     fn filter(&self, txn: &Transaction) -> bool {
         match self {
-            // special filters
+            // special nullary filters
             TxnFilter::NullaryTRUE(tf) => tf.filter(txn),
             TxnFilter::NullaryFALSE(tf) => tf.filter(txn),
 
@@ -44,36 +59,217 @@ impl FilterTxn for TxnFilter {
             TxnFilter::TxnFilterOR(tf) => tf.filter(txn),
             TxnFilter::TxnFilterNOT(tf) => tf.filter(txn),
 
-            // txn header
-            TxnFilter::TxnFilterTxnTSBegin(tf) => unimplemented!(),
-            TxnFilter::TxnFilterTxnTSEnd(tf) => unimplemented!(),
-            TxnFilter::TxnFilterTxnCode(tf) => unimplemented!(),
-            TxnFilter::TxnFilterTxnDescription(tf) => unimplemented!(),
-            TxnFilter::TxnFilterTxnUUID(tf) => unimplemented!(),
-            TxnFilter::TxnFilterBBoxLatLon(tf) => unimplemented!(),
-            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => unimplemented!(),
-            TxnFilter::TxnFilterTxnTags(tf) => unimplemented!(),
-            TxnFilter::TxnFilterTxnComments(tf) => unimplemented!(),
+            // txn header filters
+            TxnFilter::TxnFilterTxnTSBegin(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnTSEnd(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnCode(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnDescription(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnUUID(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterBBoxLatLon(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnTags(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnComments(tf) => tf.filter(txn),
 
             // txn posting filters
-            TxnFilter::TxnFilterPostingAccount(tf) => unimplemented!(),
-            TxnFilter::TxnFilterPostingComment(tf) => unimplemented!(),
-            TxnFilter::TxnFilterPostingAmountEqual(tf) => unimplemented!(),
-            TxnFilter::TxnFilterPostingAmountLess(tf) => unimplemented!(),
-            TxnFilter::TxnFilterPostingAmountGreater(tf) => unimplemented!(),
-            TxnFilter::TxnFilterPostingCommodity(tf) => unimplemented!(),
+            TxnFilter::TxnFilterPostingAccount(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterPostingComment(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterPostingAmountEqual(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterPostingAmountLess(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterPostingAmountGreater(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterPostingCommodity(tf) => tf.filter(txn),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::model::{AccountTreeNode, Commodity, Posting};
+    use chrono::{DateTime, FixedOffset};
+    use rust_decimal::Decimal;
     use tackler_api::filters::{
-        NullaryFALSE, NullaryTRUE, TxnFilter, TxnFilterAND,
-        TxnFilterNOT, TxnFilterOR,
+        NullaryFALSE, NullaryTRUE, TxnFilter, TxnFilterAND, TxnFilterNOT, TxnFilterOR,
     };
+    use tackler_api::{GeoPoint, TxnHeader};
+    use uuid::Uuid;
 
     use super::*;
+
+    pub(crate) fn make_ts_txn(ts: DateTime<FixedOffset>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: ts,
+                code: None,
+                description: None,
+                uuid: None,
+                location: None,
+                tags: None,
+                comments: None,
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_default_txn(_str: Option<&str>) -> Transaction {
+        Transaction::default()
+    }
+
+    pub(crate) fn make_default_v_txn(_str: Option<Vec<&str>>) -> Transaction {
+        Transaction::default()
+    }
+
+    pub(crate) fn make_code_txn(code: Option<&str>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: DateTime::default(),
+                code: code.map(str::to_string),
+                description: None,
+                uuid: None,
+                location: None,
+                tags: None,
+                comments: None,
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_desc_txn(desc: Option<&str>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: DateTime::default(),
+                code: None,
+                description: desc.map(str::to_string),
+                uuid: None,
+                location: None,
+                tags: None,
+                comments: None,
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_uuid_txn(uuid: Option<&str>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: DateTime::default(),
+                code: None,
+                description: None,
+                uuid: uuid.map(|uuid_str| Uuid::parse_str(uuid_str).unwrap()),
+                location: None,
+                tags: None,
+                comments: None,
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_geo_txn(lat: f64, lon: f64, alt: Option<f64>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: DateTime::default(),
+                code: None,
+                description: None,
+                uuid: None,
+                location: GeoPoint::from(lat, lon, alt).ok(),
+                tags: None,
+                comments: None,
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_tags_txn(tags: Option<Vec<&str>>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: DateTime::default(),
+                code: None,
+                description: None,
+                uuid: None,
+                location: None,
+                tags: tags.map(|tags| tags.iter().map(|t| str::to_string(*t)).collect()),
+                comments: None,
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_comments_txn(cmts: Option<Vec<&str>>) -> Transaction {
+        Transaction {
+            header: TxnHeader {
+                timestamp: DateTime::default(),
+                code: None,
+                description: None,
+                uuid: None,
+                location: None,
+                tags: None,
+                comments: cmts
+                    .map(|comments| comments.iter().map(|t| str::to_string(*t)).collect()),
+            },
+            posts: vec![],
+        }
+    }
+
+    pub(crate) fn make_posts_txn(e: &str, e_value: i64, a: &str) -> Transaction {
+        let e_v = Decimal::new(e_value, 0);
+        let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap();
+        let e_p =
+            Posting::from(e_acctn, e_v, e_v, false, None, Some("comment".to_string())).unwrap();
+
+        let a_v = Decimal::new(-1 * e_value, 0);
+        let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap();
+        let a_p =
+            Posting::from(a_acctn, a_v, a_v, false, None, Some("comment".to_string())).unwrap();
+
+        Transaction::from(
+            TxnHeader {
+                timestamp: DateTime::default(),
+                code: None,
+                description: None,
+                uuid: None,
+                location: None,
+                tags: None,
+                comments: None,
+            },
+            vec![e_p, a_p],
+        )
+        .unwrap()
+    }
+
+    pub(crate) fn make_posts_commodity_txn(
+        c: Option<&str>,
+        a: &str,
+        a_value: i64,
+        e: &str,
+    ) -> Transaction {
+        fn make_commodity(c: Option<&str>) -> Option<Commodity> {
+            c.map(|c| Commodity::from(c.to_string()).unwrap())
+        }
+
+        let e_v = Decimal::new(a_value, 0);
+        let e_acctn = AccountTreeNode::from(e.to_string(), make_commodity(c)).unwrap();
+        let e_p = Posting::from(
+            e_acctn,
+            e_v,
+            e_v,
+            false,
+            make_commodity(Some("txn_comm")),
+            None,
+        )
+        .unwrap();
+
+        let a_v = Decimal::new(-1 * a_value, 0);
+        let a_acctn = AccountTreeNode::from(a.to_string(), make_commodity(c)).unwrap();
+        let a_p = Posting::from(
+            a_acctn,
+            a_v,
+            a_v,
+            false,
+            make_commodity(Some("txn_comm")),
+            None,
+        )
+        .unwrap();
+
+        Transaction::from(TxnHeader::default(), vec![e_p, a_p]).unwrap()
+    }
 
     #[test]
     fn complex_and() {

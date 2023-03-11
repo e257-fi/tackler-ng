@@ -39,7 +39,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
 
     let result = if false {
         let paths = tackler_rs::get_paths_by_ext(Path::new(&args[1]), "txn").unwrap();
-        parser::paths_to_txns(paths)
+        parser::paths_to_txns(&paths)
     } else {
         parser::git_to_txns(
             Path::new(&args[1]),

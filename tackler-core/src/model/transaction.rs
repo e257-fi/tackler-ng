@@ -21,19 +21,10 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use tackler_api::{txn_ts, TxnHeader};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Transaction {
     pub(crate) header: TxnHeader,
     pub(crate) posts: Posts,
-}
-
-impl Default for Transaction {
-    fn default() -> Self {
-        Transaction {
-            header: TxnHeader::default(),
-            posts: Posts::default(),
-        }
-    }
 }
 
 impl Transaction {

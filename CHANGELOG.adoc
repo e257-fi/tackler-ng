@@ -1,16 +1,17 @@
-= Tackler-NG releases
+= Tackler-NG Changelog
 
 Currently published crates are:
+....
+tackler      = "0.1.0"
+tackler-rs   = "0.1.0"
+tackler-api  = "0.1.0"
+tackler-core = "0.1.0"
+....
 
- tackler      = "0.1.0"
- tackler-rs   = "0.1.0"
- tackler-api  = "0.1.0"
- tackler-core = "0.1.0"
 
+== Releases
 
-== Tackler release XX.YY.Z
-
-=== Development
+=== Tackler release XX.YY.Z
 
 [cols="1,2",width=50%]
 |===
@@ -22,8 +23,9 @@ Currently published crates are:
 |tackler-rs   | TODO: No changes
 |===
 
-New features and changes in this release:
+==== New features and changes
 
+ * Txn Filters
  * ...
  ** ...
 
@@ -62,4 +64,3 @@ Updated deps and tools:
 This is an initial POC release with ANTLR rust target.
 
 '''
-

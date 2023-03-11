@@ -32,10 +32,9 @@ pub struct Posting {
     pub txn_commodity: Option<Commodity>,
     pub comment: Option<String>,
 
-    // fixme: remvoe duplicate information, this is kind of available via ATN
+    // fixme: remove duplicate information, this is kind of available via ATN
     // See fixme in ATN
     pub atn_key: String,
-    _use_from: (),
 }
 
 impl Posting {
@@ -61,7 +60,6 @@ impl Posting {
             txn_commodity,
             comment,
             atn_key,
-            _use_from: (),
         })
     }
 }
@@ -70,25 +68,6 @@ pub fn txn_sum(posts: &Posts) -> Decimal {
 }
 
 impl Display for Posting {
-    /*
-     val missingSign = if (amount < 0) "" else " "
-     acctn.toString + "  " +
-      missingSign + amount.toString() + acctn.commodity.map(c => " " + c.name).getOrElse("") +
-      txnCommodity.map(txnC => {
-        // todo: fix this
-        if (txnC.name === acctn.commStr) {
-          ""
-        } else {
-          if (isTotalAmount) {
-            " = " + txnAmount.toString() + " " + txnC.name
-          } else {
-            " @ " + (txnAmount / amount).toString() + " " + txnC.name
-          }
-        }
-      }).getOrElse("") +
-      comment.map(c => " ; " + c).getOrElse("")
-    }
-     */
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let sign_space = if self.amount.is_sign_negative() {
             ""
@@ -111,6 +90,7 @@ impl Display for Posting {
                 .as_ref()
                 .map(|txn_c| {
                     #[allow(clippy::collapsible_else_if)]
+                    // todo: old-scala comment: fix this
                     if txn_c.name == self.acctn.commodity_str {
                         String::default()
                     } else {
