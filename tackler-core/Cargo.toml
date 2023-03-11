@@ -36,9 +36,10 @@ chrono = { workspace = true }
 uuid = { workspace = true }
 itertools = { workspace = true }
 indoc = { workspace = true }
+regex = { workspace = true }
 sha2 = "0.10.6"
 digest = "0.10.6"
 
-gix = { version = "0.35.0", default-features = false }
-git-hash = { version = "0.10.2", default-features = false }
+gix = { version = "0.41.0", default-features = false, features = [ "max-performance-safe" ] }
+gix-hash = { version = "0.10.3", default-features = false }
 

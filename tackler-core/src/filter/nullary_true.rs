@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2023 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,28 @@
  *
  */
 
-pub mod filter;
-pub mod kernel;
-pub mod math;
-pub mod model;
-pub mod parser;
+use crate::model::Transaction;
+use tackler_api::filters::NullaryTRUE;
+
+use super::FilterTxn;
+
+impl FilterTxn for NullaryTRUE {
+    fn filter(&self, _txn: &Transaction) -> bool {
+        true
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    pub(crate) trait IndocWithMarker {
-        fn strip_margin(&self) -> String;
-    }
+    use super::*;
+    use tackler_api::filters::TxnFilter;
 
-    impl IndocWithMarker for str {
-        fn strip_margin(&self) -> String {
-            match self.strip_prefix('|') {
-                Some(s) => s.to_string().replace("\n|", "\n"),
-                None => self.replace("\n|", "\n"),
-            }
-        }
+    #[test]
+    fn to_be_or_not_to_be() {
+        let txn = Transaction::default();
+
+        let tf = TxnFilter::NullaryTRUE(NullaryTRUE {});
+
+        assert_eq!(tf.filter(&txn), true);
     }
 }

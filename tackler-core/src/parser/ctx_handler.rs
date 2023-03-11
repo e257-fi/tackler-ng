@@ -156,10 +156,10 @@ fn handle_meta(
             let uri_ctx = &geo_ctx.geo_uri().unwrap();
             Some(GeoPoint::from(
                 // there must be lat, lon at least
-                tackler_real::from_str(&uri_ctx.lat().unwrap().get_text())?,
-                tackler_real::from_str(&uri_ctx.lon().unwrap().get_text())?,
+                (uri_ctx.lat().unwrap().get_text()).parse::<f64>()?,
+                (uri_ctx.lon().unwrap().get_text()).parse::<f64>()?,
                 match uri_ctx.alt() {
-                    Some(alt_ctx) => Some(tackler_real::from_str(&alt_ctx.get_text())?),
+                    Some(alt_ctx) => Some((alt_ctx.get_text()).parse::<f64>()?),
                     None => None,
                 },
             )?)

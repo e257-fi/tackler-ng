@@ -26,18 +26,33 @@ pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>
     fn is_txn_file(entry: &walkdir::DirEntry, extension: &str) -> bool {
         (entry.file_type().is_file() || entry.file_type().is_symlink())
             && match entry.path().extension() {
-            Some(ext) => ext == extension,
-            None => false,
-        }
+                Some(ext) => ext == extension,
+                None => false,
+            }
     }
-    let dir_entries: Result<Vec<DirEntry>, _> = WalkDir::new(base_dir).follow_links(true)
+    let dir_entries: Result<Vec<DirEntry>, _> = WalkDir::new(base_dir)
+        .follow_links(true)
         .into_iter()
         .collect();
 
-    let paths: Vec<PathBuf> = dir_entries?.iter()
+    let paths: Vec<PathBuf> = dir_entries?
+        .iter()
         .filter(|e| is_txn_file(e, extension))
         .map(|x| x.path().to_owned())
         .collect();
 
     Ok(paths)
+}
+
+pub trait IndocWithMarker {
+    fn strip_margin(&self) -> String;
+}
+
+impl IndocWithMarker for str {
+    fn strip_margin(&self) -> String {
+        match self.strip_prefix('|') {
+            Some(s) => s.to_string().replace("\n|", "\n"),
+            None => self.replace("\n|", "\n"),
+        }
+    }
 }

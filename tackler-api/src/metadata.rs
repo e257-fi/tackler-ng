@@ -23,18 +23,14 @@ pub trait Text: std::fmt::Debug {
 #[derive(Debug)]
 pub enum MetadataItem {
     TxnSetChecksum(TxnSetChecksum),
-    GitInputReference(GitInputReference)
+    GitInputReference(GitInputReference),
 }
 
 impl Text for MetadataItem {
     fn text(&self) -> Vec<String> {
         match self {
-            Self::GitInputReference(gif) => {
-                gif.text()
-            },
-            Self::TxnSetChecksum(tscs) => {
-                tscs.text()
-            }
+            Self::GitInputReference(gif) => gif.text(),
+            Self::TxnSetChecksum(tscs) => tscs.text(),
         }
     }
 }
@@ -50,7 +46,8 @@ impl Metadata {
         Metadata { items: Vec::new() }
     }
     pub fn text(&self) -> String {
-        let ts = self.items
+        let ts = self
+            .items
             .iter()
             .flat_map(|item| {
                 let mut vs = item.text();
@@ -103,21 +100,27 @@ pub struct GitInputReference {
 
 impl Text for GitInputReference {
     /*
-        Seq(
-          "Git storage:",
-          "  commit:  " + commit,
-          "  ref:     " + ref.getOrElse("FIXED by commit"),
-          "  dir:     " + dir,
-          "  suffix:  " + suffix,
-          "  message: " + message,
-        )
-     */
+       Seq(
+         "Git storage:",
+         "  commit:  " + commit,
+         "  ref:     " + ref.getOrElse("FIXED by commit"),
+         "  dir:     " + dir,
+         "  suffix:  " + suffix,
+         "  message: " + message,
+       )
+    */
     fn text(&self) -> Vec<String> {
         let pad = 15;
         vec![
             format!("Git Storage"),
             format!("{:>pad$} : {}", "commit", self.commit),
-            format!("{:>pad$} : {}", "reference", self.reference.as_ref().unwrap_or(&"FIXED by commit - no ref!".to_string())),
+            format!(
+                "{:>pad$} : {}",
+                "reference",
+                self.reference
+                    .as_ref()
+                    .unwrap_or(&"FIXED by commit - no ref!".to_string())
+            ),
             format!("{:>pad$} : {}", "directory", self.dir),
             format!("{:>pad$} : {}", "suffix", self.suffix),
             format!("{:>pad$} : {}", "message", self.message.trim()),

@@ -38,10 +38,13 @@ impl Commodity {
 pub struct AccountTreeNode {
     depth: usize,
     root: String,
+    /// parent account (path)
     parent: String,
+    /// account of posting (path)
     pub(crate) account: String,
+    /// account name (leaf)
     name: String,
-    // fixme: sepater actual ATN from commodity part
+    // fixme: separate actual ATN from commodity part
     // so that pure ATN can be shared
     pub(crate) commodity: Option<Commodity>,
     pub(crate) commodity_str: String,

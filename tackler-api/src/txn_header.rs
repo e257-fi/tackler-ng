@@ -21,7 +21,7 @@ use uuid::Uuid;
 
 use crate::{GeoPoint, Tags};
 
-#[derive(Debug, Eq)]
+#[derive(Default, Debug)]
 pub struct TxnHeader {
     pub timestamp: DateTime<FixedOffset>,
     pub code: Option<String>,
@@ -103,6 +103,8 @@ impl PartialEq for TxnHeader {
     }
 }
 
+impl Eq for TxnHeader {}
+
 impl TxnHeader {
     pub fn to_string_with_indent(
         &self,
@@ -122,12 +124,12 @@ impl TxnHeader {
             // metadata
             self.uuid
                 .as_ref()
-                .map_or_else(String::default, |uuid| format!(
-                    "{indent}# uuid: {uuid}\n")),
+                .map_or_else(String::default, |uuid| format!("{indent}# uuid: {uuid}\n")),
             self.location
                 .as_ref()
                 .map_or_else(String::default, |geo| format!(
-                    "{indent}# location: {geo}\n")),
+                    "{indent}# location: {geo}\n"
+                )),
             self.tags
                 .as_ref()
                 .map_or_else(String::default, |tags| format!(
@@ -154,7 +156,6 @@ mod tests {
     use crate::tests::IndocWithMarker;
     use indoc::formatdoc;
     use indoc::indoc;
-    use rust_decimal::Decimal;
 
     use crate::{txn_ts, TxnHeader};
 
@@ -167,12 +168,7 @@ mod tests {
         let uuid_str = "ed6d4110-f3c0-4770-87fc-b99e46572244";
         let uuid = Uuid::parse_str(uuid_str).unwrap();
 
-        let geo = GeoPoint::from(
-            Decimal::from_str_exact("60.167").unwrap(),
-            Decimal::from_str_exact("24.955").unwrap(),
-            Some(Decimal::from_str_exact("5").unwrap()),
-        )
-        .unwrap();
+        let geo = GeoPoint::from(60.167, 24.955, Some(5.0)).unwrap();
 
         let txn_tags = vec![
             "a".to_string(),

@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 use std::str;
 use std::str::FromStr;
 //use std::time::{SystemTime, UNIX_EPOCH};
-use git_hash::ObjectId;
+use gix_hash::ObjectId;
 
 use crate::model::{transaction, TxnData, Txns};
 use crate::parser::tackler_parser;
@@ -45,7 +45,7 @@ pub fn string_to_txns(input: &str) -> Result<TxnData, Box<dyn Error>> {
     TxnData::from(None, txns, None) // todo: fix this
 }
 
-pub fn paths_to_txns(paths: Vec<PathBuf>) -> Result<TxnData, Box<dyn Error>> {
+pub fn paths_to_txns(paths: &[PathBuf]) -> Result<TxnData, Box<dyn Error>> {
     let all_txns: Result<Txns, Box<dyn Error>> = paths
         .iter()
         .map(|p| tackler_parser::txns_file(p))
@@ -134,9 +134,11 @@ pub fn git_to_txns(
                             }
                         }
                     } else {
+                        // It's blob but outside of our file path filter
                         Ok(Vec::default())
                     }
                 }
+                // It's not a blob
                 _ => Ok(Vec::default()),
             }
         })

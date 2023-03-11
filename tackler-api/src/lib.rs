@@ -21,16 +21,17 @@ pub use crate::txn_header::TxnHeader;
 
 pub use crate::geo_point::GeoPoint;
 pub use crate::metadata::Checksum;
+pub use crate::metadata::GitInputReference;
 pub use crate::metadata::Metadata;
 pub use crate::metadata::MetadataItem;
 pub use crate::metadata::TxnSetChecksum;
-pub use crate::metadata::GitInputReference;
 
 mod metadata;
 
 pub type Tags = Vec<String>;
 pub type Tag = String;
 
+pub mod filters;
 mod geo_point;
 mod txn_header;
 pub mod txn_ts;
