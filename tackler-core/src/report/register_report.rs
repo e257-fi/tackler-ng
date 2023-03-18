@@ -15,8 +15,15 @@
  *
  */
 
-pub use settings::Settings;
-pub mod balance;
-pub mod hash;
-pub mod report_item_selector;
-pub mod settings;
+use crate::model::TxnData;
+use crate::report::Report;
+
+pub struct RegisterReport {
+    title: String,
+}
+
+impl Report for RegisterReport {
+    fn write_report(txns: TxnData) {
+        todo!()
+    }
+}

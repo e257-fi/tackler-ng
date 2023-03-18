@@ -21,7 +21,7 @@ use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[non_exhaustive]
 pub struct Posting {
     pub acctn: AccountTreeNode,

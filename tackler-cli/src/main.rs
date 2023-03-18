@@ -20,6 +20,8 @@ use std::path::Path;
 
 use log::error;
 
+use tackler_core::kernel::balance::Balance;
+use tackler_core::kernel::report_item_selector::{BalanceAllSelector, BalanceByAccountSelector};
 use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
@@ -32,12 +34,15 @@ fn run() -> Result<i32, Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("Error: Missing input file");
-        eprintln!("Usage: {} <tackler txns-file in base dir>", &args[0]);
+        eprintln!("Error: Missing input");
+        eprintln!(
+            "Usage: {} <input (git or file or directory (see main.rs)>",
+            &args[0]
+        );
         std::process::exit(1);
     }
 
-    let result = if false {
+    let result = if true {
         let paths = tackler_rs::get_paths_by_ext(Path::new(&args[1]), "txn").unwrap();
         parser::paths_to_txns(&paths)
     } else {
@@ -52,16 +57,23 @@ fn run() -> Result<i32, Box<dyn Error>> {
 
     println!("tackler: {}", env!("VERSION"));
 
+    let baf = BalanceByAccountSelector::from(&["^a:.*"])?;
+    //let baf = AllBalanceAccounts::default();
+
     match result {
         Ok(txn_data) => {
             println!("ok!");
+
+            let bal_report = Balance::from("foo", &txn_data, &baf);
+            println!("{:#?}", bal_report);
+
             if let Some(metadata) = txn_data.metadata {
                 println!("{:#?}", &metadata);
                 println!("MetaData:");
                 println!("{}", metadata.text());
             }
             println!("TxnsData:");
-            for txn in txn_data.txns {
+            for txn in &txn_data.txns {
                 println!("{txn}");
             }
             Ok(0)

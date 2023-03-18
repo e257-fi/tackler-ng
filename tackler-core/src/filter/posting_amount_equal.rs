@@ -32,12 +32,11 @@ impl FilterTxn for TxnFilterPostingAmountEqual {
 mod tests {
     use super::*;
     use crate::filter::tests::make_default_txn;
-    use crate::filter::tests::make_posts_commodity_txn;
     use crate::filter::tests::make_posts_txn;
     use crate::model::Transaction;
     use regex::Regex;
     use rust_decimal::Decimal;
-    use tackler_api::filters::{TxnFilter, TxnFilterPostingAccount, TxnFilterPostingAmountEqual};
+    use tackler_api::filters::{TxnFilter, TxnFilterPostingAmountEqual};
 
     #[test]
     // test: de72fb67-14a7-4032-b2c2-b1049ecd0c35

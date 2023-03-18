@@ -20,7 +20,7 @@ pub trait Text: std::fmt::Debug {
     fn text(&self) -> Vec<String>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MetadataItem {
     TxnSetChecksum(TxnSetChecksum),
     GitInputReference(GitInputReference),
@@ -35,7 +35,7 @@ impl Text for MetadataItem {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Metadata {
     // todo: fid pub access
     pub items: Vec<MetadataItem>,
@@ -61,7 +61,7 @@ impl Metadata {
 }
 
 /// Generic checksum value
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Checksum {
     /// used hash algorithm
     pub algorithm: String,
@@ -70,7 +70,7 @@ pub struct Checksum {
 }
 
 /// Txn Set Checksum metadata item
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TxnSetChecksum {
     /// size of transaction set
     pub size: usize,
@@ -89,7 +89,7 @@ impl Text for TxnSetChecksum {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GitInputReference {
     pub commit: String,
     pub reference: Option<String>,

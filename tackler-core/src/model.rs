@@ -15,13 +15,15 @@
  *
  */
 
-pub use account_tree_node::AccountTreeNode;
-pub use account_tree_node::Commodity;
+pub(crate) use account_tree_node::AccountTreeNode;
+pub(crate) use account_tree_node::Commodity;
+pub(crate) use balance_tree_node::BalanceTreeNode;
 pub use posting::Posting;
 pub use transaction::Transaction;
 pub use txn_data::TxnData;
 
-pub mod account_tree_node;
+pub(crate) mod account_tree_node;
+pub(crate) mod balance_tree_node;
 pub mod posting;
 pub mod transaction;
 pub mod txn_data;

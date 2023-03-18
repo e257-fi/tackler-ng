@@ -15,8 +15,11 @@
  *
  */
 
-pub use settings::Settings;
-pub mod balance;
-pub mod hash;
-pub mod report_item_selector;
-pub mod settings;
+use crate::model::TxnData;
+
+mod balance_reporter;
+mod register_report;
+
+pub trait Report {
+    fn write_report(txns: TxnData);
+}
