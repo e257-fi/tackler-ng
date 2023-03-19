@@ -29,5 +29,5 @@ path = "src/lib.rs"
 
 [dependencies]
 log = { workspace = true }
-walkdir = "2.3.2"
+walkdir = "2.3.3"
 

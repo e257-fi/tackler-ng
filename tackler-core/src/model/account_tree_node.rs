@@ -16,10 +16,12 @@
  */
 
 use crate::parser;
+use std::cmp::Ordering;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::hash::{Hash, Hasher};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialOrd, PartialEq, Eq)]
 pub struct Commodity {
     pub name: String,
 }
@@ -34,12 +36,12 @@ impl Commodity {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Eq)]
 pub struct AccountTreeNode {
-    depth: usize,
+    pub(crate) depth: usize,
     root: String,
     /// parent account (path)
-    parent: String,
+    pub(crate) parent: String,
     /// account of posting (path)
     pub(crate) account: String,
     /// account name (leaf)
@@ -53,6 +55,31 @@ pub struct AccountTreeNode {
 impl Display for AccountTreeNode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.account)
+    }
+}
+
+impl Hash for AccountTreeNode {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.account.hash(state);
+        self.commodity.hash(state);
+    }
+}
+impl Ord for AccountTreeNode {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // todo: ATN: more sensible ordering without getFull
+        self.get_full().cmp(&other.get_full())
+    }
+}
+
+impl PartialOrd for AccountTreeNode {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.get_full().cmp(&other.get_full()))
+    }
+}
+
+impl PartialEq for AccountTreeNode {
+    fn eq(&self, other: &Self) -> bool {
+        self.get_full() == other.get_full()
     }
 }
 
@@ -116,11 +143,12 @@ impl AccountTreeNode {
     // todo: fn group_by (accTN)
     // accTN.getFull
 
-    fn is_parent_of(&self, atn: &AccountTreeNode) -> bool {
+    pub(crate) fn is_parent_of(&self, atn: &AccountTreeNode) -> bool {
         self.account == atn.parent && self.commodity_str == atn.commodity_str
     }
 
     // todo: make this static data
+    // todo-perf: this is on hot path (for all Txns)
     pub fn get_full(&self) -> String {
         match &self.commodity {
             Some(c) => String::from(&c.name) + "@" + &self.account,

@@ -14,12 +14,14 @@
  * limitations under the License.
  *
  */
+#![feature(hash_raw_entry)]
 
 pub mod filter;
 pub mod kernel;
 pub mod math;
 pub mod model;
 pub mod parser;
+pub mod report;
 
 #[cfg(test)]
 mod tests {

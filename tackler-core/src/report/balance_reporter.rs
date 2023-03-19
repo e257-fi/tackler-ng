@@ -15,9 +15,16 @@
  *
  */
 
-pub use settings::Settings;
-pub(crate) mod accumulator;
-pub mod balance;
-pub mod hash;
-pub mod report_item_selector;
-pub mod settings;
+use crate::model::TxnData;
+use crate::report::Report;
+
+pub struct BalanceReport {
+    title: String,
+}
+
+impl Report for BalanceReport {
+    fn write_txt_report(txns: &TxnData) {
+        //let bal = get_balance(txns);
+        todo!()
+    }
+}

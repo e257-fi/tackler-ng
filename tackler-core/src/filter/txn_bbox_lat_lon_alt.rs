@@ -60,12 +60,9 @@ impl FilterTxn for TxnFilterBBoxLatLonAlt {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filter::tests::make_default_v_txn;
-    use crate::filter::tests::{make_comments_txn, make_geo_txn};
+    use crate::filter::tests::make_geo_txn;
     use crate::model::Transaction;
-    use regex::Regex;
-    use rust_decimal::Decimal;
-    use tackler_api::filters::{TxnFilter, TxnFilterBBoxLatLon};
+    use tackler_api::filters::TxnFilter;
 
     #[test]
     // test: 607d4e0e-e05b-43cf-87b6-d3cad309be73

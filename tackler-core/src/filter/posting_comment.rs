@@ -33,10 +33,9 @@ mod tests {
     use super::*;
     use crate::filter::tests::make_default_txn;
     use crate::model::{AccountTreeNode, Posting, Transaction};
-    use chrono::DateTime;
     use regex::Regex;
     use rust_decimal::Decimal;
-    use tackler_api::filters::{TxnFilter, TxnFilterPostingAccount};
+    use tackler_api::filters::TxnFilter;
     use tackler_api::TxnHeader;
 
     pub(crate) fn make_posts_comment_txn(
