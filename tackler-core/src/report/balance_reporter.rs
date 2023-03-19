@@ -23,7 +23,7 @@ pub struct BalanceReport {
 }
 
 impl Report for BalanceReport {
-    fn write_report(txns: TxnData) {
+    fn write_txt_report(txns: &TxnData) {
         //let bal = get_balance(txns);
         todo!()
     }

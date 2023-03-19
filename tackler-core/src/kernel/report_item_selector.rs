@@ -15,7 +15,7 @@
  *
  */
 
-use crate::model::BalanceTreeNode;
+use crate::model::{BalanceTreeNode, RegisterEntry, RegisterPosting};
 use regex::RegexSet;
 use std::error::Error;
 use tackler_api::Checksum;
@@ -35,6 +35,7 @@ pub trait ReportItemSelector {
 
 pub trait BalanceItemSelector: Filtering<BalanceTreeNode> {}
 
+#[derive(Default)]
 pub struct BalanceAllSelector {}
 
 impl BalanceItemSelector for BalanceAllSelector {}
@@ -48,12 +49,6 @@ impl ReportItemSelector for BalanceAllSelector {
 impl Filtering<BalanceTreeNode> for BalanceAllSelector {
     fn predicate(&self, _: &BalanceTreeNode) -> bool {
         true
-    }
-}
-
-impl Default for BalanceAllSelector {
-    fn default() -> Self {
-        BalanceAllSelector {}
     }
 }
 
@@ -79,6 +74,35 @@ impl Filtering<BalanceTreeNode> for BalanceByAccountSelector {
 }
 
 impl ReportItemSelector for BalanceByAccountSelector {
+    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
+        todo!()
+    }
+}
+
+pub trait RegisterItemSelector<'a>: Filtering<RegisterPosting<'a>> {}
+
+pub struct RegisterByAccountSelector {
+    regexs: RegexSet,
+}
+
+impl RegisterByAccountSelector {
+    pub fn from(patterns: &[&str]) -> Result<RegisterByAccountSelector, Box<dyn Error>> {
+        let ras = RegisterByAccountSelector {
+            regexs: RegexSet::new(patterns)?,
+        };
+        Ok(ras)
+    }
+}
+
+impl<'a> RegisterItemSelector<'a> for RegisterByAccountSelector {}
+
+impl<'a> Filtering<RegisterPosting<'a>> for RegisterByAccountSelector {
+    fn predicate(&self, rep: &RegisterPosting) -> bool {
+        self.regexs.is_match(&rep.post.acctn.account)
+    }
+}
+
+impl ReportItemSelector for RegisterByAccountSelector {
     fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
         todo!()
     }

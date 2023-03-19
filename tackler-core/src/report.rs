@@ -17,9 +17,11 @@
 
 use crate::model::TxnData;
 
+pub use register_reporter::RegisterReporter;
+
 mod balance_reporter;
-mod register_report;
+mod register_reporter;
 
 pub trait Report {
-    fn write_report(txns: TxnData);
+    fn write_txt_report(txns: &TxnData);
 }

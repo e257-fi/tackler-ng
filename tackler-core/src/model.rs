@@ -19,12 +19,15 @@ pub(crate) use account_tree_node::AccountTreeNode;
 pub(crate) use account_tree_node::Commodity;
 pub(crate) use balance_tree_node::BalanceTreeNode;
 pub use posting::Posting;
+pub(crate) use register::RegisterEntry;
+pub(crate) use register::RegisterPosting;
 pub use transaction::Transaction;
 pub use txn_data::TxnData;
 
 pub(crate) mod account_tree_node;
 pub(crate) mod balance_tree_node;
 pub mod posting;
+mod register;
 pub mod transaction;
 pub mod txn_data;
 

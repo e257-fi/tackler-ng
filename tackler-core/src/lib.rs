@@ -21,7 +21,7 @@ pub mod kernel;
 pub mod math;
 pub mod model;
 pub mod parser;
-mod report;
+pub mod report;
 
 #[cfg(test)]
 mod tests {

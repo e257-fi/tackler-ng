@@ -16,6 +16,7 @@
  */
 
 pub use settings::Settings;
+pub(crate) mod accumulator;
 pub mod balance;
 pub mod hash;
 pub mod report_item_selector;

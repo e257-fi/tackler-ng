@@ -21,10 +21,13 @@ use std::path::Path;
 use log::error;
 
 use tackler_core::kernel::balance::Balance;
-use tackler_core::kernel::report_item_selector::{BalanceAllSelector, BalanceByAccountSelector};
+use tackler_core::kernel::report_item_selector::{
+    BalanceAllSelector, BalanceByAccountSelector, RegisterByAccountSelector,
+};
 use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
+use tackler_core::report::{RegisterReporter, Report};
 
 const CFG_FILE: &str = "tackler.conf";
 
@@ -63,11 +66,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
     match result {
         Ok(txn_data) => {
             println!("ok!");
-
-            let bal_report = Balance::from("foo", &txn_data, &baf);
-            println!("{:#?}", bal_report);
-
-            if let Some(metadata) = txn_data.metadata {
+            if let Some(metadata) = &txn_data.metadata {
                 println!("{:#?}", &metadata);
                 println!("MetaData:");
                 println!("{}", metadata.text());
@@ -76,6 +75,13 @@ fn run() -> Result<i32, Box<dyn Error>> {
             for txn in &txn_data.txns {
                 println!("{txn}");
             }
+
+            let bal_report = Balance::from("foo", &txn_data, &baf);
+            println!("{:#?}", bal_report);
+
+            println!("REGISTER");
+            RegisterReporter::write_txt_report(&txn_data);
+
             Ok(0)
         }
         Err(err) => {
