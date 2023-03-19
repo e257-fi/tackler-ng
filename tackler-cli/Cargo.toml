@@ -28,5 +28,4 @@ tackler-rs =  { path = "../tackler-rs",  version = "0.2.0" }
 tackler-api =  { path = "../tackler-api",  version = "0.2.0" }
 tackler-core = { path = "../tackler-core", version = "0.2.0" }
 log = { workspace = true }
-log4rs = { version = "1.2", default-features = false, features = [ "config_parsing", "yaml_format", "console_appender", "threshold_filter", "file_appender", "rolling_file_appender", "compound_policy", "delete_roller", "fixed_window_roller", "size_trigger", ] }
 
