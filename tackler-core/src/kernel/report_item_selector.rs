@@ -15,7 +15,7 @@
  *
  */
 
-use crate::model::{BalanceTreeNode, RegisterEntry, RegisterPosting};
+use crate::model::{BalanceTreeNode, RegisterPosting};
 use regex::RegexSet;
 use std::error::Error;
 use tackler_api::Checksum;
@@ -34,10 +34,12 @@ pub trait ReportItemSelector {
 }
 
 pub trait BalanceItemSelector: Filtering<BalanceTreeNode> {}
+pub trait BalanceSelector: BalanceItemSelector + ReportItemSelector {}
 
 #[derive(Default)]
 pub struct BalanceAllSelector {}
 
+impl BalanceSelector for BalanceAllSelector {}
 impl BalanceItemSelector for BalanceAllSelector {}
 
 impl ReportItemSelector for BalanceAllSelector {
@@ -66,6 +68,7 @@ impl BalanceByAccountSelector {
 }
 
 impl BalanceItemSelector for BalanceByAccountSelector {}
+impl BalanceSelector for BalanceByAccountSelector {}
 
 impl Filtering<BalanceTreeNode> for BalanceByAccountSelector {
     fn predicate(&self, btn: &BalanceTreeNode) -> bool {
@@ -80,6 +83,7 @@ impl ReportItemSelector for BalanceByAccountSelector {
 }
 
 pub trait RegisterItemSelector<'a>: Filtering<RegisterPosting<'a>> {}
+pub trait RegisterSelector<'a>: RegisterItemSelector<'a> + ReportItemSelector {}
 
 pub struct RegisterByAccountSelector {
     regexs: RegexSet,
@@ -94,6 +98,7 @@ impl RegisterByAccountSelector {
     }
 }
 
+impl<'a> RegisterSelector<'a> for RegisterByAccountSelector {}
 impl<'a> RegisterItemSelector<'a> for RegisterByAccountSelector {}
 
 impl<'a> Filtering<RegisterPosting<'a>> for RegisterByAccountSelector {
@@ -103,6 +108,24 @@ impl<'a> Filtering<RegisterPosting<'a>> for RegisterByAccountSelector {
 }
 
 impl ReportItemSelector for RegisterByAccountSelector {
+    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
+        todo!()
+    }
+}
+
+#[derive(Default)]
+pub struct RegisterAllSelector {}
+
+impl<'a> Filtering<RegisterPosting<'a>> for RegisterAllSelector {
+    fn predicate(&self, _: &RegisterPosting) -> bool {
+        true
+    }
+}
+
+impl<'a> RegisterItemSelector<'a> for RegisterAllSelector {}
+impl<'a> RegisterSelector<'a> for RegisterAllSelector {}
+
+impl ReportItemSelector for RegisterAllSelector {
     fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
         todo!()
     }

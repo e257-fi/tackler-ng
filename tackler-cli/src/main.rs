@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2022-2023 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,74 +14,138 @@
  * limitations under the License.
  *
  */
-use std::env;
+mod cli_args;
+
 use std::error::Error;
-use std::path::Path;
+use std::io;
+use std::io::Write;
+use std::path::PathBuf;
 
 use log::error;
 
-use tackler_core::kernel::balance::Balance;
-use tackler_core::kernel::report_item_selector::{
-    BalanceAllSelector, BalanceByAccountSelector, RegisterByAccountSelector,
-};
 use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
-use tackler_core::report::{RegisterReporter, Report};
+use tackler_core::report::{
+    BalanceReporter, BalanceSettings, RegisterReporter, RegisterSettings, Report,
+};
 
-const CFG_FILE: &str = "tackler.conf";
+use clap::Parser;
+use tackler_api::filters::FilterDefinition;
+use tackler_core::kernel::hash::Hash;
+use tackler_core::kernel::settings::Audit;
 
 fn run() -> Result<i32, Box<dyn Error>> {
-    let _cfg: Settings = Settings::from(CFG_FILE)?;
+    let cli = cli_args::Cli::parse();
 
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 {
-        eprintln!("Error: Missing input");
-        eprintln!(
-            "Usage: {} <input (git or file or directory (see main.rs)>",
-            &args[0]
-        );
-        std::process::exit(1);
-    }
-
-    let result = if true {
-        let paths = tackler_rs::get_paths_by_ext(Path::new(&args[1]), "txn").unwrap();
-        parser::paths_to_txns(&paths)
+    let hash = if let Some(audit) = cli.audit_mode {
+        if audit {
+            Some(Hash::default())
+        } else {
+            None
+        }
     } else {
-        parser::git_to_txns(
-            Path::new(&args[1]),
-            "txns-1E1",
-            "txn",
-            GitInputSelector::Reference("main".to_string()),
-        )
-        //GitInputSelector::CommitId("359400fa06c3e516a7133eea0d74f9a84310032a".to_string()))
+        None
     };
 
-    println!("tackler: {}", env!("VERSION"));
+    let cfg = Settings {
+        basedir: PathBuf::new().into_boxed_path(),
+        accounts: vec![],
+        audit: Audit { hash },
+    };
 
-    let baf = BalanceByAccountSelector::from(&["^a:.*"])?;
-    //let baf = AllBalanceAccounts::default();
+    let result = if cli.input_filename.is_some()
+        || (cli.input_fs_dir.is_some() && cli.input_fs_ext.is_some())
+    {
+        if let Some(filename) = cli.input_filename {
+            parser::paths_to_txns(&[filename], &cfg)
+        } else {
+            let paths = tackler_rs::get_paths_by_ext(
+                cli.input_fs_dir.unwrap().as_path(),
+                &cli.input_fs_ext.unwrap(),
+            )
+            .unwrap();
+            parser::paths_to_txns(&paths, &cfg)
+        }
+    } else if cli.input_git_repo.is_some()
+        && cli.input_git_dir.is_some()
+        && cli.input_git_ref.is_some()
+    {
+        parser::git_to_txns(
+            cli.input_git_repo.unwrap().as_path(),
+            cli.input_git_dir.as_deref().unwrap(),
+            "txn",
+            GitInputSelector::Reference(cli.input_git_ref.unwrap()),
+            &cfg,
+        )
+        //GitInputSelector::CommitId("359400fa06c3e516a7133eea0d74f9a84310032a".to_string()))
+    } else {
+        return Err("No input".into());
+    };
+
+    let txn_filt = match cli.api_filter_def {
+        Some(filt_str) => {
+            if FilterDefinition::is_armored(&filt_str) {
+                Some(FilterDefinition::from_armor(&filt_str)?)
+            } else {
+                Some(FilterDefinition::from(&filt_str)?)
+            }
+        }
+        None => None,
+    };
 
     match result {
-        Ok(txn_data) => {
-            println!("ok!");
+        Ok(txn_data_all) => {
+            let txn_data = match txn_filt {
+                Some(tf) => {
+                    //todo: txn_data_all.filter(tf)
+                    txn_data_all
+                }
+                None => txn_data_all,
+            };
+
             if let Some(metadata) = &txn_data.metadata {
-                println!("{:#?}", &metadata);
-                println!("MetaData:");
                 println!("{}", metadata.text());
             }
-            println!("TxnsData:");
-            for txn in &txn_data.txns {
-                println!("{txn}");
+
+            if let Some(reports) = cli.reports {
+                let mut w: Box<dyn Write> = Box::new(io::stdout());
+
+                for r in reports {
+                    match r.as_str() {
+                        // todo: fix this
+                        "balance" => {
+                            let bal_reporter = BalanceReporter {
+                                report_settings: BalanceSettings {
+                                    title: Some("BALANCE".to_string()),
+                                    ras: cli.accounts.clone(),
+                                },
+                            };
+                            bal_reporter.write_txt_report(&mut w, &txn_data);
+                        }
+                        "register" => {
+                            let reg_reporter = RegisterReporter {
+                                report_settings: RegisterSettings {
+                                    title: Some("REGISTER".to_string()),
+                                    ras: cli.accounts.clone(),
+                                },
+                            };
+                            reg_reporter.write_txt_report(&mut w, &txn_data);
+                        }
+                        "identity" => {
+                            println!("TxnsData:");
+                            for txn in &txn_data.txns {
+                                println!("{txn}");
+                            }
+                        }
+                        _ => {
+                            return Err("Logic error with reports cli args".into());
+                        }
+                    }
+                }
+            } else {
+                println!("No reports selected.");
             }
-
-            let bal_report = Balance::from("foo", &txn_data, &baf);
-            println!("{:#?}", bal_report);
-
-            println!("REGISTER");
-            RegisterReporter::write_txt_report(&txn_data);
-
             Ok(0)
         }
         Err(err) => {

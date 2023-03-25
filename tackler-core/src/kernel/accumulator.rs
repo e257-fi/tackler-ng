@@ -15,7 +15,7 @@
  *
  */
 
-use crate::kernel::report_item_selector::{RegisterItemSelector, ReportItemSelector};
+use crate::kernel::report_item_selector::RegisterSelector;
 use crate::model::{RegisterEntry, RegisterPosting, Txns};
 use rust_decimal::Decimal;
 use std::collections::HashMap;
@@ -23,12 +23,12 @@ use std::io::Write;
 
 pub(crate) fn register_engine<'a, W, T>(
     txns: &'a Txns,
-    ras: &T,
-    w: &mut Box<W>,
-    reporter: fn(f: &mut Box<W>, &RegisterEntry),
+    ras: Box<T>,
+    w: &mut W,
+    reporter: fn(f: &mut W, &RegisterEntry),
 ) where
     W: Write + ?Sized,
-    T: RegisterItemSelector<'a> + ReportItemSelector,
+    T: RegisterSelector<'a> + ?Sized,
 {
     let mut register_engine: HashMap<String, Decimal> = HashMap::new();
     txns.iter().for_each(|txn| {
@@ -55,7 +55,7 @@ pub(crate) fn register_engine<'a, W, T>(
         let mut filt_postings: Vec<_> = register_postings
             .iter()
             .cloned()
-            .filter(|p| ras.predicate(&p))
+            .filter(|p| ras.predicate(p))
             .collect();
 
         filt_postings.sort();

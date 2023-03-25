@@ -74,10 +74,7 @@ fn handle_date(date_ctx: Rc<DateContextAll>) -> Result<DateTime<FixedOffset>, Bo
                         Some(d_ctx) => match d_ctx.get_text().parse::<NaiveDate>() {
                             Ok(date) => {
                                 // todo: fix time by cfg
-                                let naive_ts = NaiveDateTime::new(
-                                    date,
-                                    NaiveTime::parse_from_str("00:00:00", "%H:%M:%S").unwrap(),
-                                );
+                                let naive_ts = NaiveDateTime::new(date, NaiveTime::MIN);
                                 // todo: fix zone by cfg
                                 Ok(DateTime::from_local(
                                     naive_ts,

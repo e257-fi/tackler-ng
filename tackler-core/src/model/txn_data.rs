@@ -18,7 +18,7 @@
 use itertools::Itertools;
 use std::error::Error;
 
-use crate::kernel;
+use crate::kernel::hash::Hash;
 use crate::model::Txns;
 use tackler_api::{Checksum, Metadata, MetadataItem, TxnSetChecksum};
 
@@ -26,21 +26,18 @@ use tackler_api::{Checksum, Metadata, MetadataItem, TxnSetChecksum};
 pub struct TxnData {
     pub metadata: Option<Metadata>,
     pub txns: Txns,
-    pub algorithm: Option<String>,
+    pub hash: Option<Hash>,
 }
 
 impl TxnData {
-    //   def apply(imdi: Option[InputMetadataItem], txns: Txns, settingsOpt: Option[Settings]): TxnData = {
     pub fn from(
         mdi_opt: Option<MetadataItem>,
         txns: Txns,
-        hash_opt: Option<&str>,
+        hash: &Option<Hash>,
     ) -> Result<TxnData, Box<dyn Error>> {
-        // todo: settings
-        let md_stuff = match hash_opt {
-            Some(hash) => {
-                let cs = calc_txn_checksum(&txns, hash)?;
-                let algorithm = String::from(hash);
+        let md_stuff = match hash {
+            Some(hasher) => {
+                let cs = calc_txn_checksum(&txns, hasher)?;
 
                 let mut metadata = Metadata::new();
                 let new_mdi = MetadataItem::TxnSetChecksum(TxnSetChecksum {
@@ -53,28 +50,28 @@ impl TxnData {
                 }
                 metadata.items.push(new_mdi);
 
-                (Some(metadata), Some(algorithm))
+                Some(metadata)
             }
             None => {
                 if let Some(mdi) = mdi_opt {
                     let mut metadata = Metadata::new();
                     metadata.items.push(mdi);
-                    (Some(metadata), None)
+                    Some(metadata)
                 } else {
-                    (None, None)
+                    None
                 }
             }
         };
 
         Ok(TxnData {
-            metadata: md_stuff.0,
+            metadata: md_stuff,
             txns,
-            algorithm: md_stuff.1,
+            hash: hash.clone(),
         })
     }
 }
 
-fn calc_txn_checksum(txns: &Txns, hash: &str) -> Result<Checksum, Box<dyn Error>> {
+fn calc_txn_checksum(txns: &Txns, hasher: &Hash) -> Result<Checksum, Box<dyn Error>> {
     let uuids: Result<Vec<String>, Box<dyn Error>> = txns
         .iter()
         .map(|txn| match txn.header.uuid {
@@ -104,7 +101,7 @@ fn calc_txn_checksum(txns: &Txns, hash: &str) -> Result<Checksum, Box<dyn Error>
         return Err(msg.into());
     }
 
-    let cs = kernel::hash::checksum(hash, &u, "\n".as_bytes())?;
+    let cs = hasher.checksum(&u, "\n".as_bytes())?;
     Ok(cs)
 }
 

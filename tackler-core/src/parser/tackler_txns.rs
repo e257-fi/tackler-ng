@@ -28,6 +28,7 @@ use crate::parser::tackler_parser;
 use gix as git;
 use indoc::formatdoc;
 
+use crate::kernel::Settings;
 use tackler_api::{GitInputReference, MetadataItem};
 
 pub enum GitInputSelector {
@@ -35,17 +36,17 @@ pub enum GitInputSelector {
     Reference(String),
 }
 
-pub fn string_to_txns(input: &str) -> Result<TxnData, Box<dyn Error>> {
+pub fn string_to_txns(input: &str, settings: &Settings) -> Result<TxnData, Box<dyn Error>> {
     let mut txns = tackler_parser::txns_text(input)?;
 
     // feature: a94d4a60-40dc-4ec0-97a3-eeb69399f01b
     // coverage: "sorted" tested by 200aad57-9275-4d16-bdad-2f1c484bcf17
     txns.sort_by(transaction::ord_by_txn);
 
-    TxnData::from(None, txns, None) // todo: fix this
+    TxnData::from(None, txns, &settings.audit.hash)
 }
 
-pub fn paths_to_txns(paths: &[PathBuf]) -> Result<TxnData, Box<dyn Error>> {
+pub fn paths_to_txns(paths: &[PathBuf], settings: &Settings) -> Result<TxnData, Box<dyn Error>> {
     let all_txns: Result<Txns, Box<dyn Error>> = paths
         .iter()
         .map(|p| tackler_parser::txns_file(p))
@@ -55,7 +56,7 @@ pub fn paths_to_txns(paths: &[PathBuf]) -> Result<TxnData, Box<dyn Error>> {
     let mut txns = all_txns?;
     txns.sort_by(transaction::ord_by_txn);
 
-    TxnData::from(None, txns, None) //Some("SHA-256")) // todo: fix this
+    TxnData::from(None, txns, &settings.audit.hash)
 }
 
 pub fn git_to_txns(
@@ -63,6 +64,7 @@ pub fn git_to_txns(
     dir: &str,
     extension: &str,
     input_selector: GitInputSelector,
+    settings: &Settings,
 ) -> Result<TxnData, Box<dyn Error>> {
     // perf: let mut ts_par_total: u128 = 0;
     // perf: let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
@@ -148,7 +150,7 @@ pub fn git_to_txns(
     let txn_data = TxnData::from(
         Some(MetadataItem::GitInputReference(gitmd)),
         txns?,
-        Some("SHA-256"), // todo: settings::auditing
+        &settings.audit.hash,
     );
 
     // perf: let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();

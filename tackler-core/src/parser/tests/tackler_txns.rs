@@ -21,6 +21,7 @@
 // * core/src/test/scala/fi/e257/tackler/parser/TacklerTxnsTest.scala
 //
 use indoc::indoc;
+use crate::kernel::Settings;
 use crate::parser;
 use super::*;
 use crate::tests::IndocWithMarker;
@@ -44,7 +45,7 @@ use crate::tests::IndocWithMarker;
       let mut count = 0;
       let should_be_count = txns_str.len();
       for t in txns_str {
-        let res = parser::string_to_txns(&t.0);
+        let res = parser::string_to_txns(&t.0, &Settings::default());
         assert!(res.is_err(),
                 "Testing Error: Offending test vector item: {}", count);
         assert!(res.err().unwrap().to_string().contains(t.1),
@@ -76,7 +77,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-      let res = parser::string_to_txns(&txns_str);
+      let res = parser::string_to_txns(&txns_str, &Settings::default());
       assert!(res.is_ok());
       let txn_data = &res.unwrap();
       assert_eq!(txn_data.txns.len(), 3);
