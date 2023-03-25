@@ -15,7 +15,7 @@
  *
  */
 
-use crate::kernel::report_item_selector::{BalanceItemSelector, ReportItemSelector};
+use crate::kernel::report_item_selector::BalanceSelector;
 use crate::model::balance_tree_node::ord_by_btn;
 use crate::model::{AccountTreeNode, BalanceTreeNode, Commodity, TxnData, Txns};
 use itertools::Itertools;
@@ -206,11 +206,11 @@ impl Balance {
         bal
     }
 
-    pub fn from<T>(title: &str, txns: &TxnData, accounts: &T) -> Balance
+    pub fn from<T>(title: &str, txn_data: &TxnData, accounts: Box<T>) -> Balance
     where
-        T: BalanceItemSelector + ReportItemSelector,
+        T: BalanceSelector + ?Sized,
     {
-        let bal = Balance::balance(&txns.txns);
+        let bal = Balance::balance(&txn_data.txns);
 
         let filt_bal: Vec<_> = bal
             .iter()
@@ -223,7 +223,7 @@ impl Balance {
                 title: title.to_string(),
                 bal: Default::default(),
                 deltas: Default::default(),
-                metadata: txns.metadata.clone(),
+                metadata: txn_data.metadata.clone(),
             }
         } else {
             let deltas = filt_bal

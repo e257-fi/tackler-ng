@@ -17,6 +17,7 @@
 use std::error::Error;
 use std::path::Path;
 use tackler_api::MetadataItem;
+use tackler_core::kernel::Settings;
 use tackler_core::model::TxnData;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
@@ -86,8 +87,9 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
 #[allow(non_snake_case)]
 fn id_ce2e6523_ee83_46e7_a767_441c5b9f2802__normal_txns_1E1() {
     let result = parser::git_to_txns(Path::new(REPO_PATH), "txns/2016",
-                              "txn",
-                              GitInputSelector::Reference("txns-1E1".to_string()));
+                                     "txn",
+                                     GitInputSelector::Reference("txns-1E1".to_string()),
+                                     &Settings::default_audit());
     verify_git_run(result, TXN_SET_1E1_COMMIT_ID, TXN_SET_1E1_CHECKSUM);
 }
 
@@ -98,7 +100,8 @@ fn id_074f5549_346c_4780_90a1_07d60ae0e79d__normal_txns_1E5() {
     let result = parser::git_to_txns(Path::new(REPO_PATH),
                                      "txns/2016",
                                      "txn",
-                                     GitInputSelector::Reference("txns-1E5".to_string()));
+                                     GitInputSelector::Reference("txns-1E5".to_string()),
+                                     &Settings::default_audit());
 
     verify_git_run(result, TXN_SET_1E5_COMMIT_ID, TXN_SET_1E5_CHECKSUM);
 }
@@ -115,7 +118,8 @@ fn id_a6cfe3b6_feec_4422_afbf_faeca5baf752__error_reporting() {
 
     let result = parser::git_to_txns(Path::new(REPO_PATH), "txns/2016",
                                      "txn",
-                                     GitInputSelector::Reference("errs-1E2".to_string()));
+                                     GitInputSelector::Reference("errs-1E2".to_string()),
+                                     &Settings::default_audit());
 
     assert!(result.is_err());
     // todo: check error message, once there is settings support

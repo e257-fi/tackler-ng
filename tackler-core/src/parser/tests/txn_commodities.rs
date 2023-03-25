@@ -21,6 +21,7 @@
 // * core/src/test/scala/fi/e257/tackler/parser/TacklerParserCommoditiesTest.scala
 //
 use indoc::indoc;
+use crate::kernel::Settings;
 use crate::parser;
 use crate::tests::IndocWithMarker;
 
@@ -68,7 +69,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 8);
       }
@@ -89,7 +90,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 2);
     }
@@ -134,7 +135,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 8);
     }
@@ -155,7 +156,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 2);
     }
@@ -206,7 +207,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 9);
     }
@@ -227,7 +228,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 2);
     }
@@ -276,7 +277,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 9);
     }
@@ -297,7 +298,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap().txns.len(), 2);
     }
@@ -321,7 +322,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap().to_string();
           assert!(msg.contains("Unit cost"));
@@ -340,7 +341,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap().to_string();
           assert!(msg.contains("Unit price"));
@@ -359,7 +360,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap().to_string();
           assert!(msg.contains("Both commodities are same for value position [€]"));
@@ -377,7 +378,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap().to_string();
           assert!(msg.contains("Different commodities without"));
@@ -395,7 +396,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap().to_string();
           assert!(msg.contains("Total cost"));
@@ -414,7 +415,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap().to_string();
           assert!(msg.contains("Total cost"));
@@ -434,7 +435,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           assert!(res.err().unwrap().to_string().contains("Both commodities are same for value position [€]"));
       }
@@ -451,7 +452,7 @@ use crate::tests::IndocWithMarker;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str);
+          let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
           assert!(res.err().unwrap().to_string().contains("Different commodities without"));
       }
@@ -468,7 +469,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }
@@ -485,7 +486,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }
@@ -502,7 +503,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }
@@ -519,7 +520,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }
@@ -536,7 +537,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }
@@ -553,7 +554,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }
@@ -570,7 +571,7 @@ use crate::tests::IndocWithMarker;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str);
+        let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap().to_string().contains("line: 3"));
     }

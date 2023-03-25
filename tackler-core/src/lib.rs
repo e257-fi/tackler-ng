@@ -15,6 +15,7 @@
  *
  */
 #![feature(hash_raw_entry)]
+#![feature(is_some_and)]
 
 pub mod filter;
 pub mod kernel;

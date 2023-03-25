@@ -18,6 +18,7 @@ use std::error::Error;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tackler_api::MetadataItem;
+use tackler_core::kernel::Settings;
 use tackler_core::model::TxnData;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
@@ -76,6 +77,7 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
             "txns/2016",
             "txn",
             GitInputSelector::Reference("txns-1E5".to_string()),
+            &Settings::default_audit(),
         );
         let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
         verify_git_run(result, TXN_SET_1E5_COMMIT_ID, TXN_SET_1E5_CHECKSUM);
@@ -114,6 +116,7 @@ fn id_fae31eb0_bd4a_483e_9eb7_9e4c36e7f785__loop_with_txns_1E1_10000() {
             "txns/2016",
             "txn",
             GitInputSelector::Reference("txns-1E1".to_string()),
+            &Settings::default_audit(),
         );
         verify_git_run(result, TXN_SET_1E1_COMMIT_ID, TXN_SET_1E1_CHECKSUM);
 

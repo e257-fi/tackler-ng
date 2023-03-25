@@ -15,31 +15,39 @@
  *
  */
 
-use std::error::Error;
-use std::ops::Index;
+use crate::kernel::hash::Hash;
 use std::path::{Path, PathBuf};
 
-struct Auditing {}
-
-struct CfgKeys {}
-
-impl CfgKeys {
-    const TIMEZONE: &'static str = "timezone";
-    const BASEDIR: &'static str = "tackler.kernel.basedir";
+#[derive(Debug, Clone, Default)]
+pub struct Audit {
+    pub hash: Option<Hash>,
 }
 
 #[derive(Debug)]
 pub struct Settings {
     pub basedir: Box<Path>,
     pub accounts: Vec<String>,
+    pub audit: Audit,
 }
 
 impl Settings {
-    /// TODO
-    pub fn from(cfg_file: &str) -> Result<Settings, Box<dyn Error>> {
-        Ok(Settings {
-            basedir: PathBuf::from("foo").into_boxed_path(),
-            accounts: vec![],
-        })
+    pub fn default_audit() -> Self {
+        Settings {
+            basedir: PathBuf::default().into_boxed_path(),
+            accounts: Vec::default(),
+            audit: Audit {
+                hash: Some(Hash::from("SHA-256").unwrap()),
+            },
+        }
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Settings {
+            basedir: PathBuf::default().into_boxed_path(),
+            accounts: Vec::default(),
+            audit: Audit { hash: None },
+        }
     }
 }

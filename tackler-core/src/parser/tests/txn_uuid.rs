@@ -21,6 +21,7 @@
 // * core/src/test/scala/fi/e257/tackler/parser/TacklerParserUUIDTest.scala
 //
 use indoc::indoc;
+use crate::kernel::Settings;
 use crate::parser;
 use super::*;
 use crate::tests::IndocWithMarker;
@@ -101,7 +102,7 @@ use crate::tests::IndocWithMarker;
       ];
       let mut count = 0;
       for t in perr_strings {
-        let res = parser::string_to_txns(&t.0);
+        let res = parser::string_to_txns(&t.0, &Settings::default());
         assert!(res.is_err(),
                 "Testing Error: Offending test vector item: {}", count);
         assert!(res.err().unwrap().to_string().contains(t.1),
@@ -171,7 +172,7 @@ use crate::tests::IndocWithMarker;
       ];
       let mut count = 0;
       for t in pok_strings {
-        let res = parser::string_to_txns(&t.0);
+        let res = parser::string_to_txns(&t.0, &Settings::default());
         assert!(res.is_ok(), "Offending test vector item: {}", count);
         let txn: &Transaction = &res.unwrap().txns[0];
         assert_eq!(txn_uuid_to_string(txn), t.1.to_string());

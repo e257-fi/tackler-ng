@@ -31,16 +31,23 @@ pub struct FilterDefinition {
 impl FilterDefinition {
     const FILTER_ARMOR: &'static str = "base64:";
 
+    pub fn from(filt_str: &str) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
+        Ok(serde_json::from_str::<FilterDefinition>(filt_str)?)
+    }
+
     pub fn is_armored(filt: &str) -> bool {
         filt.starts_with(FilterDefinition::FILTER_ARMOR)
     }
-    pub fn from_armor(filt_str: &str) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
-        let filt_armor = if FilterDefinition::is_armored(filt_str) {
-            filt_str.trim_start_matches(FilterDefinition::FILTER_ARMOR)
+
+    pub fn from_armor(
+        filt_armor_str: &str,
+    ) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
+        let filt_armor = if FilterDefinition::is_armored(filt_armor_str) {
+            filt_armor_str.trim_start_matches(FilterDefinition::FILTER_ARMOR)
         } else {
-            let filt_begin = match filt_str.char_indices().nth(10) {
-                None => filt_str,
-                Some((idx, _)) => &filt_str[..idx],
+            let filt_begin = match filt_armor_str.char_indices().nth(10) {
+                None => filt_armor_str,
+                Some((idx, _)) => &filt_armor_str[..idx],
             };
             let msg = format!(
                 "Unknown filter encoding, supported armor is: {}, (first 10 chars are): [{}]",
@@ -51,7 +58,7 @@ impl FilterDefinition {
         };
         let data = &general_purpose::STANDARD.decode(filt_armor)?;
 
-        Ok(serde_json::from_str::<FilterDefinition>(from_utf8(data)?)?)
+        FilterDefinition::from(from_utf8(data)?)
     }
 }
 

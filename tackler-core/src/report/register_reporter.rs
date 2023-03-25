@@ -16,31 +16,57 @@
  */
 
 use crate::kernel::accumulator;
-use crate::kernel::report_item_selector::{RegisterByAccountSelector, RegisterItemSelector};
+use crate::kernel::report_item_selector::{
+    RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
+};
 use crate::model::{RegisterEntry, TxnData};
 use crate::report::Report;
-use std::io;
+use std::error::Error;
 use std::io::Write;
 
-pub struct RegisterReporter {
-    title: String,
+#[derive(Debug, Clone)]
+pub struct RegisterSettings {
+    pub title: Option<String>,
+    pub ras: Option<Vec<String>>,
 }
 
-fn re_fmt<W: Write + ?Sized>(f: &mut Box<W>, re: &RegisterEntry) {
+#[derive(Debug, Clone)]
+pub struct RegisterReporter {
+    pub report_settings: RegisterSettings,
+}
+
+impl RegisterReporter {
+    fn get_acc_selector(&self) -> Result<Box<dyn RegisterSelector>, Box<dyn Error>> {
+        match self.report_settings.ras.as_ref() {
+            Some(v) => {
+                if v.is_empty() {
+                    Ok(Box::new(RegisterAllSelector {}))
+                } else {
+                    let s: Vec<_> = v.iter().map(|s| s.as_str()).collect();
+                    let ras = RegisterByAccountSelector::from(&s)?;
+
+                    Ok(Box::new(ras))
+                }
+            }
+            None => Ok(Box::new(RegisterAllSelector {})),
+        }
+    }
+}
+
+fn re_fmt<W: Write + ?Sized>(f: &mut W, re: &RegisterEntry) {
     if !re.posts.is_empty() {
         write!(f, "{}", re).unwrap();
     }
 }
 
 impl Report for RegisterReporter {
-    fn write_txt_report(txns: &TxnData) {
-        let ras = RegisterByAccountSelector::from(&["^a:b$", "^e:.*"]).unwrap();
+    fn write_txt_report<W: Write + ?Sized>(&self, writer: &mut W, txns: &TxnData) {
+        let ras = self.get_acc_selector().unwrap(/*:todo:*/);
 
-        let mut w: Box<dyn Write> = Box::new(io::stdout());
-        //accumulator::register_engine(&txns.txns, &mut w , re_fmt);
-        accumulator::register_engine(&txns.txns, &ras, &mut w, |f, re| {
+        //accumulator::register_engine(&txns.txns, ras, &mut w , re_fmt);
+        accumulator::register_engine(&txns.txns, ras, writer, |w: &mut W, re| {
             if !re.posts.is_empty() {
-                write!(f, "{}", re).unwrap();
+                write!(w, "{}", re).unwrap(/*:todo:*/);
             }
         });
     }

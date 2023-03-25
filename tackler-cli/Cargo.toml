@@ -28,4 +28,5 @@ tackler-rs =  { path = "../tackler-rs",  version = "0.2.0" }
 tackler-api =  { path = "../tackler-api",  version = "0.2.0" }
 tackler-core = { path = "../tackler-core", version = "0.2.0" }
 log = { workspace = true }
+clap = { version = "4.1.13", features = [ "derive" ] }
 
