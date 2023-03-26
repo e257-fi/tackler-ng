@@ -71,7 +71,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 8);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 8);
       }
 
     #[test]
@@ -92,7 +92,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
     }
 
     #[test]
@@ -137,7 +137,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 8);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 8);
     }
 
     #[test]
@@ -158,7 +158,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
     }
 //
 //  describe("Profit and Loss parsing") {
@@ -209,7 +209,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 9);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 9);
     }
 
     #[test]
@@ -230,7 +230,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
     }
 
     #[test]
@@ -279,7 +279,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 9);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 9);
     }
 
     #[test]
@@ -300,7 +300,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap().txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
     }
 
 
@@ -324,7 +324,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          let msg = res.err().unwrap().to_string();
+          let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Unit cost"));
           assert!(msg.contains("is negative"));
       }
@@ -343,7 +343,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          let msg = res.err().unwrap().to_string();
+          let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Unit price"));
           assert!(msg.contains("is negative"));
       }
@@ -362,7 +362,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          let msg = res.err().unwrap().to_string();
+          let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Both commodities are same for value position [€]"));
       }
 
@@ -380,7 +380,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          let msg = res.err().unwrap().to_string();
+          let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Different commodities without"));
       }
 
@@ -398,7 +398,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          let msg = res.err().unwrap().to_string();
+          let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Total cost"));
           assert!(msg.contains("different sign"));
       }
@@ -417,7 +417,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          let msg = res.err().unwrap().to_string();
+          let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Total cost"));
           assert!(msg.contains("different sign"));
       }
@@ -437,7 +437,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          assert!(res.err().unwrap().to_string().contains("Both commodities are same for value position [€]"));
+          assert!(res.err().unwrap(/*:test:*/).to_string().contains("Both commodities are same for value position [€]"));
       }
 
       #[test]
@@ -454,7 +454,7 @@ use crate::tests::IndocWithMarker;
 
           let res = parser::string_to_txns(&txns_str, &Settings::default());
           assert!(res.is_err());
-          assert!(res.err().unwrap().to_string().contains("Different commodities without"));
+          assert!(res.err().unwrap(/*:test:*/).to_string().contains("Different commodities without"));
       }
 
     #[test]
@@ -471,7 +471,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
 
     #[test]
@@ -488,7 +488,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
 
     #[test]
@@ -505,7 +505,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
 
     #[test]
@@ -522,7 +522,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
 
     #[test]
@@ -539,7 +539,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
 
     #[test]
@@ -556,7 +556,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
 
     #[test]
@@ -573,5 +573,5 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_err());
-        assert!(res.err().unwrap().to_string().contains("line: 3"));
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }

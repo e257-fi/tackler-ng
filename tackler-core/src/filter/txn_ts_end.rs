@@ -44,28 +44,28 @@ mod tests {
     fn filter_by_date() {
         let tf = TxnFilterTxnTSEnd {
             end: FixedOffset::east_opt(0)
-                .unwrap()
+                .unwrap(/*:test:*/)
                 .with_ymd_and_hms(2018, 2, 1, 0, 0, 0)
-                .unwrap(),
+                .unwrap(/*:test:*/),
         };
 
         let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
             (
                 "2018-01-01T00:00:00Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 true,
             ),
             (
                 "2018-02-01T00:00:00Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
             (
                 "2018-03-01T00:00:00Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
         ];
@@ -90,28 +90,28 @@ mod tests {
     fn filter_by_time() {
         let tf = TxnFilterTxnTSEnd {
             end: FixedOffset::east_opt(0)
-                .unwrap()
+                .unwrap(/*:test:*/)
                 .with_ymd_and_hms(2018, 1, 1, 23, 0, 0)
-                .unwrap(),
+                .unwrap(/*:test:*/),
         };
 
         let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
             (
                 "2018-01-01T11:00:00Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 true,
             ),
             (
                 "2018-01-01T23:00:00Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
             (
                 "2018-01-02T00:00:00Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
         ];
@@ -128,30 +128,30 @@ mod tests {
     fn filter_by_nanosecond() {
         let tf = TxnFilterTxnTSEnd {
             end: FixedOffset::east_opt(0)
-                .unwrap()
+                .unwrap(/*:test:*/)
                 .with_ymd_and_hms(2018, 1, 1, 14, 0, 0)
-                .unwrap()
+                .unwrap(/*:test:*/)
                 .with_nanosecond(123456788)
-                .unwrap(),
+                .unwrap(/*:test:*/),
         };
 
         let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
             (
                 "2018-01-01T14:00:00.123456787Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 true,
             ),
             (
                 "2018-01-01T14:00:00.123456788Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
             (
                 "2018-01-01T14:00:00.123456789Z"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
         ];
@@ -168,28 +168,28 @@ mod tests {
     fn filter_by_timezone() {
         let tf = TxnFilterTxnTSEnd {
             end: FixedOffset::east_opt(0)
-                .unwrap()
+                .unwrap(/*:test:*/)
                 .with_ymd_and_hms(2018, 1, 4, 0, 0, 0)
-                .unwrap(),
+                .unwrap(/*:test:*/),
         };
 
         let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
             (
                 "2018-01-04T09:00:00+10:00"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 true,
             ),
             (
                 "2018-01-03T18:00:00-06:00"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
             (
                 "2018-01-04T00:00:00+00:00"
                     .parse::<DateTime<FixedOffset>>()
-                    .unwrap(),
+                    .unwrap(/*:test:*/),
                 false,
             ),
         ];

@@ -48,7 +48,7 @@ use crate::tests::IndocWithMarker;
         let res = parser::string_to_txns(&t.0, &Settings::default());
         assert!(res.is_err(),
                 "Testing Error: Offending test vector item: {}", count);
-        assert!(res.err().unwrap().to_string().contains(t.1),
+        assert!(res.err().unwrap(/*:test:*/).to_string().contains(t.1),
                 "Testing Line: Offending test vector item: {}", count);
         // todo: parser error messages, error position
         //assert(ex.getMessage.contains(perrStr._3))
@@ -79,7 +79,7 @@ use crate::tests::IndocWithMarker;
 
       let res = parser::string_to_txns(&txns_str, &Settings::default());
       assert!(res.is_ok());
-      let txn_data = &res.unwrap();
+      let txn_data = &res.unwrap(/*:test:*/);
       assert_eq!(txn_data.txns.len(), 3);
 
       let txn_1: &Transaction = &txn_data.txns[0];

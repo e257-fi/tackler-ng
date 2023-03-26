@@ -44,7 +44,7 @@ mod tests {
     // desc: filter by txn description
     fn txn_description() {
         let tf = TxnFilterTxnDescription {
-            regex: Regex::new("ab.*").unwrap(),
+            regex: Regex::new("ab.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(fn(Option<&str>) -> Transaction, Option<&str>, bool)> = vec![

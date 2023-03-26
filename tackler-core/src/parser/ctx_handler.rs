@@ -60,7 +60,7 @@ fn handle_date(date_ctx: Rc<DateContextAll>) -> Result<DateTime<FixedOffset>, Bo
                             // todo: fix zone by cfg
                             Ok(DateTime::from_local(
                                 local_ts,
-                                FixedOffset::east_opt(0).unwrap(),
+                                FixedOffset::east_opt(0).unwrap(/*:ok: static */),
                             ))
                         }
                         Err(_) => {
@@ -78,7 +78,7 @@ fn handle_date(date_ctx: Rc<DateContextAll>) -> Result<DateTime<FixedOffset>, Bo
                                 // todo: fix zone by cfg
                                 Ok(DateTime::from_local(
                                     naive_ts,
-                                    FixedOffset::east_opt(0).unwrap(),
+                                    FixedOffset::east_opt(0).unwrap(/*:ok: static */),
                                 ))
                             }
                             Err(_) => {
@@ -119,7 +119,7 @@ fn handle_tags_ctx(tags_ctx: Rc<TagsContextAll>) -> Result<Tags, Box<dyn Error>>
     //
     // See TxnParser.g4: 'txn_meta_tags' and 'tags' rules
 
-    let tag = handle_tag_ctx(tags_ctx.tag().unwrap())?;
+    let tag = handle_tag_ctx(tags_ctx.tag().unwrap(/*:ok: parser */))?;
 
     match tags_ctx.tags() {
         None => Ok(vec![tag]),
@@ -136,7 +136,7 @@ fn handle_meta(
 ) -> Result<(Option<Uuid>, Option<GeoPoint>, Option<Tags>), Box<dyn Error>> {
     let uuid = match meta_ctx.txn_meta_uuid(0) {
         Some(uuid_ctx) => {
-            let uuid_str = uuid_ctx.UUID_VALUE().unwrap().get_text();
+            let uuid_str = uuid_ctx.UUID_VALUE().unwrap(/*:ok: parser */).get_text();
             match Uuid::parse_str(&uuid_str) {
                 Ok(uuid) => Some(uuid),
                 Err(err) => {
@@ -150,11 +150,11 @@ fn handle_meta(
 
     let geo = match meta_ctx.txn_meta_location(0) {
         Some(geo_ctx) => {
-            let uri_ctx = &geo_ctx.geo_uri().unwrap();
+            let uri_ctx = &geo_ctx.geo_uri().unwrap(/*:ok: parser */);
             Some(GeoPoint::from(
                 // there must be lat, lon at least
-                (uri_ctx.lat().unwrap().get_text()).parse::<f64>()?,
-                (uri_ctx.lon().unwrap().get_text()).parse::<f64>()?,
+                (uri_ctx.lat().unwrap(/*:ok: parser */).get_text()).parse::<f64>()?,
+                (uri_ctx.lon().unwrap(/*:ok: parser */).get_text()).parse::<f64>()?,
                 match uri_ctx.alt() {
                     Some(alt_ctx) => Some((alt_ctx.get_text()).parse::<f64>()?),
                     None => None,
@@ -165,7 +165,7 @@ fn handle_meta(
     };
 
     let tags: Option<Tags> = match meta_ctx.txn_meta_tags(0) {
-        Some(tags_ctx) => Some(handle_tags_ctx(tags_ctx.tags().unwrap())?),
+        Some(tags_ctx) => Some(handle_tags_ctx(tags_ctx.tags().unwrap(/*:ok: parser */))?),
         None => None,
     };
 
@@ -206,9 +206,9 @@ fn handle_amount(amount_ctx: Rc<AmountContextAll>) -> Result<Decimal, Box<dyn Er
 fn handle_value_position(
     posting_ctx: &Rc<PostingContextAll>,
 ) -> Result<(Decimal, Decimal, bool, Option<Commodity>, Option<Commodity>), Box<dyn Error>> {
-    let post_commodity = posting_ctx
-        .opt_unit()
-        .map(|u| Commodity::from(u.unit().unwrap().get_text()).unwrap());
+    let post_commodity = posting_ctx.opt_unit().map(
+        |u| Commodity::from(u.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */),
+    );
 
     // if txnCommodity (e.g. closing position) is not set, then use
     // posting commodity as txnCommodity.
@@ -220,8 +220,7 @@ fn handle_value_position(
                         Some(cp) => {
                             // Ok, we have position, so there must be closing position
                             // so, we have closing position, use its commodity
-                            let val_pos_commodity =
-                                Commodity::from(cp.unit().unwrap().get_text()).unwrap();
+                            let val_pos_commodity = Commodity::from(cp.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */);
                             if let Some(p) = &post_commodity {
                                 if p.name == val_pos_commodity.name {
                                     let em = format!(
@@ -239,21 +238,24 @@ fn handle_value_position(
                 }
                 None => {
                     // no position, use original unit
-                    Some(Commodity::from(u.unit().unwrap().get_text()).unwrap())
+                    Some(
+                        Commodity::from(u.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */),
+                    )
                 }
             }
         }
         None => None,
     };
 
-    let post_amount = handle_amount(posting_ctx.amount().unwrap())?;
+    let post_amount = handle_amount(posting_ctx.amount().unwrap(/*:ok: parser */))?;
 
     let txn_amount: (Decimal, bool) = match posting_ctx.opt_unit() {
         Some(u) => {
             match u.opt_position() {
                 Some(pos) => {
                     if let Some(opening_pos) = pos.opt_opening_pos() {
-                        let opening_price = handle_amount(opening_pos.amount().unwrap())?;
+                        let opening_price =
+                            handle_amount(opening_pos.amount().unwrap(/*:ok: parser */))?;
                         if opening_price.is_sign_negative() {
                             let msg = error_on_line(posting_ctx, "Unit cost '{ ... }' is negative");
                             return Err(msg.into());
@@ -265,7 +267,8 @@ fn handle_value_position(
                             match cp.AT() {
                                 None => {
                                     // this is '=', e.g. total price
-                                    let total_cost = handle_amount(cp.amount().unwrap())?;
+                                    let total_cost =
+                                        handle_amount(cp.amount().unwrap(/*:ok: parser :*/))?;
                                     if (total_cost.is_sign_negative()
                                         && post_amount.is_sign_positive())
                                         || (post_amount.is_sign_negative()
@@ -278,7 +281,8 @@ fn handle_value_position(
                                 }
                                 Some(_) => {
                                     // this is '@', e.g. unit price
-                                    let unit_price = handle_amount(cp.amount().unwrap())?;
+                                    let unit_price =
+                                        handle_amount(cp.amount().unwrap(/*:ok: parser */))?;
                                     if unit_price.is_sign_negative() {
                                         let msg = error_on_line(
                                             posting_ctx,
@@ -325,19 +329,19 @@ fn handle_raw_posting(posting_ctx: &Rc<PostingContextAll>) -> Result<Posting, Bo
     }
     */
 
-    let atn = handle_account(posting_ctx.account().unwrap(), foo.3)?;
+    let atn = handle_account(posting_ctx.account().unwrap(/*:ok: parser */), foo.3)?;
     let comment: Option<String> = posting_ctx
         .opt_comment()
-        .map(|c| c.comment().unwrap().text().unwrap().get_text());
+        .map(|c| c.comment().unwrap(/*:test:*/).text().unwrap(/*:ok: parser */).get_text());
 
     Posting::from(atn, foo.0, foo.1, foo.2, foo.4, comment)
 }
 
 fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>> {
-    let date = handle_date(txn_ctx.date().unwrap())?;
+    let date = handle_date(txn_ctx.date().unwrap(/*:ok: parser */))?;
     let code = txn_ctx
         .code()
-        .map(|c| String::from(c.code_value().unwrap().get_text().trim()));
+        .map(|c| String::from(c.code_value().unwrap(/*:ok: parser */).get_text().trim()));
 
     let desc = match txn_ctx.description() {
         None => {
@@ -349,7 +353,7 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
             // There is always "text" rule/token with current grammar (e.g. it can't be null).
 
             // right-trim, there was quote on the left side ...
-            let s = String::from(d_ctx.text().unwrap().get_text().trim_end());
+            let s = String::from(d_ctx.text().unwrap(/*:ok: parser */).get_text().trim_end());
             Some(s)
         }
     };
@@ -371,7 +375,9 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
         let cmts: Vec<String> = txn_ctx
             .txn_comment_all()
             .iter()
-            .map(|c| c.comment().unwrap().text().unwrap().get_text())
+            .map(
+                |c| c.comment().unwrap(/*:ok: parser */).text().unwrap(/*:ok: parser */).get_text(),
+            )
             .collect();
         if cmts.is_empty() {
             None
@@ -382,7 +388,7 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
 
     let posts_res: Result<Posts, Box<dyn Error>> = txn_ctx
         .postings()
-        .unwrap()
+        .unwrap(/*:ok: parser */)
         .posting_all()
         .iter()
         .map(handle_raw_posting)
@@ -411,13 +417,16 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
         return Err(msg.into());
     }
 
-    let last_posting = match txn_ctx.postings().unwrap().last_posting() {
+    let last_posting = match txn_ctx.postings().unwrap(/*:ok: parser */).last_posting() {
         Some(lp) => {
-            let atn = handle_account(lp.account().unwrap(), posts[0].txn_commodity.clone())?;
+            let atn = handle_account(
+                lp.account().unwrap(/*:ok: parser */),
+                posts[0].txn_commodity.clone(),
+            )?;
             let amount = posting::txn_sum(&posts);
-            let comment = lp
-                .opt_comment()
-                .map(|c| c.comment().unwrap().text().unwrap().get_text());
+            let comment = lp.opt_comment().map(
+                |c| c.comment().unwrap(/*:ok: parser */).text().unwrap(/*:ok: parser */).get_text(),
+            );
 
             Some(Posting::from(
                 atn,

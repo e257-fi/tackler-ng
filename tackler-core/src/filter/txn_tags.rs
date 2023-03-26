@@ -43,7 +43,7 @@ mod tests {
     // desc: filter by txn tags
     fn txn_tags() {
         let tf = TxnFilterTxnTags {
-            regex: Regex::new("ab.*").unwrap(),
+            regex: Regex::new("ab.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(

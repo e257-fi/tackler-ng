@@ -43,7 +43,7 @@ mod tests {
     // desc: filter by txn uuid
     fn txn_uuid() {
         let tf = TxnFilterTxnUUID {
-            uuid: Uuid::parse_str("842ded5c-e176-4e59-85a7-af2ded001d55").unwrap(),
+            uuid: Uuid::parse_str("842ded5c-e176-4e59-85a7-af2ded001d55").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(fn(Option<&str>) -> Transaction, Option<&str>, bool)> = vec![

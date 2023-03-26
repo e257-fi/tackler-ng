@@ -22,16 +22,16 @@ fn txn_ts_to_string(txn: &Transaction) -> String {
     txn_ts::iso_zoned_ts(txn.header.timestamp)
 }
 fn txn_code_to_string(txn: &Transaction) -> String {
-    txn.header.code.as_ref().unwrap().to_string()
+    txn.header.code.as_ref().unwrap(/*:test:*/).to_string()
 }
 fn txn_desc_to_string(txn: &Transaction) -> String {
-    txn.header.description.as_ref().unwrap().to_string()
+    txn.header.description.as_ref().unwrap(/*:test:*/).to_string()
 }
 fn txn_uuid_to_string(txn: &Transaction) -> String {
-    txn.header.uuid.as_ref().unwrap().to_string()
+    txn.header.uuid.as_ref().unwrap(/*:test:*/).to_string()
 }
 fn txn_geo_to_string(txn: &Transaction) -> String {
-    format!("{}", &txn.header.location.as_ref().unwrap())
+    format!("{}", &txn.header.location.as_ref().unwrap(/*:test:*/))
 }
 fn txn_tags_to_string(txn: &Transaction) -> String {
     txn.header.tags_to_string()

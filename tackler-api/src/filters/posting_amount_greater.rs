@@ -67,7 +67,7 @@ mod tests {
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
         assert!(tf_res.is_ok());
-        let tf = tf_res.unwrap();
+        let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
             TxnFilter::TxnFilterPostingAmountGreater(_) => assert!(true),
@@ -75,7 +75,10 @@ mod tests {
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
-        assert_eq!(serde_json::to_string(&tf).unwrap(), filter_json_str);
+        assert_eq!(
+            serde_json::to_string(&tf).unwrap(/*:test:*/),
+            filter_json_str
+        );
     }
 
     #[test]
@@ -100,14 +103,14 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterPostingAmountGreater(TxnFilterPostingAmountGreater {
-                        regex: Regex::new("(abc.*)|(def.*)").unwrap(),
+                        regex: Regex::new("(abc.*)|(def.*)").unwrap(/*:test:*/),
                         amount: Decimal::from(1),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterPostingAmountGreater(
                                 TxnFilterPostingAmountGreater {
-                                    regex: Regex::new("xyz").unwrap(),
+                                    regex: Regex::new("xyz").unwrap(/*:test:*/),
                                     amount: Decimal::from(2),
                                 },
                             ),

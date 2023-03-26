@@ -163,12 +163,12 @@ mod tests {
     fn txn_header_display() {
         let ts = "2023-02-04T14:03:05.047974+02:00"
             .parse::<DateTime<FixedOffset>>()
-            .unwrap();
+            .unwrap(/*:test:*/);
 
         let uuid_str = "ed6d4110-f3c0-4770-87fc-b99e46572244";
-        let uuid = Uuid::parse_str(uuid_str).unwrap();
+        let uuid = Uuid::parse_str(uuid_str).unwrap(/*:test:*/);
 
-        let geo = GeoPoint::from(60.167, 24.955, Some(5.0)).unwrap();
+        let geo = GeoPoint::from(60.167, 24.955, Some(5.0)).unwrap(/*:test:*/);
 
         let txn_tags = vec![
             "a".to_string(),

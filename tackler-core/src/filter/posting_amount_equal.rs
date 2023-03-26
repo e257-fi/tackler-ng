@@ -43,7 +43,7 @@ mod tests {
     // desc: filter by posting amount (exact)
     fn posting_amount_exact() {
         let tf = TxnFilterPostingAmountEqual {
-            regex: Regex::new("e:.*:abc").unwrap(),
+            regex: Regex::new("e:.*:abc").unwrap(/*:test:*/),
             amount: Decimal::new(3, 0),
         };
 

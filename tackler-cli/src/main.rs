@@ -61,10 +61,9 @@ fn run() -> Result<i32, Box<dyn Error>> {
             parser::paths_to_txns(&[filename], &cfg)
         } else {
             let paths = tackler_rs::get_paths_by_ext(
-                cli.input_fs_dir.unwrap().as_path(),
-                &cli.input_fs_ext.unwrap(),
-            )
-            .unwrap();
+                cli.input_fs_dir.unwrap(/*:ok: clap */).as_path(),
+                &cli.input_fs_ext.unwrap(/*:ok: clap */),
+            )?;
             parser::paths_to_txns(&paths, &cfg)
         }
     } else if cli.input_git_repo.is_some()
@@ -72,10 +71,10 @@ fn run() -> Result<i32, Box<dyn Error>> {
         && cli.input_git_ref.is_some()
     {
         parser::git_to_txns(
-            cli.input_git_repo.unwrap().as_path(),
-            cli.input_git_dir.as_deref().unwrap(),
+            cli.input_git_repo.unwrap(/*:ok: clap */).as_path(),
+            cli.input_git_dir.as_deref().unwrap(/*:ok: clap */),
             "txn",
-            GitInputSelector::Reference(cli.input_git_ref.unwrap()),
+            GitInputSelector::Reference(cli.input_git_ref.unwrap(/*:ok: clap */)),
             &cfg,
         )
         //GitInputSelector::CommitId("359400fa06c3e516a7133eea0d74f9a84310032a".to_string()))

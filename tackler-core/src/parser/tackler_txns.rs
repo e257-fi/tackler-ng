@@ -67,7 +67,7 @@ pub fn git_to_txns(
     settings: &Settings,
 ) -> Result<TxnData, Box<dyn Error>> {
     // perf: let mut ts_par_total: u128 = 0;
-    // perf: let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    // perf: let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
 
     let repo = git::discover(repo_path)?;
 
@@ -111,11 +111,11 @@ pub fn git_to_txns(
                         && entry.filepath.ends_with(str::as_bytes(extension))
                     {
                         let obj = repo.find_object(entry.oid)?;
-                        // perf: let ts_par_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+                        // perf: let ts_par_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
 
                         let par_res = tackler_parser::txns_text(str::from_utf8(&obj.data)?);
 
-                        // perf: let ts_par_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+                        // perf: let ts_par_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
                         // perf: ts_par_total = ts_par_total + (ts_par_end.as_millis() - ts_par_start.as_millis());
                         match par_res {
                             Ok(txns) => Ok(txns),
@@ -153,7 +153,7 @@ pub fn git_to_txns(
         &settings.audit.hash,
     );
 
-    // perf: let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    // perf: let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
     // perf: eprintln!("total time: {}ms, parse time: {}ms, git: {}ms", (ts_end.as_millis() - ts_start.as_millis()), ts_par_total, (ts_end.as_millis() - ts_start.as_millis())-ts_par_total);
 
     txn_data

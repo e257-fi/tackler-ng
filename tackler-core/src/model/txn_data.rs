@@ -116,8 +116,17 @@ mod tests {
         let uuid_mixed = "E274C99E-1ebb-45e8-832d-58Caf54Ed95f";
         let uuid_upper = "E274C99E-1EBB-45E8-832D-58CAF54ED95F";
 
-        assert_eq!(Uuid::parse_str(uuid_ref).unwrap().to_string(), uuid_ref);
-        assert_eq!(Uuid::parse_str(uuid_mixed).unwrap().to_string(), uuid_ref);
-        assert_eq!(Uuid::parse_str(uuid_upper).unwrap().to_string(), uuid_ref);
+        assert_eq!(
+            Uuid::parse_str(uuid_ref).unwrap(/*:test:*/).to_string(),
+            uuid_ref
+        );
+        assert_eq!(
+            Uuid::parse_str(uuid_mixed).unwrap(/*:test:*/).to_string(),
+            uuid_ref
+        );
+        assert_eq!(
+            Uuid::parse_str(uuid_upper).unwrap(/*:test:*/).to_string(),
+            uuid_ref
+        );
     }
 }

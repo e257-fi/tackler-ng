@@ -42,7 +42,7 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
                         assert_eq!(gitmd.commit, commit);
                     }
                     _ => {
-                        panic!("The first item is not Git Input Metadata item")
+                        panic!(/*:test:*/ "The first item is not Git Input Metadata item")
                     }
                 }
                 match &md.items[1] {
@@ -50,17 +50,20 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
                         assert_eq!(tscsmd.hash.value, checksum);
                     }
                     _ => {
-                        panic!("The second item is not Txn Set Checksum Metadata item")
+                        panic!(
+                            /*:test:*/
+                            "The second item is not Txn Set Checksum Metadata item"
+                        )
                     }
                 }
             }
             None => {
-                panic!("no metadata")
+                panic!(/*:test:*/ "no metadata")
             }
         },
         Err(err) => {
             eprintln!("{err:#}");
-            panic!();
+            panic!(/*:test:*/);
         }
     }
 }
@@ -71,7 +74,7 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
     eprintln!("\n\nMake 10 loops with txns-1E5:");
     let mut all_txns_per_s = 0.0;
     for i in 0..10 {
-        let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
         let result = parser::git_to_txns(
             Path::new(REPO_PATH),
             "txns/2016",
@@ -79,7 +82,7 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
             GitInputSelector::Reference("txns-1E5".to_string()),
             &Settings::default_audit(),
         );
-        let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+        let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
         verify_git_run(result, TXN_SET_1E5_COMMIT_ID, TXN_SET_1E5_CHECKSUM);
 
         let txn_per_s = 100_000.0 / ((ts_end.as_millis() - ts_start.as_millis()) as f64 / 1000.0);

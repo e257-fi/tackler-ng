@@ -54,7 +54,7 @@ mod tests {
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
         assert!(tf_res.is_ok());
-        let tf = tf_res.unwrap();
+        let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
             TxnFilter::TxnFilterTxnUUID(_) => assert!(true),
@@ -62,7 +62,10 @@ mod tests {
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
-        assert_eq!(serde_json::to_string(&tf).unwrap(), filter_json_str);
+        assert_eq!(
+            serde_json::to_string(&tf).unwrap(/*:test:*/),
+            filter_json_str
+        );
     }
 
     #[test]
@@ -83,13 +86,13 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterTxnUUID(TxnFilterTxnUUID {
-                        uuid: Uuid::parse_str("76a0f143-d64e-4497-b357-5ae2eb092219").unwrap(),
+                        uuid: Uuid::parse_str("76a0f143-d64e-4497-b357-5ae2eb092219").unwrap(/*:test:*/),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterTxnUUID(TxnFilterTxnUUID {
                                 uuid: Uuid::parse_str("f01df5b5-18e2-477c-aaac-3e0b672b2729")
-                                    .unwrap(),
+                                    .unwrap(/*:test:*/),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
                         ],

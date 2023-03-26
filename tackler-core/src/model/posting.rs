@@ -119,7 +119,7 @@ mod tests {
     // desc: "reject zero postings"
     fn id_42ad9d32_64aa_4fcd_a4ab_1e8521b921e3__reject_zero_posting() {
         {
-            let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+            let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
             let p = Posting::from(
                 acctn,
                 Decimal::new(0, 0),
@@ -132,7 +132,7 @@ mod tests {
         }
         {
             // check that difference precision doesn't mess Decimal comparisons
-            let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+            let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
             let p = Posting::from(
                 acctn,
                 Decimal::new(0, 28),
@@ -158,9 +158,9 @@ mod tests {
             //2         1         .         1         2         3         4
              "12345678901234567890.123456789";
         let ref_str = format!("a:b   {}", v_str);
-        let v = Decimal::from_str_exact(v_str).unwrap();
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
-        let p = Posting::from(acctn, v, v, false, None, None).unwrap();
+        let v = Decimal::from_str_exact(v_str).unwrap(/*:test:*/);
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
+        let p = Posting::from(acctn, v, v, false, None, None).unwrap(/*:test:*/);
 
         let p_str = format!("{}", p);
         assert_eq!(p_str, ref_str);
@@ -181,9 +181,9 @@ mod tests {
             //2         1         .         1         2         3         4
                   "678901234567890.12345678901234";
         let ref_str = format!("a:b   {}", v_str);
-        let v = Decimal::from_str_exact(v_str).unwrap();
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
-        let p = Posting::from(acctn, v, v, false, None, None).unwrap();
+        let v = Decimal::from_str_exact(v_str).unwrap(/*:test:*/);
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
+        let p = Posting::from(acctn, v, v, false, None, None).unwrap(/*:test:*/);
 
         let p_str = format!("{}", p);
         assert_eq!(p_str, ref_str);
@@ -194,8 +194,9 @@ mod tests {
     // desc: "toString e.g. Display"
     fn id_6ce68af4_5349_44e0_8fbc_35bebd8ac1ac__display() {
         let v = Decimal::new(12301, 2);
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
-        let p = Posting::from(acctn, v, v, false, None, Some("comment".to_string())).unwrap();
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
+        let p =
+            Posting::from(acctn, v, v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
 
         let p_str = format!("{}", p);
         assert_eq!(p_str, "a:b   123.01 ; comment");
@@ -206,7 +207,7 @@ mod tests {
     fn id_16b54e8c_5ea6_420c_bd72_157dbcc06a49__unit_price() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
         let p = Posting::from(
             acctn,
             pv,
@@ -217,7 +218,7 @@ mod tests {
             }),
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         assert_eq!(p.to_string(), "a:b   123.00 @ 2 €");
     }
@@ -227,7 +228,7 @@ mod tests {
     fn id_22059d1d_7c10_42dc_831f_03bd1f1d6257__unit_price_w_comment() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
         let p = Posting::from(
             acctn,
             pv,
@@ -238,7 +239,7 @@ mod tests {
             }),
             Some("comment".to_string()),
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         assert_eq!(p.to_string(), "a:b   123.00 @ 2 € ; comment");
     }
@@ -248,7 +249,7 @@ mod tests {
     fn id_0fef204a_19da_418f_b7d0_86b5211c2182__total_price() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
         let p = Posting::from(
             acctn,
             pv,
@@ -259,7 +260,7 @@ mod tests {
             }),
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         assert_eq!(p.to_string(), "a:b   123.00 = 246.00 €");
     }
@@ -269,7 +270,7 @@ mod tests {
     fn id_718dd25c_aebc_4f29_9903_67942c6ba531__total_price_w_comment() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+        let acctn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
         let p = Posting::from(
             acctn,
             pv,
@@ -280,7 +281,7 @@ mod tests {
             }),
             Some("comment".to_string()),
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         assert_eq!(p.to_string(), "a:b   123.00 = 246.00 € ; comment");
     }

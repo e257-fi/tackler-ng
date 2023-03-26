@@ -43,7 +43,7 @@ mod tests {
     // desc: "filter by account name with wildcard at begin"
     fn posting_account() {
         let tf = TxnFilterPostingAccount {
-            regex: Regex::new(".*:abc").unwrap(),
+            regex: Regex::new(".*:abc").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![
@@ -68,7 +68,7 @@ mod tests {
     // desc: verify independence between account and commodity (account)
     fn posting_account_and_commodity() {
         let tf = TxnFilterPostingAccount {
-            regex: Regex::new("^a:b:c$").unwrap(),
+            regex: Regex::new("^a:b:c$").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![

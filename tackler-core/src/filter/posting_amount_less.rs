@@ -43,7 +43,7 @@ mod tests {
     // desc: filter by posting amount (less)
     fn posting_amount_less() {
         let tf = TxnFilterPostingAmountLess {
-            regex: Regex::new("e:.*:abc").unwrap(),
+            regex: Regex::new("e:.*:abc").unwrap(/*:test:*/),
             amount: Decimal::new(3, 0),
         };
 

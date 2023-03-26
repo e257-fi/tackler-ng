@@ -45,7 +45,7 @@ mod tests {
     // desc: filter by posting commodity
     fn posting_commodity() {
         let tf = TxnFilterPostingCommodity {
-            regex: Regex::new("EU.*").unwrap(),
+            regex: Regex::new("EU.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![
@@ -74,7 +74,7 @@ mod tests {
     // desc: verify independence between account and commodity (commodity I)
     fn posting_account_and_commodity_1() {
         let tf = TxnFilterPostingCommodity {
-            regex: Regex::new("^EUR$").unwrap(),
+            regex: Regex::new("^EUR$").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![
@@ -95,7 +95,7 @@ mod tests {
     // desc: verify independence between account and commodity (commodity II)
     fn posting_account_and_commodity_2() {
         let tf = TxnFilterPostingCommodity {
-            regex: Regex::new(".*EUR.*").unwrap(),
+            regex: Regex::new(".*EUR.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![

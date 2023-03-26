@@ -114,9 +114,8 @@ impl Balance {
             if parent.is_empty() {
                 if my_acctn.depth > 2 {
                     // todo: the perfect tree of CoA
-                    let new_parent_atn =
-                        AccountTreeNode::from(my_acctn.parent.clone(), my_acctn.commodity.clone())
-                            .unwrap();
+                    let new_parent_atn = AccountTreeNode::from(my_acctn.parent.clone(), my_acctn.commodity.clone())
+                            .unwrap(/*:ok: existing account */);
                     let mut sub_tree = vec![my_acctn_sum.clone()];
                     let mut x =
                         Balance::bubble_up_acctn(&(new_parent_atn, Decimal::ZERO), acc_sums);
@@ -126,9 +125,8 @@ impl Balance {
                     // todo: the perfect tree of CoA
                     // This is on depth 2 and it doesn't have parent, => let's create root account
                     // End of Recursion
-                    let new_parent_atn =
-                        AccountTreeNode::from(my_acctn.parent.clone(), my_acctn.commodity.clone())
-                            .unwrap();
+                    let new_parent_atn = AccountTreeNode::from(my_acctn.parent.clone(), my_acctn.commodity.clone())
+                            .unwrap(/*:ok: existing account */);
                     vec![(new_parent_atn, Decimal::ZERO), my_acctn_sum.clone()]
                 }
             } else {
@@ -161,8 +159,8 @@ impl Balance {
             .into_iter()
             .map(|(_, postings)| {
                 let mut ps = postings.peekable();
-                // checked: unwrap: this is inside map, hence there must be at least one element
-                let acctn = ps.peek().unwrap().acctn.clone();
+                // unwrap: ok: this is inside map, hence there must be at least one element
+                let acctn = ps.peek().unwrap(/*:ok:*/).acctn.clone();
                 let acc_sum = ps.map(|p| p.amount).sum::<Decimal>();
                 (acctn, acc_sum)
             })

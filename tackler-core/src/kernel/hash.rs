@@ -96,8 +96,8 @@ mod tests {
             "2e546b18-6ce6-4bb3-9f4b-21b77a768a4c".to_string(),
             "67bdab27-da08-4647-b0d1-57c9ed129657".to_string(),
         ];
-        let hash = Hash::from("SHA-256").unwrap();
-        let cs = hash.checksum(&uuids, "\n".as_bytes()).unwrap();
+        let hash = Hash::from("SHA-256").unwrap(/*:test:*/);
+        let cs = hash.checksum(&uuids, "\n".as_bytes()).unwrap(/*:test:*/);
         assert_eq!(
             cs.value,
             "16418783ef294f830721159ee59cc3388c8b69c13afba2256cf756c6097fe687"

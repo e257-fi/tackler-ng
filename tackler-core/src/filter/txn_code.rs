@@ -44,7 +44,7 @@ mod tests {
     // desc: filter by txn code
     fn txn_code() {
         let tf = TxnFilterTxnCode {
-            regex: Regex::new("ab.*").unwrap(),
+            regex: Regex::new("ab.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(fn(Option<&str>) -> Transaction, Option<&str>, bool)> = vec![

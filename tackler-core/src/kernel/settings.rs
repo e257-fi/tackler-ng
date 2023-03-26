@@ -36,7 +36,7 @@ impl Settings {
             basedir: PathBuf::default().into_boxed_path(),
             accounts: Vec::default(),
             audit: Audit {
-                hash: Some(Hash::from("SHA-256").unwrap()),
+                hash: Some(Hash::default()),
             },
         }
     }

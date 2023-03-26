@@ -43,7 +43,7 @@ mod tests {
     // desc: filter by txn comments
     fn txn_comments() {
         let tf = TxnFilterTxnComments {
-            regex: Regex::new("ab.*").unwrap(),
+            regex: Regex::new("ab.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(

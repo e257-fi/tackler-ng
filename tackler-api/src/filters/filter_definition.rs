@@ -90,7 +90,7 @@ mod tests {
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
         assert!(tf_res.is_ok());
-        let tf = tf_res.unwrap();
+        let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
             TxnFilter::NullaryTRUE(_) => assert!(true),
@@ -98,7 +98,10 @@ mod tests {
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
-        assert_eq!(serde_json::to_string(&tf).unwrap(), filter_json_str);
+        assert_eq!(
+            serde_json::to_string(&tf).unwrap(/*:test:*/),
+            filter_json_str
+        );
     }
 
     #[test]
@@ -140,7 +143,7 @@ mod tests {
             let tf_res = FilterDefinition::from_armor(s);
             assert!(tf_res.is_ok());
 
-            let tf = tf_res.unwrap();
+            let tf = tf_res.unwrap(/*:test:*/);
             match tf.txn_filter {
                 TxnFilter::NullaryTRUE(_) => assert!(true),
                 _ => assert!(false),
@@ -155,7 +158,7 @@ mod tests {
         let tf_res = FilterDefinition::from_armor(s_err);
         assert!(tf_res.is_err());
 
-        let msg = tf_res.err().unwrap().to_string();
+        let msg = tf_res.err().unwrap(/*:test:*/).to_string();
 
         assert!(msg.contains(FilterDefinition::FILTER_ARMOR));
         // test malformed cut-off

@@ -153,7 +153,7 @@ mod tests {
                 timestamp: DateTime::default(),
                 code: None,
                 description: None,
-                uuid: uuid.map(|uuid_str| Uuid::parse_str(uuid_str).unwrap()),
+                uuid: uuid.map(|uuid_str| Uuid::parse_str(uuid_str).unwrap(/*:test:*/)),
                 location: None,
                 tags: None,
                 comments: None,
@@ -210,14 +210,12 @@ mod tests {
 
     pub(crate) fn make_posts_txn(e: &str, e_value: i64, a: &str) -> Transaction {
         let e_v = Decimal::new(e_value, 0);
-        let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap();
-        let e_p =
-            Posting::from(e_acctn, e_v, e_v, false, None, Some("comment".to_string())).unwrap();
+        let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap(/*:test:*/);
+        let e_p = Posting::from(e_acctn, e_v, e_v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
 
         let a_v = Decimal::new(-1 * e_value, 0);
-        let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap();
-        let a_p =
-            Posting::from(a_acctn, a_v, a_v, false, None, Some("comment".to_string())).unwrap();
+        let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap(/*:test:*/);
+        let a_p = Posting::from(a_acctn, a_v, a_v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
 
         Transaction::from(
             TxnHeader {
@@ -231,7 +229,7 @@ mod tests {
             },
             vec![e_p, a_p],
         )
-        .unwrap()
+        .unwrap(/*:test:*/)
     }
 
     pub(crate) fn make_posts_commodity_txn(
@@ -241,11 +239,11 @@ mod tests {
         e: &str,
     ) -> Transaction {
         fn make_commodity(c: Option<&str>) -> Option<Commodity> {
-            c.map(|c| Commodity::from(c.to_string()).unwrap())
+            c.map(|c| Commodity::from(c.to_string()).unwrap(/*:test:*/))
         }
 
         let e_v = Decimal::new(a_value, 0);
-        let e_acctn = AccountTreeNode::from(e.to_string(), make_commodity(c)).unwrap();
+        let e_acctn = AccountTreeNode::from(e.to_string(), make_commodity(c)).unwrap(/*:test:*/);
         let e_p = Posting::from(
             e_acctn,
             e_v,
@@ -254,10 +252,10 @@ mod tests {
             make_commodity(Some("txn_comm")),
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         let a_v = Decimal::new(-1 * a_value, 0);
-        let a_acctn = AccountTreeNode::from(a.to_string(), make_commodity(c)).unwrap();
+        let a_acctn = AccountTreeNode::from(a.to_string(), make_commodity(c)).unwrap(/*:test:*/);
         let a_p = Posting::from(
             a_acctn,
             a_v,
@@ -266,9 +264,9 @@ mod tests {
             make_commodity(Some("txn_comm")),
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
-        Transaction::from(TxnHeader::default(), vec![e_p, a_p]).unwrap()
+        Transaction::from(TxnHeader::default(), vec![e_p, a_p]).unwrap(/*:test:*/)
     }
 
     #[test]

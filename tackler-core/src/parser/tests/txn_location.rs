@@ -160,7 +160,7 @@ use crate::tests::IndocWithMarker;
              let res = parser::string_to_txns(&t.0, &Settings::default());
              let t_ref = t.1.to_string();
              assert!(res.is_ok(), "Offending test vector item: {}", count);
-             let txn: &Transaction = &res.unwrap().txns[0];
+             let txn: &Transaction = &res.unwrap(/*:test:*/).txns[0];
              assert_eq!(txn_geo_to_string(txn), t_ref);
              count = count + 1;
          }
@@ -227,7 +227,7 @@ use crate::tests::IndocWithMarker;
             let res = parser::string_to_txns(&t.0, &Settings::default());
             assert!(res.is_err(),
                     "Testing Error: Offending test vector item: {}", count);
-            assert!(res.err().unwrap().to_string().contains(t.1),
+            assert!(res.err().unwrap(/*:test:*/).to_string().contains(t.1),
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
@@ -304,7 +304,7 @@ use crate::tests::IndocWithMarker;
             let res = parser::string_to_txns(&t.0, &Settings::default());
             assert!(res.is_err(),
                     "Testing Error: Offending test vector item: {}", count);
-            assert!(res.err().unwrap().to_string().contains(t.1),
+            assert!(res.err().unwrap(/*:test:*/).to_string().contains(t.1),
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))

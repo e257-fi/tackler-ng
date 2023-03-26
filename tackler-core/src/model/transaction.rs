@@ -94,7 +94,7 @@ mod tests {
     fn txn_to_display() {
         let ts = "2023-02-04T14:03:05.047974+02:00"
             .parse::<DateTime<FixedOffset>>()
-            .unwrap();
+            .unwrap(/*:test:*/);
 
         let tnx_hdr = TxnHeader {
             timestamp: ts.clone(),
@@ -106,37 +106,37 @@ mod tests {
             comments: None,
         };
 
-        let atn_ab = AccountTreeNode::from("a:b".to_string(), None).unwrap();
-        let atn_cd = AccountTreeNode::from("c:d".to_string(), None).unwrap();
-        let atn_ef = AccountTreeNode::from("e:f".to_string(), None).unwrap();
+        let atn_ab = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
+        let atn_cd = AccountTreeNode::from("c:d".to_string(), None).unwrap(/*:test:*/);
+        let atn_ef = AccountTreeNode::from("e:f".to_string(), None).unwrap(/*:test:*/);
 
         let ef_post = Posting::from(
             atn_ef,
-            Decimal::from_str_exact("1").unwrap(),
-            Decimal::from_str_exact("0").unwrap(),
+            Decimal::from_str_exact("1").unwrap(/*:test:*/),
+            Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
             None,
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
         let cd_post = Posting::from(
             atn_cd,
-            Decimal::from_str_exact("2").unwrap(),
-            Decimal::from_str_exact("0").unwrap(),
+            Decimal::from_str_exact("2").unwrap(/*:test:*/),
+            Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
             None,
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
         let ab_post = Posting::from(
             atn_ab,
-            Decimal::from_str_exact("-3").unwrap(),
-            Decimal::from_str_exact("0").unwrap(),
+            Decimal::from_str_exact("-3").unwrap(/*:test:*/),
+            Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
             None,
             None,
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         let tests: Vec<(Transaction, String)> = vec![(
             Transaction {

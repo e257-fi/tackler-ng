@@ -45,15 +45,14 @@ mod tests {
         e: &str,
     ) -> Transaction {
         let e_v = Decimal::new(a_value, 0);
-        let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap();
-        let e_p =
-            Posting::from(e_acctn, e_v, e_v, false, None, comment.map(str::to_string)).unwrap();
+        let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap(/*:test:*/);
+        let e_p = Posting::from(e_acctn, e_v, e_v, false, None, comment.map(str::to_string)).unwrap(/*:test:*/);
 
         let a_v = Decimal::new(-1 * a_value, 0);
-        let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap();
-        let a_p = Posting::from(a_acctn, a_v, a_v, false, None, None).unwrap();
+        let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap(/*:test:*/);
+        let a_p = Posting::from(a_acctn, a_v, a_v, false, None, None).unwrap(/*:test:*/);
 
-        Transaction::from(TxnHeader::default(), vec![e_p, a_p]).unwrap()
+        Transaction::from(TxnHeader::default(), vec![e_p, a_p]).unwrap(/*:test:*/)
     }
 
     #[test]
@@ -61,7 +60,7 @@ mod tests {
     // desc: filter by posting comments
     fn posting_comment() {
         let tf = TxnFilterPostingComment {
-            regex: Regex::new("abc.*").unwrap(),
+            regex: Regex::new("abc.*").unwrap(/*:test:*/),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![

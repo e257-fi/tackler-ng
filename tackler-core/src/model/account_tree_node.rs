@@ -166,7 +166,7 @@ mod tests {
     fn id_270d505b_76f6_4e49_a24c_2fbdfb6e5adf__commodity_ok() {
         let res = Commodity::from("He·bar".to_string());
         assert!(res.is_ok());
-        let c = res.unwrap();
+        let c = res.unwrap(/*:test:*/);
         assert_eq!(c.name, "He·bar".to_string());
 
         assert!(Commodity::from("$".to_string()).is_ok());
@@ -190,12 +190,12 @@ mod tests {
     fn id_e11d5d26_c149_4d8c_b150_5cb2e2f80608__atn_commodity() {
         let atn = AccountTreeNode::from(
             "a".to_string(),
-            Some(Commodity::from("He·bar".to_string()).unwrap()),
+            Some(Commodity::from("He·bar".to_string()).unwrap(/*:test:*/)),
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         assert!(atn.commodity.is_some());
-        assert_eq!(atn.commodity.unwrap().name, "He·bar".to_string());
+        assert_eq!(atn.commodity.unwrap(/*:test:*/).name, "He·bar".to_string());
         assert_eq!(atn.commodity_str, String::from("He·bar"));
     }
 
@@ -203,9 +203,9 @@ mod tests {
     fn atn_ok_display() {
         let atn = AccountTreeNode::from(
             "a:b:c".to_string(),
-            Some(Commodity::from("He·bar".to_string()).unwrap()),
+            Some(Commodity::from("He·bar".to_string()).unwrap(/*:test:*/)),
         )
-        .unwrap();
+        .unwrap(/*:test:*/);
 
         let atn_str = format!("{}", atn);
         assert_eq!(atn_str, String::from("a:b:c"));
@@ -213,7 +213,7 @@ mod tests {
 
     #[test]
     fn id_88c5cb23_5995_4b93_8c26_a3f7374e96d9__atn_root() {
-        let atn = AccountTreeNode::from("a".to_string(), None).unwrap();
+        let atn = AccountTreeNode::from("a".to_string(), None).unwrap(/*:test:*/);
 
         assert_eq!(atn.depth, 1);
         assert_eq!(atn.root, "a");
@@ -226,7 +226,7 @@ mod tests {
 
     #[test]
     fn id_fc69f9b2_1faf_425c_87d3_aed63d66171b__atn_two() {
-        let atn = AccountTreeNode::from("a:b".to_string(), None).unwrap();
+        let atn = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
 
         assert_eq!(atn.depth, 2);
         assert_eq!(atn.root, "a");
@@ -239,7 +239,7 @@ mod tests {
 
     #[test]
     fn id_38c103d3_4cc7_4af7_86cd_bf24ca37d026__atn_three() {
-        let atn = AccountTreeNode::from("a:b:c".to_string(), None).unwrap();
+        let atn = AccountTreeNode::from("a:b:c".to_string(), None).unwrap(/*:test:*/);
 
         assert_eq!(atn.depth, 3);
         assert_eq!(atn.root, "a");
@@ -252,7 +252,7 @@ mod tests {
 
     #[test]
     fn id_76a6c300_5569_4e1d_a0a1_ae2ee31d919a__atn_more() {
-        let atn = AccountTreeNode::from("a:b:c:leaf".to_string(), None).unwrap();
+        let atn = AccountTreeNode::from("a:b:c:leaf".to_string(), None).unwrap(/*:test:*/);
 
         assert_eq!(atn.depth, 4);
         assert_eq!(atn.root, "a");

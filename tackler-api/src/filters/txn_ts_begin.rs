@@ -54,7 +54,7 @@ mod tests {
 
         let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
         assert!(tf_res.is_ok());
-        let tf = tf_res.unwrap();
+        let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
             TxnFilter::TxnFilterTxnTSBegin(_) => assert!(true),
@@ -62,7 +62,10 @@ mod tests {
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
-        assert_eq!(serde_json::to_string(&tf).unwrap(), filter_json_str);
+        assert_eq!(
+            serde_json::to_string(&tf).unwrap(/*:test:*/),
+            filter_json_str
+        );
     }
 
     #[test]
@@ -85,14 +88,14 @@ mod tests {
                     TxnFilter::TxnFilterTxnTSBegin(TxnFilterTxnTSBegin {
                         begin: "2023-02-25T10:11:22.345+02:00"
                             .parse::<DateTime<FixedOffset>>()
-                            .unwrap(),
+                            .unwrap(/*:test:*/),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterTxnTSBegin(TxnFilterTxnTSBegin {
                                 begin: "2023-02-25T20:11:22.345+02:00"
                                     .parse::<DateTime<FixedOffset>>()
-                                    .unwrap(),
+                                    .unwrap(/*:test:*/),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
                         ],
