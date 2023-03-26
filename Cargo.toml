@@ -21,6 +21,13 @@ members = [
   "tackler-cli",
 ]
 
+[workspace.package]
+edition = "2021"
+license = "Apache-2.0"
+homepage = "https://tackler.e257.fi/"
+repository = "https://github.com/e257-fi/tackler-ng"
+include = [ "/src/**/*", "/README.adoc" ]
+
 [profile.test]
 # tackler-core tests would be too slow without this
 opt-level = 3

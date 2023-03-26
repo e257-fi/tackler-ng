@@ -16,12 +16,13 @@
 [package]
 name = "tackler"
 version = "0.2.0"
-edition = "2021"
-license = "Apache-2.0"
 description = "Rusty implementation of Tackler"
-homepage = "https://tackler.e257.fi/"
-repository = "https://github.com/e257-fi/tackler-ng"
-readme = "README.md"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+include.workspace = true
+readme = "CRATES.md"
 
 [dependencies]
 tackler-rs =  { path = "../tackler-rs",  version = "0.2.0" }

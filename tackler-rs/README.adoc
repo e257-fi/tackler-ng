@@ -1,9 +1,10 @@
-# Tackler-NG
+= Tackler-NG
 
 This is Rusty Services for [Tackler](https://tackler.e257.fi/).
 
 In other words, these are assorted bits and pieces which are needed 
 for Tackler, but don't fit into the domain of plain text accounting.
+
 
 == Other Tackler components at Crates.io
 
