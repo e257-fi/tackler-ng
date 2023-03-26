@@ -16,6 +16,7 @@
  */
 
 use crate::model::TxnData;
+use std::error::Error;
 
 pub use balance_reporter::BalanceReporter;
 pub use balance_reporter::BalanceSettings;
@@ -27,5 +28,9 @@ mod balance_reporter;
 mod register_reporter;
 
 pub trait Report {
-    fn write_txt_report<W: Write + ?Sized>(&self, w: &mut W, txns: &TxnData);
+    fn write_txt_report<W: Write + ?Sized>(
+        &self,
+        w: &mut W,
+        txns: &TxnData,
+    ) -> Result<(), Box<dyn Error>>;
 }

@@ -15,9 +15,13 @@
  *
  */
 
-use crate::kernel::balance::Balance;
-use crate::model::TxnData;
+use crate::kernel::balance::{BTNs, Balance, Deltas};
+use crate::model::{BalanceTreeNode, TxnData};
 use crate::report::Report;
+use itertools::Itertools;
+use rust_decimal::prelude::Zero;
+use rust_decimal::Decimal;
+use std::cmp::max;
 use std::error::Error;
 use std::io::Write;
 
@@ -55,17 +59,131 @@ impl BalanceReporter {
 }
 
 impl Report for BalanceReporter {
-    fn write_txt_report<W: Write + ?Sized>(&self, writer: &mut W, txn_data: &TxnData) {
-        let bal_acc_sel = self.get_acc_selector().unwrap(/*:todo:*/);
+    fn write_txt_report<W: Write + ?Sized>(
+        &self,
+        writer: &mut W,
+        txn_data: &TxnData,
+    ) -> Result<(), Box<dyn Error>> {
+        fn get_max_sum_len(bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal) -> usize {
+            bal.iter()
+                .map(|btn| format!("{:.prec$}", f(btn), prec = 2).len())
+                .fold(0, max)
+        }
+
+        fn get_max_delta_len(deltas: &Deltas) -> usize {
+            deltas
+                .iter()
+                .map(|(_, d)| format!("{}", d).len())
+                .fold(0, max)
+        }
+        /// Max used length of commodity could be calculated from deltas
+        /// because all balance account commodities are present in there
+        fn get_max_commodity_len(deltas: &Deltas) -> usize {
+            deltas
+                .iter()
+                .map(|(opt_comm, _)| opt_comm.as_ref().map_or(0, |comm| comm.name.len()))
+                .fold(0, max)
+        }
+
+        let empty = String::default();
+
+        let bal_acc_sel = self.get_acc_selector()?;
 
         let bal_report = Balance::from(
-            self.report_settings
-                .title
-                .as_ref()
-                .unwrap_or(&String::default()),
+            self.report_settings.title.as_ref().unwrap_or(&empty),
             txn_data,
             bal_acc_sel,
         );
-        write!(writer, "{:#?}", bal_report).unwrap(/*:todo:*/);
+        let title = self.report_settings.title.as_ref().unwrap_or(&empty);
+
+        let delta_max_len = get_max_delta_len(&bal_report.deltas);
+        let comm_max_len = get_max_commodity_len(&bal_report.deltas);
+
+        // max of 12, max_sum_len or delta_max_len
+        let left_sum_len = max(
+            12,
+            max(
+                get_max_sum_len(&bal_report.bal, |btn| btn.account_sum),
+                delta_max_len,
+            ),
+        );
+
+        let sub_acc_sum_len = get_max_sum_len(&bal_report.bal, |btn| btn.sub_acc_tree_sum);
+
+        //     * filler between account sums (acc and accTree sums)
+        //      * Width of this filler is mandated by delta sum's max commodity length,
+        //      * because then AccTreesSum won't overlap with delta's commodity
+        let filler_field = if comm_max_len.is_zero() {
+            " ".repeat(3)
+        } else {
+            " ".repeat(4 + comm_max_len)
+        }
+        .len();
+
+        fn make_commodity_field(comm_max_len: usize, btn: &BalanceTreeNode) -> String {
+            if comm_max_len.is_zero() {
+                // always separate with two spaces
+                " ".repeat(2)
+            } else {
+                match &btn.acctn.commodity {
+                    Some(c) => {
+                        format!(" {: <cl$} ", c.name, cl = comm_max_len)
+                    }
+                    None => format!(" {} ", " ".repeat(comm_max_len)),
+                }
+            }
+        }
+
+        let left_ruler = " ".repeat(9);
+
+        writeln!(writer, "{}", title)?;
+        writeln!(writer, "{}", "-".repeat(title.len()))?;
+
+        for btn in bal_report.bal {
+            writeln!(
+                writer,
+                "{left_ruler}{:>asl$.prec$}{:>width$}{:>atl$.prec$}{}{}",
+                btn.account_sum,
+                "",
+                btn.sub_acc_tree_sum,
+                make_commodity_field(comm_max_len, &btn),
+                btn.acctn,
+                asl = left_sum_len,
+                atl = sub_acc_sum_len,
+                width = filler_field,
+                prec = 2,
+            )?;
+        }
+
+        writeln!(
+            writer,
+            "{}",
+            "=".repeat(
+                left_ruler.len()
+                    + left_sum_len
+                    + (if comm_max_len.is_zero() {
+                        0
+                    } else {
+                        comm_max_len + 1
+                    })
+            )
+        )?;
+
+        // todo: sort
+        let deltas = bal_report.deltas.iter().sorted_by_key(|i| {
+            i.0.as_ref()
+                .map_or(String::default(), |comm| comm.name.clone())
+        });
+        for delta in deltas {
+            writeln!(
+                writer,
+                "{left_ruler}{:>width$} {}",
+                delta.1,
+                delta.0.as_ref().map_or(&String::default(), |c| &c.name),
+                width = left_sum_len,
+            )?;
+        }
+
+        Ok(())
     }
 }

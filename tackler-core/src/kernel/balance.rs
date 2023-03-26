@@ -23,12 +23,14 @@ use rust_decimal::Decimal;
 use std::collections::{HashMap, HashSet};
 use tackler_api::Metadata;
 
+pub type Deltas = HashMap<Option<Commodity>, Decimal>;
+pub type BTNs = Vec<BalanceTreeNode>;
 #[derive(Debug)]
 pub struct Balance {
-    title: String,
-    bal: Vec<BalanceTreeNode>,
-    deltas: HashMap<Option<Commodity>, Decimal>,
-    metadata: Option<Metadata>,
+    pub(crate) title: String,
+    pub(crate) bal: BTNs,
+    pub(crate) deltas: Deltas,
+    pub(crate) metadata: Option<Metadata>,
 }
 
 impl Balance {

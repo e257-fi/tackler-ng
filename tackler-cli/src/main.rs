@@ -121,7 +121,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                                     ras: cli.accounts.clone(),
                                 },
                             };
-                            bal_reporter.write_txt_report(&mut w, &txn_data);
+                            bal_reporter.write_txt_report(&mut w, &txn_data)?;
                         }
                         "register" => {
                             let reg_reporter = RegisterReporter {
@@ -130,7 +130,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                                     ras: cli.accounts.clone(),
                                 },
                             };
-                            reg_reporter.write_txt_report(&mut w, &txn_data);
+                            reg_reporter.write_txt_report(&mut w, &txn_data)?;
                         }
                         "identity" => {
                             println!("TxnsData:");
