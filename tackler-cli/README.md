@@ -24,7 +24,7 @@ cargo run  -- \
     --input.fs.ext txn \
     --reports register
 
-
 cargo run  -- \
     --input.file ../suite/reporting/ok/reporting.txn \
     --reports balance register
+

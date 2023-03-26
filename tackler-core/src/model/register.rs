@@ -17,8 +17,9 @@
 
 use crate::model::{Posting, Transaction};
 use rust_decimal::Decimal;
-use std::cmp::Ordering;
+use std::cmp::{max, Ordering};
 use std::fmt::{Display, Formatter};
+use tackler_api::txn_ts;
 
 #[derive(Debug, Clone)]
 pub struct RegisterPosting<'a> {
@@ -64,10 +65,33 @@ pub(crate) struct RegisterEntry<'a> {
 
 impl<'a> Display for RegisterEntry<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.txn.header.timestamp)?;
+        let indent = " ".repeat(12);
+        let mut line_len = 0;
+
+        write!(
+            f,
+            "{}",
+            self.txn
+                .header
+                .to_string_with_indent(&indent, txn_ts::iso_zoned_ts)
+        )?;
         for p in &self.posts {
-            writeln!(f, "   {}", p)?;
+            let line = format!(
+                "{}{:<33}{:>18.prec$} {:>18.prec$}{}",
+                indent,
+                p.post.acctn.account,
+                p.post.amount,
+                p.amount,
+                p.post
+                    .acctn
+                    .commodity
+                    .as_ref()
+                    .map_or(String::default(), |c| format!(" {}", c.name)),
+                prec = 2,
+            );
+            line_len = max(line_len, line.len());
+            writeln!(f, "{line}")?;
         }
-        writeln!(f)
+        writeln!(f, "{}", "-".repeat(line_len))
     }
 }

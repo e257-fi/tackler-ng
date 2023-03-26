@@ -2,3 +2,6 @@
 /tmp/
 /.idea/
 /**/*.scala
+perf.data
+perf.data.old
+flamegraph*.svg

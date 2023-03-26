@@ -19,19 +19,21 @@ use crate::kernel::report_item_selector::RegisterSelector;
 use crate::model::{RegisterEntry, RegisterPosting, Txns};
 use rust_decimal::Decimal;
 use std::collections::HashMap;
+use std::error::Error;
 use std::io::Write;
 
 pub(crate) fn register_engine<'a, W, T>(
     txns: &'a Txns,
     ras: Box<T>,
     w: &mut W,
-    reporter: fn(f: &mut W, &RegisterEntry),
-) where
+    reporter: fn(f: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>,
+) -> Result<(), Box<dyn Error>>
+where
     W: Write + ?Sized,
     T: RegisterSelector<'a> + ?Sized,
 {
     let mut register_engine: HashMap<String, Decimal> = HashMap::new();
-    txns.iter().for_each(|txn| {
+    for txn in txns {
         let register_postings: Vec<_> = txn
             .posts
             .iter()
@@ -64,6 +66,7 @@ pub(crate) fn register_engine<'a, W, T>(
             txn,
             posts: filt_postings,
         };
-        reporter(w, &register_entry);
-    })
+        reporter(w, &register_entry)?;
+    }
+    Ok(())
 }

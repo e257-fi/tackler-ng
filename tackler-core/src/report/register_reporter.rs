@@ -53,21 +53,30 @@ impl RegisterReporter {
     }
 }
 
-fn re_fmt<W: Write + ?Sized>(f: &mut W, re: &RegisterEntry) {
+fn reg_entry_txt_writer<W: Write + ?Sized>(
+    f: &mut W,
+    re: &RegisterEntry,
+) -> Result<(), Box<dyn Error>> {
     if !re.posts.is_empty() {
-        write!(f, "{}", re).unwrap();
+        write!(f, "{}", re)?;
     }
+    Ok(())
 }
 
 impl Report for RegisterReporter {
-    fn write_txt_report<W: Write + ?Sized>(&self, writer: &mut W, txns: &TxnData) {
-        let ras = self.get_acc_selector().unwrap(/*:todo:*/);
+    fn write_txt_report<W: Write + ?Sized>(
+        &self,
+        writer: &mut W,
+        txns: &TxnData,
+    ) -> Result<(), Box<dyn Error>> {
+        let empty = String::default();
 
-        //accumulator::register_engine(&txns.txns, ras, &mut w , re_fmt);
-        accumulator::register_engine(&txns.txns, ras, writer, |w: &mut W, re| {
-            if !re.posts.is_empty() {
-                write!(w, "{}", re).unwrap(/*:todo:*/);
-            }
-        });
+        let title = self.report_settings.title.as_ref().unwrap_or(&empty);
+        writeln!(writer, "{}", title)?;
+        writeln!(writer, "{}", "-".repeat(title.len()))?;
+
+        let ras = self.get_acc_selector()?;
+
+        accumulator::register_engine(&txns.txns, ras, writer, reg_entry_txt_writer)
     }
 }
