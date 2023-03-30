@@ -1,0 +1,4 @@
+[toolchain]
+channel = "nightly"
+# nightly fmt and clippy are also needed due rust_antlr
+profile = "default"

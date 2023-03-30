@@ -1,0 +1,4 @@
+name: digest
+url: https://github.com/RustCrypto/traits
+license-url: None
+SPDX-License-Identifier: Apache-2.0 OR MIT

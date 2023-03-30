@@ -1,0 +1,47 @@
+
+=== Tackler release XX.YY.Z
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | TODO: XX.YY.Z
+|tackler-core | TODO: No changes
+|tackler-api  | TODO: No changes
+|tackler-rs   | TODO: No changes
+|===
+
+
+==== New features and changes
+
+New features:
+
+  * ...
+    ** ...
+
+Changed functionality:
+
+  * ...
+    ** ...
+
+
+==== Fixes
+
+Fixes in this release ...
+
+
+==== Development
+
+Updated deps and tools:
+
+  * Dependencies
+    ** ...
+  * Build
+    ** ...
+  * Tests
+    ** ...
+
+'''
+
+
+

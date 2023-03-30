@@ -1,0 +1,4 @@
+name: rust_decimal
+url: https://github.com/paupino/rust-decimal
+license-url: https://raw.githubusercontent.com/paupino/rust-decimal/master/LICENSE
+SPDX-License-Identifier: MIT

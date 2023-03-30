@@ -1,4 +1,98 @@
 = Tackler-NG
 
-This will be rusty link:https://tackler.e257.fi/[Tackler]
+Tackler-NG is rusty version of link:https://tackler.e257.fi/[Tackler].
+
+And what is Tackler? Tackler is an accounting engine and reporting tool for
+link:http://plaintextaccounting.org/[text based double-entry accounting] records.
+
+See link:https://tackler.e257.fi/[Tackler's website] for more information about Tackler and its usage.
+
+[NOTE]
+====
+Tackler Ain't Calculator and Kernel for link:http://ledger-cli.org/[Ledger] Equivalent Records. +
+Why not? -- Because it uses simplified Ledger syntax.
+====
+
+
+== How to build Tackler CLI application
+
+[IMPORTANT]
+====
+AS THIS IS TECHNOLOGY PREVIEW RELEASE; THERE ARE MISSING FEATURES AND KNOWN DIFFERENCES
+AND INCONSISTENCIES WITH EXISTING IMPLEMENTATION OF TACKLER.
+====
+
+To build rusty Tackler, you will need git and Rust nightly tool chain installed on your environment.
+
+Get Rust tools chain, if you don't have it:
+
+----
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+----
+
+
+Get the source code and test vectors:
+
+----
+git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
+----
+
+Build the Tackler binary
+
+----
+cd tackler-ng
+cargo build --release --bin tackler
+----
+
+The final binary will be located at `target/release/tackler`.
+
+Optionall, you can also install tackler:
+----
+cargo install --path tackler-cli --bin tackler
+----
+
+
+You can check that the version of source code and the version of binary match:
+
+----
+# Show commit id of source code
+git show --oneline --no-patch
+
+# Print build info
+target/release/tackler --version
+
+# Or if you installed tackler
+tackler --version
+----
+
+
+See `tackler --help`, link:docs/examples.adoc[examples] and tackler-cli crate's link:tackler-cli/CRATES.md[README]
+how to use the rusty version of tackler.
+
+link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG.
+
+For general information about Tackler, see the original link:https://tackler.e257.fi/docs/[Tackler Documentation].
+
+== Credits
+
+See link:CREDITS.adoc[CREDITS] for full list of credits.
+
+
+== License
+
+....
+Copyright 2016-2023 E257.FI Contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+....
 

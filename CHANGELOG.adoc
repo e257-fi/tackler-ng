@@ -1,6 +1,9 @@
-= Tackler-NG Changelog
+// vim: tabstop=2 shiftwidth=2 softtabstop=2 smarttab expandtab autoindent
+
+= Tackler-NG: Changelog
 
 Currently published crates are:
+
 ....
 tackler      = "0.1.0"
 tackler-rs   = "0.1.0"
@@ -17,33 +20,69 @@ tackler-core = "0.1.0"
 |===
 |Component | Version
 
-|Tackler CLI  | TODO: XX.YY.Z
-|tackler-core | TODO: No changes
-|tackler-api  | TODO: No changes
-|tackler-rs   | TODO: No changes
+|Tackler CLI  | 0.2.0
+|tackler-core | 0.2.0
+|tackler-api  | 0.2.0
+|tackler-rs   | 0.2.0
 |===
+
+This is the first Technology Preview Release of rusty Tackler.
+
 
 ==== New features and changes
 
- * Txn Filters
- * ...
- ** ...
+New features:
+
+* Storage Systems
+  ** Filesystem Backend
+  ** Git Backend
+* Reporting
+  ** Reports (`register` and `balance`)
+  ** Account Selectors
+* ...
+  ** ...
+
 
 ==== Fixes
 
-Fixes in this release ...
+None.
 
 
 ==== Development
 
-Updated deps and tools:
+Updated dependencies and tools:
 
- * Dependencies
- ** ...
- * Build
- ** ...
- * Tests
- ** ...
+* Dependencies
+  ** base64: new
+  ** chrono: new
+  ** clap: new
+  ** digest: new
+  ** gix: new
+  ** gix-hash: new
+  ** indoc: new
+  ** itertools: new
+  ** regex: new
+  ** rust_decimal: new
+  ** serde: new
+  ** serde_json: new
+  ** serde_regex: new
+  ** sha2: new
+  ** uuid: new
+  ** walkdir: new
+* Build
+  ** cargo-deny: new
+
+
+===== Rust toolchain
+
+Used unstable features:
+
+rust::
+* tackler-core: https://github.com/rust-lang/rust/issues/56167[rust: ++#++56167] -- `feature(hash_raw_entry)`
+* tackler-core: https://github.com/rust-lang/rust/issues/93050[rust: ++#++93050] -- `feature(is_some_and)`
+rustfmt::
+* tackler-core: https://github.com/rust-lang/rustfmt/issues/3395[rustfmt: ++#++3395] -- option `ignore`
+
 
 '''
 
@@ -64,3 +103,4 @@ Updated deps and tools:
 This is an initial POC release with ANTLR rust target.
 
 '''
+

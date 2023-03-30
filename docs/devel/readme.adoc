@@ -1,0 +1,90 @@
+= Tackler-NG
+
+Tackler’s operations and results must always be correct and
+trustworthy. If there are any errors with journal, then it will fail
+fast and hard and won’t process dubious input as valid one.
+
+Tackler-NG will strive for the same
+link:https://tackler.e257.fi/docs/reliability/[reliability level as Tackler].
+
+At the moment as RIIR is still in progress, things are in flux a bit, but
+Tackler's original test-vectors and Tackler Test Tracking Database (T3DB) are here:
+
+* link:https://github.com/e257-fi/tackler-tests[Test vectors]
+* link:https://gitlab.com/e257/accounting/tackler-t3db[T3DB]
+
+
+== Unsafe and unwrap
+
+Unsafe code is forbidden in the code base.
+
+All `unwrap` usage is documented, either why they won't panic or why it doesn't matter.
+
+`rg 'unwrap\(' | egrep -v '(:ok:)|(:test:)'`
+
+
+== Rust toolchain
+
+Used unstable features:
+
+rust::
+* tackler-core: https://github.com/rust-lang/rust/issues/56167[rust: ++#++56167] -- `feature(hash_raw_entry)`
+* tackler-core: https://github.com/rust-lang/rust/issues/93050[rust: ++#++93050] -- `feature(is_some_and)`
+rustfmt::
+* tackler-core: https://github.com/rust-lang/rustfmt/issues/3395[rustfmt: ++#++3395] -- option `ignore`
+
+
+== Number types: TacklerReal vs. rust_decimal
+
+TacklerReal::
+Scala's https://www.scala-lang.org/api/2.13.10/scala/math/BigDecimal.html[Scala BigDecimal] with unlimited
+https://docs.oracle.com/javase/8/docs/api/java/math/MathContext.html#UNLIMITED[MathContext], with https://docs.oracle.com/javase/8/docs/api/java/math/RoundingMode.html#HALF_UP[HALF_UP] rounding mode.
+
+Rust_decimal::
+Decimal represents a 128 bit representation of a fixed-precision decimal number. The finite set of values of type Decimal are of the form m / 10^e, where m is an integer such that -2^96 < m < 2^96, and e is an integer between 0 and 28 inclusive.
+
+
+== Design and Code Structure
+
+At the moment design and code structure follows Tackler's structure:
+
+* link:https://github.com/e257-fi/tackler/blob/main/docs/devel/design.adoc[Design]
+* link:https://github.com/e257-fi/tackler/blob/main/docs/tep/readme.adoc[TEP Index (Tackler Enhancement Proposals)]
+
+Currently the used parser is link:https://github.com/antlr/antlr4[ANTLR] and link:https://github.com/rrevenantt/antlr4rust[antlr4rust], but that will be replaced in the future.
+
+The grammar is defined in
+link:../../tackler-core/src/parser/txn_antlr/TxnParser.g4[TxnParser.g4]
+and lexer is in
+link:../../tackler-core/src/parser/txn_antlr/TxnLexer.g4[TxnLexer.g4].
+
+
+== Running Tests
+
+Run tests on project's workspace root:
+
+....
+cargo test
+....
+
+Integration and "Performance" test:
+....
+cargo run --release -p tackler-core
+....
+
+
+=== Flamegraph for tackler
+
+Run flamegraph on tackler-cli crate:
+
+....
+cd tackler-cli
+
+CARGO_PROFILE_RELEASE_DEBUG=true \
+    cargo flamegraph --  \
+        --input.git.repo ../suite/audit/audit-repo.git \
+        --input.git.dir txns \
+        --input.git.ref txns-1E5 \
+        --audit.mode true
+....
+

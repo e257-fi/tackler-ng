@@ -1,0 +1,5 @@
+name: uuid
+url: https://github.com/uuid-rs/uuid
+license-url: https://raw.githubusercontent.com/uuid-rs/uuid/main/LICENSE-MIT
+copyright-url: https://raw.githubusercontent.com/uuid-rs/uuid/main/COPYRIGHT
+SPDX-License-Identifier: Apache-2.0 OR MIT

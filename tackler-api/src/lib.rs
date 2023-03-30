@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+#![forbid(unsafe_code)]
 
 //! Tackler API components
 

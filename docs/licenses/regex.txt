@@ -1,0 +1,4 @@
+name: regex
+url: https://github.com/rust-lang/regex
+license-url: https://raw.githubusercontent.com/rust-lang/regex/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

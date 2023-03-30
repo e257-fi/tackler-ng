@@ -14,6 +14,8 @@
  * limitations under the License.
  *
  */
+#![forbid(unsafe_code)]
+
 mod cli_args;
 
 use std::error::Error;

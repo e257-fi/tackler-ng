@@ -1,0 +1,4 @@
+name: regex: Unicode data files
+url: https://www.unicode.org/copyright.html
+license-url: https://www.unicode.org/license.txt
+SPDX-License-Identifier: Unicode-DFS-2016

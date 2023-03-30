@@ -1,0 +1,4 @@
+name: indoc
+url: https://github.com/dtolnay/indoc
+license-url: https://raw.githubusercontent.com/dtolnay/indoc/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

@@ -1,0 +1,4 @@
+name: clap
+url: https://github.com/clap-rs/clap
+license-url: https://raw.githubusercontent.com/clap-rs/clap/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

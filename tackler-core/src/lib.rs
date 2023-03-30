@@ -14,6 +14,7 @@
  * limitations under the License.
  *
  */
+#![forbid(unsafe_code)]
 #![feature(hash_raw_entry)]
 #![feature(is_some_and)]
 

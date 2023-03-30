@@ -1,0 +1,4 @@
+name: serde_json
+url: https://github.com/serde-rs/json
+license-url: https://raw.githubusercontent.com/serde-rs/json/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

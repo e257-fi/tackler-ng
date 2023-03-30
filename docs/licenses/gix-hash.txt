@@ -1,0 +1,4 @@
+name: gix-hash
+url: https://github.com/Byron/gitoxide
+license-url: https://raw.githubusercontent.com/Byron/gitoxide/main/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

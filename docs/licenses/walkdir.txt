@@ -1,0 +1,3 @@
+name: walkdir
+url: https://github.com/BurntSushi/walkdir
+SPDX-License-Identifier: MIT

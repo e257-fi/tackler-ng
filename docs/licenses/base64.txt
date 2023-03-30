@@ -1,0 +1,4 @@
+name: base64
+url: https://github.com/marshallpierce/rust-base64
+license-url: https://raw.githubusercontent.com/marshallpierce/rust-base64/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 AND MIT

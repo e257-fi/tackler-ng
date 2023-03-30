@@ -1,0 +1,41 @@
+= Tackler Examples
+
+
+Run these at the root of project's workspace:
+
+----
+target/release/tackler \
+    --help
+----
+
+----
+target/release/tackler \
+    --input.git.repo suite/audit/audit-repo.git \
+    --input.git.dir txns \
+    --input.git.ref txns-1E1 \
+    --reports balance
+----
+
+----
+target/release/tackler \
+    --input.git.repo suite/audit/audit-repo.git \
+    --input.git.dir txns \
+    --input.git.ref txns-1E1 \
+    --reports balance \
+    --accounts '^a:.*' \
+    --audit.mode true
+----
+
+----
+target/release/tackler \
+    --input.fs.dir suite/core/ok/txns-id2id/ \
+    --input.fs.ext txn \
+    --reports register
+----
+
+----
+target/release/tackler \
+    --input.file suite/reporting/ok/reporting.txn \
+    --reports balance register
+----
+

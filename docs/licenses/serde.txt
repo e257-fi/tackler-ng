@@ -1,0 +1,4 @@
+name: serde
+url: https://github.com/serde-rs/serde
+license-url: https://raw.githubusercontent.com/serde-rs/serde/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

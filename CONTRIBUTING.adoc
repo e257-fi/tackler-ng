@@ -1,0 +1,39 @@
+= Contributing to Tackler-NG
+
+Thank you for thinking about using or contributing to Tackler-NG
+(the Project) and its documentation!
+
+Tackler-NG project will only accept contributions using the
+link:./DCO[Developer Certificate of Origin (DCO), Version 1.1].
+
+The DCO is a legally binding statement asserting that you are the creator of
+your contribution or that you otherwise have the authority to distribute
+the contribution, and that you are intentionally making the contribution
+available under the Apache License, version 2.0 (the "Project License").
+
+
+== Developer Certificate of Origin
+
+By signing-off your commit, you certify the DCO and acknowledge that you are
+intentionally making the contribution available under the Project License,
+and that you have the rights to submit your contribution as stated in the DCO.
+
+Certifying the DCO is done by adding a `Signed-off-by` line to the end of your
+**every** git commit message:
+
+    Signed-off-by: name_or_account <your.real@email.address>
+
+If you set your `user.name` and `user.email` as part of your git configuration,
+you can sign your commit automatically with `git commit -s`.  You can also create
+a git `commit.template` with appropriate content.  These  settings can be done per
+repository basis, so they don't have to be global in your system.
+
+Your pull requests and patches can be only merged if you can certify the DCO
+and acknowledge this by adding signed-off-by line in your commits.
+
+
+== Contributing Guides
+
+For actual contributing guides and development documentation, see
+link:./docs/devel/readme.adoc[Readme for Developer's documentation].
+

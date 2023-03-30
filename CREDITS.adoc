@@ -1,0 +1,37 @@
+= Credits
+
+Tackler-NG has been originally written by e257.fi contributors from scratch.
+Following projects have provided valuable contributions,
+feedback, inspiration and ideas for this project.
+
+Thank you for your help!
+
+Components (used direclty by Tackler-NG):
+
+* https://github.com/rrevenantt/antlr4rust[antlr-rust]
+* https://github.com/marshallpierce/rust-base64[base64]
+* https://github.com/chronotope/chrono[chrono]
+* https://github.com/clap-rs/clap[clap]
+* https://github.com/RustCrypto/traits[digest]
+* https://github.com/Byron/gitoxide[gix]
+* https://github.com/Byron/gitoxide[gix-hash]
+* https://github.com/dtolnay/indoc[indoc]
+* https://github.com/rust-itertools/itertools[itertools]
+* https://github.com/rust-lang/log[log]
+* https://github.com/rust-lang/regex[regex]
+* https://github.com/paupino/rust-decimal[rust_decimal]
+* https://github.com/serde-rs/serde[serde]
+* https://github.com/serde-rs/json[serde_json]
+* https://github.com/tailhook/serde-regex[serde_regex]
+* https://github.com/RustCrypto/hashes[sha2]
+* https://github.com/uuid-rs/uuid[uuid]
+* https://github.com/BurntSushi/walkdir[walkdir]
+
+Build-tools (used to build Tackler):
+
+* https://github.com/rust-lang/cargo[Cargo]
+* https://github.com/rust-lang/rust-clippy[Clippy]
+* https://github.com/rust-lang/rustfmt[rustfmt]
+* https://github.com/RustSec/rustsec/tree/main/cargo-audit[cargo audit]
+* https://github.com/EmbarkStudios/cargo-deny[cargo deny]
+

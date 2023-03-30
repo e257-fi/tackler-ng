@@ -1,0 +1,4 @@
+name: log
+url: https://github.com/rust-lang/log
+license-url: https://raw.githubusercontent.com/rust-lang/log/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

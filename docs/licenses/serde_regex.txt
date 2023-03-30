@@ -1,0 +1,4 @@
+name: serde_regex
+url: https://github.com/tailhook/serde-regex
+license-url: https://raw.githubusercontent.com/tailhook/serde-regex/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

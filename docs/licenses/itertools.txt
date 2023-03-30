@@ -1,0 +1,4 @@
+name: itertools
+url: https://github.com/rust-itertools/itertools
+license-url: https://raw.githubusercontent.com/rust-itertools/itertools/master/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

@@ -177,10 +177,11 @@ impl Report for BalanceReporter {
         for delta in deltas {
             writeln!(
                 writer,
-                "{left_ruler}{:>width$} {}",
+                "{left_ruler}{:>width$.prec$} {}",
                 delta.1,
                 delta.0.as_ref().map_or(&String::default(), |c| &c.name),
                 width = left_sum_len,
+                prec = 2,
             )?;
         }
 
