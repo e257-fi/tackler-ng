@@ -18,60 +18,98 @@
 use itertools::Itertools;
 use std::error::Error;
 
+use crate::filter::FilterTxn;
 use crate::kernel::hash::Hash;
-use crate::model::Txns;
-use tackler_api::{Checksum, Metadata, MetadataItem, TxnSetChecksum};
+use crate::model::{TxnRefs, Txns};
+use tackler_api::filters::FilterDefinition;
+use tackler_api::{Checksum, Metadata, MetadataItem, TxnFilterDescription, TxnSetChecksum};
 
 #[derive(Debug)]
 pub struct TxnData {
-    pub metadata: Option<Metadata>,
-    pub txns: Txns,
-    pub hash: Option<Hash>,
+    metadata: Option<Metadata>,
+    txns: Txns,
+    hash: Option<Hash>,
+}
+
+pub struct TxnSet<'a> {
+    pub(crate) metadata: Option<Metadata>,
+    pub(crate) txns: TxnRefs<'a>,
+}
+
+impl TxnSet<'_> {
+    pub fn metadata(&self) -> Option<&Metadata> {
+        self.metadata.as_ref()
+    }
 }
 
 impl TxnData {
+    pub fn len(&self) -> usize {
+        self.txns.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.txns.is_empty()
+    }
+
     pub fn from(
         mdi_opt: Option<MetadataItem>,
         txns: Txns,
         hash: &Option<Hash>,
     ) -> Result<TxnData, Box<dyn Error>> {
-        let md_stuff = match hash {
-            Some(hasher) => {
-                let cs = calc_txn_checksum(&txns, hasher)?;
-
-                let mut metadata = Metadata::new();
-                let new_mdi = MetadataItem::TxnSetChecksum(TxnSetChecksum {
-                    size: txns.len(),
-                    hash: cs,
-                });
-
-                if let Some(mdi) = mdi_opt {
-                    metadata.items.push(mdi);
-                }
-                metadata.items.push(new_mdi);
-
-                Some(metadata)
-            }
-            None => {
-                if let Some(mdi) = mdi_opt {
-                    let mut metadata = Metadata::new();
-                    metadata.items.push(mdi);
-                    Some(metadata)
-                } else {
-                    None
-                }
-            }
-        };
+        let metadata = mdi_opt.map(Metadata::from_mdi);
 
         Ok(TxnData {
-            metadata: md_stuff,
+            metadata,
             txns,
             hash: hash.clone(),
         })
     }
+
+    fn make_metadata(&self, txns: &TxnRefs) -> Result<Metadata, Box<dyn Error>> {
+        let mut metadata = match &self.metadata {
+            Some(md) => Metadata::from_metadata(md),
+            None => Metadata::new(),
+        };
+
+        if let Some(hash) = &self.hash {
+            let new_tsc_mdi = MetadataItem::TxnSetChecksum(TxnSetChecksum {
+                size: txns.len(),
+                hash: calc_txn_checksum(txns, hash)?,
+            });
+
+            metadata.push(new_tsc_mdi);
+        }
+
+        Ok(metadata)
+    }
+
+    pub fn filter<'a>(&'a self, tf: &FilterDefinition) -> Result<TxnSet<'a>, Box<dyn Error>> {
+        let refvec: TxnRefs = self.txns.iter().filter(|txn| tf.filter(txn)).collect();
+
+        let mut metadata = self.make_metadata(&refvec)?;
+        let filter_mdi = MetadataItem::TxnFilterDescription(TxnFilterDescription::from(tf.clone()));
+        metadata.push(filter_mdi);
+
+        Ok(TxnSet {
+            metadata: Some(metadata),
+            txns: refvec,
+            //hash: &self.hash,
+        })
+    }
+
+    pub fn get_all(&self) -> Result<TxnSet<'_>, Box<dyn Error>> {
+        let txns: TxnRefs = self.txns.iter().collect();
+
+        let metadata = if self.hash.is_some() || self.metadata.is_some() {
+            Some(self.make_metadata(&txns)?)
+        } else {
+            None
+        };
+
+        Ok(TxnSet { metadata, txns })
+    }
 }
 
-fn calc_txn_checksum(txns: &Txns, hasher: &Hash) -> Result<Checksum, Box<dyn Error>> {
+fn calc_txn_checksum(txns: &TxnRefs, hasher: &Hash) -> Result<Checksum, Box<dyn Error>> {
     let uuids: Result<Vec<String>, Box<dyn Error>> = txns
         .iter()
         .map(|txn| match txn.header.uuid {

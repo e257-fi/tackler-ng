@@ -27,7 +27,7 @@ use std::fmt::Formatter;
 /// Actual filtering implementation is done by Trait [`FilterTxn`]
 ///
 /// [`FilterTxn`]: ../tackler_core/filter/index.html
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterOR {
     // todo: functionality, test
     // todo-test: f9088d6f-d3ae-4120-b420-e77d0ea26f11

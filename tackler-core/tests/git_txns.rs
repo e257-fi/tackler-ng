@@ -50,7 +50,8 @@ const TXN_SET_1E5_COMMIT_ID: &'static str = "cb56fdcdd2b56d41fc08cc5af4a3b410896
 fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksum: &str) {
     match result {
         Ok(txn_data) => {
-            match txn_data.metadata {
+            let txn_set = txn_data.get_all().unwrap(/*:test:*/);
+            match txn_set.metadata() {
                 Some(md) => {
                     assert_eq!(md.items.len(), 2, "Metadata Item count is wrong");
                     match &md.items[0] {
@@ -121,7 +122,10 @@ fn id_a6cfe3b6_feec_4422_afbf_faeca5baf752__error_reporting() {
                                      GitInputSelector::Reference("errs-1E2".to_string()),
                                      &Settings::default_audit());
 
-    assert!(result.is_err());
+    assert!(result.is_ok()); // todo: is_ok -> is_err once ctx_handler has settings support
+    let txn_data = result.unwrap(/*:test:*/);
+    let txn_set = txn_data.get_all();
+    assert!(txn_set.is_err());
     // todo: check error message, once there is settings support
-    eprintln!("{:#?}", result);
+    eprintln!("{:#?}", txn_set.err());
 }

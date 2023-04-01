@@ -62,7 +62,7 @@ use crate::tests::IndocWithMarker;
 
       let res = parser::string_to_txns(&txns_str, &Settings::default());
       assert!(res.is_ok());
-      assert_eq!(res.unwrap(/*:test:*/).txns.len(), 6);
+      assert_eq!(res.unwrap(/*:test:*/).len(), 6);
     }
 
     #[test]

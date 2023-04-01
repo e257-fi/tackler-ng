@@ -39,6 +39,7 @@ New features:
 * Reporting
   ** Reports (`register` and `balance`)
   ** Account Selectors
+* Txn Filters
 * ...
   ** ...
 

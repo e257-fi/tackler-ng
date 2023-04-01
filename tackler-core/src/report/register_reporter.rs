@@ -19,7 +19,7 @@ use crate::kernel::accumulator;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
-use crate::model::{RegisterEntry, TxnData};
+use crate::model::{RegisterEntry, TxnSet};
 use crate::report::Report;
 use std::error::Error;
 use std::io::Write;
@@ -67,7 +67,7 @@ impl Report for RegisterReporter {
     fn write_txt_report<W: Write + ?Sized>(
         &self,
         writer: &mut W,
-        txns: &TxnData,
+        txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let empty = String::default();
 

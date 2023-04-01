@@ -34,3 +34,16 @@ cargo run  -- \
     --input.file ../suite/reporting/ok/reporting.txn \
     --reports balance register
 ----
+
+----
+cargo run  -- \
+	--input.git.repo ../suite/audit/audit-repo.git \
+	--input.git.dir txns \
+	--input.git.ref txns-1E1 \
+	--reports balance \
+	--audit.mode true \
+	--api-filter-def '{"txnFilter":{"TxnFilterPostingAccount":{"regex":"^e:ey2016:em1.*"}}}'
+or 
+	--api-filter-def base64:eyJ0eG5GaWx0ZXIiOnsiVHhuRmlsdGVyUG9zdGluZ0FjY291bnQiOnsicmVnZXgiOiJeZTpleTIwMTY6ZW0xLioifX19
+----
+

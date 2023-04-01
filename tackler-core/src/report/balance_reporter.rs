@@ -16,7 +16,7 @@
  */
 
 use crate::kernel::balance::{BTNs, Balance, Deltas};
-use crate::model::{BalanceTreeNode, TxnData};
+use crate::model::{BalanceTreeNode, TxnSet};
 use crate::report::Report;
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
@@ -62,7 +62,7 @@ impl Report for BalanceReporter {
     fn write_txt_report<W: Write + ?Sized>(
         &self,
         writer: &mut W,
-        txn_data: &TxnData,
+        txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         fn get_max_sum_len(bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal) -> usize {
             bal.iter()

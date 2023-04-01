@@ -22,7 +22,7 @@ use std::fmt::Formatter;
 
 use crate::filters::{posting_filter_indent_fmt, IndentDisplay};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterPostingAmountGreater {
     #[serde(with = "serde_regex")]
     pub regex: Regex,

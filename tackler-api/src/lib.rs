@@ -25,6 +25,7 @@ pub use crate::metadata::Checksum;
 pub use crate::metadata::GitInputReference;
 pub use crate::metadata::Metadata;
 pub use crate::metadata::MetadataItem;
+pub use crate::metadata::TxnFilterDescription;
 pub use crate::metadata::TxnSetChecksum;
 
 mod metadata;

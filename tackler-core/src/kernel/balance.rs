@@ -17,7 +17,7 @@
 
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::model::balance_tree_node::ord_by_btn;
-use crate::model::{AccountTreeNode, BalanceTreeNode, Commodity, TxnData, Txns};
+use crate::model::{AccountTreeNode, BalanceTreeNode, Commodity, TxnRefs, TxnSet};
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::{HashMap, HashSet};
@@ -146,7 +146,7 @@ impl Balance {
     ///
     /// `txns` sequence of transactions
     /// `returns` unfiltered sequence of BalanceTreeNodes
-    fn balance(txns: &Txns) -> Vec<BalanceTreeNode> {
+    fn balance(txns: &TxnRefs) -> Vec<BalanceTreeNode> {
         // Calculate sum of postings for each account.
         //
         // Input size: is "big",    ~ all transactions
@@ -206,7 +206,7 @@ impl Balance {
         bal
     }
 
-    pub fn from<T>(title: &str, txn_data: &TxnData, accounts: Box<T>) -> Balance
+    pub fn from<T>(title: &str, txn_data: &TxnSet, accounts: Box<T>) -> Balance
     where
         T: BalanceSelector + ?Sized,
     {

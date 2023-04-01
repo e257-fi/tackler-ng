@@ -15,6 +15,8 @@
  *
  */
 
+use crate::filters::FilterDefinition;
+
 pub trait Text: std::fmt::Debug {
     /// Get metadata item as text
     fn text(&self) -> Vec<String>;
@@ -24,6 +26,7 @@ pub trait Text: std::fmt::Debug {
 pub enum MetadataItem {
     TxnSetChecksum(TxnSetChecksum),
     GitInputReference(GitInputReference),
+    TxnFilterDescription(TxnFilterDescription),
 }
 
 impl Text for MetadataItem {
@@ -31,13 +34,14 @@ impl Text for MetadataItem {
         match self {
             Self::GitInputReference(gif) => gif.text(),
             Self::TxnSetChecksum(tscs) => tscs.text(),
+            Self::TxnFilterDescription(tfd) => tfd.text(),
         }
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Metadata {
-    // todo: fid pub access
+    // todo: fix pub access
     pub items: Vec<MetadataItem>,
 }
 
@@ -45,6 +49,31 @@ impl Metadata {
     pub fn new() -> Metadata {
         Metadata { items: Vec::new() }
     }
+
+    pub fn from_mdi(mdi: MetadataItem) -> Metadata {
+        let items = vec![mdi];
+
+        Metadata { items }
+    }
+
+    pub fn from_metadata(md: &Metadata) -> Metadata {
+        let mut metadata = Metadata::new();
+        for mdi in &md.items {
+            match mdi {
+                MetadataItem::TxnSetChecksum(_) => {
+                    // txndata should not ever contain TSC MD item
+                    debug_assert!(false);
+                }
+                _ => metadata.push(mdi.clone()),
+            }
+        }
+        metadata
+    }
+
+    pub fn push(&mut self, mdi: MetadataItem) {
+        self.items.push(mdi)
+    }
+
     pub fn text(&self) -> String {
         let ts = self
             .items
@@ -86,6 +115,22 @@ impl Text for TxnSetChecksum {
             format!("{:>pad$} : {}", self.hash.algorithm, &self.hash.value),
             format!("{:>pad$} : {}", "Set size", self.size),
         ]
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TxnFilterDescription {
+    txn_filter_def: FilterDefinition,
+}
+
+impl TxnFilterDescription {
+    pub fn from(tf: FilterDefinition) -> TxnFilterDescription {
+        TxnFilterDescription { txn_filter_def: tf }
+    }
+}
+impl Text for TxnFilterDescription {
+    fn text(&self) -> Vec<String> {
+        vec![format!("{}", self.txn_filter_def)]
     }
 }
 

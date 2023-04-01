@@ -233,7 +233,9 @@ use crate::tests::IndocWithMarker;
         //println!("{:#?}", &t.0);
         //println!("{:#?}", res);
         assert!(res.is_ok(), "Offending test vector item: {}", count);
-        let txn: &Transaction = &res.unwrap(/*:test:*/).txns[0];
+          let txn_data = res.unwrap(/*:test:*/);
+          let txns = txn_data.get_all().unwrap(/*:test:*/);
+        let txn: &Transaction = &txns.txns[0];
         let validators = t.2;
         let mut val_count = 0;
         for v in validators {

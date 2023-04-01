@@ -96,16 +96,13 @@ fn run() -> Result<i32, Box<dyn Error>> {
     };
 
     match result {
-        Ok(txn_data_all) => {
-            let txn_data = match txn_filt {
-                Some(tf) => {
-                    //todo: txn_data_all.filter(tf)
-                    txn_data_all
-                }
-                None => txn_data_all,
+        Ok(txn_data) => {
+            let txn_set = match txn_filt {
+                Some(tf) => txn_data.filter(&tf)?,
+                None => txn_data.get_all()?,
             };
 
-            if let Some(metadata) = &txn_data.metadata {
+            if let Some(metadata) = &txn_set.metadata() {
                 println!("{}", metadata.text());
             }
 
@@ -122,7 +119,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                                     ras: cli.accounts.clone(),
                                 },
                             };
-                            bal_reporter.write_txt_report(&mut w, &txn_data)?;
+                            bal_reporter.write_txt_report(&mut w, &txn_set)?;
                         }
                         "register" => {
                             let reg_reporter = RegisterReporter {
@@ -131,13 +128,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                                     ras: cli.accounts.clone(),
                                 },
                             };
-                            reg_reporter.write_txt_report(&mut w, &txn_data)?;
-                        }
-                        "identity" => {
-                            println!("TxnsData:");
-                            for txn in &txn_data.txns {
-                                println!("{txn}");
-                            }
+                            reg_reporter.write_txt_report(&mut w, &txn_set)?;
                         }
                         _ => {
                             return Err("Logic error with reports cli args".into());

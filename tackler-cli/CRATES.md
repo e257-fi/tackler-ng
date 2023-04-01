@@ -191,10 +191,58 @@ BALANCE
               -1574609.01
 ````
 
+### Transaction Filters
+
+#### Plan filter definition
+
+````bash
+tackler \
+    --input.git.repo tackler-ng/suite/audit/audit-repo.git \
+    --input.git.dir txns \
+    --input.git.ref txns-1E5 \
+    --reports balance \
+    --accounts '^a:.*' \
+    --audit.mode true \
+    --api-filter-def '{"txnFilter":{"TxnFilterPostingAccount":{"regex":"^a:ay2016:am12"}}}'
+````
+
+The transaction filter definition could be given also as Base64 ascii armored string:
+
+````
+--api-filter-def base64:eyJ0eG5GaWx0ZXIiOnsiVHhuRmlsdGVyUG9zdGluZ0FjY291bnQiOnsicmVnZXgiOiJeYTpheTIwMTY6YW0xMiJ9fX0=
+````
+
+
+#### Output
+
+````
+Git Storage
+         commit : cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5
+      reference : txns-1E5
+      directory : txns
+         suffix : txn
+        message : txns-1E5: 2016/12
+
+Txn Set Checksum
+        SHA-256 : 51faa6d2133d22d3ff8b60aff57722d1869fc4677911b13161dce558e7498073
+       Set size : 8406
+
+Filter:
+  Posting Account: "^a:ay2016:am12$"
+
+
+BALANCE
+-------
+                    0.00   -133433.00  a:ay2016
+              -133433.00   -133433.00  a:ay2016:am12
+========================
+              -133433.00
+````
 
 ## Further info
 
 * [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/)
+* [Txn Filters with Shell Script](https://tackler.e257.fi/docs/usage/#txn-filters-shell)
 * [Tackler-NG repository](https://github.com/e257-fi/tackler-ng)
 * [Tackler website](https://tackler.e257.fi/)
 * [Plain Text Accounting](https://plaintextaccounting.org/)

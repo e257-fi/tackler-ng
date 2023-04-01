@@ -174,7 +174,9 @@ use crate::tests::IndocWithMarker;
       for t in pok_strings {
         let res = parser::string_to_txns(&t.0, &Settings::default());
         assert!(res.is_ok(), "Offending test vector item: {}", count);
-        let txn: &Transaction = &res.unwrap(/*:test:*/).txns[0];
+          let txn_data = res.unwrap(/*:test:*/);
+          let txns = txn_data.get_all().unwrap(/*:test:*/);
+        let txn: &Transaction = &txns.txns[0];
         assert_eq!(txn_uuid_to_string(txn), t.1.to_string());
         count = count + 1;
       }

@@ -21,7 +21,7 @@ use std::fmt::Formatter;
 
 use crate::filters::IndentDisplay;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterTxnTags {
     #[serde(with = "serde_regex")]
     pub regex: Regex,

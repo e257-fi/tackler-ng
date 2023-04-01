@@ -16,14 +16,14 @@
  */
 
 use crate::kernel::report_item_selector::RegisterSelector;
-use crate::model::{RegisterEntry, RegisterPosting, Txns};
+use crate::model::{RegisterEntry, RegisterPosting, TxnRefs};
 use rust_decimal::Decimal;
 use std::collections::HashMap;
 use std::error::Error;
 use std::io::Write;
 
 pub(crate) fn register_engine<'a, W, T>(
-    txns: &'a Txns,
+    txns: &'a TxnRefs,
     ras: Box<T>,
     w: &mut W,
     reporter: fn(f: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>,

@@ -68,7 +68,7 @@ pub trait IndentDisplay {
 /// Actual filtering implementation is done by Trait [`FilterTxn`]
 ///
 /// [`FilterTxn`]: ../tackler_core/filter/index.html
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum TxnFilter {
     // Nullary test filters
     NullaryTRUE(NullaryTRUE),
@@ -140,7 +140,7 @@ impl IndentDisplay for TxnFilter {
 }
 
 /// Special filter which will always return true
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NullaryTRUE {}
 
 impl IndentDisplay for NullaryTRUE {
@@ -150,7 +150,7 @@ impl IndentDisplay for NullaryTRUE {
 }
 
 /// Special filter which will always return false
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NullaryFALSE {}
 impl IndentDisplay for NullaryFALSE {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {

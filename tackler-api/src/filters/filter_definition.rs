@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use std::str::from_utf8;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FilterDefinition {
     #[serde(rename = "txnFilter")]
     pub txn_filter: TxnFilter,

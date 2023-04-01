@@ -71,7 +71,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 8);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 8);
       }
 
     #[test]
@@ -92,7 +92,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
 
     #[test]
@@ -137,7 +137,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 8);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 8);
     }
 
     #[test]
@@ -158,7 +158,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
 //
 //  describe("Profit and Loss parsing") {
@@ -209,7 +209,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 9);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 9);
     }
 
     #[test]
@@ -230,7 +230,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
 
     #[test]
@@ -279,7 +279,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 9);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 9);
     }
 
     #[test]
@@ -300,7 +300,7 @@ use crate::tests::IndocWithMarker;
 
         let res = parser::string_to_txns(&txns_str, &Settings::default());
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(/*:test:*/).txns.len(), 2);
+        assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
 
 

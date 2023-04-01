@@ -34,33 +34,36 @@ const TXN_SET_1E5_COMMIT_ID: &str = "cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5";
 
 fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksum: &str) {
     match result {
-        Ok(txn_data) => match txn_data.metadata {
-            Some(md) => {
-                assert_eq!(md.items.len(), 2, "Metadata Item count is wrong");
-                match &md.items[0] {
-                    MetadataItem::GitInputReference(gitmd) => {
-                        assert_eq!(gitmd.commit, commit);
+        Ok(txn_data) => {
+            let txn_set = txn_data.get_all().unwrap(/*:test:*/);
+            match txn_set.metadata() {
+                Some(md) => {
+                    assert_eq!(md.items.len(), 2, "Metadata Item count is wrong");
+                    match &md.items[0] {
+                        MetadataItem::GitInputReference(gitmd) => {
+                            assert_eq!(gitmd.commit, commit);
+                        }
+                        _ => {
+                            panic!(/*:test:*/ "The first item is not Git Input Metadata item")
+                        }
                     }
-                    _ => {
-                        panic!(/*:test:*/ "The first item is not Git Input Metadata item")
+                    match &md.items[1] {
+                        MetadataItem::TxnSetChecksum(tscsmd) => {
+                            assert_eq!(tscsmd.hash.value, checksum);
+                        }
+                        _ => {
+                            panic!(
+                                /*:test:*/
+                                "The second item is not Txn Set Checksum Metadata item"
+                            )
+                        }
                     }
                 }
-                match &md.items[1] {
-                    MetadataItem::TxnSetChecksum(tscsmd) => {
-                        assert_eq!(tscsmd.hash.value, checksum);
-                    }
-                    _ => {
-                        panic!(
-                            /*:test:*/
-                            "The second item is not Txn Set Checksum Metadata item"
-                        )
-                    }
+                None => {
+                    panic!(/*:test:*/ "no metadata")
                 }
             }
-            None => {
-                panic!(/*:test:*/ "no metadata")
-            }
-        },
+        }
         Err(err) => {
             eprintln!("{err:#}");
             panic!(/*:test:*/);

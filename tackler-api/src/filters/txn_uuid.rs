@@ -21,7 +21,7 @@ use uuid::Uuid;
 
 use crate::filters::IndentDisplay;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterTxnUUID {
     pub uuid: Uuid,
 }

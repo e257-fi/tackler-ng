@@ -21,7 +21,7 @@ use std::fmt::Formatter;
 
 use crate::filters::IndentDisplay;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterTxnTSEnd {
     pub end: DateTime<FixedOffset>,
 }

@@ -80,10 +80,10 @@ use crate::tests::IndocWithMarker;
       let res = parser::string_to_txns(&txns_str, &Settings::default());
       assert!(res.is_ok());
       let txn_data = &res.unwrap(/*:test:*/);
-      assert_eq!(txn_data.txns.len(), 3);
-
-      let txn_1: &Transaction = &txn_data.txns[0];
-      let txn_3: &Transaction = &txn_data.txns[2];
+      assert_eq!(txn_data.len(), 3);
+      let txns = txn_data.get_all().unwrap(/*:test:*/);
+      let txn_1: &Transaction = &txns.txns[0];
+      let txn_3: &Transaction = &txns.txns[2];
 
       assert_eq!(txn_desc_to_string(txn_1), "txn-1 by str");
       assert_eq!(txn_desc_to_string(txn_3), "txn-3 by str");

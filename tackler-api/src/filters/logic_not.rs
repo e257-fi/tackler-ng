@@ -27,7 +27,7 @@ use std::fmt::Formatter;
 /// Actual filtering implementation is done by Trait [`FilterTxn`]
 ///
 /// [`FilterTxn`]: ../tackler_core/filter/index.html
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterNOT {
     #[serde(rename = "txnFilter")]
     pub txn_filter: Box<TxnFilter>,
