@@ -22,8 +22,33 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
 use std::str::from_utf8;
 
+/// The main filter definition
+///
+/// This is the main handle for Txn Filter  definition, and this can be used to serialize
+/// and deserialize filters from JSON.
+///
+/// # Examples
+///
+/// ```
+/// # use std::error::Error;
+/// # use tackler_api::filters::FilterDefinition;
+/// # use tackler_api::filters::TxnFilter;
+///
+/// let filter_json_str = r#"{"txnFilter":{"NullaryTRUE":{}}}"#;
+///
+/// let tf = serde_json::from_str::<FilterDefinition>(filter_json_str)?;
+///
+/// match tf.txn_filter {
+///      TxnFilter::NullaryTRUE(_) => assert!(true),
+///      _ => assert!(false),
+/// }
+///
+/// assert_eq!(serde_json::to_string(&tf)?, filter_json_str);
+/// # Ok::<(), Box<dyn Error>>(())
+/// ```
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FilterDefinition {
+    #[doc(hidden)]
     #[serde(rename = "txnFilter")]
     pub txn_filter: TxnFilter,
 }
@@ -31,14 +56,54 @@ pub struct FilterDefinition {
 impl FilterDefinition {
     const FILTER_ARMOR: &'static str = "base64:";
 
-    pub fn from(filt_str: &str) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
+    /// Generate filter from JSON String
+    ///
+    /// # Examples
+    /// ```
+    /// # use std::error::Error;
+    /// # use tackler_api::filters::FilterDefinition;
+    /// # use tackler_api::filters::TxnFilter;
+    ///
+    /// let filter_json_str = r#"{"txnFilter":{"NullaryTRUE":{}}}"#;
+    ///
+    /// let tf = FilterDefinition::from_json_str(filter_json_str)?;
+    ///
+    /// match tf.txn_filter {
+    ///      TxnFilter::NullaryTRUE(_) => assert!(true),
+    ///      _ => assert!(false),
+    /// }
+    ///
+    /// # Ok::<(), Box<dyn Error>>(())
+    /// ```
+    pub fn from_json_str(filt_str: &str) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
         Ok(serde_json::from_str::<FilterDefinition>(filt_str)?)
     }
 
+    /// Test if filter string is ascii armored
+    ///
     pub fn is_armored(filt: &str) -> bool {
         filt.starts_with(FilterDefinition::FILTER_ARMOR)
     }
 
+    /// Generate filter from ascii armor JSON String
+    ///
+    /// # Examples
+    /// ```
+    /// # use std::error::Error;
+    /// # use tackler_api::filters::FilterDefinition;
+    /// # use tackler_api::filters::TxnFilter;
+    ///
+    /// let filter_ascii_armor = "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K";
+    ///
+    /// let tf = FilterDefinition::from_armor(filter_ascii_armor)?;
+    ///
+    /// match tf.txn_filter {
+    ///      TxnFilter::NullaryTRUE(_) => assert!(true),
+    ///      _ => assert!(false),
+    /// }
+    ///
+    /// # Ok::<(), Box<dyn Error>>(())
+    /// ```
     pub fn from_armor(
         filt_armor_str: &str,
     ) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
@@ -58,7 +123,7 @@ impl FilterDefinition {
         };
         let data = &general_purpose::STANDARD.decode(filt_armor)?;
 
-        FilterDefinition::from(from_utf8(data)?)
+        FilterDefinition::from_json_str(from_utf8(data)?)
     }
 }
 

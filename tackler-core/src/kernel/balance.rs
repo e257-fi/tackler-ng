@@ -21,7 +21,7 @@ use crate::model::{AccountTreeNode, BalanceTreeNode, Commodity, TxnRefs, TxnSet}
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::{HashMap, HashSet};
-use tackler_api::Metadata;
+use tackler_api::metadata::Metadata;
 
 pub type Deltas = HashMap<Option<Commodity>, Decimal>;
 pub type BTNs = Vec<BalanceTreeNode>;
@@ -206,11 +206,11 @@ impl Balance {
         bal
     }
 
-    pub fn from<T>(title: &str, txn_data: &TxnSet, accounts: Box<T>) -> Balance
+    pub fn from<T>(title: &str, txn_set: &TxnSet, accounts: Box<T>) -> Balance
     where
         T: BalanceSelector + ?Sized,
     {
-        let bal = Balance::balance(&txn_data.txns);
+        let bal = Balance::balance(&txn_set.txns);
 
         let filt_bal: Vec<_> = bal
             .iter()
@@ -223,7 +223,7 @@ impl Balance {
                 title: title.to_string(),
                 bal: Default::default(),
                 deltas: Default::default(),
-                metadata: txn_data.metadata.clone(),
+                metadata: txn_set.metadata.clone(),
             }
         } else {
             let deltas = filt_bal

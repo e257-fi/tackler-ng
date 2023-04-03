@@ -20,7 +20,6 @@ mod cli_args;
 
 use std::error::Error;
 use std::io;
-use std::io::Write;
 use std::path::PathBuf;
 
 use log::error;
@@ -89,7 +88,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
             if FilterDefinition::is_armored(&filt_str) {
                 Some(FilterDefinition::from_armor(&filt_str)?)
             } else {
-                Some(FilterDefinition::from(&filt_str)?)
+                Some(FilterDefinition::from_json_str(&filt_str)?)
             }
         }
         None => None,
@@ -107,7 +106,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
             }
 
             if let Some(reports) = cli.reports {
-                let mut w: Box<dyn Write> = Box::new(io::stdout());
+                let mut w: Box<dyn io::Write> = Box::new(io::stdout());
 
                 for r in reports {
                     match r.as_str() {

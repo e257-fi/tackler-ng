@@ -31,7 +31,8 @@ use crate::parser::txn_antlr::txnparser::{
 use antlr_rust::tree::{ParseTree, Tree};
 use itertools::Itertools;
 use rust_decimal::Decimal;
-use tackler_api::{GeoPoint, Tag, Tags, TxnHeader};
+use tackler_api::location::GeoPoint;
+use tackler_api::txn_header::{Tag, Tags, TxnHeader};
 
 fn error_on_line<'a, T>(ctx: &Rc<T>, msg: &str) -> String
 where

@@ -15,27 +15,14 @@
  *
  */
 #![forbid(unsafe_code)]
-
+#![warn(missing_docs)]
 //! Tackler API components
 
-pub use crate::txn_header::TxnHeader;
-
-pub use crate::geo_point::GeoPoint;
-pub use crate::metadata::Checksum;
-pub use crate::metadata::GitInputReference;
-pub use crate::metadata::Metadata;
-pub use crate::metadata::MetadataItem;
-pub use crate::metadata::TxnFilterDescription;
-pub use crate::metadata::TxnSetChecksum;
-
-mod metadata;
-
-pub type Tags = Vec<String>;
-pub type Tag = String;
+pub mod metadata;
 
 pub mod filters;
-mod geo_point;
-mod txn_header;
+pub mod location;
+pub mod txn_header;
 pub mod txn_ts;
 
 #[cfg(test)]

@@ -17,7 +17,7 @@
 
 use sha2::{Digest, Sha256, Sha512, Sha512_256};
 use std::error::Error;
-use tackler_api::Checksum;
+use tackler_api::metadata::Checksum;
 
 #[derive(Debug, Clone)]
 pub struct Hash {
@@ -53,11 +53,7 @@ impl Hash {
         }
     }
 
-    pub fn checksum(
-        &self,
-        items: &Vec<String>,
-        separator: &[u8],
-    ) -> Result<Checksum, Box<dyn Error>> {
+    pub fn checksum(&self, items: &[String], separator: &[u8]) -> Result<Checksum, Box<dyn Error>> {
         //let mut hasher: Box<dyn DynDigest> = match hash_algo {
         let mut hasher = match self.hash_algo.as_str() {
             "SHA-256" => sha2::Sha256::default(),

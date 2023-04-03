@@ -29,7 +29,7 @@ use gix as git;
 use indoc::formatdoc;
 
 use crate::kernel::Settings;
-use tackler_api::{GitInputReference, MetadataItem};
+use tackler_api::metadata::items::{GitInputReference, MetadataItem};
 
 pub enum GitInputSelector {
     CommitId(String),

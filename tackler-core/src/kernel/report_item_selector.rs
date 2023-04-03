@@ -18,7 +18,7 @@
 use crate::model::{BalanceTreeNode, RegisterPosting};
 use regex::RegexSet;
 use std::error::Error;
-use tackler_api::Checksum;
+use tackler_api::metadata::Checksum;
 
 pub trait Filtering<T> {
     ///

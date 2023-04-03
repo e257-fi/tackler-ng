@@ -15,87 +15,103 @@
  *
  */
 
+//! Transaction filters
+//!
+//! The filtering logic is implemented in [`tackler-core`].
+//!
+//! [`tackler-core`]: ../../tackler_core/index.html
 mod filter_definition;
-mod logic_and;
-mod logic_not;
-mod logic_or;
-mod posting_account;
-mod posting_amount_equal;
-mod posting_amount_greater;
-mod posting_amount_less;
-mod posting_comment;
-mod posting_commodity;
-mod txn_bbox_lat_lon;
-mod txn_bbox_lat_lon_alt;
-mod txn_code;
-mod txn_comments;
-mod txn_description;
-mod txn_tags;
-mod txn_ts_begin;
-mod txn_ts_end;
-mod txn_uuid;
+pub mod logic;
+pub mod posting;
+pub mod txn;
 
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Error, Formatter};
 
 pub use crate::filters::filter_definition::FilterDefinition;
-pub use crate::filters::posting_account::TxnFilterPostingAccount;
-pub use crate::filters::posting_amount_equal::TxnFilterPostingAmountEqual;
-pub use crate::filters::posting_amount_greater::TxnFilterPostingAmountGreater;
-pub use crate::filters::posting_amount_less::TxnFilterPostingAmountLess;
-pub use crate::filters::posting_comment::TxnFilterPostingComment;
-pub use crate::filters::posting_commodity::TxnFilterPostingCommodity;
-pub use crate::filters::txn_bbox_lat_lon::TxnFilterBBoxLatLon;
-pub use crate::filters::txn_bbox_lat_lon_alt::TxnFilterBBoxLatLonAlt;
-pub use crate::filters::txn_code::TxnFilterTxnCode;
-pub use crate::filters::txn_comments::TxnFilterTxnComments;
-pub use crate::filters::txn_description::TxnFilterTxnDescription;
-pub use crate::filters::txn_tags::TxnFilterTxnTags;
-pub use crate::filters::txn_ts_begin::TxnFilterTxnTSBegin;
-pub use crate::filters::txn_ts_end::TxnFilterTxnTSEnd;
-pub use crate::filters::txn_uuid::TxnFilterTxnUUID;
-pub use logic_and::TxnFilterAND;
-pub use logic_not::TxnFilterNOT;
-pub use logic_or::TxnFilterOR;
 
+use logic::TxnFilterAND;
+use logic::TxnFilterNOT;
+use logic::TxnFilterOR;
+
+use txn::TxnFilterBBoxLatLon;
+use txn::TxnFilterBBoxLatLonAlt;
+use txn::TxnFilterTxnCode;
+use txn::TxnFilterTxnComments;
+use txn::TxnFilterTxnDescription;
+use txn::TxnFilterTxnTSBegin;
+use txn::TxnFilterTxnTSEnd;
+use txn::TxnFilterTxnTags;
+use txn::TxnFilterTxnUUID;
+
+use posting::TxnFilterPostingAccount;
+use posting::TxnFilterPostingAmountEqual;
+use posting::TxnFilterPostingAmountGreater;
+use posting::TxnFilterPostingAmountLess;
+use posting::TxnFilterPostingComment;
+use posting::TxnFilterPostingCommodity;
+
+/// fmt with prefix indent
+///
 pub trait IndentDisplay {
+    /// format with indent
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result;
 }
 
-/// Data models for transaction filters.
+/// Enum of all Transaction filters.
 ///
-/// Actual filtering implementation is done by Trait [`FilterTxn`]
-///
-/// [`FilterTxn`]: ../tackler_core/filter/index.html
+/// See [logic](crate::filters::logic), [txn](crate::filters::txn)
+/// and [posting](crate::filters::posting) modules
+/// for the documentation of transaction filters.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum TxnFilter {
     // Nullary test filters
+    #[doc(hidden)]
     NullaryTRUE(NullaryTRUE),
+    #[doc(hidden)]
     NullaryFALSE(NullaryFALSE),
 
     // Logic filters
+    #[doc(hidden)]
     TxnFilterAND(TxnFilterAND),
+    #[doc(hidden)]
     TxnFilterOR(TxnFilterOR),
+    #[doc(hidden)]
     TxnFilterNOT(TxnFilterNOT),
 
     // TXN Header filters
+    #[doc(hidden)]
     TxnFilterTxnTSBegin(TxnFilterTxnTSBegin),
+    #[doc(hidden)]
     TxnFilterTxnTSEnd(TxnFilterTxnTSEnd),
+    #[doc(hidden)]
     TxnFilterTxnCode(TxnFilterTxnCode),
+    #[doc(hidden)]
     TxnFilterTxnDescription(TxnFilterTxnDescription),
+    #[doc(hidden)]
     TxnFilterTxnUUID(TxnFilterTxnUUID),
+    #[doc(hidden)]
     TxnFilterBBoxLatLon(TxnFilterBBoxLatLon),
+    #[doc(hidden)]
     TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt),
+    #[doc(hidden)]
     TxnFilterTxnTags(TxnFilterTxnTags),
+    #[doc(hidden)]
     TxnFilterTxnComments(TxnFilterTxnComments),
 
     // TXN Postings
+    #[doc(hidden)]
     TxnFilterPostingAccount(TxnFilterPostingAccount),
+    #[doc(hidden)]
     TxnFilterPostingComment(TxnFilterPostingComment),
+    #[doc(hidden)]
     TxnFilterPostingAmountEqual(TxnFilterPostingAmountEqual),
+    #[doc(hidden)]
     TxnFilterPostingAmountLess(TxnFilterPostingAmountLess),
+    #[doc(hidden)]
     TxnFilterPostingAmountGreater(TxnFilterPostingAmountGreater),
+    #[doc(hidden)]
     TxnFilterPostingCommodity(TxnFilterPostingCommodity),
 }
 
@@ -139,7 +155,7 @@ impl IndentDisplay for TxnFilter {
     }
 }
 
-/// Special filter which will always return true
+/// Special always true filter (e.g. selects always)
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NullaryTRUE {}
 
@@ -149,9 +165,10 @@ impl IndentDisplay for NullaryTRUE {
     }
 }
 
-/// Special filter which will always return false
+/// Special always false filter (e.g. selects nothing)
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NullaryFALSE {}
+
 impl IndentDisplay for NullaryFALSE {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{indent}None pass")

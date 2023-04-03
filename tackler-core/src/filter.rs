@@ -19,26 +19,11 @@ use tackler_api::filters::TxnFilter;
 
 use crate::model::Transaction;
 mod filter_definition;
-mod logic_and;
-mod logic_not;
-mod logic_or;
+mod logic;
 mod nullary_false;
 mod nullary_true;
-mod posting_account;
-mod posting_amount_equal;
-mod posting_amount_greater;
-mod posting_amount_less;
-mod posting_comment;
-mod posting_commodity;
-mod txn_bbox_lat_lon;
-mod txn_bbox_lat_lon_alt;
-mod txn_code;
-mod txn_comments;
-mod txn_description;
-mod txn_tags;
-mod txn_ts_begin;
-mod txn_ts_end;
-mod txn_uuid;
+mod posting;
+mod txn;
 
 /// Actual filtering implementation for [`TxnFilter`]
 ///
@@ -87,9 +72,11 @@ mod tests {
     use chrono::{DateTime, FixedOffset};
     use rust_decimal::Decimal;
     use tackler_api::filters::{
-        NullaryFALSE, NullaryTRUE, TxnFilter, TxnFilterAND, TxnFilterNOT, TxnFilterOR,
+        logic::TxnFilterAND, logic::TxnFilterNOT, logic::TxnFilterOR, NullaryFALSE, NullaryTRUE,
+        TxnFilter,
     };
-    use tackler_api::{GeoPoint, TxnHeader};
+    use tackler_api::location::GeoPoint;
+    use tackler_api::txn_header::TxnHeader;
     use uuid::Uuid;
 
     use super::*;

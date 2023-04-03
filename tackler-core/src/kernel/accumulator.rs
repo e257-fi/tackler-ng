@@ -20,7 +20,7 @@ use crate::model::{RegisterEntry, RegisterPosting, TxnRefs};
 use rust_decimal::Decimal;
 use std::collections::HashMap;
 use std::error::Error;
-use std::io::Write;
+use std::io;
 
 pub(crate) fn register_engine<'a, W, T>(
     txns: &'a TxnRefs,
@@ -29,7 +29,7 @@ pub(crate) fn register_engine<'a, W, T>(
     reporter: fn(f: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>,
 ) -> Result<(), Box<dyn Error>>
 where
-    W: Write + ?Sized,
+    W: io::Write + ?Sized,
     T: RegisterSelector<'a> + ?Sized,
 {
     let mut register_engine: HashMap<String, Decimal> = HashMap::new();

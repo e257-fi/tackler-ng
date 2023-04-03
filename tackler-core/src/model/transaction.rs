@@ -19,7 +19,8 @@ use crate::model::{posting, Posts};
 use std::cmp::Ordering;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use tackler_api::{txn_ts, TxnHeader};
+use tackler_api::txn_header::TxnHeader;
+use tackler_api::txn_ts;
 
 #[derive(Debug, Default)]
 pub struct Transaction {
@@ -88,7 +89,7 @@ mod tests {
     use rust_decimal::Decimal;
 
     use crate::model::{AccountTreeNode, Posting};
-    use tackler_api::TxnHeader;
+    use tackler_api::txn_header::TxnHeader;
 
     #[test]
     fn txn_to_display() {

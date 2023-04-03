@@ -22,7 +22,7 @@ use crate::kernel::report_item_selector::{
 use crate::model::{RegisterEntry, TxnSet};
 use crate::report::Report;
 use std::error::Error;
-use std::io::Write;
+use std::io;
 
 #[derive(Debug, Clone)]
 pub struct RegisterSettings {
@@ -53,7 +53,7 @@ impl RegisterReporter {
     }
 }
 
-fn reg_entry_txt_writer<W: Write + ?Sized>(
+fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     f: &mut W,
     re: &RegisterEntry,
 ) -> Result<(), Box<dyn Error>> {
@@ -64,7 +64,7 @@ fn reg_entry_txt_writer<W: Write + ?Sized>(
 }
 
 impl Report for RegisterReporter {
-    fn write_txt_report<W: Write + ?Sized>(
+    fn write_txt_report<W: io::Write + ?Sized>(
         &self,
         writer: &mut W,
         txns: &TxnSet,

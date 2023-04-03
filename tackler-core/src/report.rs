@@ -22,13 +22,13 @@ pub use balance_reporter::BalanceReporter;
 pub use balance_reporter::BalanceSettings;
 pub use register_reporter::RegisterReporter;
 pub use register_reporter::RegisterSettings;
-use std::io::Write;
+use std::io;
 
 mod balance_reporter;
 mod register_reporter;
 
 pub trait Report {
-    fn write_txt_report<W: Write + ?Sized>(
+    fn write_txt_report<W: io::Write + ?Sized>(
         &self,
         w: &mut W,
         txns: &TxnSet,

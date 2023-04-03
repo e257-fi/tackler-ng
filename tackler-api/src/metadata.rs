@@ -15,65 +15,57 @@
  *
  */
 
-use crate::filters::FilterDefinition;
+//! Txn Set and Report metadata
+//!
+pub mod items;
 
-pub trait Text: std::fmt::Debug {
-    /// Get metadata item as text
-    fn text(&self) -> Vec<String>;
-}
+use items::MetadataItem;
+use items::MetadataItems;
+use items::Text;
 
-#[derive(Debug, Clone)]
-pub enum MetadataItem {
-    TxnSetChecksum(TxnSetChecksum),
-    GitInputReference(GitInputReference),
-    TxnFilterDescription(TxnFilterDescription),
-}
-
-impl Text for MetadataItem {
-    fn text(&self) -> Vec<String> {
-        match self {
-            Self::GitInputReference(gif) => gif.text(),
-            Self::TxnSetChecksum(tscs) => tscs.text(),
-            Self::TxnFilterDescription(tfd) => tfd.text(),
-        }
-    }
-}
-
+/// Metadata of Inputs, Txn Set, Reporting parameters, etc.
+///
 #[derive(Debug, Clone, Default)]
 pub struct Metadata {
     // todo: fix pub access
-    pub items: Vec<MetadataItem>,
+    #[doc(hidden)]
+    pub items: MetadataItems,
 }
 
 impl Metadata {
+    /// Get new empty `metadata`
     pub fn new() -> Metadata {
         Metadata { items: Vec::new() }
     }
 
+    /// Get new metadata with existing Metadata item
     pub fn from_mdi(mdi: MetadataItem) -> Metadata {
         let items = vec![mdi];
 
         Metadata { items }
     }
 
+    /// Get new metadata from existing Metadata.
+    ///
+    /// If there is an existing [TxnSetChecksum](items::TxnSetChecksum) metadata item,
+    /// it will be removed from the new set.
     pub fn from_metadata(md: &Metadata) -> Metadata {
         let mut metadata = Metadata::new();
         for mdi in &md.items {
             match mdi {
-                MetadataItem::TxnSetChecksum(_) => {
-                    // txndata should not ever contain TSC MD item
-                    debug_assert!(false);
-                }
+                MetadataItem::TxnSetChecksum(_) => (),
                 _ => metadata.push(mdi.clone()),
             }
         }
         metadata
     }
 
+    /// Add metadata item into metadata
     pub fn push(&mut self, mdi: MetadataItem) {
         self.items.push(mdi)
     }
 
+    /// Get textual representation of Metadata
     pub fn text(&self) -> String {
         let ts = self
             .items
@@ -96,79 +88,4 @@ pub struct Checksum {
     pub algorithm: String,
     /// hexadecimal hash value
     pub value: String,
-}
-
-/// Txn Set Checksum metadata item
-#[derive(Debug, Clone)]
-pub struct TxnSetChecksum {
-    /// size of transaction set
-    pub size: usize,
-    /// hash of Txn Set Checksum
-    pub hash: Checksum,
-}
-impl Text for TxnSetChecksum {
-    fn text(&self) -> Vec<String> {
-        // echo -n "SHA-512/256" | wc -c => 11
-        let pad = 15;
-        vec![
-            format!("Txn Set Checksum"),
-            format!("{:>pad$} : {}", self.hash.algorithm, &self.hash.value),
-            format!("{:>pad$} : {}", "Set size", self.size),
-        ]
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct TxnFilterDescription {
-    txn_filter_def: FilterDefinition,
-}
-
-impl TxnFilterDescription {
-    pub fn from(tf: FilterDefinition) -> TxnFilterDescription {
-        TxnFilterDescription { txn_filter_def: tf }
-    }
-}
-impl Text for TxnFilterDescription {
-    fn text(&self) -> Vec<String> {
-        vec![format!("{}", self.txn_filter_def)]
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct GitInputReference {
-    pub commit: String,
-    pub reference: Option<String>,
-    pub dir: String,
-    pub suffix: String,
-    pub message: String,
-}
-
-impl Text for GitInputReference {
-    /*
-       Seq(
-         "Git storage:",
-         "  commit:  " + commit,
-         "  ref:     " + ref.getOrElse("FIXED by commit"),
-         "  dir:     " + dir,
-         "  suffix:  " + suffix,
-         "  message: " + message,
-       )
-    */
-    fn text(&self) -> Vec<String> {
-        let pad = 15;
-        vec![
-            format!("Git Storage"),
-            format!("{:>pad$} : {}", "commit", self.commit),
-            format!(
-                "{:>pad$} : {}",
-                "reference",
-                self.reference
-                    .as_ref()
-                    .unwrap_or(&"FIXED by commit - no ref!".to_string())
-            ),
-            format!("{:>pad$} : {}", "directory", self.dir),
-            format!("{:>pad$} : {}", "suffix", self.suffix),
-            format!("{:>pad$} : {}", "message", self.message.trim()),
-        ]
-    }
 }

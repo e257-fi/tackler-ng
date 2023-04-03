@@ -15,13 +15,16 @@
  *
  */
 
-/*
-def isoZonedTS(ts: ZonedDateTime): String = {
-ts.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-}
- */
+//! Timestamp utilities
+//!
+//! `txn_ts` is collection of utilities to generate
+//! different representations of Txn timestamps.
+//!
 use chrono::{DateTime, FixedOffset, SecondsFormat};
 
+/// ISO-8601 Timestamp with offset.
+///
+/// Generates ISO-8601 date-time with offset `2016-12-17T12:31:12+03:00`
 pub fn iso_zoned_ts(ts: DateTime<FixedOffset>) -> String {
     ts.to_rfc3339_opts(SecondsFormat::AutoSi, true)
 }

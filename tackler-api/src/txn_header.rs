@@ -15,37 +15,58 @@
  *
  */
 
+//! Transaction header
+//!
 use chrono::{DateTime, FixedOffset};
 use std::cmp::Ordering;
 use uuid::Uuid;
 
-use crate::{GeoPoint, Tags};
+/// Collection of Txn Tags
+pub type Tags = Vec<String>;
 
+/// Single Txn Tag
+pub type Tag = String;
+
+/// Collection of Txn comments
+pub type Comments = Vec<String>;
+
+use crate::location::GeoPoint;
+
+/// Transaction Header Structure
+///
 #[derive(Default, Debug)]
 pub struct TxnHeader {
+    /// Txn timestamp with Zone information
     pub timestamp: DateTime<FixedOffset>,
+    /// Txn Code field, if any
     pub code: Option<String>,
+    /// Txn Description, if any
     pub description: Option<String>,
+    /// Txn UUID, if any. This is mandatory, if audit-mode is on
     pub uuid: Option<Uuid>,
+    /// Txn location, if any
     pub location: Option<GeoPoint>,
+    /// Txn tags, if any
     pub tags: Option<Tags>,
-    pub comments: Option<Vec<String>>,
+    /// Txn comments, if any
+    pub comments: Option<Comments>,
 }
 
 impl TxnHeader {
+    fn t_to_s(tags: &Tags) -> String {
+        tags.join(", ")
+    }
+    /// Get Tags as string.
+    ///
+    /// String will be empty, if there isn't any tag
     pub fn tags_to_string(&self) -> String {
         match &self.tags {
-            Some(t) => t.join(", "),
-            None => "".to_string(),
-        }
-    }
-    pub fn location_to_string(&self) -> String {
-        match &self.location {
-            Some(t) => t.to_string(),
+            Some(t) => Self::t_to_s(t),
             None => "".to_string(),
         }
     }
 }
+
 impl Ord for TxnHeader {
     fn cmp(&self, other: &Self) -> Ordering {
         let date_comp = self.timestamp.cmp(&other.timestamp);
@@ -106,6 +127,9 @@ impl PartialEq for TxnHeader {
 impl Eq for TxnHeader {}
 
 impl TxnHeader {
+    /// Get Txn header as string, with `indent` and Txn TS formatter
+    ///
+    /// See [txn_ts](crate::txn_ts) module for default formatters
     pub fn to_string_with_indent(
         &self,
         indent: &str,
@@ -135,7 +159,7 @@ impl TxnHeader {
                 .map_or_else(String::default, |tags| format!(
                     "{}# tags: {}\n",
                     indent,
-                    tags.join(", ")
+                    Self::t_to_s(tags)
                 )),
             // txn comments
             self.comments
@@ -157,7 +181,7 @@ mod tests {
     use indoc::formatdoc;
     use indoc::indoc;
 
-    use crate::{txn_ts, TxnHeader};
+    use crate::{txn_header::TxnHeader, txn_ts};
 
     #[test]
     fn txn_header_display() {

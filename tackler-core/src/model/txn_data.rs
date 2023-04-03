@@ -22,7 +22,8 @@ use crate::filter::FilterTxn;
 use crate::kernel::hash::Hash;
 use crate::model::{TxnRefs, Txns};
 use tackler_api::filters::FilterDefinition;
-use tackler_api::{Checksum, Metadata, MetadataItem, TxnFilterDescription, TxnSetChecksum};
+use tackler_api::metadata::items::{MetadataItem, TxnFilterDescription, TxnSetChecksum};
+use tackler_api::metadata::{Checksum, Metadata};
 
 #[derive(Debug)]
 pub struct TxnData {

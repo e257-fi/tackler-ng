@@ -23,7 +23,7 @@ use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use std::cmp::max;
 use std::error::Error;
-use std::io::Write;
+use std::io;
 
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
@@ -59,7 +59,7 @@ impl BalanceReporter {
 }
 
 impl Report for BalanceReporter {
-    fn write_txt_report<W: Write + ?Sized>(
+    fn write_txt_report<W: io::Write + ?Sized>(
         &self,
         writer: &mut W,
         txn_data: &TxnSet,

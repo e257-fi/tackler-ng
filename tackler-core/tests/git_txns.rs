@@ -14,9 +14,10 @@
  * limitations under the License.
  *
  */
+
 use std::error::Error;
 use std::path::Path;
-use tackler_api::MetadataItem;
+use tackler_api::metadata::items::MetadataItem;
 use tackler_core::kernel::Settings;
 use tackler_core::model::TxnData;
 use tackler_core::parser;
