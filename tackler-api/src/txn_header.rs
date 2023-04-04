@@ -177,9 +177,9 @@ impl TxnHeader {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tests::IndocWithMarker;
     use indoc::formatdoc;
     use indoc::indoc;
+    use tackler_rs::IndocUtils;
 
     use crate::{txn_header::TxnHeader, txn_ts};
 

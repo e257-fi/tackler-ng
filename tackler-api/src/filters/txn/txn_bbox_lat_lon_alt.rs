@@ -62,7 +62,7 @@ mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
-    use tackler_rs::IndocWithMarker;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: c027ef27-3287-411f-aad9-8185f1b55380

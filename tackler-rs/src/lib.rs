@@ -14,6 +14,12 @@
  * limitations under the License.
  *
  */
+
+//! Rusty services for Tackler
+//!
+//! This crate is a collection of utilities for Tackler.
+//!
+#![deny(missing_docs)]
 #![forbid(unsafe_code)]
 
 use std::error::Error;
@@ -45,11 +51,40 @@ pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>
     Ok(paths)
 }
 
-pub trait IndocWithMarker {
+/// Extensions to be used with [Indoc](https://docs.rs/indoc/latest/indoc/)
+pub trait IndocUtils {
+    /// Strip away `|` -- prefix marker
+    ///
+    /// For full documentation, see  [`indoc!` -- docs](https://docs.rs/indoc/latest/indoc/).
+    ///
+    /// ```
+    /// fn main() {
+    ///     use indoc::indoc;
+    ///     use tackler_rs::IndocUtils;
+    ///     let testing = indoc! {
+    ///         "|def hello():
+    ///          |    print('Hello, bar!')
+    ///          |
+    ///          |hello()
+    ///          |"
+    ///     }.strip_margin();
+    ///     let expected = "def hello():\n    print('Hello, bar!')\n\nhello()\n";
+    ///     assert_eq!(testing, expected);
+    ///
+    ///     let second = indoc! {
+    ///          "def hello():
+    ///          |    print('Hello, bar!')
+    ///          |
+    ///          |hello()
+    ///          |"
+    ///     }.strip_margin();
+    ///     assert_eq!(second, testing);
+    /// }
+    /// ```
     fn strip_margin(&self) -> String;
 }
 
-impl IndocWithMarker for str {
+impl IndocUtils for str {
     fn strip_margin(&self) -> String {
         match self.strip_prefix('|') {
             Some(s) => s.to_string().replace("\n|", "\n"),

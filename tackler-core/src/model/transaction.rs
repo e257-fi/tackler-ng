@@ -83,10 +83,10 @@ impl Display for Transaction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tests::IndocWithMarker;
     use chrono::{DateTime, FixedOffset};
     use indoc::indoc;
     use rust_decimal::Decimal;
+    use tackler_rs::IndocUtils;
 
     use crate::model::{AccountTreeNode, Posting};
     use tackler_api::txn_header::TxnHeader;

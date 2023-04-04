@@ -26,7 +26,7 @@ use crate::kernel::Settings;
 use crate::model::Transaction;
 use crate::parser;
 use super::*;
-use crate::tests::IndocWithMarker;
+use tackler_rs::IndocUtils;
 
 
     #[test]

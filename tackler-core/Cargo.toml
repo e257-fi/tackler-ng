@@ -46,3 +46,6 @@ digest = "0.10.6"
 gix = { version = "0.43.0", default-features = false, features = [ "max-performance-safe" ] }
 gix-hash = { version = "0.10.3", default-features = false }
 
+[dev-dependencies]
+tackler-rs = { path = "../tackler-rs", version = "0.2.0" }
+

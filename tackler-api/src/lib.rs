@@ -24,21 +24,3 @@ pub mod filters;
 pub mod location;
 pub mod txn_header;
 pub mod txn_ts;
-
-#[cfg(test)]
-mod tests {
-    // todo: fixt this into common place with tackler-core
-
-    pub(crate) trait IndocWithMarker {
-        fn strip_margin(&self) -> String;
-    }
-
-    impl IndocWithMarker for str {
-        fn strip_margin(&self) -> String {
-            match self.strip_prefix('|') {
-                Some(s) => s.to_string().replace("\n|", "\n"),
-                None => self.replace("\n|", "\n"),
-            }
-        }
-    }
-}

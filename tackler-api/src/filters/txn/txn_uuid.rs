@@ -40,8 +40,8 @@ impl IndentDisplay for TxnFilterTxnUUID {
 mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
-    use crate::tests::IndocWithMarker;
     use indoc::indoc;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: 9ad41df9-c153-458b-a941-3b4763c25548

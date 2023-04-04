@@ -24,19 +24,3 @@ pub mod math;
 pub mod model;
 pub mod parser;
 pub mod report;
-
-#[cfg(test)]
-mod tests {
-    pub(crate) trait IndocWithMarker {
-        fn strip_margin(&self) -> String;
-    }
-
-    impl IndocWithMarker for str {
-        fn strip_margin(&self) -> String {
-            match self.strip_prefix('|') {
-                Some(s) => s.to_string().replace("\n|", "\n"),
-                None => self.replace("\n|", "\n"),
-            }
-        }
-    }
-}

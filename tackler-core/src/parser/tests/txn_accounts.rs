@@ -23,7 +23,7 @@
 use indoc::indoc;
 use crate::kernel::Settings;
 use crate::parser;
-use crate::tests::IndocWithMarker;
+use tackler_rs::IndocUtils;
 
 
 

@@ -47,8 +47,8 @@ impl IndentDisplay for TxnFilterTxnTSBegin {
 mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
-    use crate::tests::IndocWithMarker;
     use indoc::indoc;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: baa0038e-45b7-4911-a647-859de2da4716

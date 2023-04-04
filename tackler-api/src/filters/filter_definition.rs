@@ -139,7 +139,7 @@ mod tests {
     use super::*;
     use crate::filters::NullaryTRUE;
     use indoc::indoc;
-    use tackler_rs::IndocWithMarker;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: c6fe4f86-1daa-4e29-b327-467aed6dc5bb

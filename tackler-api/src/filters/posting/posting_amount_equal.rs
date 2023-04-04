@@ -58,7 +58,7 @@ mod tests {
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
     use regex::Regex;
-    use tackler_rs::IndocWithMarker;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: b7b4543d-2ffa-488f-b251-af5a7ba7204f

@@ -51,7 +51,7 @@ mod tests {
     use super::*;
     use crate::filters::{FilterDefinition, NullaryTRUE};
     use indoc::indoc;
-    use tackler_rs::IndocWithMarker;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: 8416ffe5-f07b-4304-85ca-be3a3e15f5e7

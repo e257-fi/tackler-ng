@@ -43,7 +43,7 @@ mod tests {
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
     use regex::Regex;
-    use tackler_rs::IndocWithMarker;
+    use tackler_rs::IndocUtils;
 
     #[test]
     // test: b7b43b0f-0046-4d25-8f61-2ef419b84f0b

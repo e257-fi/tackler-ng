@@ -24,8 +24,7 @@ use indoc::indoc;
 use crate::kernel::Settings;
 use crate::parser;
 use super::*;
-use crate::tests::IndocWithMarker;
-
+use tackler_rs::IndocUtils;
 
 //
 // describe("TacklerTxns with String") {

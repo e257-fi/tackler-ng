@@ -31,6 +31,7 @@ name = "tackler_rs"
 path = "src/lib.rs"
 
 [dependencies]
+indoc.workspace = true
 log = { workspace = true }
 walkdir = "2.3.3"
 
