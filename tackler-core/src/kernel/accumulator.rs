@@ -22,11 +22,14 @@ use std::collections::HashMap;
 use std::error::Error;
 use std::io;
 
+pub(crate) type RegisterReporterFn<W> =
+    fn(writer: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>;
+
 pub(crate) fn register_engine<'a, W, T>(
     txns: &'a TxnRefs,
-    ras: Box<T>,
+    ras: &T,
     w: &mut W,
-    reporter: fn(f: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>,
+    reporter: RegisterReporterFn<W>,
 ) -> Result<(), Box<dyn Error>>
 where
     W: io::Write + ?Sized,
@@ -57,7 +60,7 @@ where
         let mut filt_postings: Vec<_> = register_postings
             .iter()
             .cloned()
-            .filter(|p| ras.predicate(p))
+            .filter(|p| ras.eval(p))
             .collect();
 
         filt_postings.sort();

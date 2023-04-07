@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::txn::TxnFilterTxnTags;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterTxnTags {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterTxnTags {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.header
             .tags
             .as_ref()
@@ -46,6 +46,7 @@ mod tests {
             regex: Regex::new("ab.*").unwrap(/*:test:*/),
         };
 
+        #[allow(clippy::type_complexity)]
         let cases: Vec<(
             fn(Option<Vec<&str>>) -> Transaction,
             Option<Vec<&str>>,
@@ -60,7 +61,7 @@ mod tests {
 
         for t in cases.iter().cloned() {
             let txn = t.0(t.1);
-            assert_eq!(tf.filter(&txn), t.2);
+            assert_eq!(tf.eval(&txn), t.2);
         }
 
         // test: 82ff060b-11c4-4b91-8e3f-2298f0a201af
@@ -68,7 +69,7 @@ mod tests {
         let filt = TxnFilter::TxnFilterTxnTags(tf);
         for t in cases {
             let txn = t.0(t.1);
-            assert_eq!(filt.filter(&txn), t.2);
+            assert_eq!(filt.eval(&txn), t.2);
         }
     }
 }

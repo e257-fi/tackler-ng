@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::txn::TxnFilterBBoxLatLon;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterBBoxLatLon {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterBBoxLatLon {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.header.location.as_ref().map_or(false, |point| {
             if self.west < self.east {
                 self.south <= point.lat
@@ -74,14 +74,14 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
 
         // test: 78412bff-ef54-41e5-aed8-c1bf6965a4e6
         // desc: TxnFilter::TxnFilterBBoxLatLon
         let filt = TxnFilter::TxnFilterBBoxLatLon(tf);
         for t in cases {
-            assert_eq!(filt.filter(&t.0), t.1);
+            assert_eq!(filt.eval(&t.0), t.1);
         }
     }
 }

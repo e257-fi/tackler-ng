@@ -136,7 +136,7 @@ use tackler_rs::IndocUtils;
                   "Testing Line: Offending test vector item: {}", count);
           // todo: parser error messages, error position
           //assert(ex.getMessage.contains(perrStr._3))
-          count = count + 1;
+          count += 1;
         }
         assert_eq!(count, 9);
     }
@@ -307,9 +307,9 @@ use tackler_rs::IndocUtils;
             assert!(res.is_ok(), "Offending test vector item: {}", count);
             let txn_data = res.unwrap(/*:test:*/);
             let txns = txn_data.get_all().unwrap(/*:test:*/);
-            let txn: &Transaction = &txns.txns[0];
+            let txn: &Transaction = txns.txns[0];
             assert_eq!(txn_desc_to_string(txn), t.1.to_string());
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, 17);
     }
@@ -469,10 +469,10 @@ use tackler_rs::IndocUtils;
             assert!(res.is_ok(), "Offending test vector item: {}", count);
             let txn_data = res.unwrap(/*:test:*/);
             let txns = txn_data.get_all().unwrap(/*:test:*/);
-            let txn: &Transaction = &txns.txns[0];
+            let txn: &Transaction = txns.txns[0];
             assert_eq!(&txn.header.code.as_ref().unwrap(/*:test:*/).to_string(), &t.1.to_string());
             assert_eq!(&txn.header.description.as_ref().unwrap(/*:test:*/).to_string(), &t.2.to_string());
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, 14);
     }

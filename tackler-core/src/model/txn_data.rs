@@ -18,7 +18,7 @@
 use itertools::Itertools;
 use std::error::Error;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 use crate::kernel::hash::Hash;
 use crate::model::{TxnRefs, Txns};
 use tackler_api::filters::FilterDefinition;
@@ -84,7 +84,7 @@ impl TxnData {
     }
 
     pub fn filter<'a>(&'a self, tf: &FilterDefinition) -> Result<TxnSet<'a>, Box<dyn Error>> {
-        let refvec: TxnRefs = self.txns.iter().filter(|txn| tf.filter(txn)).collect();
+        let refvec: TxnRefs = self.txns.iter().filter(|txn| tf.eval(txn)).collect();
 
         let mut metadata = self.make_metadata(&refvec)?;
         let filter_mdi = MetadataItem::TxnFilterDescription(TxnFilterDescription::from(tf.clone()));
@@ -116,7 +116,7 @@ fn calc_txn_checksum(txns: &TxnRefs, hasher: &Hash) -> Result<Checksum, Box<dyn 
         .map(|txn| match txn.header.uuid {
             Some(uuid) => Ok(uuid.to_string()),
             None => {
-                let msg = "Txn without UUID. It is mandatory with transaction set checksum.";
+                let msg = "Txn without UUID. Txn UUID is mandatory with transaction set checksum calculation.";
                 Err(msg.into())
             }
         })

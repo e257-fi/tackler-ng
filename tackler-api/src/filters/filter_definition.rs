@@ -39,8 +39,8 @@ use std::str::from_utf8;
 /// let tf = serde_json::from_str::<FilterDefinition>(filter_json_str)?;
 ///
 /// match tf.txn_filter {
-///      TxnFilter::NullaryTRUE(_) => assert!(true),
-///      _ => assert!(false),
+///      TxnFilter::NullaryTRUE(_) => (),
+///      _ => panic!(),
 /// }
 ///
 /// assert_eq!(serde_json::to_string(&tf)?, filter_json_str);
@@ -69,8 +69,8 @@ impl FilterDefinition {
     /// let tf = FilterDefinition::from_json_str(filter_json_str)?;
     ///
     /// match tf.txn_filter {
-    ///      TxnFilter::NullaryTRUE(_) => assert!(true),
-    ///      _ => assert!(false),
+    ///      TxnFilter::NullaryTRUE(_) => (),
+    ///      _ => panic!(),
     /// }
     ///
     /// # Ok::<(), Box<dyn Error>>(())
@@ -81,6 +81,7 @@ impl FilterDefinition {
 
     /// Test if filter string is ascii armored
     ///
+    #[must_use]
     pub fn is_armored(filt: &str) -> bool {
         filt.starts_with(FilterDefinition::FILTER_ARMOR)
     }
@@ -98,8 +99,8 @@ impl FilterDefinition {
     /// let tf = FilterDefinition::from_armor(filter_ascii_armor)?;
     ///
     /// match tf.txn_filter {
-    ///      TxnFilter::NullaryTRUE(_) => assert!(true),
-    ///      _ => assert!(false),
+    ///      TxnFilter::NullaryTRUE(_) => (),
+    ///      _ => panic!(),
     /// }
     ///
     /// # Ok::<(), Box<dyn Error>>(())
@@ -158,8 +159,8 @@ mod tests {
         let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
-            TxnFilter::NullaryTRUE(_) => assert!(true),
-            _ => assert!(false),
+            TxnFilter::NullaryTRUE(_) => (),
+            _ => panic!(),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
@@ -188,11 +189,8 @@ mod tests {
 
     #[test]
     fn filter_definition_is_encoded() {
-        assert_eq!(
-            FilterDefinition::is_armored(FilterDefinition::FILTER_ARMOR),
-            true
-        );
-        assert_eq!(FilterDefinition::is_armored("hello there"), false);
+        assert!(FilterDefinition::is_armored(FilterDefinition::FILTER_ARMOR));
+        assert!(!FilterDefinition::is_armored("hello there"));
     }
 
     #[test]
@@ -210,8 +208,8 @@ mod tests {
 
             let tf = tf_res.unwrap(/*:test:*/);
             match tf.txn_filter {
-                TxnFilter::NullaryTRUE(_) => assert!(true),
-                _ => assert!(false),
+                TxnFilter::NullaryTRUE(_) => (),
+                _ => panic!(),
             }
         }
     }
@@ -228,6 +226,6 @@ mod tests {
         assert!(msg.contains(FilterDefinition::FILTER_ARMOR));
         // test malformed cut-off
         assert!(msg.contains("eyJ0eG5GaW"));
-        assert_eq!(msg.contains("eyJ0eG5GaWx"), false);
+        assert!(!msg.contains("eyJ0eG5GaWx"));
     }
 }

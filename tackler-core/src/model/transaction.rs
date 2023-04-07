@@ -98,7 +98,7 @@ mod tests {
             .unwrap(/*:test:*/);
 
         let tnx_hdr = TxnHeader {
-            timestamp: ts.clone(),
+            timestamp: ts,
             code: None,
             description: Some("desc".to_string()),
             uuid: None,
@@ -157,9 +157,9 @@ mod tests {
         let mut count = 0;
         let should_be_count = tests.len();
         for t in tests {
-            let txn_hdr_str = format!("{}", t.0.to_string());
+            let txn_hdr_str = format!("{}", t.0);
             assert_eq!(txn_hdr_str, t.1);
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, should_be_count);
     }

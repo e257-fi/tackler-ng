@@ -21,7 +21,6 @@ use crate::model::{AccountTreeNode, BalanceTreeNode, Commodity, TxnRefs, TxnSet}
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::{HashMap, HashSet};
-use tackler_api::metadata::Metadata;
 
 pub type Deltas = HashMap<Option<Commodity>, Decimal>;
 pub type BTNs = Vec<BalanceTreeNode>;
@@ -30,11 +29,10 @@ pub struct Balance {
     pub(crate) title: String,
     pub(crate) bal: BTNs,
     pub(crate) deltas: Deltas,
-    pub(crate) metadata: Option<Metadata>,
 }
 
 impl Balance {
-    fn is_empty(&self) -> bool {
+    pub(crate) fn is_empty(&self) -> bool {
         self.bal.is_empty()
     }
 }
@@ -86,8 +84,11 @@ impl Balance {
     /// Bubble up from leafs to root, and generate any missing (gap)
     /// AccountTreeNode (ATN) for new ATN entry with zero atn sum.
     ///
-    /// Input size is "small";  ~ size of CoA
-    /// Output size is "small"; ~ size of CoA
+    /// The max depth of recursion is the sub-account count
+    /// from leaf to root (e.g. it's small)
+    ///
+    /// * Input size is "small";  ~ size of CoA
+    /// * Output size is "small"; ~ size of CoA
     ///
     /// `my_acctn_sum` starting AccTNSum entry
     /// `acc_sums` current incomplete (in sense of Chart of Account) account sums
@@ -141,11 +142,11 @@ impl Balance {
 
     /// Calculate balance items
     ///
-    /// Input size is "big";     ~ all transactions
-    /// Output size is "small";  ~ size of CoA
+    /// * Input size is "big";     ~ all transactions
+    /// * Output size is "small";  ~ size of CoA
     ///
-    /// `txns` sequence of transactions
-    /// `returns` unfiltered sequence of BalanceTreeNodes
+    /// * `txns` sequence of transactions
+    /// * `returns` unfiltered sequence of BalanceTreeNodes
     fn balance(txns: &TxnRefs) -> Vec<BalanceTreeNode> {
         // Calculate sum of postings for each account.
         //
@@ -206,7 +207,7 @@ impl Balance {
         bal
     }
 
-    pub fn from<T>(title: &str, txn_set: &TxnSet, accounts: Box<T>) -> Balance
+    pub fn from<T>(title: &str, txn_set: &TxnSet, accounts: &T) -> Balance
     where
         T: BalanceSelector + ?Sized,
     {
@@ -214,7 +215,7 @@ impl Balance {
 
         let filt_bal: Vec<_> = bal
             .iter()
-            .filter(|b| accounts.predicate(b))
+            .filter(|b| accounts.eval(b))
             .cloned()
             .collect();
 
@@ -223,7 +224,6 @@ impl Balance {
                 title: title.to_string(),
                 bal: Default::default(),
                 deltas: Default::default(),
-                metadata: txn_set.metadata.clone(),
             }
         } else {
             let deltas = filt_bal
@@ -244,7 +244,6 @@ impl Balance {
                 title: title.to_string(),
                 bal: filt_bal,
                 deltas,
-                metadata: None, // todo: txnData.getMetadata(accounts))
             }
         }
     }

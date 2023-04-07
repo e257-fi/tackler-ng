@@ -18,11 +18,11 @@
 use crate::model::Transaction;
 use tackler_api::filters::logic::TxnFilterNOT;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterNOT {
-    fn filter(&self, txn: &Transaction) -> bool {
-        !self.txn_filter.filter(txn)
+impl Predicate<Transaction> for TxnFilterNOT {
+    fn eval(&self, txn: &Transaction) -> bool {
+        !self.txn_filter.eval(txn)
     }
 }
 
@@ -78,7 +78,7 @@ mod tests {
         let mut test_count = 0;
         let ref_count = filters.len();
         for tf in filters {
-            assert_eq!(tf.0.filter(&txn), tf.1);
+            assert_eq!(tf.0.eval(&txn), tf.1);
             test_count += 1;
         }
         assert_eq!(test_count, ref_count);

@@ -51,7 +51,7 @@ use tackler_rs::IndocUtils;
                 "Testing Line: Offending test vector item: {}", count);
         // todo: parser error messages, error position
         //assert(ex.getMessage.contains(perrStr._3))
-        count = count + 1;
+        count += 1;
       }
       assert_eq!(count, should_be_count);
     }
@@ -81,8 +81,8 @@ use tackler_rs::IndocUtils;
       let txn_data = &res.unwrap(/*:test:*/);
       assert_eq!(txn_data.len(), 3);
       let txns = txn_data.get_all().unwrap(/*:test:*/);
-      let txn_1: &Transaction = &txns.txns[0];
-      let txn_3: &Transaction = &txns.txns[2];
+      let txn_1: &Transaction = txns.txns[0];
+      let txn_3: &Transaction = txns.txns[2];
 
       assert_eq!(txn_desc_to_string(txn_1), "txn-1 by str");
       assert_eq!(txn_desc_to_string(txn_3), "txn-3 by str");

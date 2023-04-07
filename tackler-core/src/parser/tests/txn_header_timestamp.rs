@@ -176,7 +176,7 @@ use tackler_rs::IndocUtils;
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, 13);
     }
@@ -276,7 +276,7 @@ use tackler_rs::IndocUtils;
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, 8);
     }
@@ -546,9 +546,9 @@ use tackler_rs::IndocUtils;
             assert!(res.is_ok(), "is it ok: Offending test vector item: {}", count);
             let txn_data = res.unwrap(/*:test:*/);
             let txns = txn_data.get_all().unwrap(/*:test:*/);
-            let txn: &Transaction = &txns.txns[0];
+            let txn: &Transaction = txns.txns[0];
             assert_eq!(txn_ts_to_string(txn), t.1.to_string(), "Testing value: offending test vector item: {}", count);
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, 27);
     }

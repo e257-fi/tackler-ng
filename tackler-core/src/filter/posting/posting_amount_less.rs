@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::posting::TxnFilterPostingAmountLess;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterPostingAmountLess {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterPostingAmountLess {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.posts
             .iter()
             .any(|p| p.amount < self.amount && self.regex.is_match(&p.acctn.account))
@@ -57,14 +57,14 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
 
         // test: c245f18e-44e1-4d89-ba2f-0e6283fd5c37
         // desc: TxnFilter::TxnFilterPostingAmountLess
         let filt = TxnFilter::TxnFilterPostingAmountLess(tf);
         for t in cases {
-            assert_eq!(filt.filter(&t.0), t.1);
+            assert_eq!(filt.eval(&t.0), t.1);
         }
     }
 }

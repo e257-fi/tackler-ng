@@ -16,6 +16,7 @@
  */
 
 use tackler_api::filters::TxnFilter;
+use crate::kernel::Predicate;
 
 use crate::model::Transaction;
 mod filter_definition;
@@ -28,40 +29,36 @@ mod txn;
 /// Actual filtering implementation for [`TxnFilter`]
 ///
 /// [`TxnFilter`]: ../tackler_api/filters/index.html
-pub trait FilterTxn {
-    fn filter(&self, txn: &Transaction) -> bool;
-}
-
-impl FilterTxn for TxnFilter {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilter {
+    fn eval(&self, txn: &Transaction) -> bool {
         match self {
             // special nullary filters
-            TxnFilter::NullaryTRUE(tf) => tf.filter(txn),
-            TxnFilter::NullaryFALSE(tf) => tf.filter(txn),
+            TxnFilter::NullaryTRUE(tf) => tf.eval(txn),
+            TxnFilter::NullaryFALSE(tf) => tf.eval(txn),
 
             // logic filters
-            TxnFilter::TxnFilterAND(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterOR(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterNOT(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterAND(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterOR(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterNOT(tf) => tf.eval(txn),
 
             // txn header filters
-            TxnFilter::TxnFilterTxnTSBegin(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterTxnTSEnd(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterTxnCode(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterTxnDescription(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterTxnUUID(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterBBoxLatLon(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterTxnTags(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterTxnComments(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterTxnTSBegin(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterTxnTSEnd(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterTxnCode(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterTxnDescription(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterTxnUUID(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterBBoxLatLon(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterTxnTags(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterTxnComments(tf) => tf.eval(txn),
 
             // txn posting filters
-            TxnFilter::TxnFilterPostingAccount(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterPostingComment(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterPostingAmountEqual(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterPostingAmountLess(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterPostingAmountGreater(tf) => tf.filter(txn),
-            TxnFilter::TxnFilterPostingCommodity(tf) => tf.filter(txn),
+            TxnFilter::TxnFilterPostingAccount(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterPostingComment(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterPostingAmountEqual(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterPostingAmountLess(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterPostingAmountGreater(tf) => tf.eval(txn),
+            TxnFilter::TxnFilterPostingCommodity(tf) => tf.eval(txn),
         }
     }
 }
@@ -78,6 +75,7 @@ mod tests {
     use tackler_api::location::GeoPoint;
     use tackler_api::txn_header::TxnHeader;
     use uuid::Uuid;
+    use crate::kernel::Predicate;
 
     use super::*;
 
@@ -200,7 +198,7 @@ mod tests {
         let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap(/*:test:*/);
         let e_p = Posting::from(e_acctn, e_v, e_v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
 
-        let a_v = Decimal::new(-1 * e_value, 0);
+        let a_v = Decimal::new(-e_value, 0);
         let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap(/*:test:*/);
         let a_p = Posting::from(a_acctn, a_v, a_v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
 
@@ -241,7 +239,7 @@ mod tests {
         )
         .unwrap(/*:test:*/);
 
-        let a_v = Decimal::new(-1 * a_value, 0);
+        let a_v = Decimal::new(-a_value, 0);
         let a_acctn = AccountTreeNode::from(a.to_string(), make_commodity(c)).unwrap(/*:test:*/);
         let a_p = Posting::from(
             a_acctn,
@@ -359,7 +357,7 @@ mod tests {
         let mut test_count = 0;
         let ref_count = filters.len();
         for tf in filters {
-            assert_eq!(tf.0.filter(&txn), tf.1);
+            assert_eq!(tf.0.eval(&txn), tf.1);
             test_count += 1;
         }
         assert_eq!(test_count, ref_count);
@@ -468,7 +466,7 @@ mod tests {
         let mut test_count = 0;
         let ref_count = filters.len();
         for tf in filters {
-            assert_eq!(tf.0.filter(&txn), tf.1);
+            assert_eq!(tf.0.eval(&txn), tf.1);
             test_count += 1;
         }
         assert_eq!(test_count, ref_count);
@@ -512,7 +510,7 @@ mod tests {
         let mut test_count = 0;
         let ref_count = filters.len();
         for tf in filters {
-            assert_eq!(tf.0.filter(&txn), tf.1);
+            assert_eq!(tf.0.eval(&txn), tf.1);
             test_count += 1;
         }
         assert_eq!(test_count, ref_count);

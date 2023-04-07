@@ -15,7 +15,7 @@
  *
  */
 
-use sha2::{Digest, Sha256, Sha512, Sha512_256};
+use sha2::Digest;
 use std::error::Error;
 use tackler_api::metadata::Checksum;
 

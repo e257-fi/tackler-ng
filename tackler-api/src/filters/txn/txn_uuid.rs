@@ -61,8 +61,8 @@ mod tests {
         let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterTxnUUID(_) => assert!(true),
-            _ => assert!(false),
+            TxnFilter::TxnFilterTxnUUID(_) => (),
+            _ => panic!(),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);

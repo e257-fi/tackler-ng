@@ -26,6 +26,7 @@ pub type MetadataItems = Vec<MetadataItem>;
 #[doc(hidden)]
 pub trait Text: std::fmt::Debug {
     /// Get metadata item as text
+    #[must_use]
     fn text(&self) -> Vec<String>;
 }
 
@@ -81,6 +82,7 @@ pub struct TxnFilterDescription {
 impl TxnFilterDescription {
     /// Make Txn filter Description from Filter Definition
     ///
+    #[must_use]
     pub fn from(tf: FilterDefinition) -> TxnFilterDescription {
         TxnFilterDescription { txn_filter_def: tf }
     }

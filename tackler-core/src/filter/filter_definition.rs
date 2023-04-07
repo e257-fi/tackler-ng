@@ -18,11 +18,11 @@
 use crate::model::Transaction;
 use tackler_api::filters::FilterDefinition;
 
-use super::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for FilterDefinition {
-    fn filter(&self, txn: &Transaction) -> bool {
-        self.txn_filter.filter(txn)
+impl Predicate<Transaction> for FilterDefinition {
+    fn eval(&self, txn: &Transaction) -> bool {
+        self.txn_filter.eval(txn)
     }
 }
 
@@ -39,7 +39,7 @@ mod tests {
             txn_filter: TxnFilter::NullaryTRUE(NullaryTRUE {}),
         };
 
-        assert_eq!(tf_def.filter(&txn), true);
+        assert!(tf_def.eval(&txn));
     }
 
     #[test]
@@ -50,6 +50,6 @@ mod tests {
             txn_filter: TxnFilter::NullaryFALSE(NullaryFALSE {}),
         };
 
-        assert_eq!(tf_def.filter(&txn), false);
+        assert!(!tf_def.eval(&txn));
     }
 }

@@ -53,6 +53,7 @@ pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>
 
 /// Extensions to be used with [Indoc](https://docs.rs/indoc/latest/indoc/)
 pub trait IndocUtils {
+    #[allow(clippy::needless_doctest_main)]
     /// Strip away `|` -- prefix marker
     ///
     /// For full documentation, see  [`indoc!` -- docs](https://docs.rs/indoc/latest/indoc/).

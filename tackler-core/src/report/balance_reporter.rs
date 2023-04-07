@@ -92,9 +92,8 @@ impl Report for BalanceReporter {
         let bal_report = Balance::from(
             self.report_settings.title.as_ref().unwrap_or(&empty),
             txn_data,
-            bal_acc_sel,
+            bal_acc_sel.as_ref(),
         );
-        let title = self.report_settings.title.as_ref().unwrap_or(&empty);
 
         let delta_max_len = get_max_delta_len(&bal_report.deltas);
         let comm_max_len = get_max_commodity_len(&bal_report.deltas);
@@ -110,9 +109,9 @@ impl Report for BalanceReporter {
 
         let sub_acc_sum_len = get_max_sum_len(&bal_report.bal, |btn| btn.sub_acc_tree_sum);
 
-        //     * filler between account sums (acc and accTree sums)
-        //      * Width of this filler is mandated by delta sum's max commodity length,
-        //      * because then AccTreesSum won't overlap with delta's commodity
+        // filler between account sums (acc and accTree sums)
+        // width of this filler is mandated by delta sum's max commodity length,
+        // because then AccTreesSum won't overlap with delta's commodity
         let filler_field = if comm_max_len.is_zero() {
             " ".repeat(3)
         } else {
@@ -136,53 +135,54 @@ impl Report for BalanceReporter {
 
         let left_ruler = " ".repeat(9);
 
-        writeln!(writer, "{}", title)?;
-        writeln!(writer, "{}", "-".repeat(title.len()))?;
+        writeln!(writer, "{}", bal_report.title)?;
+        writeln!(writer, "{}", "-".repeat(bal_report.title.len()))?;
 
-        for btn in bal_report.bal {
+        if !bal_report.is_empty() {
+            for btn in bal_report.bal {
+                writeln!(
+                    writer,
+                    "{left_ruler}{:>asl$.prec$}{:>width$}{:>atl$.prec$}{}{}",
+                    btn.account_sum,
+                    "",
+                    btn.sub_acc_tree_sum,
+                    make_commodity_field(comm_max_len, &btn),
+                    btn.acctn,
+                    asl = left_sum_len,
+                    atl = sub_acc_sum_len,
+                    width = filler_field,
+                    prec = 2,
+                )?;
+            }
+
             writeln!(
                 writer,
-                "{left_ruler}{:>asl$.prec$}{:>width$}{:>atl$.prec$}{}{}",
-                btn.account_sum,
-                "",
-                btn.sub_acc_tree_sum,
-                make_commodity_field(comm_max_len, &btn),
-                btn.acctn,
-                asl = left_sum_len,
-                atl = sub_acc_sum_len,
-                width = filler_field,
-                prec = 2,
+                "{}",
+                "=".repeat(
+                    left_ruler.len()
+                        + left_sum_len
+                        + (if comm_max_len.is_zero() {
+                            0
+                        } else {
+                            comm_max_len + 1
+                        })
+                )
             )?;
-        }
 
-        writeln!(
-            writer,
-            "{}",
-            "=".repeat(
-                left_ruler.len()
-                    + left_sum_len
-                    + (if comm_max_len.is_zero() {
-                        0
-                    } else {
-                        comm_max_len + 1
-                    })
-            )
-        )?;
-
-        // todo: sort
-        let deltas = bal_report.deltas.iter().sorted_by_key(|i| {
-            i.0.as_ref()
-                .map_or(String::default(), |comm| comm.name.clone())
-        });
-        for delta in deltas {
-            writeln!(
-                writer,
-                "{left_ruler}{:>width$.prec$} {}",
-                delta.1,
-                delta.0.as_ref().map_or(&String::default(), |c| &c.name),
-                width = left_sum_len,
-                prec = 2,
-            )?;
+            let deltas = bal_report.deltas.iter().sorted_by_key(|i| {
+                i.0.as_ref()
+                    .map_or(String::default(), |comm| comm.name.clone())
+            });
+            for delta in deltas {
+                writeln!(
+                    writer,
+                    "{left_ruler}{:>width$.prec$} {}",
+                    delta.1,
+                    delta.0.as_ref().map_or(&String::default(), |c| &c.name),
+                    width = left_sum_len,
+                    prec = 2,
+                )?;
+            }
         }
 
         Ok(())

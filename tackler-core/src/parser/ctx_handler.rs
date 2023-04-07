@@ -132,9 +132,8 @@ fn handle_tags_ctx(tags_ctx: Rc<TagsContextAll>) -> Result<Tags, Box<dyn Error>>
     }
 }
 
-fn handle_meta(
-    meta_ctx: Rc<Txn_metaContextAll>,
-) -> Result<(Option<Uuid>, Option<GeoPoint>, Option<Tags>), Box<dyn Error>> {
+type TxnMeta = (Option<Uuid>, Option<GeoPoint>, Option<Tags>);
+fn handle_meta(meta_ctx: Rc<Txn_metaContextAll>) -> Result<TxnMeta, Box<dyn Error>> {
     let uuid = match meta_ctx.txn_meta_uuid(0) {
         Some(uuid_ctx) => {
             let uuid_str = uuid_ctx.UUID_VALUE().unwrap(/*:ok: parser */).get_text();
@@ -203,10 +202,11 @@ fn handle_amount(amount_ctx: Rc<AmountContextAll>) -> Result<Decimal, Box<dyn Er
         }
     }
 }
+type ValuePosition = (Decimal, Decimal, bool, Option<Commodity>, Option<Commodity>);
 
 fn handle_value_position(
     posting_ctx: &Rc<PostingContextAll>,
-) -> Result<(Decimal, Decimal, bool, Option<Commodity>, Option<Commodity>), Box<dyn Error>> {
+) -> Result<ValuePosition, Box<dyn Error>> {
     let post_commodity = posting_ctx.opt_unit().map(
         |u| Commodity::from(u.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */),
     );
@@ -320,7 +320,7 @@ fn handle_value_position(
 }
 
 fn handle_raw_posting(posting_ctx: &Rc<PostingContextAll>) -> Result<Posting, Box<dyn Error>> {
-    let foo = handle_value_position(posting_ctx)?;
+    let val_pos = handle_value_position(posting_ctx)?;
 
     /*
     // todo: check & Error
@@ -330,12 +330,12 @@ fn handle_raw_posting(posting_ctx: &Rc<PostingContextAll>) -> Result<Posting, Bo
     }
     */
 
-    let atn = handle_account(posting_ctx.account().unwrap(/*:ok: parser */), foo.3)?;
+    let atn = handle_account(posting_ctx.account().unwrap(/*:ok: parser */), val_pos.3)?;
     let comment: Option<String> = posting_ctx
         .opt_comment()
         .map(|c| c.comment().unwrap(/*:test:*/).text().unwrap(/*:ok: parser */).get_text());
 
-    Posting::from(atn, foo.0, foo.1, foo.2, foo.4, comment)
+    Posting::from(atn, val_pos.0, val_pos.1, val_pos.2, val_pos.4, comment)
 }
 
 fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>> {
@@ -475,8 +475,8 @@ mod test {
 
     #[test]
     fn decimal_sign_logic() {
-        assert_eq!(true, Decimal::new(-1, 0).is_sign_negative());
-        assert_eq!(true, Decimal::new(0, 0).is_sign_positive());
-        assert_eq!(true, Decimal::new(1, 0).is_sign_positive());
+        assert!(Decimal::new(-1, 0).is_sign_negative());
+        assert!(Decimal::new(0, 0).is_sign_positive());
+        assert!(Decimal::new(1, 0).is_sign_positive());
     }
 }

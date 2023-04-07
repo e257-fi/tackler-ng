@@ -19,10 +19,10 @@ use crate::model::Transaction;
 use std::cmp::Ordering;
 use tackler_api::filters::txn::TxnFilterTxnTSEnd;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterTxnTSEnd {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterTxnTSEnd {
+    fn eval(&self, txn: &Transaction) -> bool {
         match txn.header.timestamp.cmp(&self.end) {
             Ordering::Less => true,
             Ordering::Equal => false,
@@ -72,7 +72,7 @@ mod tests {
 
         for t in cases.iter() {
             let txn = make_ts_txn(t.0);
-            assert_eq!(tf.filter(&txn), t.1);
+            assert_eq!(tf.eval(&txn), t.1);
         }
 
         // test: 3d3d06cb-fcf2-422a-b57d-1bdb08f7d65e
@@ -80,7 +80,7 @@ mod tests {
         let filt = TxnFilter::TxnFilterTxnTSEnd(tf);
         for t in cases {
             let txn = make_ts_txn(t.0);
-            assert_eq!(filt.filter(&txn), t.1);
+            assert_eq!(filt.eval(&txn), t.1);
         }
     }
 
@@ -118,7 +118,7 @@ mod tests {
 
         for t in cases {
             let txn = make_ts_txn(t.0);
-            assert_eq!(tf.filter(&txn), t.1);
+            assert_eq!(tf.eval(&txn), t.1);
         }
     }
 
@@ -158,7 +158,7 @@ mod tests {
 
         for t in cases {
             let txn = make_ts_txn(t.0);
-            assert_eq!(tf.filter(&txn), t.1);
+            assert_eq!(tf.eval(&txn), t.1);
         }
     }
 
@@ -196,7 +196,7 @@ mod tests {
 
         for t in cases {
             let txn = make_ts_txn(t.0);
-            assert_eq!(tf.filter(&txn), t.1);
+            assert_eq!(tf.eval(&txn), t.1);
         }
     }
 }

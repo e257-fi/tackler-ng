@@ -77,6 +77,6 @@ impl Report for RegisterReporter {
 
         let ras = self.get_acc_selector()?;
 
-        accumulator::register_engine(&txns.txns, ras, writer, reg_entry_txt_writer)
+        accumulator::register_engine(&txns.txns, ras.as_ref(), writer, reg_entry_txt_writer)
     }
 }

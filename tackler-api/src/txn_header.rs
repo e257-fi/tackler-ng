@@ -59,10 +59,11 @@ impl TxnHeader {
     /// Get Tags as string.
     ///
     /// String will be empty, if there isn't any tag
+    #[must_use]
     pub fn tags_to_string(&self) -> String {
         match &self.tags {
             Some(t) => Self::t_to_s(t),
-            None => "".to_string(),
+            None => String::new(),
         }
     }
 }
@@ -73,7 +74,7 @@ impl Ord for TxnHeader {
         if date_comp.is_ne() {
             date_comp
         } else {
-            let empty = String::default();
+            let empty = String::new();
 
             let code_cmp = self
                 .code
@@ -94,12 +95,12 @@ impl Ord for TxnHeader {
                     let uuid_this = self
                         .uuid
                         .as_ref()
-                        .map(|u| u.to_string())
+                        .map(ToString::to_string)
                         .unwrap_or_default();
                     let uuid_other = other
                         .uuid
                         .as_ref()
-                        .map(|u| u.to_string())
+                        .map(ToString::to_string)
                         .unwrap_or_default();
 
                     uuid_this.cmp(&uuid_other)
@@ -129,7 +130,7 @@ impl Eq for TxnHeader {}
 impl TxnHeader {
     /// Get Txn header as string, with `indent` and Txn TS formatter
     ///
-    /// See [txn_ts](crate::txn_ts) module for default formatters
+    /// See [`txn_ts`](crate::txn_ts) module for default formatters
     pub fn to_string_with_indent(
         &self,
         indent: &str,
@@ -141,22 +142,22 @@ impl TxnHeader {
             ts_formatter(self.timestamp),
             self.code
                 .as_ref()
-                .map_or_else(String::default, |c| format!(" ({c})")),
+                .map_or_else(String::new, |c| format!(" ({c})")),
             self.description
                 .as_ref()
-                .map_or_else(String::default, |desc| format!(" '{desc}")),
+                .map_or_else(String::new, |desc| format!(" '{desc}")),
             // metadata
             self.uuid
                 .as_ref()
-                .map_or_else(String::default, |uuid| format!("{indent}# uuid: {uuid}\n")),
+                .map_or_else(String::new, |uuid| format!("{indent}# uuid: {uuid}\n")),
             self.location
                 .as_ref()
-                .map_or_else(String::default, |geo| format!(
+                .map_or_else(String::new, |geo| format!(
                     "{indent}# location: {geo}\n"
                 )),
             self.tags
                 .as_ref()
-                .map_or_else(String::default, |tags| format!(
+                .map_or_else(String::new, |tags| format!(
                     "{}# tags: {}\n",
                     indent,
                     Self::t_to_s(tags)
@@ -164,7 +165,7 @@ impl TxnHeader {
             // txn comments
             self.comments
                 .as_ref()
-                .map_or_else(String::default, |comments| {
+                .map_or_else(String::new, |comments| {
                     comments
                         .iter()
                         .map(|c| format!("{indent}; {c}\n"))
@@ -209,7 +210,7 @@ mod tests {
         let tests: Vec<(TxnHeader, String)> = vec![
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: None,
                     uuid: None,
@@ -225,7 +226,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: Some("#123".to_string()),
                     description: None,
                     uuid: None,
@@ -241,7 +242,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: Some("#123".to_string()),
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -257,7 +258,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -273,10 +274,10 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: Some("desc".to_string()),
-                    uuid: Some(uuid.clone()),
+                    uuid: Some(uuid),
                     location: None,
                     tags: None,
                     comments: None,
@@ -290,7 +291,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -307,7 +308,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -324,7 +325,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -343,13 +344,13 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts.clone(),
+                    timestamp: ts,
                     code: None,
                     description: Some("desc".to_string()),
-                    uuid: Some(uuid.clone()),
-                    location: Some(geo.clone()),
-                    tags: Some(txn_tags.clone()),
-                    comments: Some(comments.clone()),
+                    uuid: Some(uuid),
+                    location: Some(geo),
+                    tags: Some(txn_tags),
+                    comments: Some(comments),
                 },
                 formatdoc!(
                     "|2023-02-04T14:03:05.047974+02:00 'desc
@@ -368,9 +369,9 @@ mod tests {
         let mut count = 0;
         let should_be_count = tests.len();
         for t in tests {
-            let txn_hdr_str = format!("{}", t.0.to_string_with_indent("   ", txn_ts::iso_zoned_ts));
+            let txn_hdr_str = t.0.to_string_with_indent("   ", txn_ts::iso_zoned_ts);
             assert_eq!(txn_hdr_str, t.1);
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, should_be_count);
     }

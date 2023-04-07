@@ -1,4 +1,7 @@
 // Generated from TxnParser.g4 by ANTLR 4.8
+#![allow(clippy::all)]
+#![allow(unused_parens)]
+#![allow(unused_variables)]
 #![allow(dead_code)]
 #![allow(non_snake_case)]
 #![allow(non_upper_case_globals)]
@@ -6,8 +9,6 @@
 #![allow(unused_imports)]
 #![allow(unused_mut)]
 #![allow(unused_braces)]
-#![allow(unused_parens)]
-#![allow(unused_variables)]
 use antlr_rust::PredictionContextCache;
 use antlr_rust::parser::{Parser, BaseParser, ParserRecog, ParserNodeType};
 use antlr_rust::token_stream::TokenStream;

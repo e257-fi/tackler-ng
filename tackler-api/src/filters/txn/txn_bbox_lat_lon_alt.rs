@@ -22,7 +22,7 @@ use crate::filters::IndentDisplay;
 
 /// Txn Geo Location (3D) filter
 ///
-/// BBoxLatLonAlt will select only 3D transactions with altitude,
+/// `BBoxLatLonAlt` will select only 3D transactions with altitude,
 /// e.g. it will not select any 2D txn.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterBBoxLatLonAlt {
@@ -83,8 +83,8 @@ mod tests {
         let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterBBoxLatLonAlt(_) => assert!(true),
-            _ => assert!(false),
+            TxnFilter::TxnFilterBBoxLatLonAlt(_) => (),
+            _ => panic!(),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
@@ -116,22 +116,22 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt {
-                        south: -1 as f64,
-                        west: -2 as f64,
-                        depth: -3 as f64,
-                        north: 1 as f64,
-                        east: 2 as f64,
-                        height: 3 as f64,
+                        south: -1_f64,
+                        west: -2_f64,
+                        depth: -3_f64,
+                        north: 1_f64,
+                        east: 2_f64,
+                        height: 3_f64,
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt {
-                                south: -1 as f64,
-                                west: -2 as f64,
-                                depth: -3 as f64,
-                                north: 1 as f64,
-                                east: 2 as f64,
-                                height: 3 as f64,
+                                south: -1_f64,
+                                west: -2_f64,
+                                depth: -3_f64,
+                                north: 1_f64,
+                                east: 2_f64,
+                                height: 3_f64,
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
                         ],

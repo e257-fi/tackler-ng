@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::posting::TxnFilterPostingAmountEqual;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterPostingAmountEqual {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterPostingAmountEqual {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.posts
             .iter()
             .any(|p| p.amount == self.amount && self.regex.is_match(&p.acctn.account))
@@ -57,14 +57,14 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
 
         // test: 57673de0-cd11-491d-98f6-a0bb3b44df80
         // desc: TxnFilter::TxnFilterPostingAmountEqual
         let filt = TxnFilter::TxnFilterPostingAmountEqual(tf);
         for t in cases {
-            assert_eq!(filt.filter(&t.0), t.1);
+            assert_eq!(filt.eval(&t.0), t.1);
         }
     }
 }

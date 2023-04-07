@@ -144,7 +144,7 @@ use tackler_rs::IndocUtils;
                   "Testing Line: Offending test vector item: {}", count);
           // todo: parser error messages, error position
           //assert(ex.getMessage.contains(perrStr._3))
-          count = count + 1;
+          count += 1;
         }
         assert_eq!(count, should_be_count);
     }
@@ -153,6 +153,7 @@ use tackler_rs::IndocUtils;
     //desc: "accepts multiple metadata items"
     #[allow(non_snake_case)]
     fn id_5bb95c2e_2fad_4584_9380_e6cafe732cf6__ok_metadata_multiple_items() {
+      #[allow(clippy::type_complexity)]
       let  pok_strings: Vec<(String, i32, Vec<(&str, fn(&Transaction) -> String)>)> = vec![
         (indoc!(
            "|
@@ -235,17 +236,17 @@ use tackler_rs::IndocUtils;
         assert!(res.is_ok(), "Offending test vector item: {}", count);
           let txn_data = res.unwrap(/*:test:*/);
           let txns = txn_data.get_all().unwrap(/*:test:*/);
-        let txn: &Transaction = &txns.txns[0];
+        let txn: &Transaction = txns.txns[0];
         let validators = t.2;
         let mut val_count = 0;
         for v in validators {
           let v_func = v.1;
           let v_ref = v.0.to_string();
           assert_eq!(v_func(txn), v_ref);
-          val_count = val_count + 1;
+          val_count += 1;
         }
         assert_eq!(val_count, t.1);
-        count = count + 1;
+        count += 1;
       }
       assert_eq!(count, ref_count);
     }

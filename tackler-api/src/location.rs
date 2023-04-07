@@ -38,7 +38,7 @@ impl Display for GeoPoint {
         // todo: check the scale behaviour of Decimal
         let alt = match &self.alt {
             Some(a) => format!(",{a}"),
-            None => "".to_string(),
+            None => String::new(),
         };
         write!(f, "geo:{},{}{}", self.lat, self.lon, alt)
     }
@@ -61,7 +61,7 @@ impl GeoPoint {
             return Err(msg.into());
         }
         if let Some(z) = alt.as_ref() {
-            if z < &-6378137.0 {
+            if z < &-6_378_137.0 {
                 // Jules Verne: Voyage au centre de la Terre
                 let msg = format!("Value Out of specification for Altitude: {z}");
                 return Err(msg.into());

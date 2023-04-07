@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::posting::TxnFilterPostingComment;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterPostingComment {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterPostingComment {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.posts
             .iter()
             .any(|p| p.comment.as_ref().map_or(false, |c| self.regex.is_match(c)))
@@ -48,7 +48,7 @@ mod tests {
         let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap(/*:test:*/);
         let e_p = Posting::from(e_acctn, e_v, e_v, false, None, comment.map(str::to_string)).unwrap(/*:test:*/);
 
-        let a_v = Decimal::new(-1 * a_value, 0);
+        let a_v = Decimal::new(-a_value, 0);
         let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap(/*:test:*/);
         let a_p = Posting::from(a_acctn, a_v, a_v, false, None, None).unwrap(/*:test:*/);
 
@@ -77,14 +77,14 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
 
         // test: e8517888-b459-4ecf-a622-592fd16aa067
         // desc: TxnFilter::TxnFilterPostingComment
         let filt = TxnFilter::TxnFilterPostingComment(tf);
         for t in cases {
-            assert_eq!(filt.filter(&t.0), t.1);
+            assert_eq!(filt.eval(&t.0), t.1);
         }
     }
 }

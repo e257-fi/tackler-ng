@@ -141,7 +141,7 @@ use tackler_rs::IndocUtils;
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, should_be_count);
     }
@@ -222,7 +222,7 @@ use tackler_rs::IndocUtils;
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, should_be_count);
     }
@@ -306,7 +306,7 @@ use tackler_rs::IndocUtils;
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, should_be_count);
     }
@@ -384,7 +384,7 @@ use tackler_rs::IndocUtils;
                     "Testing Line: Offending test vector item: {}", count);
             // todo: parser error messages, error position
             //assert(ex.getMessage.contains(perrStr._3))
-            count = count + 1;
+            count += 1;
         }
         assert_eq!(count, should_be_count);
     }

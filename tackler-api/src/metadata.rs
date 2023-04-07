@@ -34,11 +34,13 @@ pub struct Metadata {
 
 impl Metadata {
     /// Get new empty `metadata`
+    #[must_use]
     pub fn new() -> Metadata {
         Metadata { items: Vec::new() }
     }
 
     /// Get new metadata with existing Metadata item
+    #[must_use]
     pub fn from_mdi(mdi: MetadataItem) -> Metadata {
         let items = vec![mdi];
 
@@ -47,8 +49,9 @@ impl Metadata {
 
     /// Get new metadata from existing Metadata.
     ///
-    /// If there is an existing [TxnSetChecksum](items::TxnSetChecksum) metadata item,
+    /// If there is an existing [`TxnSetChecksum`](items::TxnSetChecksum) metadata item,
     /// it will be removed from the new set.
+    #[must_use]
     pub fn from_metadata(md: &Metadata) -> Metadata {
         let mut metadata = Metadata::new();
         for mdi in &md.items {
@@ -62,10 +65,11 @@ impl Metadata {
 
     /// Add metadata item into metadata
     pub fn push(&mut self, mdi: MetadataItem) {
-        self.items.push(mdi)
+        self.items.push(mdi);
     }
 
     /// Get textual representation of Metadata
+    #[must_use]
     pub fn text(&self) -> String {
         let ts = self
             .items

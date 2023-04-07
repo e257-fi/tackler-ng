@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::txn::TxnFilterTxnUUID;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterTxnUUID {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterTxnUUID {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.header
             .uuid
             .as_ref()
@@ -46,6 +46,7 @@ mod tests {
             uuid: Uuid::parse_str("842ded5c-e176-4e59-85a7-af2ded001d55").unwrap(/*:test:*/),
         };
 
+        #[allow(clippy::type_complexity)]
         let cases: Vec<(fn(Option<&str>) -> Transaction, Option<&str>, bool)> = vec![
             (
                 // test: 6bf82dff-374a-4bf2-bdad-a882b59df932
@@ -68,7 +69,7 @@ mod tests {
 
         for t in cases.iter() {
             let txn = t.0(t.1);
-            assert_eq!(tf.filter(&txn), t.2);
+            assert_eq!(tf.eval(&txn), t.2);
         }
 
         // test: 3e461f5b-d1fe-4e2e-aca3-c205f64befd7
@@ -76,7 +77,7 @@ mod tests {
         let filt = TxnFilter::TxnFilterTxnUUID(tf);
         for t in cases {
             let txn = t.0(t.1);
-            assert_eq!(filt.filter(&txn), t.2);
+            assert_eq!(filt.eval(&txn), t.2);
         }
     }
 }

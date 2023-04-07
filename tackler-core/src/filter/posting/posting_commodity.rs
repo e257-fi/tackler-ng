@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::posting::TxnFilterPostingCommodity;
 
-use crate::filter::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for TxnFilterPostingCommodity {
-    fn filter(&self, txn: &Transaction) -> bool {
+impl Predicate<Transaction> for TxnFilterPostingCommodity {
+    fn eval(&self, txn: &Transaction) -> bool {
         txn.posts.iter().any(|p| {
             p.acctn
                 .commodity
@@ -58,14 +58,14 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
 
         // test: 50edcbf2-5373-45f5-8c66-8ec7471001fe
         // desc: TxnFilter::TxnFilterPostingCommodity
         let filt = TxnFilter::TxnFilterPostingCommodity(tf);
         for t in cases {
-            assert_eq!(filt.filter(&t.0), t.1);
+            assert_eq!(filt.eval(&t.0), t.1);
         }
     }
 
@@ -86,7 +86,7 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
     }
 
@@ -111,7 +111,7 @@ mod tests {
         ];
 
         for t in cases.iter() {
-            assert_eq!(tf.filter(&t.0), t.1);
+            assert_eq!(tf.eval(&t.0), t.1);
         }
     }
 }

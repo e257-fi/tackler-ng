@@ -16,24 +16,16 @@
  */
 
 use crate::model::{BalanceTreeNode, RegisterPosting};
+use crate::kernel::Predicate;
 use regex::RegexSet;
 use std::error::Error;
 use tackler_api::metadata::Checksum;
-
-pub trait Filtering<T> {
-    ///
-    /// Predicate to test if item x is part of set or not
-    ///
-    /// `x` item to be tested
-    /// `returns` true if it's selected, false if it's rejected
-    fn predicate(&self, x: &T) -> bool;
-}
 
 pub trait ReportItemSelector {
     fn checksum(&self) -> Result<Checksum, Box<dyn Error>>;
 }
 
-pub trait BalanceItemSelector: Filtering<BalanceTreeNode> {}
+pub trait BalanceItemSelector: Predicate<BalanceTreeNode> {}
 pub trait BalanceSelector: BalanceItemSelector + ReportItemSelector {}
 
 #[derive(Default)]
@@ -43,13 +35,11 @@ impl BalanceSelector for BalanceAllSelector {}
 impl BalanceItemSelector for BalanceAllSelector {}
 
 impl ReportItemSelector for BalanceAllSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
-    }
+    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> { todo!() }
 }
 
-impl Filtering<BalanceTreeNode> for BalanceAllSelector {
-    fn predicate(&self, _: &BalanceTreeNode) -> bool {
+impl Predicate<BalanceTreeNode> for BalanceAllSelector {
+    fn eval(&self, _: &BalanceTreeNode) -> bool {
         true
     }
 }
@@ -70,8 +60,8 @@ impl BalanceByAccountSelector {
 impl BalanceItemSelector for BalanceByAccountSelector {}
 impl BalanceSelector for BalanceByAccountSelector {}
 
-impl Filtering<BalanceTreeNode> for BalanceByAccountSelector {
-    fn predicate(&self, btn: &BalanceTreeNode) -> bool {
+impl Predicate<BalanceTreeNode> for BalanceByAccountSelector {
+    fn eval(&self, btn: &BalanceTreeNode) -> bool {
         self.regexs.is_match(&btn.acctn.account)
     }
 }
@@ -82,7 +72,7 @@ impl ReportItemSelector for BalanceByAccountSelector {
     }
 }
 
-pub trait RegisterItemSelector<'a>: Filtering<RegisterPosting<'a>> {}
+pub trait RegisterItemSelector<'a>: Predicate<RegisterPosting<'a>> {}
 pub trait RegisterSelector<'a>: RegisterItemSelector<'a> + ReportItemSelector {}
 
 pub struct RegisterByAccountSelector {
@@ -101,8 +91,8 @@ impl RegisterByAccountSelector {
 impl<'a> RegisterSelector<'a> for RegisterByAccountSelector {}
 impl<'a> RegisterItemSelector<'a> for RegisterByAccountSelector {}
 
-impl<'a> Filtering<RegisterPosting<'a>> for RegisterByAccountSelector {
-    fn predicate(&self, rep: &RegisterPosting) -> bool {
+impl<'a> Predicate<RegisterPosting<'a>> for RegisterByAccountSelector {
+    fn eval(&self, rep: &RegisterPosting) -> bool {
         self.regexs.is_match(&rep.post.acctn.account)
     }
 }
@@ -116,8 +106,8 @@ impl ReportItemSelector for RegisterByAccountSelector {
 #[derive(Default)]
 pub struct RegisterAllSelector {}
 
-impl<'a> Filtering<RegisterPosting<'a>> for RegisterAllSelector {
-    fn predicate(&self, _: &RegisterPosting) -> bool {
+impl<'a> Predicate<RegisterPosting<'a>> for RegisterAllSelector {
+    fn eval(&self, _: &RegisterPosting) -> bool {
         true
     }
 }

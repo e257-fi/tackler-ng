@@ -36,6 +36,7 @@ impl Commodity {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Eq)]
 pub struct AccountTreeNode {
     pub(crate) depth: usize,

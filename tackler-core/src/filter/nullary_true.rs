@@ -18,10 +18,10 @@
 use crate::model::Transaction;
 use tackler_api::filters::NullaryTRUE;
 
-use super::FilterTxn;
+use crate::kernel::Predicate;
 
-impl FilterTxn for NullaryTRUE {
-    fn filter(&self, _txn: &Transaction) -> bool {
+impl Predicate<Transaction> for NullaryTRUE {
+    fn eval(&self, _txn: &Transaction) -> bool {
         true
     }
 }
@@ -37,6 +37,6 @@ mod tests {
 
         let tf = TxnFilter::NullaryTRUE(NullaryTRUE {});
 
-        assert_eq!(tf.filter(&txn), true);
+        assert!(tf.eval(&txn));
     }
 }

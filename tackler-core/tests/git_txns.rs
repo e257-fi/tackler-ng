@@ -41,12 +41,12 @@ use tackler_core::parser::GitInputSelector;
 //       |}
 //     """.stripMargin)
 
-const REPO_PATH: &'static str = "../suite/audit/audit-repo.git/";
-const TXN_SET_1E1_CHECKSUM: &'static str = "9b29071e1bf228cfbd31ca2b8e7263212e4b86e51cfee1e8002c9b795ab03f76";
-const TXN_SET_1E1_COMMIT_ID: &'static str = "4aa4e9797501c1aefc92f32dff30ab462dae5545";
+const REPO_PATH: &str = "../suite/audit/audit-repo.git/";
+const TXN_SET_1E1_CHECKSUM: &str = "9b29071e1bf228cfbd31ca2b8e7263212e4b86e51cfee1e8002c9b795ab03f76";
+const TXN_SET_1E1_COMMIT_ID: &str = "4aa4e9797501c1aefc92f32dff30ab462dae5545";
 
-const TXN_SET_1E5_CHECKSUM: &'static str = "27060dc1ebde35bebd8f7af2fd9815bc9949558d3e3c85919813cd80748c99a7";
-const TXN_SET_1E5_COMMIT_ID: &'static str = "cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5";
+const TXN_SET_1E5_CHECKSUM: &str = "27060dc1ebde35bebd8f7af2fd9815bc9949558d3e3c85919813cd80748c99a7";
+const TXN_SET_1E5_COMMIT_ID: &str = "cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5";
 
 fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksum: &str) {
     match result {
@@ -60,7 +60,7 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
                             assert_eq!(gitmd.commit, commit);
                         }
                         _ => {
-                            assert!(false, "The first item is not Git Input Metadata item")
+                            panic!("The first item is not Git Input Metadata item")
                         }
                     }
                     match &md.items[1] {
@@ -68,18 +68,17 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
                             assert_eq!(tscsmd.hash.value, checksum);
                         }
                         _ => {
-                            assert!(false, "The second item is not Txn Set Checksum Metadata item")
+                            panic!("The second item is not Txn Set Checksum Metadata item")
                         }
                     }
                 },
                 None => {
-                    assert!(false, "no metadata")
+                    panic!("no metadata")
                 },
             }
         },
         Err(err) => {
-            eprintln!("{:#?}", err);
-            assert!(false);
+            panic!("{:#?}", err);
         }
     }
 }

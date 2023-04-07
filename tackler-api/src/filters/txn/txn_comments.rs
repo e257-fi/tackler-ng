@@ -63,8 +63,8 @@ mod tests {
         let tf = tf_res.unwrap(/*:test:*/);
 
         match tf.txn_filter {
-            TxnFilter::TxnFilterTxnComments(_) => assert!(true),
-            _ => assert!(false),
+            TxnFilter::TxnFilterTxnComments(_) => (),
+            _ => panic!(),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
