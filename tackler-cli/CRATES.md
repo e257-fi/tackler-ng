@@ -1,5 +1,7 @@
 # Tackler-NG: Tackler CLI Application
 
+[![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
+
 This is rusty version of [Tackler](https://tackler.e257.fi/) CLI application.
 
 Tackler is an accounting engine and reporting tool 
@@ -193,7 +195,7 @@ BALANCE
 
 ### Transaction Filters
 
-#### Plan filter definition
+#### Filter definition
 
 ````bash
 tackler \

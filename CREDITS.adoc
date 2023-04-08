@@ -1,6 +1,6 @@
 = Credits
 
-Tackler-NG has been originally written by e257.fi contributors from scratch.
+Tackler-NG has been written by e257.fi contributors.
 Following projects have provided valuable contributions,
 feedback, inspiration and ideas for this project.
 

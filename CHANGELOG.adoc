@@ -40,13 +40,11 @@ New features:
   ** Reports (`register` and `balance`)
   ** Account Selectors
 * Txn Filters
-* ...
-  ** ...
 
 
 ==== Fixes
 
-None.
+None
 
 
 ==== Development
@@ -104,4 +102,3 @@ rustfmt::
 This is an initial POC release with ANTLR rust target.
 
 '''
-

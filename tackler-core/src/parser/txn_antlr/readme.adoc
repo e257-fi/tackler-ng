@@ -1,12 +1,17 @@
 = Tackler Txn Parser Grammar and Lexer definitions
 
-This directory contains link:./TxnParser.g4[grammar] and link:./TxnLexer.g4[lexer] definitions for Tackler. Parser definition is generated with link:https://www.antlr.org/[ANTLR]. The Rust target for ANTLR is located on here: https://github.com/rrevenantt/antlr4rust.
+This directory contains link:./TxnParser.g4[grammar] and link:./TxnLexer.g4[lexer]
+definitions for Tackler. Parser definition is generated with
+link:https://www.antlr.org/[ANTLR]. The Rust target for ANTLR is located on
+here: https://github.com/rrevenantt/antlr4rust.
 
-Directory also contains generated transient parser implementation files. Those are overwriten when the parser is regenerated.
+Directory contains also generated transient parser implementation files
+and a patch file to fix warnings in the generated files.
+These generated files are overwritten when the parser is regenerated.
 
 
 == How to Regenerate Tackler Txn Parser Definitions
 
-1. Get link:https://github.com/rrevenantt/antlr4rust/releases[ANTLR with Rust target], e.g. download jar file from that page
+1. Get link:https://github.com/rrevenantt/antlr4rust/releases[ANTLR with Rust target] (Download jar file from that page and store it so that link:make-parser.sh[] finds it, default location is at temp directory next to the working copy directory)
 1. Generate parser by running: `sh make-parser.sh`
 

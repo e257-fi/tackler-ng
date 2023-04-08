@@ -1,3 +1,6 @@
+image:https://tackler.e257.fi/img/tackler-ng.svg["crates.io: tackler", link="https://crates.io/crates/tackler"]
+image:https://tackler.e257.fi/img/badge-matrix.svg["matrix: tackler", link="https://matrix.to/#/#tackler:matrix.org"]
+
 = Tackler-NG
 
 Tackler-NG is rusty version of link:https://tackler.e257.fi/[Tackler].
