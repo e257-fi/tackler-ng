@@ -14,6 +14,63 @@ tackler-core = "0.2.0"
 
 == Releases
 
+
+=== Tackler release XX.YY.Z
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | TODO: XX.YY.Z
+|tackler-core | TODO: No changes
+|tackler-api  | TODO: No changes
+|tackler-rs   | TODO: No changes
+|===
+
+
+==== New features and changes
+
+New features:
+
+  * ...
+    ** ...
+
+Changed functionality:
+
+  * ...
+    ** ...
+
+
+==== Fixes
+
+Fixes in this release ...
+
+
+==== Development
+
+Updated deps and tools:
+
+  * Dependencies
+    ** ...
+  * Build
+    ** ...
+  * Tests
+    ** ...
+
+===== Rust toolchain
+
+Used unstable features:
+
+rust::
+* tackler-core: https://github.com/rust-lang/rust/issues/56167[rust: ++#++56167] -- `feature(hash_raw_entry)`
+* tackler-core: https://github.com/rust-lang/rust/issues/93050[rust: ++#++93050] -- `feature(is_some_and)`
+rustfmt::
+* tackler-core: https://github.com/rust-lang/rustfmt/issues/3395[rustfmt: ++#++3395] -- option `ignore`
+
+
+'''
+
+
 === Tackler release 23.04.01
 
 [cols="1,2",width=50%]
@@ -39,6 +96,8 @@ New features:
 * Reporting
   ** Reports (`register` and `balance`)
   ** Account Selectors
+* Auditing
+  ** Txn Set Checksum
 * Txn Filters
 
 
