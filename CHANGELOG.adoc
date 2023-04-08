@@ -5,16 +5,16 @@
 Currently published crates are:
 
 ....
-tackler      = "0.1.0"
-tackler-rs   = "0.1.0"
-tackler-api  = "0.1.0"
-tackler-core = "0.1.0"
+tackler      = "0.2.0"
+tackler-rs   = "0.2.0"
+tackler-api  = "0.2.0"
+tackler-core = "0.2.0"
 ....
 
 
 == Releases
 
-=== Tackler release XX.YY.Z
+=== Tackler release 23.04.01
 
 [cols="1,2",width=50%]
 |===
