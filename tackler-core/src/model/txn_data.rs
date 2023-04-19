@@ -18,8 +18,8 @@
 use itertools::Itertools;
 use std::error::Error;
 
-use crate::kernel::Predicate;
 use crate::kernel::hash::Hash;
+use crate::kernel::Predicate;
 use crate::model::{TxnRefs, Txns};
 use tackler_api::filters::FilterDefinition;
 use tackler_api::metadata::items::{MetadataItem, TxnFilterDescription, TxnSetChecksum};

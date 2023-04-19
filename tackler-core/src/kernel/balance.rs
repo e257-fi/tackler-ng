@@ -213,11 +213,7 @@ impl Balance {
     {
         let bal = Balance::balance(&txn_set.txns);
 
-        let filt_bal: Vec<_> = bal
-            .iter()
-            .filter(|b| accounts.eval(b))
-            .cloned()
-            .collect();
+        let filt_bal: Vec<_> = bal.iter().filter(|b| accounts.eval(b)).cloned().collect();
 
         if filt_bal.is_empty() {
             Balance {

@@ -33,7 +33,6 @@ path = "src/lib.rs"
 [dependencies]
 base64 = { workspace = true }
 chrono = { workspace = true, features = [ "serde" ] }
-indoc = { workspace = true }
 regex = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true }
@@ -43,3 +42,4 @@ uuid = { workspace = true }
 
 [dev-dependencies]
 tackler-rs = { path = "../tackler-rs", version = "0.3.0-dev" }
+indoc = { workspace = true }

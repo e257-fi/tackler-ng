@@ -152,25 +152,19 @@ impl TxnHeader {
                 .map_or_else(String::new, |uuid| format!("{indent}# uuid: {uuid}\n")),
             self.location
                 .as_ref()
-                .map_or_else(String::new, |geo| format!(
-                    "{indent}# location: {geo}\n"
-                )),
-            self.tags
-                .as_ref()
-                .map_or_else(String::new, |tags| format!(
-                    "{}# tags: {}\n",
-                    indent,
-                    Self::t_to_s(tags)
-                )),
+                .map_or_else(String::new, |geo| format!("{indent}# location: {geo}\n")),
+            self.tags.as_ref().map_or_else(String::new, |tags| format!(
+                "{}# tags: {}\n",
+                indent,
+                Self::t_to_s(tags)
+            )),
             // txn comments
-            self.comments
-                .as_ref()
-                .map_or_else(String::new, |comments| {
-                    comments
-                        .iter()
-                        .map(|c| format!("{indent}; {c}\n"))
-                        .collect()
-                })
+            self.comments.as_ref().map_or_else(String::new, |comments| {
+                comments
+                    .iter()
+                    .map(|c| format!("{indent}; {c}\n"))
+                    .collect()
+            })
         )
     }
 }

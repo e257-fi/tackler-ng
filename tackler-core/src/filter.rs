@@ -15,8 +15,8 @@
  *
  */
 
-use tackler_api::filters::TxnFilter;
 use crate::kernel::Predicate;
+use tackler_api::filters::TxnFilter;
 
 use crate::model::Transaction;
 mod filter_definition;
@@ -65,6 +65,7 @@ impl Predicate<Transaction> for TxnFilter {
 
 #[cfg(test)]
 mod tests {
+    use crate::kernel::Predicate;
     use crate::model::{AccountTreeNode, Commodity, Posting};
     use chrono::{DateTime, FixedOffset};
     use rust_decimal::Decimal;
@@ -75,7 +76,6 @@ mod tests {
     use tackler_api::location::GeoPoint;
     use tackler_api::txn_header::TxnHeader;
     use uuid::Uuid;
-    use crate::kernel::Predicate;
 
     use super::*;
 

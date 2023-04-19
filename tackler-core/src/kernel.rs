@@ -27,7 +27,6 @@ pub mod hash;
 pub mod report_item_selector;
 pub mod settings;
 
-
 pub trait Predicate<T> {
-    fn eval(&self, item :&T) -> bool;
+    fn eval(&self, item: &T) -> bool;
 }

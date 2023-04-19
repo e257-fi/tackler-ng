@@ -21,12 +21,10 @@ use std::path::{Path, PathBuf};
 use std::str;
 use std::str::FromStr;
 //use std::time::{SystemTime, UNIX_EPOCH};
-use gix_hash::ObjectId;
 
 use crate::model::{transaction, TxnData, Txns};
 use crate::parser::tackler_parser;
 use gix as git;
-use indoc::formatdoc;
 
 use crate::kernel::Settings;
 use tackler_api::metadata::items::{GitInputReference, MetadataItem};
@@ -73,7 +71,7 @@ pub fn git_to_txns(
 
     let (object, reference) = match input_selector {
         GitInputSelector::CommitId(id) => {
-            let object_id = ObjectId::from_str(&id)?;
+            let object_id = gix::ObjectId::from_str(&id)?;
             (repo.find_object(object_id)?.try_into_commit()?, None)
         }
         GitInputSelector::Reference(ref_str) => {
@@ -120,17 +118,15 @@ pub fn git_to_txns(
                         match par_res {
                             Ok(txns) => Ok(txns),
                             Err(err) => {
-                                let msg = formatdoc!(
-                                    "GIT: Error while processing git object
-                        commit id: {}
-                        object id: {}
-                        path: {}
-                        msg: {}
-                    ",
-                                    object.id,
-                                    obj.id,
-                                    entry.filepath,
-                                    err
+                                let msg = format!(
+                                    "\
+                                    GIT: Error while processing git object\n\
+                                    \x20  commit id: {}\n\
+                                    \x20  object id: {}\n\
+                                    \x20  path: {}\n\
+                                    \x20  msg: {}\
+                                    ",
+                                    object.id, obj.id, entry.filepath, err
                                 );
                                 Err(msg.into())
                             }

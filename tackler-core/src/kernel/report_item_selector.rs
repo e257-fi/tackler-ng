@@ -15,8 +15,8 @@
  *
  */
 
-use crate::model::{BalanceTreeNode, RegisterPosting};
 use crate::kernel::Predicate;
+use crate::model::{BalanceTreeNode, RegisterPosting};
 use regex::RegexSet;
 use std::error::Error;
 use tackler_api::metadata::Checksum;
@@ -35,7 +35,9 @@ impl BalanceSelector for BalanceAllSelector {}
 impl BalanceItemSelector for BalanceAllSelector {}
 
 impl ReportItemSelector for BalanceAllSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> { todo!() }
+    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
+        todo!()
+    }
 }
 
 impl Predicate<BalanceTreeNode> for BalanceAllSelector {

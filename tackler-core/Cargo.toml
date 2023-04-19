@@ -38,14 +38,13 @@ serde = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
 itertools = { workspace = true }
-indoc = { workspace = true }
 regex = { workspace = true }
 sha2 = "0.10.6"
 digest = "0.10.6"
 
 gix = { version = "0.43.0", default-features = false, features = [ "max-performance-safe" ] }
-gix-hash = { version = "0.10.3", default-features = false }
 
 [dev-dependencies]
 tackler-rs = { path = "../tackler-rs", version = "0.3.0-dev" }
+indoc = { workspace = true }
 
