@@ -35,43 +35,27 @@ impl Predicate<Transaction> for TxnFilterTxnTSEnd {
 mod tests {
     use super::*;
     use crate::filter::tests::make_ts_txn;
-    use chrono::{DateTime, FixedOffset, TimeZone, Timelike};
     use tackler_api::filters::TxnFilter;
+    use time::format_description::well_known::Rfc3339;
+    use time::macros::datetime;
+    use time::OffsetDateTime;
 
     #[test]
     // test: 42a42f07-dea5-45ee-b563-187f9121e1e1
     // desc: filter by date
     fn filter_by_date() {
         let tf = TxnFilterTxnTSEnd {
-            end: FixedOffset::east_opt(0)
-                .unwrap(/*:test:*/)
-                .with_ymd_and_hms(2018, 2, 1, 0, 0, 0)
-                .unwrap(/*:test:*/),
+            end: datetime!(2018-02-01 00:00:00 UTC),
         };
 
-        let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
-            (
-                "2018-01-01T00:00:00Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                true,
-            ),
-            (
-                "2018-02-01T00:00:00Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
-            (
-                "2018-03-01T00:00:00Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
+        let cases: Vec<(&str, bool)> = vec![
+            ("2018-01-01T00:00:00Z", true),
+            ("2018-02-01T00:00:00Z", false),
+            ("2018-03-01T00:00:00Z", false),
         ];
 
         for t in cases.iter() {
-            let txn = make_ts_txn(t.0);
+            let txn = make_ts_txn(OffsetDateTime::parse(t.0, &Rfc3339).unwrap(/*:test:*/));
             assert_eq!(tf.eval(&txn), t.1);
         }
 
@@ -79,7 +63,7 @@ mod tests {
         // desc: TxnFilter::TxnFilterTxnTSEnd
         let filt = TxnFilter::TxnFilterTxnTSEnd(tf);
         for t in cases {
-            let txn = make_ts_txn(t.0);
+            let txn = make_ts_txn(OffsetDateTime::parse(t.0, &Rfc3339).unwrap(/*:test:*/));
             assert_eq!(filt.eval(&txn), t.1);
         }
     }
@@ -89,35 +73,17 @@ mod tests {
     // desc: filter by time
     fn filter_by_time() {
         let tf = TxnFilterTxnTSEnd {
-            end: FixedOffset::east_opt(0)
-                .unwrap(/*:test:*/)
-                .with_ymd_and_hms(2018, 1, 1, 23, 0, 0)
-                .unwrap(/*:test:*/),
+            end: datetime!(2018-01-01 23:00:00 UTC),
         };
 
-        let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
-            (
-                "2018-01-01T11:00:00Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                true,
-            ),
-            (
-                "2018-01-01T23:00:00Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
-            (
-                "2018-01-02T00:00:00Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
+        let cases: Vec<(&str, bool)> = vec![
+            ("2018-01-01T11:00:00Z", true),
+            ("2018-01-01T23:00:00Z", false),
+            ("2018-01-02T00:00:00Z", false),
         ];
 
         for t in cases {
-            let txn = make_ts_txn(t.0);
+            let txn = make_ts_txn(OffsetDateTime::parse(t.0, &Rfc3339).unwrap(/*:test:*/));
             assert_eq!(tf.eval(&txn), t.1);
         }
     }
@@ -127,37 +93,17 @@ mod tests {
     // desc: filter by nanoseconds
     fn filter_by_nanosecond() {
         let tf = TxnFilterTxnTSEnd {
-            end: FixedOffset::east_opt(0)
-                .unwrap(/*:test:*/)
-                .with_ymd_and_hms(2018, 1, 1, 14, 0, 0)
-                .unwrap(/*:test:*/)
-                .with_nanosecond(123456788)
-                .unwrap(/*:test:*/),
+            end: datetime!(2018-01-01 14:00:00.123456788 UTC),
         };
 
-        let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
-            (
-                "2018-01-01T14:00:00.123456787Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                true,
-            ),
-            (
-                "2018-01-01T14:00:00.123456788Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
-            (
-                "2018-01-01T14:00:00.123456789Z"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
+        let cases: Vec<(&str, bool)> = vec![
+            ("2018-01-01T14:00:00.123456787Z", true),
+            ("2018-01-01T14:00:00.123456788Z", false),
+            ("2018-01-01T14:00:00.123456789Z", false),
         ];
 
         for t in cases {
-            let txn = make_ts_txn(t.0);
+            let txn = make_ts_txn(OffsetDateTime::parse(t.0, &Rfc3339).unwrap(/*:test:*/));
             assert_eq!(tf.eval(&txn), t.1);
         }
     }
@@ -167,35 +113,17 @@ mod tests {
     // desc: filter by timezone
     fn filter_by_timezone() {
         let tf = TxnFilterTxnTSEnd {
-            end: FixedOffset::east_opt(0)
-                .unwrap(/*:test:*/)
-                .with_ymd_and_hms(2018, 1, 4, 0, 0, 0)
-                .unwrap(/*:test:*/),
+            end: datetime!(2018-01-04 00:00:00 UTC),
         };
 
-        let cases: Vec<(DateTime<FixedOffset>, bool)> = vec![
-            (
-                "2018-01-04T09:00:00+10:00"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                true,
-            ),
-            (
-                "2018-01-03T18:00:00-06:00"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
-            (
-                "2018-01-04T00:00:00+00:00"
-                    .parse::<DateTime<FixedOffset>>()
-                    .unwrap(/*:test:*/),
-                false,
-            ),
+        let cases: Vec<(&str, bool)> = vec![
+            ("2018-01-04T09:00:00+10:00", true),
+            ("2018-01-03T18:00:00-06:00", false),
+            ("2018-01-04T00:00:00+00:00", false),
         ];
 
         for t in cases {
-            let txn = make_ts_txn(t.0);
+            let txn = make_ts_txn(OffsetDateTime::parse(t.0, &Rfc3339).unwrap(/*:test:*/));
             assert_eq!(tf.eval(&txn), t.1);
         }
     }

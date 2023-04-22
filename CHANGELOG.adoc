@@ -51,7 +51,8 @@ Fixes in this release ...
 Updated deps and tools:
 
 * Dependencies
-  ** ...
+  ** chrono: removed, replaced with time
+  ** time: new
 * Build
   ** ...
 * Tests

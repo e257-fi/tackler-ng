@@ -15,9 +15,10 @@
  *
  */
 
-use chrono::{DateTime, FixedOffset};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
+use time::format_description::well_known::Rfc3339;
+use time::OffsetDateTime;
 
 use crate::filters::IndentDisplay;
 
@@ -34,12 +35,19 @@ use crate::filters::IndentDisplay;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterTxnTSEnd {
     #[doc(hidden)]
-    pub end: DateTime<FixedOffset>,
+    #[serde(with = "time::serde::rfc3339")]
+    pub end: OffsetDateTime,
 }
 
 impl IndentDisplay for TxnFilterTxnTSEnd {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{indent}Txn TS: end   {}", self.end.to_rfc3339())
+        writeln!(
+            f,
+            "{indent}Txn TS: end   {}",
+            self.end
+                .format(&Rfc3339)
+                .unwrap_or_else(|_| { "IE: ts frmt error".to_string() })
+        )
     }
 }
 
@@ -88,7 +96,7 @@ mod tests {
 
         let filter_text_str = indoc! {
         "|Filter:
-         |  Txn TS: end   2023-02-25T10:11:22.345+00:00
+         |  Txn TS: end   2023-02-25T10:11:22.345Z
          |"}
         .strip_margin();
 
@@ -122,15 +130,13 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterTxnTSEnd(TxnFilterTxnTSEnd {
-                        end: "2023-02-25T10:11:22.345+02:00"
-                            .parse::<DateTime<FixedOffset>>()
+                        end: OffsetDateTime::parse("2023-02-25T10:11:22.345+02:00",&Rfc3339)
                             .unwrap(/*:test:*/),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterTxnTSEnd(TxnFilterTxnTSEnd {
-                                end: "2023-02-25T20:11:22.345+02:00"
-                                    .parse::<DateTime<FixedOffset>>()
+                                end: OffsetDateTime::parse("2023-02-25T20:11:22.345+02:00",&Rfc3339)
                                     .unwrap(/*:test:*/),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),

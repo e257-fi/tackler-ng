@@ -83,19 +83,17 @@ impl Display for Transaction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::{DateTime, FixedOffset};
     use indoc::indoc;
     use rust_decimal::Decimal;
     use tackler_rs::IndocUtils;
+    use time::macros::datetime;
 
     use crate::model::{AccountTreeNode, Posting};
     use tackler_api::txn_header::TxnHeader;
 
     #[test]
     fn txn_to_display() {
-        let ts = "2023-02-04T14:03:05.047974+02:00"
-            .parse::<DateTime<FixedOffset>>()
-            .unwrap(/*:test:*/);
+        let ts = datetime!(2023-02-04 14:03:05.047974 +02:00);
 
         let tnx_hdr = TxnHeader {
             timestamp: ts,

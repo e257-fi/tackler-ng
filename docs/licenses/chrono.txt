@@ -1,4 +1,0 @@
-name: chrono
-url: https://github.com/chronotope/chrono
-license-url: https://raw.githubusercontent.com/chronotope/chrono/main/LICENSE.txt
-SPDX-License-Identifier: Apache-2.0 AND MIT

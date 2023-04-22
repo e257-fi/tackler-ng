@@ -35,7 +35,7 @@ tackler-api =  { path = "../tackler-api",  version = "0.3.0-dev" }
 antlr-rust = "0.3.0-beta"
 rust_decimal = { workspace = true }
 serde = { workspace = true }
-chrono = { workspace = true }
+time = { workspace = true }
 uuid = { workspace = true }
 itertools = { workspace = true }
 regex = { workspace = true }

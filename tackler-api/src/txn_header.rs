@@ -17,8 +17,8 @@
 
 //! Transaction header
 //!
-use chrono::{DateTime, FixedOffset};
 use std::cmp::Ordering;
+use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
 use uuid::Uuid;
 
 /// Collection of Txn Tags
@@ -34,10 +34,10 @@ use crate::location::GeoPoint;
 
 /// Transaction Header Structure
 ///
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct TxnHeader {
     /// Txn timestamp with Zone information
-    pub timestamp: DateTime<FixedOffset>,
+    pub timestamp: OffsetDateTime,
     /// Txn Code field, if any
     pub code: Option<String>,
     /// Txn Description, if any
@@ -50,6 +50,20 @@ pub struct TxnHeader {
     pub tags: Option<Tags>,
     /// Txn comments, if any
     pub comments: Option<Comments>,
+}
+
+impl Default for TxnHeader {
+    fn default() -> Self {
+        TxnHeader {
+            timestamp: PrimitiveDateTime::new(Date::MIN, Time::MIDNIGHT).assume_utc(),
+            code: None,
+            description: None,
+            uuid: None,
+            location: None,
+            tags: None,
+            comments: None,
+        }
+    }
 }
 
 impl TxnHeader {
@@ -134,7 +148,7 @@ impl TxnHeader {
     pub fn to_string_with_indent(
         &self,
         indent: &str,
-        ts_formatter: fn(DateTime<FixedOffset>) -> String,
+        ts_formatter: fn(OffsetDateTime) -> String,
     ) -> String {
         format!(
             "{}{}{}\n{}{}{}{}",
@@ -175,13 +189,13 @@ mod tests {
     use indoc::formatdoc;
     use indoc::indoc;
     use tackler_rs::IndocUtils;
+    use time::format_description::well_known::Rfc3339;
 
     use crate::{txn_header::TxnHeader, txn_ts};
 
     #[test]
     fn txn_header_display() {
-        let ts = "2023-02-04T14:03:05.047974+02:00"
-            .parse::<DateTime<FixedOffset>>()
+        let ts = OffsetDateTime::parse("2023-02-04T14:03:05.047974+02:00", &Rfc3339)
             .unwrap(/*:test:*/);
 
         let uuid_str = "ed6d4110-f3c0-4770-87fc-b99e46572244";

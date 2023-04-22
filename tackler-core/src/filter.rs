@@ -67,7 +67,6 @@ impl Predicate<Transaction> for TxnFilter {
 mod tests {
     use crate::kernel::Predicate;
     use crate::model::{AccountTreeNode, Commodity, Posting};
-    use chrono::{DateTime, FixedOffset};
     use rust_decimal::Decimal;
     use tackler_api::filters::{
         logic::TxnFilterAND, logic::TxnFilterNOT, logic::TxnFilterOR, NullaryFALSE, NullaryTRUE,
@@ -75,11 +74,12 @@ mod tests {
     };
     use tackler_api::location::GeoPoint;
     use tackler_api::txn_header::TxnHeader;
+    use time::{OffsetDateTime, PrimitiveDateTime};
     use uuid::Uuid;
 
     use super::*;
 
-    pub(crate) fn make_ts_txn(ts: DateTime<FixedOffset>) -> Transaction {
+    pub(crate) fn make_ts_txn(ts: OffsetDateTime) -> Transaction {
         Transaction {
             header: TxnHeader {
                 timestamp: ts,
@@ -105,7 +105,7 @@ mod tests {
     pub(crate) fn make_code_txn(code: Option<&str>) -> Transaction {
         Transaction {
             header: TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: code.map(str::to_string),
                 description: None,
                 uuid: None,
@@ -120,7 +120,7 @@ mod tests {
     pub(crate) fn make_desc_txn(desc: Option<&str>) -> Transaction {
         Transaction {
             header: TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: None,
                 description: desc.map(str::to_string),
                 uuid: None,
@@ -135,7 +135,7 @@ mod tests {
     pub(crate) fn make_uuid_txn(uuid: Option<&str>) -> Transaction {
         Transaction {
             header: TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: None,
                 description: None,
                 uuid: uuid.map(|uuid_str| Uuid::parse_str(uuid_str).unwrap(/*:test:*/)),
@@ -150,7 +150,7 @@ mod tests {
     pub(crate) fn make_geo_txn(lat: f64, lon: f64, alt: Option<f64>) -> Transaction {
         Transaction {
             header: TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: None,
                 description: None,
                 uuid: None,
@@ -165,7 +165,7 @@ mod tests {
     pub(crate) fn make_tags_txn(tags: Option<Vec<&str>>) -> Transaction {
         Transaction {
             header: TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: None,
                 description: None,
                 uuid: None,
@@ -180,7 +180,7 @@ mod tests {
     pub(crate) fn make_comments_txn(cmts: Option<Vec<&str>>) -> Transaction {
         Transaction {
             header: TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: None,
                 description: None,
                 uuid: None,
@@ -204,7 +204,7 @@ mod tests {
 
         Transaction::from(
             TxnHeader {
-                timestamp: DateTime::default(),
+                timestamp: PrimitiveDateTime::MIN.assume_utc(),
                 code: None,
                 description: None,
                 uuid: None,
