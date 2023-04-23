@@ -377,7 +377,7 @@ mod tests {
         let mut count = 0;
         let should_be_count = tests.len();
         for t in tests {
-            let txn_hdr_str = t.0.to_string_with_indent("   ", txn_ts::iso_zoned_ts);
+            let txn_hdr_str = t.0.to_string_with_indent("   ", txn_ts::rfc_3339);
             assert_eq!(txn_hdr_str, t.1);
             count += 1;
         }

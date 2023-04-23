@@ -71,7 +71,7 @@ impl Display for Transaction {
             f,
             "{}{}",
             self.header
-                .to_string_with_indent(indent, txn_ts::iso_zoned_ts),
+                .to_string_with_indent(indent, txn_ts::rfc_3339),
             self.posts
                 .iter()
                 .map(|p| { format!("{indent}{p}\n") })

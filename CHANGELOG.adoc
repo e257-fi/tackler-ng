@@ -53,6 +53,7 @@ Updated deps and tools:
 * Dependencies
   ** chrono: removed, replaced with time
   ** time: new
+  ** time-tz: new
 * Build
   ** ...
 * Tests

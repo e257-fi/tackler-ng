@@ -24,6 +24,7 @@ Components (used direclty by Tackler-NG):
 * https://github.com/tailhook/serde-regex[serde_regex]
 * https://github.com/RustCrypto/hashes[sha2]
 * https://github.com/time-rs/time[time]
+* https://github.com/Yuri6037/time-tz[time-tz]
 * https://github.com/uuid-rs/uuid[uuid]
 * https://github.com/BurntSushi/walkdir[walkdir]
 

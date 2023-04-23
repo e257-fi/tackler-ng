@@ -73,7 +73,7 @@ impl<'a> Display for RegisterEntry<'a> {
             "{}",
             self.txn
                 .header
-                .to_string_with_indent(&indent, txn_ts::iso_zoned_ts)
+                .to_string_with_indent(&indent, txn_ts::rfc_3339)
         )?;
         for p in &self.posts {
             let line = format!(
