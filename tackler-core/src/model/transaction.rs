@@ -70,8 +70,7 @@ impl Display for Transaction {
         write!(
             f,
             "{}{}",
-            self.header
-                .to_string_with_indent(indent, txn_ts::rfc_3339),
+            self.header.to_string_with_indent(indent, txn_ts::rfc_3339),
             self.posts
                 .iter()
                 .map(|p| { format!("{indent}{p}\n") })

@@ -51,6 +51,7 @@ Fixes in this release ...
 Updated deps and tools:
 
 * Dependencies
+  ** gix: updated to 0.44
   ** chrono: removed, replaced with time
   ** time: new
   ** time-tz: new
