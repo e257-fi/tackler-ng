@@ -28,7 +28,8 @@ use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
 use tackler_core::report::{
-    BalanceReporter, BalanceSettings, RegisterReporter, RegisterSettings, Report,
+    BalanceGroupReporter, BalanceReporter, BalanceSettings, RegisterReporter, RegisterSettings,
+    Report,
 };
 
 use clap::Parser;
@@ -119,6 +120,15 @@ fn run() -> Result<i32, Box<dyn Error>> {
                                 },
                             };
                             bal_reporter.write_txt_report(&mut w, &txn_set)?;
+                        }
+                        "balance-group" => {
+                            let bal_group_reporter = BalanceGroupReporter {
+                                report_settings: BalanceSettings {
+                                    title: Some("BALANCE GROUP".to_string()), // todo: settings
+                                    ras: cli.accounts.clone(),
+                                },
+                            };
+                            bal_group_reporter.write_txt_report(&mut w, &txn_set)?;
                         }
                         "register" => {
                             let reg_reporter = RegisterReporter {

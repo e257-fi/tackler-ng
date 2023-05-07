@@ -41,8 +41,10 @@ pub struct BalanceReporter {
 }
 
 impl BalanceReporter {
-    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        match self.report_settings.ras.as_ref() {
+    pub(crate) fn acc_selector(
+        ras: &Option<Vec<String>>,
+    ) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+        match ras.as_ref() {
             Some(v) => {
                 if v.is_empty() {
                     Ok(Box::new(BalanceAllSelector {}))
@@ -56,13 +58,16 @@ impl BalanceReporter {
             None => Ok(Box::<BalanceAllSelector>::default()),
         }
     }
+
+    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+        BalanceReporter::acc_selector(&self.report_settings.ras)
+    }
 }
 
-impl Report for BalanceReporter {
-    fn write_txt_report<W: io::Write + ?Sized>(
-        &self,
+impl BalanceReporter {
+    pub(crate) fn txt_report<W: io::Write + ?Sized>(
         writer: &mut W,
-        txn_data: &TxnSet,
+        bal_report: &Balance,
     ) -> Result<(), Box<dyn Error>> {
         fn get_max_sum_len(bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal) -> usize {
             bal.iter()
@@ -84,16 +89,6 @@ impl Report for BalanceReporter {
                 .map(|(opt_comm, _)| opt_comm.as_ref().map_or(0, |comm| comm.name.len()))
                 .fold(0, max)
         }
-
-        let empty = String::default();
-
-        let bal_acc_sel = self.get_acc_selector()?;
-
-        let bal_report = Balance::from(
-            self.report_settings.title.as_ref().unwrap_or(&empty),
-            txn_data,
-            bal_acc_sel.as_ref(),
-        );
 
         let delta_max_len = get_max_delta_len(&bal_report.deltas);
         let comm_max_len = get_max_commodity_len(&bal_report.deltas);
@@ -139,14 +134,14 @@ impl Report for BalanceReporter {
         writeln!(writer, "{}", "-".repeat(bal_report.title.len()))?;
 
         if !bal_report.is_empty() {
-            for btn in bal_report.bal {
+            for btn in &bal_report.bal {
                 writeln!(
                     writer,
                     "{left_ruler}{:>asl$.prec$}{:>width$}{:>atl$.prec$}{}{}",
                     btn.account_sum,
                     "",
                     btn.sub_acc_tree_sum,
-                    make_commodity_field(comm_max_len, &btn),
+                    make_commodity_field(comm_max_len, btn),
                     btn.acctn,
                     asl = left_sum_len,
                     atl = sub_acc_sum_len,
@@ -186,5 +181,26 @@ impl Report for BalanceReporter {
         }
 
         Ok(())
+    }
+}
+
+impl Report for BalanceReporter {
+    fn write_txt_report<W: io::Write + ?Sized>(
+        &self,
+        writer: &mut W,
+        txn_data: &TxnSet,
+    ) -> Result<(), Box<dyn Error>> {
+        let bal_acc_sel = self.get_acc_selector()?;
+
+        let bal_report = Balance::from(
+            self.report_settings
+                .title
+                .as_ref()
+                .unwrap_or(&String::default()),
+            txn_data,
+            bal_acc_sel.as_ref(),
+        );
+
+        BalanceReporter::txt_report(writer, &bal_report)
     }
 }

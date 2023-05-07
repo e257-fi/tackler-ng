@@ -18,12 +18,14 @@
 use std::error::Error;
 
 use crate::model::TxnSet;
+pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_reporter::BalanceReporter;
 pub use balance_reporter::BalanceSettings;
 pub use register_reporter::RegisterReporter;
 pub use register_reporter::RegisterSettings;
 use std::io;
 
+mod balance_group_reporter;
 mod balance_reporter;
 mod register_reporter;
 

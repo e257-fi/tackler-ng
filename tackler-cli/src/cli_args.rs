@@ -104,6 +104,7 @@ pub(crate) struct Cli {
             PossibleValue::new("identity"),
             PossibleValue::new("register"),
             PossibleValue::new("balance"),
+            PossibleValue::new("balance-group"),
         ])
     )]
     pub(crate) reports: Option<Vec<String>>,
