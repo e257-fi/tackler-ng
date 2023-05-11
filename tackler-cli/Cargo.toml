@@ -33,3 +33,6 @@ tackler-core = { path = "../tackler-core", version = "0.3.0-dev" }
 log = { workspace = true }
 clap = { version = "4.1.13", features = [ "derive" ] }
 
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+jemallocator = { workspace = true }
+

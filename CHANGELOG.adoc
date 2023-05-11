@@ -53,6 +53,7 @@ Updated deps and tools:
 * Dependencies
   ** gix: updated to 0.44
   ** chrono: removed, replaced with time
+  ** jemallocator: new
   ** time: new
   ** time-tz: new
 * Build

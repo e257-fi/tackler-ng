@@ -44,6 +44,9 @@ digest = "0.10.6"
 
 gix = { version = "0.44.0", default-features = false, features = [ "max-performance-safe" ] }
 
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+jemallocator = { workspace = true }
+
 [dev-dependencies]
 tackler-rs = { path = "../tackler-rs", version = "0.3.0-dev" }
 indoc = { workspace = true }

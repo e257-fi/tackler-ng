@@ -37,6 +37,10 @@ use tackler_api::filters::FilterDefinition;
 use tackler_core::kernel::hash::Hash;
 use tackler_core::kernel::settings::Audit;
 
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 fn run() -> Result<i32, Box<dyn Error>> {
     let cli = cli_args::Cli::parse();
 

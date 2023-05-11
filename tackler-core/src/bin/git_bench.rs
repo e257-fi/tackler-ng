@@ -23,6 +23,10 @@ use tackler_core::model::TxnData;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
 
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 const REPO_PATH: &str = "suite/audit/audit-repo.git/";
 const TXN_SET_1E1_CHECKSUM: &str =
     "9b29071e1bf228cfbd31ca2b8e7263212e4b86e51cfee1e8002c9b795ab03f76";
