@@ -28,14 +28,16 @@ use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
 use tackler_core::report::{
-    BalanceGroupReporter, BalanceReporter, BalanceSettings, RegisterReporter, RegisterSettings,
-    Report,
+    BalanceGroupReporter, BalanceGroupSettings, BalanceReporter, BalanceSettings, RegisterReporter,
+    RegisterSettings, Report,
 };
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
+use tackler_api::txn_ts;
 use tackler_core::kernel::hash::Hash;
 use tackler_core::kernel::settings::Audit;
+use time_tz::timezones;
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -126,10 +128,15 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             bal_reporter.write_txt_report(&mut w, &txn_set)?;
                         }
                         "balance-group" => {
+                            let report_tz = cli.report_tz.clone().unwrap(/*:ok: clap*/);
+                            let group_by = cli.group_by.clone().unwrap(/*:ok: clap*/);
                             let bal_group_reporter = BalanceGroupReporter {
-                                report_settings: BalanceSettings {
+                                report_settings: BalanceGroupSettings {
                                     title: Some("BALANCE GROUP".to_string()), // todo: settings
                                     ras: cli.accounts.clone(),
+                                    group_by: txn_ts::GroupBy::from(&group_by)?,
+                                    report_tz: timezones::get_by_name(&report_tz)
+                                        .ok_or(format!("Can't recognise tz [{report_tz}]"))?,
                                 },
                             };
                             bal_group_reporter.write_txt_report(&mut w, &txn_set)?;

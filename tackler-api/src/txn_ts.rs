@@ -20,12 +20,66 @@
 //! `txn_ts` is collection of utilities to generate
 //! different representations of Txn timestamps.
 //!
+use std::error::Error;
 use time::format_description::well_known::Rfc3339;
 use time::macros::format_description;
 use time::{OffsetDateTime, UtcOffset};
 use time_tz::OffsetDateTimeExt;
 use time_tz::Tz;
 
+/// Time granularity selector for GroupBy operations
+#[derive(Debug, Clone)]
+pub enum GroupBy {
+    /// Group by year
+    Year,
+    /// Group by year-month
+    Month,
+    /// Group by year-month-day
+    Date,
+    /// Group by ISO week (year-week)
+    IsoWeek,
+    /// Group by ISO week date (year-week-day)
+    IsoWeekDate,
+}
+
+impl GroupBy {
+    /// UI/CFG string for ISO-Week-Date (year-week-day) 'group by' -selector
+    pub const ISO_WEEK_DATE: &'static str = "iso-week-date";
+
+    /// UI/CFG string for ISO-Week (year-week) 'group by' -selector
+    pub const ISO_WEEK: &'static str = "iso-week";
+
+    /// UI/CFG string for Date (year-month-day) 'group by' -selector
+    pub const DATE: &'static str = "date";
+
+    /// UI/CFG string for Month (year-month) 'group by' -selector
+    pub const MONTH: &'static str = "month";
+
+    /// UI/CFG string for Year 'group by' -selector
+    pub const YEAR: &'static str = "year";
+
+    /// Get 'group by' -selector based on UI/CFG name
+    pub fn from(group_by: &str) -> Result<GroupBy, Box<dyn Error>> {
+        match group_by {
+            GroupBy::ISO_WEEK_DATE => Ok(GroupBy::IsoWeekDate),
+            GroupBy::ISO_WEEK => Ok(GroupBy::IsoWeek),
+            GroupBy::DATE => Ok(GroupBy::Date),
+            GroupBy::MONTH => Ok(GroupBy::Month),
+            GroupBy::YEAR => Ok(GroupBy::Year),
+            _ => {
+                let msg = format!(
+                    "Unknown group-by selector. Valid selectors are: {}, {}, {}, {}, {}",
+                    GroupBy::ISO_WEEK_DATE,
+                    GroupBy::ISO_WEEK,
+                    GroupBy::DATE,
+                    GroupBy::MONTH,
+                    GroupBy::YEAR
+                );
+                Err(msg.into())
+            }
+        }
+    }
+}
 /// RFC-3339 timestamp as string
 ///
 /// # Examples

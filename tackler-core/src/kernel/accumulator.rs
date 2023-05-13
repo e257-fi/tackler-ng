@@ -23,18 +23,13 @@ use rust_decimal::Decimal;
 use std::collections::HashMap;
 use std::error::Error;
 use std::io;
-use tackler_api::txn_ts;
 
 pub(crate) type RegisterReporterFn<W> =
     fn(writer: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>;
 
-pub(crate) type BalanceGroupByOp = fn(txn: &Transaction) -> String;
+pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
-pub(crate) fn balance_groups<T>(
-    txns: &TxnRefs,
-    group_by_op: BalanceGroupByOp,
-    ras: &T,
-) -> Vec<Balance>
+pub(crate) fn balance_groups<T>(txns: &TxnRefs, group_by_op: TxnGroupByOp, ras: &T) -> Vec<Balance>
 where
     T: BalanceSelector + ?Sized,
 {

@@ -16,33 +16,57 @@
  */
 
 use crate::kernel::accumulator;
+use crate::kernel::accumulator::TxnGroupByOp;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::model::{Transaction, TxnSet};
-use crate::report::{BalanceReporter, BalanceSettings, Report};
+use crate::report::{BalanceReporter, Report};
 use std::error::Error;
 use std::io;
 use tackler_api::txn_ts;
+use tackler_api::txn_ts::GroupBy;
+use time_tz::Tz;
 
 #[derive(Debug, Clone)]
-pub struct BalanceGroupReporter {
-    pub report_settings: BalanceSettings,
+pub struct BalanceGroupSettings<'a> {
+    pub title: Option<String>,
+    pub ras: Option<Vec<String>>,
+    pub group_by: GroupBy,
+    pub report_tz: &'a Tz,
 }
 
-impl BalanceGroupReporter {
+#[derive(Debug, Clone)]
+pub struct BalanceGroupReporter<'a> {
+    pub report_settings: BalanceGroupSettings<'a>,
+}
+
+impl<'a> BalanceGroupReporter<'a> {
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
         BalanceReporter::acc_selector(&self.report_settings.ras)
     }
+
+    fn get_group_by_op(&self) -> TxnGroupByOp<'a> {
+        let tz = self.report_settings.report_tz;
+        match self.report_settings.group_by {
+            GroupBy::IsoWeekDate => {
+                Box::new(|txn: &Transaction| txn_ts::zoned_iso_week_date(txn.header.timestamp, tz))
+            }
+            GroupBy::IsoWeek => {
+                Box::new(|txn: &Transaction| txn_ts::zoned_iso_week(txn.header.timestamp, tz))
+            }
+            GroupBy::Date => {
+                Box::new(|txn: &Transaction| txn_ts::zoned_date(txn.header.timestamp, tz))
+            }
+            GroupBy::Month => {
+                Box::new(|txn: &Transaction| txn_ts::zoned_month(txn.header.timestamp, tz))
+            }
+            GroupBy::Year => {
+                Box::new(|txn: &Transaction| txn_ts::zoned_year(txn.header.timestamp, tz))
+            }
+        }
+    }
 }
 
-fn group_by_date(txn: &Transaction) -> String {
-    txn_ts::utc_date(txn.header.timestamp)
-}
-
-fn group_by_month(txn: &Transaction) -> String {
-    txn_ts::utc_month(txn.header.timestamp)
-}
-
-impl Report for BalanceGroupReporter {
+impl<'a> Report for BalanceGroupReporter<'a> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
         writer: &mut W,
@@ -50,8 +74,9 @@ impl Report for BalanceGroupReporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
+        let group_by_op = self.get_group_by_op();
         let bal_groups =
-            accumulator::balance_groups(&txn_data.txns, group_by_month, bal_acc_sel.as_ref());
+            accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref());
 
         if let Some(title) = &self.report_settings.title {
             writeln!(writer, "{}", title)?;

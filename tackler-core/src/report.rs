@@ -19,6 +19,7 @@ use std::error::Error;
 
 use crate::model::TxnSet;
 pub use balance_group_reporter::BalanceGroupReporter;
+pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
 pub use balance_reporter::BalanceSettings;
 pub use register_reporter::RegisterReporter;

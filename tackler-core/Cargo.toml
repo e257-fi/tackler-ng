@@ -36,6 +36,7 @@ antlr-rust = "0.3.0-beta"
 rust_decimal = { workspace = true }
 serde = { workspace = true }
 time = { workspace = true }
+time-tz = { workspace = true }
 uuid = { workspace = true }
 itertools = { workspace = true }
 regex = { workspace = true }

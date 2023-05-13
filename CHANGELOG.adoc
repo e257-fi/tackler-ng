@@ -32,6 +32,8 @@ tackler-core = "0.2.0"
 
 New features:
 
+* BalanceGroupReport
+  ** GroupBy: Year, Month, Date, ISO-Week, ISO-Week-Day
 * ...
   ** ...
 

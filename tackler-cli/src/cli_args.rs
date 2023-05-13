@@ -17,6 +17,7 @@
 use clap::builder::PossibleValue;
 use clap::{ArgGroup, Parser};
 use std::path::PathBuf;
+use tackler_api::txn_ts;
 
 #[derive(Parser)]
 #[command(author, version=env!("VERSION"), about, long_about = None)]
@@ -90,6 +91,15 @@ pub(crate) struct Cli {
     )]
     pub(crate) input_git_dir: Option<String>,
 
+    /// Report's Timezone [UTC, Europe/Helsinki, America/New_York, ...]
+    #[arg(
+        long = "report-tz",
+        value_name = "timezone name",
+        num_args(1),
+        default_value = "UTC"
+    )]
+    pub(crate) report_tz: Option<String>,
+
     /// Account selectors for reports
     ///
     /// List of regex patterns for account names. For full match, use anchors ('^...$').
@@ -109,6 +119,17 @@ pub(crate) struct Cli {
     )]
     pub(crate) reports: Option<Vec<String>>,
 
+    /// Group-by -selector for 'balance-group' report
+    #[arg(long = "group-by", value_name = "group-by", num_args(1), default_value = "year",
+        value_parser([
+            PossibleValue::new(txn_ts::GroupBy::YEAR),
+            PossibleValue::new(txn_ts::GroupBy::MONTH),
+            PossibleValue::new(txn_ts::GroupBy::DATE),
+            PossibleValue::new(txn_ts::GroupBy::ISO_WEEK),
+            PossibleValue::new(txn_ts::GroupBy::ISO_WEEK_DATE),
+        ])
+    )]
+    pub(crate) group_by: Option<String>,
     /// Txn Filter definition (JSON), it could be ascii armored as base64 encoded
     ///
     /// The base64 ascii armor must have prefix "base64:". For example

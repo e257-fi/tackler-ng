@@ -28,10 +28,11 @@ readme = "CRATES.md"
 
 [dependencies]
 tackler-rs =   { path = "../tackler-rs",   version = "0.3.0-dev" }
-tackler-api =  { path = "../tackler-api",  version = "0.3.0-dev" }
+tackler-api =  { path = "../tackler-api", version = "0.3.0-dev" }
 tackler-core = { path = "../tackler-core", version = "0.3.0-dev" }
 log = { workspace = true }
 clap = { version = "4.1.13", features = [ "derive" ] }
+time-tz = { workspace = true }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { workspace = true }
