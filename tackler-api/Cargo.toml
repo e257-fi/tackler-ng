@@ -34,7 +34,7 @@ path = "src/lib.rs"
 base64 = { workspace = true }
 regex = { workspace = true }
 rust_decimal = { workspace = true }
-serde = { workspace = true }
+serde = { workspace = true, features = [ "derive"] }
 serde_json = { workspace = true }
 serde_regex = "1.1.0"
 time = { workspace = true, features = [ "serde-human-readable", "formatting", "parsing" ] }
