@@ -53,7 +53,7 @@ Fixes in this release ...
 Updated deps and tools:
 
 * Dependencies
-  ** gix: updated to 0.51.0
+  ** gix: updated to 0.55.2
   ** chrono: removed, replaced with time
   ** jemallocator: new
   ** time: new

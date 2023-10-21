@@ -44,7 +44,7 @@ rust_decimal = { version = "1.29", features= ["serde-with-arbitrary-precision" ]
 uuid = { version = "1.3", default-features = false, features = [ "serde" ] }
 log = "0.4"
 regex =  { version = "1.7.3" }
-serde = { version = ">= 1.0.158, <= 1.0.171", default-features = false }
+serde = { version = ">= 1.0.184", default-features = false }
 serde_json = { version = "1.0.94" , default-features = false, features = [ "std", "arbitrary_precision" ] }
 itertools = "0.10"
 jemallocator = "0.5"
