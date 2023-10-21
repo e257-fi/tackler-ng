@@ -81,6 +81,12 @@ For general information about Tackler, see the original link:https://tackler.e25
 See link:CREDITS.adoc[CREDITS] for full list of credits.
 
 
+== Security
+
+If you find a security issue in Tackler-NG, please report it as outlined in
+xref:./SECURITY.adoc[Security Policy].
+
+
 == License
 
 ....
