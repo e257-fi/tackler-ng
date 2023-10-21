@@ -62,7 +62,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to 35V LG84 by email, using email address listed in
-xref:./ALLOWED_SIGNERS[ALLOWED_SIGNERS] file. You may use OpenPGP key
+link:./ALLOWED_SIGNERS[ALLOWED_SIGNERS] file. You may use OpenPGP key
 `0x7F5788BB00D44BBDBCE629651C089D59B6417C4D` to encrypt the report.
 All complaints will be reviewed and investigated promptly and fairly.
 

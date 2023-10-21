@@ -84,7 +84,7 @@ See link:CREDITS.adoc[CREDITS] for full list of credits.
 == Security
 
 If you find a security issue in Tackler-NG, please report it as outlined in
-xref:./SECURITY.adoc[Security Policy].
+link:./SECURITY.adoc[Security Policy].
 
 
 == License

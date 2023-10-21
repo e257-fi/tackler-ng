@@ -41,10 +41,10 @@ link:./docs/devel/readme.adoc[Readme for Developer's documentation].
 == Security
 
 If you find a security issue in Tackler-NG, please report it as outlined in
-xref:./SECURITY.adoc[Security Policy].
+link:./SECURITY.adoc[Security Policy].
 
 
 == Code of Conduct
 
-Tackler-NG follows the xref:./CODE_OF_CONDUCT.adoc[Contributor Covenant]
+Tackler-NG follows the link:./CODE_OF_CONDUCT.adoc[Contributor Covenant]
 as the code of conduct.
