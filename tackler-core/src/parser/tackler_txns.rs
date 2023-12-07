@@ -25,6 +25,7 @@ use std::str::FromStr;
 use crate::model::{transaction, TxnData, Txns};
 use crate::parser::tackler_parser;
 use gix as git;
+use gix::objs::tree::EntryKind;
 
 use crate::kernel::Settings;
 use tackler_api::metadata::items::{GitInputReference, MetadataItem};
@@ -102,8 +103,8 @@ pub fn git_to_txns(
         .files()?
         .iter()
         .map(|entry| {
-            use git::objs::tree::EntryMode::*;
-            match entry.mode {
+            use git::objs::tree::EntryKind::Blob;
+            match EntryKind::from(entry.mode) {
                 Blob => {
                     if entry.filepath.starts_with(str::as_bytes(dir))
                         && entry.filepath.ends_with(str::as_bytes(extension))
