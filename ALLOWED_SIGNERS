@@ -1,12 +1,12 @@
 # ALLOWED SIGNERS for Tackler-NG
 #
-# Main OpenPGP key: 0x7F5788BB00D44BBDBCE629651C089D59B6417C4D
+# The main OpenPGP key: 0x7F5788BB00D44BBDBCE629651C089D59B6417C4D
 #
-# This is "allowed signers" file, see 'man ssh-keygen' or <https://man.openbsd.org/ssh-keygen> for details.
+# This is an "allowed signers" file, see 'man ssh-keygen' or <https://man.openbsd.org/ssh-keygen> for details.
 #
 # Git configuration:
 #
 #    git config gpg.ssh.allowedSignersFile ALLOWED_SIGNERS
 #
-35vlg84-x4e6b92@e257.fi namespaces="git",valid-after="20230202",valid-before="20240131" sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIGp5oLOwUMtkX2fFjDTu1xSglWErql1pqwJntiOT2C0AAAAABHNzaDo=
+35vlg84-x4e6b92@e257.fi namespaces="git",valid-after="20230202",valid-before="20250501" sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIGp5oLOwUMtkX2fFjDTu1xSglWErql1pqwJntiOT2C0AAAAABHNzaDo=
 
