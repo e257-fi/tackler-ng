@@ -38,7 +38,7 @@ opt-level = 3
 [workspace.dependencies]
 base64 = { version = "0.21.0" }
 time = { version = "0.3.20", default-features = false }
-time-tz = { version = "1.0.2", default-features = false, features = [ "db" ] }
+time-tz = { version = "2.0.0", default-features = false, features = [ "db" ] }
 indoc = "2.0.1"
 rust_decimal = { version = "1.29", features= ["serde-with-arbitrary-precision" ]}
 uuid = { version = "1.3", default-features = false, features = [ "serde" ] }
