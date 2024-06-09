@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ mod tests {
             r#"{"txnFilter":{"TxnFilterTxnComments":{"regex":"(abc.*)|(def.*)"}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  Txn Comments: \"(abc.*)|(def.*)\"
          |"}
         .strip_margin();
@@ -79,7 +79,7 @@ mod tests {
     // desc: TxnComments, Text
     fn txn_comments_text() {
         let filter_text_str = indoc! {
-        r#"|Filter:
+        r#"|Filter
            |  AND
            |    Txn Comments: "(abc.*)|(def.*)"
            |    AND

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"TxnFilterBBoxLatLon":{"south":59.85,"west":24.0,"north":60.8,"east":27.5}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  Txn Bounding Box 2D
          |    North, East: geo:60.8,27.5
          |    South, West: geo:59.85,24
@@ -93,7 +93,7 @@ mod tests {
     // desc: BBoxLatLon, Text
     fn txn_bbox_lat_lon_text() {
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  AND
          |    Txn Bounding Box 2D
          |      North, East: geo:60.8,27.5

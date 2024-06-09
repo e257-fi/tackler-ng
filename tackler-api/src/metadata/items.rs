@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2022-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ pub enum MetadataItem {
     #[doc(hidden)]
     TxnSetChecksum(TxnSetChecksum),
     #[doc(hidden)]
+    AccountSelectorChecksum(AccountSelectorChecksum),
+    #[doc(hidden)]
     GitInputReference(GitInputReference),
     #[doc(hidden)]
     TxnFilterDescription(TxnFilterDescription),
@@ -46,6 +48,7 @@ impl Text for MetadataItem {
         match self {
             Self::GitInputReference(gif) => gif.text(),
             Self::TxnSetChecksum(tscs) => tscs.text(),
+            Self::AccountSelectorChecksum(asc) => asc.text(),
             Self::TxnFilterDescription(tfd) => tfd.text(),
         }
     }
@@ -71,6 +74,23 @@ impl Text for TxnSetChecksum {
     }
 }
 
+/// Account Selector Checksum item
+#[derive(Debug,Clone)]
+pub struct AccountSelectorChecksum {
+    /// Hash of selector Checksum
+    pub hash: Checksum,
+}
+impl Text for AccountSelectorChecksum {
+    fn text(&self) -> Vec<String> {
+        // echo -n "SHA-512/256" | wc -c => 11
+        let pad = 15;
+        vec![
+            format!("Account Selector Checksum"),
+            format!("{:>pad$} : {}", self.hash.algorithm, &self.hash.value),
+        ]
+    }
+}
+
 /// Metadata information about active Txn Filters
 ///
 #[derive(Debug, Clone)]
@@ -89,7 +109,7 @@ impl TxnFilterDescription {
 }
 impl Text for TxnFilterDescription {
     fn text(&self) -> Vec<String> {
-        vec![format!("{}", self.txn_filter_def)]
+        vec![String::from(format!("{}", self.txn_filter_def).trim_end())]
     }
 }
 

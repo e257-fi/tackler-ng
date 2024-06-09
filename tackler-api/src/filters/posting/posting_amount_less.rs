@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"TxnFilterPostingAmountLess":{"regex":"(abc.*)|(def.*)","amount":1}}}"#;
 
         let filter_text_str = indoc! {
-        r#"|Filter:
+        r#"|Filter
            |  Posting Amount
            |    account: "(abc.*)|(def.*)"
            |    amount < 1
@@ -101,7 +101,7 @@ mod tests {
     // desc: PostingAmountLess, Text
     fn posting_amount_less_text() {
         let filter_text_str = indoc! {
-        r#"|Filter:
+        r#"|Filter
            |  AND
            |    Posting Amount
            |      account: "(abc.*)|(def.*)"

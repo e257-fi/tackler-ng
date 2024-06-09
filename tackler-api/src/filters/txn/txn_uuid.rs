@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ mod tests {
             r#"{"txnFilter":{"TxnFilterTxnUUID":{"uuid":"8c913372-48e9-466c-a897-11b151548a19"}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  Txn UUID: 8c913372-48e9-466c-a897-11b151548a19
          |"}
         .strip_margin();
@@ -77,7 +77,7 @@ mod tests {
     // desc: TxnUUID, Text
     fn txn_uuid_text() {
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  AND
          |    Txn UUID: 76a0f143-d64e-4497-b357-5ae2eb092219
          |    AND

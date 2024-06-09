@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"TxnFilterTxnCode":{"regex":"(abc.*)|(def.*)"}}}"#;
 
         let filter_text_str = indoc! {
-        r#"|Filter:
+        r#"|Filter
            |  Txn Code: "(abc.*)|(def.*)"
            |"#}
         .strip_margin();
@@ -78,7 +78,7 @@ mod tests {
     // desc: TxnCode, Text
     fn txn_code_text() {
         let filter_text_str = indoc! {
-        r#"|Filter:
+        r#"|Filter
            |  AND
            |    Txn Code: "(abc.*)|(def.*)"
            |    AND

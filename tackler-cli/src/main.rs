@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 E257.FI
+ * Copyright 2022-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ use tackler_api::txn_ts;
 use tackler_core::kernel::hash::Hash;
 use tackler_core::kernel::settings::Audit;
 use time_tz::timezones;
+use tackler_api::metadata::items::{AccountSelectorChecksum, MetadataItem};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -101,6 +102,8 @@ fn run() -> Result<i32, Box<dyn Error>> {
         None => None,
     };
 
+    let accounts = &cli.accounts;
+
     match result {
         Ok(txn_data) => {
             let txn_set = match txn_filt {
@@ -109,7 +112,20 @@ fn run() -> Result<i32, Box<dyn Error>> {
             };
 
             if let Some(metadata) = &txn_set.metadata() {
-                println!("{}", metadata.text());
+                let mut md = (*metadata).clone();
+                if let Some(hash) = cfg.audit.hash {
+                    if let Some(ras) = accounts {
+                        // todo: refactor and test this
+                        let mut accsel = ras.clone();
+                        accsel.sort();
+                        let h = hash.checksum(&accsel, "\n".as_bytes())?;
+                        let asc_mdi = MetadataItem::AccountSelectorChecksum(AccountSelectorChecksum {
+                            hash: h,
+                        });
+                        md.push(asc_mdi);
+                    }
+                }
+                println!("{}", md.text());
             }
 
             if let Some(reports) = cli.reports {
@@ -122,7 +138,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             let bal_reporter = BalanceReporter {
                                 report_settings: BalanceSettings {
                                     title: Some("BALANCE".to_string()),
-                                    ras: cli.accounts.clone(),
+                                    ras: accounts.clone(),
                                 },
                             };
                             bal_reporter.write_txt_report(&mut w, &txn_set)?;
@@ -133,7 +149,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             let bal_group_reporter = BalanceGroupReporter {
                                 report_settings: BalanceGroupSettings {
                                     title: Some("BALANCE GROUP".to_string()), // todo: settings
-                                    ras: cli.accounts.clone(),
+                                    ras: accounts.clone(),
                                     group_by: txn_ts::GroupBy::from(&group_by)?,
                                     report_tz: timezones::get_by_name(&report_tz)
                                         .ok_or(format!("Can't recognise tz [{report_tz}]"))?,
@@ -145,7 +161,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             let reg_reporter = RegisterReporter {
                                 report_settings: RegisterSettings {
                                     title: Some("REGISTER".to_string()),
-                                    ras: cli.accounts.clone(),
+                                    ras: accounts.clone(),
                                 },
                             };
                             reg_reporter.write_txt_report(&mut w, &txn_set)?;

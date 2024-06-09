@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"TxnFilterAND":{"txnFilters":[{"NullaryTRUE":{}},{"NullaryFALSE":{}}]}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  AND
          |    All pass
          |    None pass
@@ -87,7 +87,7 @@ mod tests {
     // desc: AND, Text
     fn and_filt_text() {
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  AND
          |    All pass
          |    AND

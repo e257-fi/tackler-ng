@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ mod tests {
             r#"{"txnFilter":{"TxnFilterTxnTSBegin":{"begin":"2023-02-25T10:11:22.345+02:00"}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  Txn TS: begin 2023-02-25T10:11:22.345+02:00
          |"}
         .strip_margin();
@@ -95,7 +95,7 @@ mod tests {
             r#"{"txnFilter":{"TxnFilterTxnTSBegin":{"begin":"2023-02-25T10:11:22.345Z"}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  Txn TS: begin 2023-02-25T10:11:22.345Z
          |"}
         .strip_margin();
@@ -117,7 +117,7 @@ mod tests {
     // desc: TxnTSBegin, Text
     fn txn_ts_begin_text() {
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  AND
          |    Txn TS: begin 2023-02-25T10:11:22.345+02:00
          |    AND

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ impl FilterDefinition {
 
 impl Display for FilterDefinition {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Filter:")?;
+        writeln!(f, "Filter")?;
         self.txn_filter.i_fmt("  ", f)
     }
 }
@@ -149,7 +149,7 @@ mod tests {
         let filter_json_str = r#"{"txnFilter":{"NullaryTRUE":{}}}"#;
 
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  All pass
          |"}
         .strip_margin();
@@ -175,7 +175,7 @@ mod tests {
     // desc: filter definition, Text
     fn filter_definition_text() {
         let filter_text_str = indoc! {
-        "|Filter:
+        "|Filter
          |  All pass
          |"}
         .strip_margin();
