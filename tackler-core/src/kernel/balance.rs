@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ impl Balance {
             .iter()
             .flat_map(|txn| &txn.posts)
             .sorted_by_key(|p| p.acctn.get_full())
-            .group_by(|p| p.acctn.get_full())
+            .chunk_by(|p| p.acctn.get_full())
             .into_iter()
             .map(|(_, postings)| {
                 let mut ps = postings.peekable();
@@ -224,7 +224,7 @@ impl Balance {
         } else {
             let deltas = filt_bal
                 .iter()
-                .group_by(|btn| &btn.acctn.commodity_str)
+                .chunk_by(|btn| &btn.acctn.commodity_str)
                 .into_iter()
                 .map(|(c, bs)| {
                     let dsum = bs.map(|b| b.account_sum).sum();

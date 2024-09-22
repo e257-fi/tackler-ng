@@ -36,7 +36,7 @@ include = [ "src/**/*", "CRATES.md", "README.adoc", "build.rs" ]
 opt-level = 3
 
 [workspace.dependencies]
-base64 = { version = "0.21.0" }
+base64 = { version = "0.22.0" }
 time = { version = "0.3.20", default-features = false }
 time-tz = { version = "2.0.0", default-features = false, features = [ "db" ] }
 indoc = "2.0.1"
@@ -46,5 +46,5 @@ log = "0.4"
 regex =  { version = "1.7.3" }
 serde = { version = ">= 1.0.184", default-features = false }
 serde_json = { version = "1.0.94" , default-features = false, features = [ "std", "arbitrary_precision" ] }
-itertools = "0.10"
+itertools = "0.13"
 jemallocator = "0.5"

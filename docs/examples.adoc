@@ -39,3 +39,26 @@ target/release/tackler \
     --reports balance register
 ----
 
+----
+target/release/tackler \
+    --input.git.repo suite/audit/audit-repo.git \
+    --input.git.dir txns \
+    --input.git.ref txns-1E2 \
+    --reports register \
+    --accounts '^a:.*' \
+    --audit.mode true \
+    --api-filter-def \
+      '{ "txnFilter": { "TxnFilterTxnDescription": { "regex": "^1E2 txn-(1|17|100)$" }}}'
+----
+
+----
+target/release/tackler \
+    --input.git.repo suite/audit/audit-repo.git \
+    --input.git.dir txns \
+    --input.git.ref txns-1E2 \
+    --reports register \
+    --accounts '^a:.*' \
+    --audit.mode true \
+    --api-filter-def \
+      base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyVHhuRGVzY3JpcHRpb24iOiB7ICJyZWdleCI6ICJeMUUyIHR4bi0oMXwxN3wxMDApJCIgfX19Cg==
+----
