@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,8 @@ pub(crate) struct Cli {
     /// The list is space separated
     #[arg(long = "reports", value_name = "type", num_args(1..),
         value_parser([
-            PossibleValue::new("identity"),
+            //PossibleValue::new("identity"),
+            PossibleValue::new("equity"),
             PossibleValue::new("register"),
             PossibleValue::new("balance"),
             PossibleValue::new("balance-group"),

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,28 @@
  */
 
 use crate::kernel::accumulator;
+use crate::kernel::Settings;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
 use crate::model::{RegisterEntry, TxnSet};
-use crate::report::Report;
+use crate::report::{get_account_selector_checksum, Report};
 use std::error::Error;
 use std::io;
+use tackler_api::metadata::items::Text;
 
 #[derive(Debug, Clone)]
-pub struct RegisterSettings {
+pub struct RegisterSettings<'a> {
     pub title: Option<String>,
-    pub ras: Option<Vec<String>>,
+    pub ras: &'a Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone)]
-pub struct RegisterReporter {
-    pub report_settings: RegisterSettings,
+pub struct RegisterReporter<'a> {
+    pub report_settings: RegisterSettings<'a>,
 }
 
-impl RegisterReporter {
+impl RegisterReporter<'_> {
     fn get_acc_selector(&self) -> Result<Box<dyn RegisterSelector>, Box<dyn Error>> {
         match self.report_settings.ras.as_ref() {
             Some(v) => {
@@ -63,13 +65,22 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     Ok(())
 }
 
-impl Report for RegisterReporter {
+impl Report for RegisterReporter<'_> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
+        cfg: &Settings,
         writer: &mut W,
         txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let empty = String::default();
+
+        writeln!(writer, "{}", "-".repeat(82))?;
+        if let Some(asc) = get_account_selector_checksum(&cfg, self.report_settings.ras)? {
+            for v in asc.text() {
+                writeln!(writer, "{}", &v)?;
+            }
+        }
+        writeln!(writer, "")?;
 
         let title = self.report_settings.title.as_ref().unwrap_or(&empty);
         writeln!(writer, "{}", title)?;
@@ -77,6 +88,8 @@ impl Report for RegisterReporter {
 
         let ras = self.get_acc_selector()?;
 
-        accumulator::register_engine(&txns.txns, ras.as_ref(), writer, reg_entry_txt_writer)
+        accumulator::register_engine(&txns.txns, ras.as_ref(), writer, reg_entry_txt_writer)?;
+        writeln!(writer, "{}", "=".repeat(82))?;
+        Ok(())
     }
 }

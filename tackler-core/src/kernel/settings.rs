@@ -26,7 +26,7 @@ pub struct Audit {
 #[derive(Debug)]
 pub struct Settings {
     pub basedir: Box<Path>,
-    pub accounts: Vec<String>,
+    pub accounts: Option<Vec<String>>,
     pub audit: Audit,
 }
 
@@ -34,7 +34,7 @@ impl Settings {
     pub fn default_audit() -> Self {
         Settings {
             basedir: PathBuf::default().into_boxed_path(),
-            accounts: Vec::default(),
+            accounts: None,
             audit: Audit {
                 hash: Some(Hash::default()),
             },
@@ -46,7 +46,7 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             basedir: PathBuf::default().into_boxed_path(),
-            accounts: Vec::default(),
+            accounts: None,
             audit: Audit { hash: None },
         }
     }

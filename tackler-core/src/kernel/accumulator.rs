@@ -35,7 +35,7 @@ where
 {
     txns.iter()
         .cloned() // this is originally &&Transaction
-        .group_by(|txn| group_by_op(txn))
+        .chunk_by(|txn| group_by_op(txn))
         .into_iter()
         // .par // todo: par-map
         .map(|(group_by_key, bal_grp_txns)| {

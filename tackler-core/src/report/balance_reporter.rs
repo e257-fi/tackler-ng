@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,32 @@
  */
 
 use crate::kernel::balance::{BTNs, Balance, Deltas};
+use crate::kernel::Settings;
 use crate::model::{BalanceTreeNode, TxnSet};
-use crate::report::Report;
+use crate::report::{get_account_selector_checksum, Report};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use std::cmp::max;
 use std::error::Error;
 use std::io;
-
+use tackler_api::metadata::items::Text;
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
 };
 
 #[derive(Debug, Clone)]
-pub struct BalanceSettings {
+pub struct BalanceSettings<'a> {
     pub title: Option<String>,
-    pub ras: Option<Vec<String>>,
+    pub ras: &'a Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone)]
-pub struct BalanceReporter {
-    pub report_settings: BalanceSettings,
+pub struct BalanceReporter<'a> {
+    pub report_settings: BalanceSettings<'a>,
 }
 
-impl BalanceReporter {
+impl BalanceReporter<'_> {
     pub(crate) fn acc_selector(
         ras: &Option<Vec<String>>,
     ) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
@@ -64,7 +65,7 @@ impl BalanceReporter {
     }
 }
 
-impl BalanceReporter {
+impl BalanceReporter<'_> {
     pub(crate) fn txt_report<W: io::Write + ?Sized>(
         writer: &mut W,
         bal_report: &Balance,
@@ -184,13 +185,23 @@ impl BalanceReporter {
     }
 }
 
-impl Report for BalanceReporter {
+impl Report for BalanceReporter<'_> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
+        cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
+
+
+        writeln!(writer, "{}", "-".repeat(82))?;
+        if let Some(asc) = get_account_selector_checksum(&cfg, self.report_settings.ras)? {
+            for v in asc.text() {
+                writeln!(writer, "{}", &v)?;
+            }
+        }
+        writeln!(writer, "")?;
 
         let bal_report = Balance::from(
             self.report_settings
@@ -201,6 +212,8 @@ impl Report for BalanceReporter {
             bal_acc_sel.as_ref(),
         );
 
-        BalanceReporter::txt_report(writer, &bal_report)
+        BalanceReporter::txt_report(writer, &bal_report)?;
+        writeln!(writer, "{}", "=".repeat(82))?;
+        Ok(())
     }
 }
