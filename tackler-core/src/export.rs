@@ -14,13 +14,13 @@
  * limitations under the License.
  *
  */
-use std::error::Error;
-use std::io;
 use crate::kernel::Settings;
 use crate::model::TxnSet;
+use std::error::Error;
+use std::io;
 
-pub use equity_exporter::EquitySettings;
 pub use equity_exporter::EquityExporter;
+pub use equity_exporter::EquitySettings;
 
 mod equity_exporter;
 

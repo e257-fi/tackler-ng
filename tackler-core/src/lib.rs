@@ -20,10 +20,10 @@
 // stable since 1.71.0-nightly
 // #![feature(is_some_and)]
 
+pub mod export;
 pub mod filter;
 pub mod kernel;
 pub mod math;
 pub mod model;
 pub mod parser;
 pub mod report;
-pub mod export;

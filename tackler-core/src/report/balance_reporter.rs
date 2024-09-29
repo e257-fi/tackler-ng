@@ -16,6 +16,9 @@
  */
 
 use crate::kernel::balance::{BTNs, Balance, Deltas};
+use crate::kernel::report_item_selector::{
+    BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
+};
 use crate::kernel::Settings;
 use crate::model::{BalanceTreeNode, TxnSet};
 use crate::report::{get_account_selector_checksum, Report};
@@ -26,9 +29,6 @@ use std::cmp::max;
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::Text;
-use crate::kernel::report_item_selector::{
-    BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
-};
 
 #[derive(Debug, Clone)]
 pub struct BalanceSettings<'a> {
@@ -193,7 +193,6 @@ impl Report for BalanceReporter<'_> {
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
-
 
         writeln!(writer, "{}", "-".repeat(82))?;
         if let Some(asc) = get_account_selector_checksum(&cfg, self.report_settings.ras)? {

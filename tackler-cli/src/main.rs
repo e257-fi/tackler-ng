@@ -24,6 +24,7 @@ use std::path::PathBuf;
 
 use log::error;
 
+use tackler_core::export::{EquityExporter, EquitySettings, Export};
 use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
@@ -31,7 +32,6 @@ use tackler_core::report::{
     BalanceGroupReporter, BalanceGroupSettings, BalanceReporter, BalanceSettings, RegisterReporter,
     RegisterSettings, Report,
 };
-use tackler_core::export::{EquityExporter, EquitySettings, Export};
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
@@ -86,7 +86,6 @@ fn run() -> Result<i32, Box<dyn Error>> {
             GitInputSelector::Reference(cli.input_git_ref.unwrap(/*:ok: clap */)),
             &cfg,
         )
-        //GitInputSelector::CommitId("359400fa06c3e516a7133eea0d74f9a84310032a".to_string()))
     } else {
         return Err("No input".into());
     };
@@ -109,12 +108,12 @@ fn run() -> Result<i32, Box<dyn Error>> {
                 None => txn_data.get_all()?,
             };
 
-            if let Some(metadata) = &txn_set.metadata() {
-                println!("{}", metadata.text());
-            }
-
             if let Some(reports) = cli.reports {
                 let mut w: Box<dyn io::Write> = Box::new(io::stdout());
+
+                if let Some(metadata) = &txn_set.metadata() {
+                    writeln!(&mut w, "{}", metadata.text())?;
+                }
 
                 for r in reports {
                     match r.as_str() {
@@ -151,23 +150,38 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             };
                             reg_reporter.write_txt_report(&cfg, &mut w, &txn_set)?;
                         }
+                        _ => {
+                            return Err("Internal Logic error with reports cli args".into());
+                        }
+                    }
+                }
+            }
+
+            if let Some(exports) = cli.exports {
+                let mut w: Box<dyn io::Write> = Box::new(io::stdout());
+
+                for e in exports {
+                    match e.as_str() {
                         "equity" => {
+                            let eqa = match &cli.equity_account_name {
+                                Some(e) => e,
+                                _ => {
+                                    return Err("Internal Logic error with exports cli args (equity account name)".into());
+                                }
+                            };
                             let eq_exporter = EquityExporter {
                                 export_settings: EquitySettings {
-                                  title: Some("equity".to_string()),
-                                    eqa: Some("eqa".to_string()),
+                                    eqa: Some(eqa.clone()),
                                     ras: &cfg.accounts,
                                 },
                             };
                             eq_exporter.write_export(&cfg, &mut w, &txn_set)?;
                         }
                         _ => {
-                            return Err("Logic error with reports cli args".into());
+                            return Err("Internal Logic error with exports cli args".into());
                         }
                     }
                 }
-            } else {
-                println!("No reports selected.");
             }
             Ok(0)
         }

@@ -16,8 +16,8 @@
  */
 use std::error::Error;
 
-use crate::model::TxnSet;
 use crate::kernel::Settings;
+use crate::model::TxnSet;
 pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
@@ -40,19 +40,18 @@ pub trait Report {
     ) -> Result<(), Box<dyn Error>>;
 }
 
-fn get_account_selector_checksum(
+pub fn get_account_selector_checksum(
     cfg: &Settings,
     ras: &Option<Vec<String>>,
 ) -> Result<Option<AccountSelectorChecksum>, Box<dyn Error>> {
     if let Some(hash) = &cfg.audit.hash {
-        if let Some(ras) = ras { // todo: ras or cfg.accounts?
+        if let Some(ras) = ras {
+            // todo: ras or cfg.accounts?
             // todo: refactor and test this
             let mut accsel = ras.clone();
             accsel.sort();
             let h = hash.checksum(&accsel, "\n".as_bytes())?;
-            let asc = AccountSelectorChecksum {
-                hash: h,
-            };
+            let asc = AccountSelectorChecksum { hash: h };
             Ok(Some(asc))
         } else {
             Ok(None)

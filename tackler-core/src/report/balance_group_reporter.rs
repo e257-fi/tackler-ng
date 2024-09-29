@@ -17,17 +17,17 @@
 
 use crate::kernel::accumulator;
 use crate::kernel::accumulator::TxnGroupByOp;
-use crate::kernel::Settings;
 use crate::kernel::report_item_selector::BalanceSelector;
+use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
-use crate::report::{BalanceReporter};
+use crate::report::BalanceReporter;
 use crate::report::{get_account_selector_checksum, Report};
 use std::error::Error;
 use std::io;
+use tackler_api::metadata::items::Text;
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::GroupBy;
 use time_tz::Tz;
-use tackler_api::metadata::items::Text;
 
 #[derive(Debug, Clone)]
 pub struct BalanceGroupSettings<'a> {
@@ -89,7 +89,6 @@ impl<'a> Report for BalanceGroupReporter<'a> {
             }
         }
         writeln!(writer, "")?;
-
 
         if let Some(title) = &self.report_settings.title {
             writeln!(writer, "{}", title)?;

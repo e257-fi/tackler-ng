@@ -16,10 +16,10 @@
  */
 
 use crate::kernel::accumulator;
-use crate::kernel::Settings;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
+use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
 use crate::report::{get_account_selector_checksum, Report};
 use std::error::Error;
