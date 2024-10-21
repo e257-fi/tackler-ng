@@ -1,4 +1,5 @@
 // Generated from TxnLexer.g4 by ANTLR 4.8
+#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(clippy::all)]
 #![allow(dead_code)]
 #![allow(nonstandard_style)]

@@ -70,13 +70,11 @@ where
             .iter()
             .map(|p| {
                 let key = p.acctn.get_full();
-                let mut_val = register_engine
-                    .raw_entry_mut()
-                    .from_key(&key)
-                    .or_insert(key, Decimal::ZERO)
-                    .1;
-                let running_total = p.amount + *mut_val;
-                *mut_val = running_total;
+                let running_total = *register_engine
+                    .entry(key)
+                    .and_modify(|v| {
+                        *v = *v + p.amount;
+                    }).or_insert(p.amount);
 
                 RegisterPosting {
                     post: p,

@@ -1,3 +1,4 @@
+#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(nonstandard_style)]
 // Generated from TxnParser.g4 by ANTLR 4.8
 use antlr_rust::tree::ParseTreeListener;

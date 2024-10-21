@@ -24,7 +24,7 @@ WITH EXISTING TACKLER IMPLEMENTATION.**
 
 ## Build and install tackler
 
-Currently you will need nightly channel of Rust to build tackler
+You need Rust to build tackler
 
 ````bash
 cargo install tackler
@@ -32,6 +32,7 @@ cargo install tackler
 tackler --version
 tackler --help
 ````
+
 ## Simple demo
 
 ### Create a playground
