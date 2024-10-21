@@ -20,6 +20,7 @@
 //    - https://github.com/e257-fi/tackler
 // * core/src/test/scala/fi/e257/tackler/parser/TacklerParserAccountsTest.scala
 //
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use indoc::indoc;
 use crate::kernel::Settings;
 use crate::parser;

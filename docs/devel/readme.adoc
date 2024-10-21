@@ -25,13 +25,7 @@ All `unwrap` usage is documented, either why they won't panic or why it doesn't 
 
 == Rust toolchain
 
-Used unstable features:
-
-rust::
-* tackler-core: https://github.com/rust-lang/rust/issues/56167[rust: ++#++56167] -- `feature(hash_raw_entry)`
-* tackler-core: https://github.com/rust-lang/rust/issues/93050[rust: ++#++93050] -- `feature(is_some_and)`
-rustfmt::
-* tackler-core: https://github.com/rust-lang/rustfmt/issues/3395[rustfmt: ++#++3395] -- option `ignore`
+Used unstable features: None
 
 
 == Number types: TacklerReal vs. rust_decimal

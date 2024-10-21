@@ -1,4 +1,5 @@
 // Generated from TxnParser.g4 by ANTLR 4.8
+#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(clippy::all)]
 #![allow(unused_parens)]
 #![allow(unused_variables)]

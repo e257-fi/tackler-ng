@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use std::error::Error;
 use std::path::Path;
 use tackler_api::metadata::items::MetadataItem;

@@ -15,10 +15,6 @@
  *
  */
 #![forbid(unsafe_code)]
-#![feature(hash_raw_entry)]
-
-// stable since 1.71.0-nightly
-// #![feature(is_some_and)]
 
 pub mod filter;
 pub mod kernel;

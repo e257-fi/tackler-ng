@@ -25,22 +25,22 @@ AS THIS IS TECHNOLOGY PREVIEW RELEASE; THERE ARE MISSING FEATURES AND KNOWN DIFF
 AND INCONSISTENCIES WITH EXISTING IMPLEMENTATION OF TACKLER.
 ====
 
-To build rusty Tackler, you will need git and Rust nightly tool chain installed on your environment.
+To build rusty Tackler, you will need git and Rust installed on your environment.
 
-Get Rust tools chain, if you don't have it:
+If you don't have Rust installed in your system, get it:
 
 ----
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ----
 
 
-Get the source code and test vectors:
+Then get the source code and test vectors:
 
 ----
 git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
 ----
 
-Build the Tackler binary
+And build the Tackler binary:
 
 ----
 cd tackler-ng

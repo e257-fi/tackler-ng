@@ -1,5 +1,6 @@
-ignore = [
-    "src/parser/txn_antlr/",
-    "src/parser/tests.rs",
-    "**/tests/",
-]
+# This needs unstable rustfmt
+#ignore = [
+#    "src/parser/txn_antlr/",
+#    "src/parser/tests.rs",
+#    "**/tests/",
+#]
