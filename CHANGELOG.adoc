@@ -55,6 +55,7 @@ Updated deps and tools:
 * Dependencies
   ** gix: updated to 0.66.0
   ** chrono: removed, replaced with time
+  ** clap: 4.5.20
   ** itertools: 0.13
   ** jemallocator: new
   ** time: new
