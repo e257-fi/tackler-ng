@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2022-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,21 @@ fn main() {
 }
 
 fn git_version() -> Option<String> {
+    let tag: Option<String> = Command::new("git")
+        .args(["describe", "--exact-match"])
+        .output()
+        .ok()
+        .filter(|output| output.status.success())
+        .and_then(|output| String::from_utf8(output.stdout).ok())
+        .and_then(|tag| {
+            let t = tag.trim();
+            if t.is_empty() {
+                None
+            } else {
+                Some(t.into())
+            }
+        });
+
     let commit_id: Option<String> = Command::new("git")
         .args(["rev-parse", "--short=15", "HEAD"])
         .output()
@@ -43,18 +58,22 @@ fn git_version() -> Option<String> {
         .ok()
         .filter(|output| output.status.success())
         .and_then(|output| String::from_utf8(output.stdout).ok())
-        .map(|stats| {
+        .and_then(|stats| {
             if stats.trim().is_empty() {
-                String::new()
+                None
             } else {
-                String::from(":modified")
+                Some(":modified".to_string())
             }
         });
 
     match commit_id {
         Some(id) => match status {
             Some(s) => Some(id + &s),
-            None => Some(id),
+            None => match tag {
+                // Show tag only when the modified status is clean
+                Some(t) => Some(t + " - " + &id),
+                None => Some(id),
+            },
         },
         None => None,
     }
