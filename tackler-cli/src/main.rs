@@ -24,7 +24,7 @@ use std::path::PathBuf;
 
 use log::error;
 
-use tackler_core::export::{EquityExporter, EquitySettings, Export};
+use tackler_core::export::{EquityExporter, EquitySettings, Export, IdentityExporter};
 use tackler_core::kernel::Settings;
 use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
@@ -175,6 +175,10 @@ fn run() -> Result<i32, Box<dyn Error>> {
                                     ras: &cfg.accounts,
                                 },
                             };
+                            eq_exporter.write_export(&cfg, &mut w, &txn_set)?;
+                        }
+                        "identity" => {
+                            let eq_exporter = IdentityExporter {};
                             eq_exporter.write_export(&cfg, &mut w, &txn_set)?;
                         }
                         _ => {

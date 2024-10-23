@@ -135,7 +135,7 @@ pub(crate) struct Cli {
     /// The list is space separated
     #[arg(long = "exports", value_name = "type", num_args(1..),
         value_parser([
-            //PossibleValue::new("identity"),
+            PossibleValue::new("identity"),
             PossibleValue::new("equity"),
         ])
     )]

@@ -14,24 +14,26 @@
  * limitations under the License.
  *
  */
+
+use crate::export::Export;
 use crate::kernel::Settings;
 use crate::model::TxnSet;
 use std::error::Error;
 use std::io;
 
-pub use equity_exporter::EquityExporter;
-pub use equity_exporter::EquitySettings;
+#[derive(Debug, Clone)]
+pub struct IdentityExporter {}
 
-pub use identity_exporter::IdentityExporter;
-
-mod equity_exporter;
-mod identity_exporter;
-
-pub trait Export {
+impl Export for IdentityExporter {
     fn write_export<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
-        w: &mut W,
-        txns: &TxnSet,
-    ) -> Result<(), Box<dyn Error>>;
+        _cfg: &Settings,
+        writer: &mut W,
+        txn_data: &TxnSet,
+    ) -> Result<(), Box<dyn Error>> {
+        for txn in &txn_data.txns {
+            writeln!(writer, "{}", txn)?;
+        }
+        Ok(())
+    }
 }
