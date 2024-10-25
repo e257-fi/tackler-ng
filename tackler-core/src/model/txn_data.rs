@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ use std::error::Error;
 
 use crate::kernel::hash::Hash;
 use crate::kernel::Predicate;
-use crate::model::{TxnRefs, Txns};
+use crate::model::{transaction, TxnRefs, Txns};
 use tackler_api::filters::FilterDefinition;
 use tackler_api::metadata::items::{MetadataItem, TxnFilterDescription, TxnSetChecksum};
 use tackler_api::metadata::{Checksum, Metadata};
@@ -58,9 +58,12 @@ impl TxnData {
     ) -> Result<TxnData, Box<dyn Error>> {
         let metadata = mdi_opt.map(Metadata::from_mdi);
 
+        let mut t = txns;
+        t.sort_by(transaction::ord_by_txn);
+
         Ok(TxnData {
             metadata,
-            txns,
+            txns: t,
             hash: hash.clone(),
         })
     }
