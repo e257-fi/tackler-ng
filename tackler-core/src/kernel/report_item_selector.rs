@@ -46,6 +46,53 @@ impl Predicate<BalanceTreeNode> for BalanceAllSelector {
     }
 }
 
+#[derive(Default)]
+pub struct BalanceNonZeroSelector {}
+impl BalanceSelector for BalanceNonZeroSelector {}
+impl BalanceItemSelector for BalanceNonZeroSelector {}
+
+impl ReportItemSelector for BalanceNonZeroSelector {
+    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
+        todo!()
+    }
+}
+
+impl Predicate<BalanceTreeNode> for BalanceNonZeroSelector {
+    fn eval(&self, btn: &BalanceTreeNode) -> bool {
+        !btn.account_sum.is_zero()
+    }
+}
+
+pub struct BalanceNonZeroByAccountSelector {
+    acc_sel: BalanceByAccountSelector,
+}
+impl BalanceSelector for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector {}
+impl BalanceItemSelector for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector {}
+
+impl ReportItemSelector for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector {
+    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
+        todo!()
+    }
+}
+
+impl Predicate<BalanceTreeNode>
+    for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector
+{
+    fn eval(&self, btn: &BalanceTreeNode) -> bool {
+        !btn.account_sum.is_zero() && self.acc_sel.eval(btn)
+    }
+}
+
+impl BalanceNonZeroByAccountSelector {
+    pub fn from(patterns: &[&str]) -> Result<BalanceNonZeroByAccountSelector, Box<dyn Error>> {
+        let bfa = BalanceByAccountSelector {
+            regexs: RegexSet::new(patterns)?,
+        };
+        let bnza = BalanceNonZeroByAccountSelector { acc_sel: bfa };
+        Ok(bnza)
+    }
+}
+
 pub struct BalanceByAccountSelector {
     regexs: RegexSet,
 }

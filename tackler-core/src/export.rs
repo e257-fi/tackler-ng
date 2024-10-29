@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,24 @@
  * limitations under the License.
  *
  */
-#![forbid(unsafe_code)]
+use crate::kernel::Settings;
+use crate::model::TxnSet;
+use std::error::Error;
+use std::io;
 
-pub mod export;
-pub mod filter;
-pub mod kernel;
-pub mod math;
-pub mod model;
-pub mod parser;
-pub mod report;
+pub use equity_exporter::EquityExporter;
+pub use equity_exporter::EquitySettings;
+
+pub use identity_exporter::IdentityExporter;
+
+mod equity_exporter;
+mod identity_exporter;
+
+pub trait Export {
+    fn write_export<W: io::Write + ?Sized>(
+        &self,
+        cfg: &Settings,
+        w: &mut W,
+        txns: &TxnSet,
+    ) -> Result<(), Box<dyn Error>>;
+}

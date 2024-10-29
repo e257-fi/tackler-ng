@@ -75,7 +75,7 @@ impl Text for TxnSetChecksum {
 }
 
 /// Account Selector Checksum item
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct AccountSelectorChecksum {
     /// Hash of selector Checksum
     pub hash: Checksum,
@@ -153,7 +153,7 @@ impl Text for GitInputReference {
                     .unwrap_or(&"FIXED by commit - no ref!".to_string())
             ),
             format!("{:>pad$} : {}", "directory", self.dir),
-            format!("{:>pad$} : {}", "suffix", self.suffix),
+            format!("{:>pad$} : .{}", "suffix", self.suffix),
             format!("{:>pad$} : {}", "message", self.message.trim()),
         ]
     }

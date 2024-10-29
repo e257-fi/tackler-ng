@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,26 @@
  * limitations under the License.
  *
  */
-#![forbid(unsafe_code)]
 
-pub mod export;
-pub mod filter;
-pub mod kernel;
-pub mod math;
-pub mod model;
-pub mod parser;
-pub mod report;
+use crate::export::Export;
+use crate::kernel::Settings;
+use crate::model::TxnSet;
+use std::error::Error;
+use std::io;
+
+#[derive(Debug, Clone)]
+pub struct IdentityExporter {}
+
+impl Export for IdentityExporter {
+    fn write_export<W: io::Write + ?Sized>(
+        &self,
+        _cfg: &Settings,
+        writer: &mut W,
+        txn_data: &TxnSet,
+    ) -> Result<(), Box<dyn Error>> {
+        for txn in &txn_data.txns {
+            writeln!(writer, "{}", txn)?;
+        }
+        Ok(())
+    }
+}

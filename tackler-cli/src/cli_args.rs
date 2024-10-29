@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ pub(crate) struct Cli {
     )]
     pub(crate) report_tz: Option<String>,
 
-    /// Account selectors for reports
+    /// Account selectors for reports and exports
     ///
     /// List of regex patterns for account names. For full match, use anchors ('^...$').
     #[arg(long = "accounts", value_name = "regex", num_args(1..))]
@@ -111,7 +111,6 @@ pub(crate) struct Cli {
     /// The list is space separated
     #[arg(long = "reports", value_name = "type", num_args(1..),
         value_parser([
-            PossibleValue::new("identity"),
             PossibleValue::new("register"),
             PossibleValue::new("balance"),
             PossibleValue::new("balance-group"),
@@ -130,6 +129,30 @@ pub(crate) struct Cli {
         ])
     )]
     pub(crate) group_by: Option<String>,
+
+    /// List of Exports to generate
+    ///
+    /// The list is space separated
+    #[arg(long = "exports", value_name = "type", num_args(1..),
+        value_parser([
+            PossibleValue::new("identity"),
+            PossibleValue::new("equity"),
+        ])
+    )]
+    pub(crate) exports: Option<Vec<String>>,
+
+    /// Equity Account Name
+    ///
+    /// If not given, then default name is used
+    #[arg(
+        long = "equity.account.name",
+        value_name = "account name",
+        num_args(1),
+        default_value = "Equity:Default·Account",
+        requires("exports")
+    )]
+    pub(crate) equity_account_name: Option<String>,
+
     /// Txn Filter definition (JSON), it could be ascii armored as base64 encoded
     ///
     /// The base64 ascii armor must have prefix "base64:". For example

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ use std::str;
 use std::str::FromStr;
 //use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::model::{transaction, TxnData, Txns};
+use crate::model::{TxnData, Txns};
 use crate::parser::tackler_parser;
 use gix as git;
 use gix::objs::tree::EntryKind;
@@ -36,26 +36,22 @@ pub enum GitInputSelector {
 }
 
 pub fn string_to_txns(input: &str, settings: &Settings) -> Result<TxnData, Box<dyn Error>> {
-    let mut txns = tackler_parser::txns_text(input)?;
+    let txns = tackler_parser::txns_text(input)?;
 
     // feature: a94d4a60-40dc-4ec0-97a3-eeb69399f01b
     // coverage: "sorted" tested by 200aad57-9275-4d16-bdad-2f1c484bcf17
-    txns.sort_by(transaction::ord_by_txn);
 
     TxnData::from(None, txns, &settings.audit.hash)
 }
 
 pub fn paths_to_txns(paths: &[PathBuf], settings: &Settings) -> Result<TxnData, Box<dyn Error>> {
-    let all_txns: Result<Txns, Box<dyn Error>> = paths
+    let txns: Result<Txns, Box<dyn Error>> = paths
         .iter()
         .map(|p| tackler_parser::txns_file(p))
         .flatten_ok()
         .collect();
 
-    let mut txns = all_txns?;
-    txns.sort_by(transaction::ord_by_txn);
-
-    TxnData::from(None, txns, &settings.audit.hash)
+    TxnData::from(None, txns?, &settings.audit.hash)
 }
 
 pub fn git_to_txns(

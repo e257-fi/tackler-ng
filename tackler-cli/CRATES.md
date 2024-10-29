@@ -12,14 +12,26 @@ for text based double-entry accounting.
 This is Technology Preview Release of the rusty Tackler. 
 
 The [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/) is fully 
-supported and also [Filesystem](https://tackler.e257.fi/docs/usage/#storage-selector)
-and [Git Storage](https://tackler.e257.fi/docs/journal/git-storage/) backends are 
-supported. See `tackler --help` how to use these.
+supported, as are all transaction backends ([Filesystem](https://tackler.e257.fi/docs/usage/#storage-selector)
+and [Git Storage](https://tackler.e257.fi/docs/journal/git-storage/)). See `tackler --help` how to use these.
 
-This TPR has support for `register` and  `balance` reports with support for [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/).
+All reports and exports are supported:
+* Reports
+  * [Balance](https://tackler.e257.fi/docs/report-balance/)
+  * [Balance Group](https://tackler.e257.fi/docs/report-balance-group/)
+  * [Register](https://tackler.e257.fi/docs/report-register/)
+* Exports
+  * [Equity](https://tackler.e257.fi/docs/export-equity/)
+  * [Identity](https://tackler.e257.fi/docs/export-equity/)
 
-**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE ARE MISSING FEATURES AND KNOWN INCONSISTENCIES
-WITH EXISTING TACKLER IMPLEMENTATION.**
+Other supported notable features are:
+* Handling [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
+* [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/)
+* [Transacation Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction Geo Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
+
+
+**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE ARE MISSING FEATURES
+AND KNOWN INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
 
 
 ## Build and install tackler
