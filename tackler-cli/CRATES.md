@@ -9,7 +9,7 @@ for text based double-entry accounting.
 
 ## Project Status
 
-This is Technology Preview Release of the rusty Tackler. 
+The project is in Technology Preview Release phase of the rusty Tackler.
 
 The [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/) is fully 
 supported, as are all transaction backends ([Filesystem](https://tackler.e257.fi/docs/usage/#storage-selector)
@@ -39,6 +39,12 @@ AND KNOWN INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
 You need Rust to build tackler
 
 ````bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
+````
+
+````bash
+cd tackler-ng
 cargo install tackler
 # check that it works
 tackler --version

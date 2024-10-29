@@ -16,14 +16,39 @@ Tackler Ain't Calculator and Kernel for link:http://ledger-cli.org/[Ledger] Equi
 Why not? -- Because it uses simplified Ledger syntax.
 ====
 
+== Project Status
 
-== How to build Tackler CLI application
+The project is in Technology Preview Release phase of the rusty Tackler.
+
+The link:https://tackler.e257.fi/docs/journal/format/[Tackler Journal Format] is fully
+supported, as are all transaction backends (link:https://tackler.e257.fi/docs/usage/#storage-selector[Filesystem]
+and link:https://tackler.e257.fi/docs/journal/git-storage/[Git Storage]). See `tackler --help` how to use these.
+
+All reports and exports are supported:
+
+* Reports
+  ** link:https://tackler.e257.fi/docs/report-balance/[Balance]
+  ** link:https://tackler.e257.fi/docs/report-balance-group/[Balance Group]
+  ** link:https://tackler.e257.fi/docs/report-register/[Register]
+* Exports
+  ** link:https://tackler.e257.fi/docs/export-equity/[Equity]
+  ** link:https://tackler.e257.fi/docs/export-equity/[Identity]
+
+Other supported notable features are:
+
+* Handling link:https://tackler.e257.fi/docs/commodities/[Commodities] and link:https://tackler.e257.fi/docs/currencies/[Shares]
+* link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters]
+* link:https://tackler.e257.fi/docs/gis/txn-geo-location[Transacation Geo Location] and link:https://tackler.e257.fi/docs/gis/txn-geo-filters/[Transaction Geo Filters]
+
 
 [IMPORTANT]
 ====
-AS THIS IS TECHNOLOGY PREVIEW RELEASE; THERE ARE MISSING FEATURES AND KNOWN DIFFERENCES
-AND INCONSISTENCIES WITH EXISTING IMPLEMENTATION OF TACKLER.
+**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE ARE MISSING FEATURES
+AND KNOWN INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
 ====
+
+
+== How to build Tackler CLI application
 
 To build rusty Tackler, you will need git and Rust installed on your environment.
 
