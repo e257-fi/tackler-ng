@@ -1,5 +1,5 @@
 #
-# Copyright 2022-2023 E257.FI
+# Copyright 2022-2024 E257.FI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,5 +33,5 @@ path = "src/lib.rs"
 [dependencies]
 indoc.workspace = true
 log = { workspace = true }
-walkdir = "2.3.3"
+walkdir = "2.5.0"
 
