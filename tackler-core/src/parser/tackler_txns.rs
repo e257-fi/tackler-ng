@@ -140,16 +140,14 @@ pub fn git_to_txns(
         .flatten_ok()
         .collect::<Result<Txns, Box<dyn Error>>>();
 
-    let txn_data = TxnData::from(
-        Some(MetadataItem::GitInputReference(gitmd)),
-        txns?,
-        &settings.audit.hash,
-    );
-
     // perf: let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
     // perf: eprintln!("total time: {}ms, parse time: {}ms, git: {}ms", (ts_end.as_millis() - ts_start.as_millis()), ts_par_total, (ts_end.as_millis() - ts_start.as_millis())-ts_par_total);
 
-    txn_data
+    TxnData::from(
+        Some(MetadataItem::GitInputReference(gitmd)),
+        txns?,
+        &settings.audit.hash,
+    )
 }
 
 #[cfg(test)]

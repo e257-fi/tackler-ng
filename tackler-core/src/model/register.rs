@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ impl<'a> PartialEq<Self> for RegisterPosting<'a> {
 
 impl<'a> PartialOrd<Self> for RegisterPosting<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.post.acctn.partial_cmp(&other.post.acctn)
+        Some(self.cmp(other))
     }
 }
 

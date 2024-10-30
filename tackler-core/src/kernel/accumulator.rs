@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,8 +73,9 @@ where
                 let running_total = *register_engine
                     .entry(key)
                     .and_modify(|v| {
-                        *v = *v + p.amount;
-                    }).or_insert(p.amount);
+                        *v += p.amount;
+                    })
+                    .or_insert(p.amount);
 
                 RegisterPosting {
                     post: p,
@@ -85,8 +86,8 @@ where
 
         let mut filt_postings: Vec<_> = register_postings
             .iter()
-            .cloned()
             .filter(|p| ras.eval(p))
+            .cloned()
             .collect();
 
         filt_postings.sort();

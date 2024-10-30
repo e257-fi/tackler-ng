@@ -61,7 +61,7 @@ impl BalanceReporter<'_> {
     }
 
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        BalanceReporter::acc_selector(&self.report_settings.ras)
+        BalanceReporter::acc_selector(self.report_settings.ras)
     }
 }
 
@@ -195,12 +195,12 @@ impl Report for BalanceReporter<'_> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         writeln!(writer, "{}", "-".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(&cfg, self.report_settings.ras)? {
+        if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
             }
         }
-        writeln!(writer, "")?;
+        writeln!(writer)?;
 
         let bal_report = Balance::from(
             self.report_settings

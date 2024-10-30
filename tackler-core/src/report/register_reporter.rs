@@ -75,12 +75,12 @@ impl Report for RegisterReporter<'_> {
         let empty = String::default();
 
         writeln!(writer, "{}", "-".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(&cfg, self.report_settings.ras)? {
+        if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
             }
         }
-        writeln!(writer, "")?;
+        writeln!(writer)?;
 
         let title = self.report_settings.title.as_ref().unwrap_or(&empty);
         writeln!(writer, "{}", title)?;

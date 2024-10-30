@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 //! Transaction header
 //!
 use std::cmp::Ordering;
+use std::fmt::Write;
 use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
 use uuid::Uuid;
 
@@ -174,10 +175,10 @@ impl TxnHeader {
             )),
             // txn comments
             self.comments.as_ref().map_or_else(String::new, |comments| {
-                comments
-                    .iter()
-                    .map(|c| format!("{indent}; {c}\n"))
-                    .collect()
+                comments.iter().fold(String::with_capacity(128), |mut output, c| {
+                    let _ = writeln!(output, "{indent}; {c}");
+                    output
+                })
             })
         )
     }

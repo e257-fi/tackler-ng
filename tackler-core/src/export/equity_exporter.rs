@@ -103,7 +103,7 @@ impl Export for EquityExporter<'_> {
                     )
                 }
                 _ => {
-                    format!("foo") // todo: fix this
+                    "Internal logic error".to_string() // todo: fix this
                 }
             }
         };

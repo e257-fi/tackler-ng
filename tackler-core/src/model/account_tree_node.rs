@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ impl Ord for AccountTreeNode {
 
 impl PartialOrd for AccountTreeNode {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.get_full().cmp(&other.get_full()))
+        Some(self.cmp(other))
     }
 }
 

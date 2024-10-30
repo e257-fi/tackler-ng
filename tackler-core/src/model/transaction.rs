@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 use crate::model::{posting, Posts};
 use std::cmp::Ordering;
 use std::error::Error;
+use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_header::TxnHeader;
 use tackler_api::txn_ts;
@@ -71,10 +72,10 @@ impl Display for Transaction {
             f,
             "{}{}",
             self.header.to_string_with_indent(indent, txn_ts::rfc_3339),
-            self.posts
-                .iter()
-                .map(|p| { format!("{indent}{p}\n") })
-                .collect::<String>()
+            self.posts.iter().fold(String::with_capacity(256), |mut output, p| {
+                let _ = writeln!(output, "{indent}{p}");
+                output
+            })
         )
     }
 }

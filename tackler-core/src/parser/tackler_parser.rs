@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ use crate::parser::txn_antlr::txnlexer::TxnLexer;
 use crate::parser::txn_antlr::txnparser::TxnParser;
 
 pub(crate) fn txns_text(input_text: &str) -> Result<Txns, Box<dyn Error>> {
-    let tf = CommonTokenFactory::default();
+    let tf = CommonTokenFactory;
 
     let mut _lexer = TxnLexer::new_with_token_factory(InputStream::new(input_text), &tf);
 
