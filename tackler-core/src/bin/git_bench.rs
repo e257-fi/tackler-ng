@@ -24,8 +24,11 @@ use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
 
 #[cfg(not(target_env = "msvc"))]
+use tikv_jemallocator::Jemalloc;
+
+#[cfg(not(target_env = "msvc"))]
 #[global_allocator]
-static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+static GLOBAL: Jemalloc = Jemalloc;
 
 const REPO_PATH: &str = "suite/audit/audit-repo.git/";
 const TXN_SET_1E1_CHECKSUM: &str =

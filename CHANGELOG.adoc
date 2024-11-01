@@ -54,7 +54,7 @@ Updated deps and tools:
   ** chrono: removed, replaced with time
   ** clap: 4.5.20
   ** itertools: 0.13
-  ** jemallocator: new
+  ** tikv-jemallocator: new
   ** time: new
   ** time-tz: new
   ** walkdir: 2.5.0

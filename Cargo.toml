@@ -47,4 +47,4 @@ regex =  { version = "1.11.1" }
 serde = { version = "1.0.214", default-features = false }
 serde_json = { version = "1.0.132" , default-features = false, features = [ "std", "arbitrary_precision" ] }
 itertools = "0.13.0"
-jemallocator = "0.5.4"
+tikv-jemallocator = "0.6.0"

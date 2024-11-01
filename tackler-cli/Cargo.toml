@@ -35,5 +35,5 @@ clap = { version = "4.5.20", features = [ "derive" ] }
 time-tz = { workspace = true }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { workspace = true }
+tikv-jemallocator = { workspace = true }
 
