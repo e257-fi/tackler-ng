@@ -14,6 +14,50 @@ tackler-core = "0.3.0"
 
 == Releases
 
+=== Tackler release XX.YY.0
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 0.4.0-dev
+|tackler-core | 0.4.0-dev
+|tackler-api  | 0.4.0-dev
+|tackler-rs   | 0.4.0-dev
+|===
+
+
+==== New features and changes
+
+New features:
+
+* ...
+  ** ...
+
+
+==== Fixes
+
+Fixes in this release: None
+
+
+==== Development
+
+Updated dependenies and tools:
+
+* Dependencies
+** ...
+* Build
+** ...
+
+
+===== Rust toolchain
+
+Used unstable features: None
+
+
+'''
+
+
 
 === Tackler release 24.11.0
 
@@ -48,7 +92,7 @@ New features:
 
 ==== Development
 
-Updated deps and tools:
+Updated dependencies and tools:
 
 * Dependencies
   ** gix: updated to 0.67.0

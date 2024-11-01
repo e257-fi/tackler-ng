@@ -15,7 +15,7 @@
 #
 [package]
 name = "tackler-core"
-version = "0.3.0"
+version = "0.4.0-dev"
 description = "Rusty Tackler core components"
 edition.workspace = true
 license.workspace = true
@@ -31,7 +31,7 @@ name = "tackler_core"
 path = "src/lib.rs"
 
 [dependencies]
-tackler-api =  { path = "../tackler-api",  version = "0.3.0" }
+tackler-api =  { path = "../tackler-api",  version = "0.4.0-dev" }
 antlr-rust = "0.3.0-beta"
 rust_decimal = { workspace = true }
 serde = { workspace = true }
@@ -49,6 +49,6 @@ gix = { version = "0.67.0", default-features = false, features = [ "max-performa
 tikv-jemallocator = { workspace = true }
 
 [dev-dependencies]
-tackler-rs = { path = "../tackler-rs", version = "0.3.0" }
+tackler-rs = { path = "../tackler-rs", version = "0.4.0-dev" }
 indoc = { workspace = true }
 

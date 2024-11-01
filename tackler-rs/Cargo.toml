@@ -15,7 +15,7 @@
 #
 [package]
 name = "tackler-rs"
-version = "0.3.0"
+version = "0.4.0-dev"
 description = "Rusty services for Tackler"
 edition.workspace = true
 license.workspace = true
