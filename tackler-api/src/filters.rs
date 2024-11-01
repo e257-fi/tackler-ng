@@ -61,8 +61,7 @@ pub trait IndentDisplay {
 
 /// Enum of all Transaction filters.
 ///
-/// See [logic](crate::filters::logic), [txn](crate::filters::txn)
-/// and [posting](crate::filters::posting) modules
+/// See [logic], [txn] and [posting] modules
 /// for the documentation of transaction filters.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum TxnFilter {

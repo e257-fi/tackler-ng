@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ fn txn_tags_to_string(txn: &Transaction) -> String {
 }
 
 mod tackler_txns;
+mod txn_accounts;
+mod txn_commodities;
 mod txn_header_code;
 mod txn_header_desc;
 mod txn_header_timestamp;
@@ -45,5 +47,3 @@ mod txn_location;
 mod txn_metadata;
 mod txn_tags;
 mod txn_uuid;
-mod txn_accounts;
-mod txn_commodities;

@@ -39,11 +39,6 @@ New features:
   ** Equity export
   ** Identity export
 
-Changed functionality:
-
-* ...
-  ** ...
-
 
 ==== Fixes
 
@@ -64,9 +59,8 @@ Updated deps and tools:
   ** time-tz: new
   ** walkdir: 2.5.0
 * Build
-  ** ...
-* Tests
-  ** ...
+  ** use stable Rust toolchain
+
 
 ===== Rust toolchain
 

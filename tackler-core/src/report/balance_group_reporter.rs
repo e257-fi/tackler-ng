@@ -44,7 +44,7 @@ pub struct BalanceGroupReporter<'a> {
 
 impl<'a> BalanceGroupReporter<'a> {
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        BalanceReporter::acc_selector(&self.report_settings.ras)
+        BalanceReporter::acc_selector(self.report_settings.ras)
     }
 
     fn get_group_by_op(&self) -> TxnGroupByOp<'a> {
@@ -83,12 +83,12 @@ impl<'a> Report for BalanceGroupReporter<'a> {
             accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref());
 
         writeln!(writer, "{}", "-".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(&cfg, self.report_settings.ras)? {
+        if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
             }
         }
-        writeln!(writer, "")?;
+        writeln!(writer)?;
 
         if let Some(title) = &self.report_settings.title {
             writeln!(writer, "{}", title)?;
