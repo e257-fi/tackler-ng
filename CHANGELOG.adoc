@@ -5,26 +5,26 @@
 Currently published crates are:
 
 ....
-tackler      = "0.2.0"
-tackler-rs   = "0.2.0"
-tackler-api  = "0.2.0"
-tackler-core = "0.2.0"
+tackler      = "0.3.0"
+tackler-rs   = "0.3.0"
+tackler-api  = "0.3.0"
+tackler-core = "0.3.0"
 ....
 
 
 == Releases
 
 
-=== Tackler release XX.YY.Z
+=== Tackler release 24.11.0
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 0.3.0-dev
-|tackler-core | 0.3.0-dev
-|tackler-api  | 0.3.0-dev
-|tackler-rs   | 0.3.0-dev
+|Tackler CLI  | 0.3.0
+|tackler-core | 0.3.0
+|tackler-api  | 0.3.0
+|tackler-rs   | 0.3.0
 |===
 
 
@@ -38,6 +38,7 @@ New features:
 * Exports
   ** Equity export
   ** Identity export
+* Account Selector checksums
 
 
 ==== Fixes

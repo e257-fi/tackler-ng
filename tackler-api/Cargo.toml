@@ -15,7 +15,7 @@
 #
 [package]
 name = "tackler-api"
-version = "0.3.0-dev"
+version = "0.3.0"
 description = "Rusty Tackler api components"
 edition.workspace = true
 license.workspace = true
@@ -42,5 +42,5 @@ time-tz = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]
-tackler-rs = { path = "../tackler-rs", version = "0.3.0-dev" }
+tackler-rs = { path = "../tackler-rs", version = "0.3.0" }
 indoc = { workspace = true }
