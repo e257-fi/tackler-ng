@@ -17,6 +17,7 @@
 
 use crate::kernel::balance::Balance;
 use crate::kernel::report_item_selector::{BalanceSelector, RegisterSelector};
+use crate::kernel::Settings;
 use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnRefs, TxnSet};
 use itertools::Itertools;
 use rust_decimal::Decimal;
@@ -29,7 +30,12 @@ pub(crate) type RegisterReporterFn<W> =
 
 pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
-pub(crate) fn balance_groups<T>(txns: &TxnRefs, group_by_op: TxnGroupByOp, ras: &T) -> Vec<Balance>
+pub(crate) fn balance_groups<T>(
+    txns: &TxnRefs,
+    group_by_op: TxnGroupByOp,
+    ras: &T,
+    settings: &mut Settings,
+) -> Vec<Balance>
 where
     T: BalanceSelector + ?Sized,
 {
@@ -46,7 +52,7 @@ where
             let metadata = None;
             let txn_set = TxnSet { metadata, txns };
 
-            Balance::from(&group_by_key, &txn_set, ras)
+            Balance::from(&group_by_key, &txn_set, ras, settings)
         })
         .filter(|bal| !bal.is_empty())
         .sorted_by_key(|bal| bal.title.clone()) // todo: could this clone be avoided?

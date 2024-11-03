@@ -1,0 +1,18 @@
+[accounts]
+#strict = true
+names = [
+    "Income",
+    "Income:Lottery",
+    "Expenses",
+    "Expenses:ice_cream",
+    "Expenses:jäätelö",
+    "Expenses:jäätelö:mansikka-vadelma",
+    "Expenses:crème·glacée",
+    "Expenses:мороженое",
+    "Expenses:アイスクリーム",
+    "Expenses:風:空",
+    "Assets",
+    "Assets:Banks:Acme_Inc",
+    "Assets:Cash",
+    "Credit·Card:1234567890"
+]

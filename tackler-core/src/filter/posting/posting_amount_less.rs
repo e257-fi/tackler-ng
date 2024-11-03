@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ impl Predicate<Transaction> for TxnFilterPostingAmountLess {
     fn eval(&self, txn: &Transaction) -> bool {
         txn.posts
             .iter()
-            .any(|p| p.amount < self.amount && self.regex.is_match(&p.acctn.account))
+            .any(|p| p.amount < self.amount && self.regex.is_match(&p.acctn.atn.account))
     }
 }
 

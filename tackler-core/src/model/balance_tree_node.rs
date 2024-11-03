@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  *
  */
 
-use crate::model::AccountTreeNode;
+use crate::model::TxnAccount;
 use rust_decimal::Decimal;
 use std::cmp::Ordering;
 
 #[derive(Debug, Eq, Clone)]
 pub struct BalanceTreeNode {
-    pub(crate) acctn: AccountTreeNode,
+    pub(crate) acctn: TxnAccount,
     pub(crate) sub_acc_tree_sum: Decimal,
     pub(crate) account_sum: Decimal,
 }

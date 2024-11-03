@@ -175,10 +175,12 @@ impl TxnHeader {
             )),
             // txn comments
             self.comments.as_ref().map_or_else(String::new, |comments| {
-                comments.iter().fold(String::with_capacity(128), |mut output, c| {
-                    let _ = writeln!(output, "{indent}; {c}");
-                    output
-                })
+                comments
+                    .iter()
+                    .fold(String::with_capacity(128), |mut output, c| {
+                        let _ = writeln!(output, "{indent}; {c}");
+                        output
+                    })
             })
         )
     }

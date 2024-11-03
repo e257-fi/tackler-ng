@@ -1,0 +1,12 @@
+[commodities]
+#strict = true
+permit-empty-commodity = true
+names = [
+    "€",
+    "$",
+    "¥",
+    "EUR",
+    "USD",
+    "He·bar",
+    "O2·bar"
+]

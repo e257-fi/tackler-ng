@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 E257.FI
+ * Copyright 2019-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ use tackler_rs::IndocUtils;
       ];
       let mut count = 0;
       for t in perr_strings {
-        let res = parser::string_to_txns(&t.0, &Settings::default());
+        let res = parser::string_to_txns(&t.0, &mut Settings::default());
         assert!(res.is_err(),
                 "Testing Error: Offending test vector item: {}", count);
         assert!(res.err().unwrap(/*:test:*/).to_string().contains(t.1),
@@ -173,7 +173,7 @@ use tackler_rs::IndocUtils;
       ];
       let mut count = 0;
       for t in pok_strings {
-        let res = parser::string_to_txns(&t.0, &Settings::default());
+        let res = parser::string_to_txns(&t.0, &mut Settings::default());
         assert!(res.is_ok(), "Offending test vector item: {}", count);
           let txn_data = res.unwrap(/*:test:*/);
           let txns = txn_data.get_all().unwrap(/*:test:*/);

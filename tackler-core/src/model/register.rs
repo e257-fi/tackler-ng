@@ -31,7 +31,7 @@ impl<'a> Eq for RegisterPosting<'a> {}
 
 impl<'a> PartialEq<Self> for RegisterPosting<'a> {
     fn eq(&self, other: &Self) -> bool {
-        self.post.acctn == other.post.acctn
+        self.post.acctn.atn == other.post.acctn.atn
     }
 }
 
@@ -52,7 +52,7 @@ impl<'a> Display for RegisterPosting<'a> {
         write!(
             f,
             "{} {} {}",
-            self.post.acctn.account, self.post.amount, self.amount
+            self.post.acctn.atn.account, self.post.amount, self.amount
         )
     }
 }
@@ -76,17 +76,18 @@ impl<'a> Display for RegisterEntry<'a> {
                 .to_string_with_indent(&indent, txn_ts::rfc_3339)
         )?;
         for p in &self.posts {
+            let comm = &p.post.acctn.comm;
+
             let line = format!(
                 "{}{:<33}{:>18.prec$} {:>18.prec$}{}",
                 indent,
-                p.post.acctn.account,
+                p.post.acctn.atn.account,
                 p.post.amount,
                 p.amount,
-                p.post
-                    .acctn
-                    .commodity
-                    .as_ref()
-                    .map_or(String::default(), |c| format!(" {}", c.name)),
+                match &comm.is_some() {
+                    true => format!(" {}", comm.name),
+                    false => String::new(),
+                },
                 prec = 2,
             );
             line_len = max(line_len, line.len());

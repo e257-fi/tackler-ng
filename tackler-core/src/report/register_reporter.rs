@@ -68,7 +68,7 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
 impl Report for RegisterReporter<'_> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         writer: &mut W,
         txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {

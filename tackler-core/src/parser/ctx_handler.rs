@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ use std::string::String;
 use time::{OffsetDateTime, PrimitiveDateTime, Time};
 use uuid::Uuid;
 
+use crate::kernel::Settings;
 use crate::math::tackler_real;
-use crate::model::{posting, AccountTreeNode, Commodity, Posting, Posts, Transaction, Txns};
+use crate::model::TxnAccount;
+use crate::model::{posting, Commodity, Posting, Posts, Transaction, Txns};
 use crate::parser::txn_antlr::txnparser::{
     CodeContextAttrs, DateContextAll, DateContextAttrs, TxnContextAttrs, TxnsContextAttrs, *,
 };
@@ -43,7 +45,10 @@ where
     format!("Error on line: {}; {}", ctx.start().get_line(), msg)
 }
 
-fn handle_date(date_ctx: Rc<DateContextAll>) -> Result<OffsetDateTime, Box<dyn Error>> {
+fn handle_date(
+    date_ctx: Rc<DateContextAll>,
+    _settings: &Settings,
+) -> Result<OffsetDateTime, Box<dyn Error>> {
     let zoned_timestamp: Result<OffsetDateTime, Box<dyn Error>> = match date_ctx.TS_TZ() {
         Some(ts_tz) => {
             match OffsetDateTime::parse(&ts_tz.get_text(), &Rfc3339) {
@@ -180,14 +185,14 @@ fn handle_meta(meta_ctx: Rc<Txn_metaContextAll>) -> Result<TxnMeta, Box<dyn Erro
 
 fn handle_account(
     account_ctx: Rc<AccountContextAll>,
-    commodity: Option<Commodity>,
-) -> Result<AccountTreeNode, Box<dyn Error>> {
+    commodity: Rc<Commodity>,
+    settings: &mut Settings,
+) -> Result<TxnAccount, Box<dyn Error>> {
     let account = context_to_string(account_ctx);
 
-    // todo: check cfg.strict => account is defined
-
-    AccountTreeNode::from(account, commodity)
+    settings.get_txn_account(&account, commodity)
 }
+
 fn handle_amount(amount_ctx: Rc<AmountContextAll>) -> Result<Decimal, Box<dyn Error>> {
     match tackler_real::from_str(&amount_ctx.get_text()) {
         Ok(d) => Ok(d),
@@ -201,14 +206,16 @@ fn handle_amount(amount_ctx: Rc<AmountContextAll>) -> Result<Decimal, Box<dyn Er
         }
     }
 }
-type ValuePosition = (Decimal, Decimal, bool, Option<Commodity>, Option<Commodity>);
+type ValuePosition = (Decimal, Decimal, bool, Rc<Commodity>, Rc<Commodity>);
 
 fn handle_value_position(
     posting_ctx: &Rc<PostingContextAll>,
+    settings: &mut Settings,
 ) -> Result<ValuePosition, Box<dyn Error>> {
-    let post_commodity = posting_ctx.opt_unit().map(
-        |u| Commodity::from(u.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */),
-    );
+    let post_commodity = match posting_ctx.opt_unit() {
+        Some(u) => settings.get_commodity(Some(&u.unit().unwrap(/*:ok: parser */).get_text()))?,
+        None => settings.get_commodity(None)?,
+    };
 
     // if txnCommodity (e.g. closing position) is not set, then use
     // posting commodity as txnCommodity.
@@ -220,31 +227,29 @@ fn handle_value_position(
                         Some(cp) => {
                             // Ok, we have position, so there must be closing position
                             // so, we have closing position, use its commodity
-                            let val_pos_commodity = Commodity::from(cp.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */);
-                            if let Some(p) = &post_commodity {
-                                if p.name == val_pos_commodity.name {
-                                    let em = format!(
-                                        "Both commodities are same for value position [{}]",
-                                        val_pos_commodity.name
-                                    );
-                                    let msg = error_on_line(posting_ctx, &em);
-                                    return Err(msg.into());
-                                }
+                            let val_pos_commodity = settings.get_commodity(Some(
+                                &cp.unit().unwrap(/*:ok: parser */).get_text(),
+                            ))?;
+                            if post_commodity.name == val_pos_commodity.name {
+                                let em = format!(
+                                    "Both commodities are same for value position [{}]",
+                                    val_pos_commodity.name
+                                );
+                                let msg = error_on_line(posting_ctx, &em);
+                                return Err(msg.into());
                             }
-                            Some(val_pos_commodity)
+                            val_pos_commodity
                         }
-                        None => None,
+                        None => settings.get_commodity(None)?,
                     }
                 }
                 None => {
                     // no position, use original unit
-                    Some(
-                        Commodity::from(u.unit().unwrap(/*:ok: parser */).get_text()).unwrap(/*:ok: parser */),
-                    )
+                    settings.get_commodity(Some(&u.unit().unwrap(/*:ok: parser */).get_text()))?
                 }
             }
         }
-        None => None,
+        None => settings.get_commodity(None)?,
     };
 
     let post_amount = handle_amount(posting_ctx.amount().unwrap(/*:ok: parser */))?;
@@ -318,8 +323,11 @@ fn handle_value_position(
     ))
 }
 
-fn handle_raw_posting(posting_ctx: &Rc<PostingContextAll>) -> Result<Posting, Box<dyn Error>> {
-    let val_pos = handle_value_position(posting_ctx)?;
+fn handle_raw_posting(
+    posting_ctx: &Rc<PostingContextAll>,
+    settings: &mut Settings,
+) -> Result<Posting, Box<dyn Error>> {
+    let val_pos = handle_value_position(posting_ctx, settings)?;
 
     /*
     // todo: check & Error
@@ -329,7 +337,11 @@ fn handle_raw_posting(posting_ctx: &Rc<PostingContextAll>) -> Result<Posting, Bo
     }
     */
 
-    let atn = handle_account(posting_ctx.account().unwrap(/*:ok: parser */), val_pos.3)?;
+    let atn = handle_account(
+        posting_ctx.account().unwrap(/*:ok: parser */),
+        val_pos.3,
+        settings,
+    )?;
     let comment: Option<String> = posting_ctx
         .opt_comment()
         .map(|c| c.comment().unwrap(/*:test:*/).text().unwrap(/*:ok: parser */).get_text());
@@ -337,8 +349,11 @@ fn handle_raw_posting(posting_ctx: &Rc<PostingContextAll>) -> Result<Posting, Bo
     Posting::from(atn, val_pos.0, val_pos.1, val_pos.2, val_pos.4, comment)
 }
 
-fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>> {
-    let date = handle_date(txn_ctx.date().unwrap(/*:ok: parser */))?;
+fn handle_txn(
+    txn_ctx: &Rc<TxnContextAll>,
+    settings: &mut Settings,
+) -> Result<Transaction, Box<dyn Error>> {
+    let date = handle_date(txn_ctx.date().unwrap(/*:ok: parser */), settings)?;
     let code = txn_ctx
         .code()
         .map(|c| String::from(c.code_value().unwrap(/*:ok: parser */).get_text().trim()));
@@ -391,7 +406,7 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
         .unwrap(/*:ok: parser */)
         .posting_all()
         .iter()
-        .map(handle_raw_posting)
+        .map(|ctx| handle_raw_posting(ctx, settings))
         .collect();
 
     let mut posts = match posts_res {
@@ -402,16 +417,7 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
         }
     };
 
-    if posts
-        .iter()
-        .map(|p| match &p.txn_commodity {
-            Some(c) => c.name.clone(),
-            None => "".to_string(),
-        })
-        .unique()
-        .count()
-        > 1
-    {
+    if posts.iter().map(|p| &p.txn_commodity.name).unique().count() > 1 {
         let msg = format!(
         "Different commodities without value positions are not allowed inside single transaction.{}", uuid.map(|u| format!("\n   txn uuid: {u}")).unwrap_or_default());
         return Err(msg.into());
@@ -422,6 +428,7 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
             let atn = handle_account(
                 lp.account().unwrap(/*:ok: parser */),
                 posts[0].txn_commodity.clone(),
+                settings,
             )?;
             let amount = posting::txn_sum(&posts);
             let comment = lp.opt_comment().map(
@@ -458,11 +465,14 @@ fn handle_txn(txn_ctx: &Rc<TxnContextAll>) -> Result<Transaction, Box<dyn Error>
     )
 }
 
-pub(crate) fn handle_txns(txns_ctx: Rc<TxnsContextAll>) -> Result<Txns, Box<dyn Error>> {
+pub(crate) fn handle_txns(
+    txns_ctx: Rc<TxnsContextAll>,
+    settings: &mut Settings,
+) -> Result<Txns, Box<dyn Error>> {
     let txns = txns_ctx
         .txn_all()
         .iter()
-        .map(handle_txn)
+        .map(|ctx| handle_txn(ctx, settings))
         .collect::<Result<Txns, Box<dyn Error>>>();
 
     txns

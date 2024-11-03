@@ -20,16 +20,16 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
-use antlr_rust::common_token_stream::CommonTokenStream;
-use antlr_rust::token_factory::CommonTokenFactory;
-use antlr_rust::{BailErrorStrategy, InputStream};
-
+use crate::kernel::Settings;
 use crate::model::Txns;
 use crate::parser::ctx_handler;
 use crate::parser::txn_antlr::txnlexer::TxnLexer;
 use crate::parser::txn_antlr::txnparser::TxnParser;
+use antlr_rust::common_token_stream::CommonTokenStream;
+use antlr_rust::token_factory::CommonTokenFactory;
+use antlr_rust::{BailErrorStrategy, InputStream};
 
-pub(crate) fn txns_text(input_text: &str) -> Result<Txns, Box<dyn Error>> {
+pub(crate) fn txns_text(input_text: &str, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
     let tf = CommonTokenFactory;
 
     let mut _lexer = TxnLexer::new_with_token_factory(InputStream::new(input_text), &tf);
@@ -40,7 +40,7 @@ pub(crate) fn txns_text(input_text: &str) -> Result<Txns, Box<dyn Error>> {
     let result = parser.txns();
 
     match result {
-        Ok(txns_ctx) => ctx_handler::handle_txns(txns_ctx),
+        Ok(txns_ctx) => ctx_handler::handle_txns(txns_ctx, settings),
         Err(err) => {
             let msg = format!("ANTRL error: {err}");
             Err(msg.into())
@@ -48,7 +48,7 @@ pub(crate) fn txns_text(input_text: &str) -> Result<Txns, Box<dyn Error>> {
     }
 }
 
-pub(crate) fn txns_file(path: &Path) -> Result<Txns, Box<dyn Error>> {
+pub(crate) fn txns_file(path: &Path, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
     let f = File::open(path);
 
     let mut txn_file = match f {
@@ -68,5 +68,5 @@ pub(crate) fn txns_file(path: &Path) -> Result<Txns, Box<dyn Error>> {
     txn_file.read_to_string(&mut txns_str)?;
 
     // todo: error log
-    txns_text(txns_str.as_str())
+    txns_text(txns_str.as_str(), settings)
 }

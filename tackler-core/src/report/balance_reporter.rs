@@ -120,11 +120,12 @@ impl BalanceReporter<'_> {
                 // always separate with two spaces
                 " ".repeat(2)
             } else {
-                match &btn.acctn.commodity {
-                    Some(c) => {
-                        format!(" {: <cl$} ", c.name, cl = comm_max_len)
+                let comm = &btn.acctn.comm;
+                match &comm.is_some() {
+                    true => {
+                        format!(" {: <cl$} ", comm.name, cl = comm_max_len)
                     }
-                    None => format!(" {} ", " ".repeat(comm_max_len)),
+                    false => format!(" {} ", " ".repeat(comm_max_len)),
                 }
             }
         }
@@ -143,7 +144,7 @@ impl BalanceReporter<'_> {
                     "",
                     btn.sub_acc_tree_sum,
                     make_commodity_field(comm_max_len, btn),
-                    btn.acctn,
+                    btn.acctn.atn,
                     asl = left_sum_len,
                     atl = sub_acc_sum_len,
                     width = filler_field,
@@ -188,7 +189,7 @@ impl BalanceReporter<'_> {
 impl Report for BalanceReporter<'_> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
@@ -209,6 +210,7 @@ impl Report for BalanceReporter<'_> {
                 .unwrap_or(&String::default()),
             txn_data,
             bal_acc_sel.as_ref(),
+            cfg,
         );
 
         BalanceReporter::txt_report(writer, &bal_report)?;

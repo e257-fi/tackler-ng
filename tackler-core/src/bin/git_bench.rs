@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 E257.FI
+ * Copyright 2019-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,7 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
 #[allow(non_snake_case)]
 fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
     eprintln!("\n\nMake 10 loops with txns-1E5:");
+    let mut settings = Settings::default_audit();
     let mut all_txns_per_s = 0.0;
     for i in 0..10 {
         let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
@@ -90,7 +91,7 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
             "txns/2016",
             "txn",
             GitInputSelector::Reference("txns-1E5".to_string()),
-            &Settings::default_audit(),
+            &mut settings,
         );
         let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
         verify_git_run(result, TXN_SET_1E5_COMMIT_ID, TXN_SET_1E5_CHECKSUM);
@@ -119,6 +120,7 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
 // desc: "make 10 loops with txns-1E5"
 #[allow(non_snake_case)]
 fn id_fae31eb0_bd4a_483e_9eb7_9e4c36e7f785__loop_with_txns_1E1_10000() {
+    let mut settings = Settings::default_audit();
     let loops = 10_000;
     eprintln!("\n\nMake 10_000 loops with txns-1E1:");
     let mut r = 0;
@@ -129,7 +131,7 @@ fn id_fae31eb0_bd4a_483e_9eb7_9e4c36e7f785__loop_with_txns_1E1_10000() {
             "txns/2016",
             "txn",
             GitInputSelector::Reference("txns-1E1".to_string()),
-            &Settings::default_audit(),
+            &mut settings,
         );
         verify_git_run(result, TXN_SET_1E1_COMMIT_ID, TXN_SET_1E1_CHECKSUM);
 

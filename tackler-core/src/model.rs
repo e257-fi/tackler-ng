@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 pub(crate) use account_tree_node::AccountTreeNode;
 pub(crate) use account_tree_node::Commodity;
+pub(crate) use account_tree_node::TxnAccount;
 pub(crate) use balance_tree_node::BalanceTreeNode;
 pub use posting::Posting;
 pub(crate) use register::RegisterEntry;

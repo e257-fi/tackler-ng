@@ -1,0 +1,38 @@
+timezone = "Z"
+basedir = "../"
+strict = true
+
+[audit]
+hash = "sha-256"
+txn-set-checksum = "off"
+
+[input]
+storage = "fs"
+
+[input.fs]
+dir = "txns"
+glob = "**.txn"
+
+[input.git]
+repository = "tackler-data.git"
+ref = "main"
+dir = "txns"
+suffix = ".txn"
+
+[report]
+report-timezone = "Europe/Helsinki"
+types = [ "balance", "balance-group", "register", "equity", "identity" ]
+formats = [ "txt", "json" ]
+accounts = [ ]
+
+[report.scale]
+min = 2
+max = 7
+
+[reports.balance]
+title = "BALANCE"
+accounts = [ "" ]
+
+[reports.balance.scale]
+min = 2
+max = 7

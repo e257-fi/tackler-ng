@@ -34,7 +34,7 @@ mod register_reporter;
 pub trait Report {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         w: &mut W,
         txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>>;

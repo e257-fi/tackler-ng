@@ -1,0 +1,43 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
+
+[accounts]
+#strict = true
+names = [
+    "Income",
+    "Income:Lottery",
+    "Expenses",
+    "Expenses:ice_cream",
+    "Expenses:jäätelö",
+    "Expenses:jäätelö:mansikka-vadelma",
+    "Expenses:crème·glacée",
+    "Expenses:мороженое",
+    "Expenses:アイスクリーム",
+    "Expenses:風:空",
+    "Assets",
+    "Assets:Banks:Acme_Inc",
+    "Assets:Cash",
+    "Credit·Card:1234567890",
+    "a",
+    "a:b",
+    "e",
+    "e:b",
+    "風:空",
+    "空",
+    "assets:cash",
+]
+
+[commodities]
+#strict = true
+permit_empty_commodity = true
+names = [
+    "€",
+    "£",
+    "$",
+#    "¥",
+    "EUR",
+    "USD",
+     "JPY",
+#    "He·bar",
+#    "O2·bar"
+]
+

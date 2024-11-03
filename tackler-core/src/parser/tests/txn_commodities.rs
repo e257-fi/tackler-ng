@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2023 E257.FI
+ * Copyright 2017-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 8);
       }
@@ -91,7 +91,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
@@ -136,7 +136,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 8);
     }
@@ -157,7 +157,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
@@ -208,7 +208,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 9);
     }
@@ -229,7 +229,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
@@ -278,7 +278,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 9);
     }
@@ -299,7 +299,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_ok());
         assert_eq!(res.unwrap(/*:test:*/).len(), 2);
     }
@@ -323,7 +323,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Unit cost"));
@@ -342,7 +342,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Unit price"));
@@ -361,7 +361,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Both commodities are same for value position [€]"));
@@ -379,7 +379,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Different commodities without"));
@@ -397,7 +397,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Total cost"));
@@ -416,7 +416,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           let msg = res.err().unwrap(/*:test:*/).to_string();
           assert!(msg.contains("Total cost"));
@@ -436,7 +436,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           assert!(res.err().unwrap(/*:test:*/).to_string().contains("Both commodities are same for value position [€]"));
       }
@@ -453,7 +453,7 @@ use tackler_rs::IndocUtils;
             |
             |").strip_margin();
 
-          let res = parser::string_to_txns(&txns_str, &Settings::default());
+          let res = parser::string_to_txns(&txns_str, &mut Settings::default());
           assert!(res.is_err());
           assert!(res.err().unwrap(/*:test:*/).to_string().contains("Different commodities without"));
       }
@@ -470,7 +470,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
@@ -487,7 +487,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
@@ -504,7 +504,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
@@ -521,7 +521,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
@@ -538,7 +538,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
@@ -555,7 +555,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
@@ -572,7 +572,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-        let res = parser::string_to_txns(&txns_str, &Settings::default());
+        let res = parser::string_to_txns(&txns_str, &mut Settings::default());
         assert!(res.is_err());
         assert!(res.err().unwrap(/*:test:*/).to_string().contains("line: 3"));
     }
