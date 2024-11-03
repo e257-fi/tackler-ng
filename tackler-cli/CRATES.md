@@ -48,6 +48,12 @@ git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
 
 ````bash
 cd tackler-ng
+# Check the latest relase version
+git tag -l
+# Get the release, e.g. v24.11.0
+git checkout v24.11.0
+
+# Build and install tacker
 cargo install tackler
 # check that it works
 tackler --version

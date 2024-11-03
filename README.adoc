@@ -69,6 +69,14 @@ And build the Tackler binary:
 
 ----
 cd tackler-ng
+
+# Check the latest relase version
+git tag -l
+
+# Get the release, e.g. v24.11.0
+git checkout v24.11.0
+
+# Build tackler
 cargo build --release --bin tackler
 ----
 
