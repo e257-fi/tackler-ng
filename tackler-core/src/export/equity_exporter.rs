@@ -97,7 +97,7 @@ impl Export for EquityExporter<'_> {
                 Some(txn) => {
                     format!(
                         "{} 'Equity{}{}",
-                        txn.header.timestamp.format(&Rfc3339).unwrap(), // todo: unwrap
+                        txn.header.timestamp.format(&Rfc3339).unwrap(/*:ok: predefined frmt string*/),
                         comm_str(),
                         txn_uuid_str(txn.header.uuid)
                     )

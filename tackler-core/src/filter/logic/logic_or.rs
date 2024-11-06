@@ -81,7 +81,6 @@ mod tests {
                 true,
             ),
             (
-                // todo: new, record
                 // test: 99741d27-f4f1-4f2d-acee-925605c5b9ef
                 // desc: OR(false, false, false)
                 TxnFilter::TxnFilterOR(TxnFilterOR {
@@ -94,7 +93,6 @@ mod tests {
                 false,
             ),
             (
-                // todo: new, record
                 // test: a17735b6-6847-4eaa-b66e-1eb27c81f73a
                 // desc: OR(true, false, false)
                 TxnFilter::TxnFilterOR(TxnFilterOR {
@@ -131,7 +129,6 @@ mod tests {
                 true,
             ),
             (
-                // todo: new, record
                 // test: 4ca33e34-ee6d-4ba8-9bc2-3e5c1a98d5d0
                 // desc: OR(OR(false,false), OR(true,false)
                 TxnFilter::TxnFilterOR(TxnFilterOR {
@@ -153,7 +150,6 @@ mod tests {
                 true,
             ),
             (
-                // todo: new, record
                 // test: c2ea859a-1daa-4c9c-8bdf-278ce74dfc02
                 // desc: OR(OR(true,false),  OR(false,false)
                 TxnFilter::TxnFilterOR(TxnFilterOR {
@@ -175,7 +171,6 @@ mod tests {
                 true,
             ),
             (
-                // todo: new, record
                 // test: ce4115c4-9051-4e9e-9a95-71de92f61520
                 // desc: OR(OR(false,false), OR(false,false)
                 TxnFilter::TxnFilterOR(TxnFilterOR {

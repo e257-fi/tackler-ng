@@ -41,7 +41,7 @@ pub fn string_to_txns(input: &str, settings: &mut Settings) -> Result<TxnData, B
     // feature: a94d4a60-40dc-4ec0-97a3-eeb69399f01b
     // coverage: "sorted" tested by 200aad57-9275-4d16-bdad-2f1c484bcf17
 
-    TxnData::from(None, txns, &settings.audit.hash)
+    TxnData::from(None, txns, &settings.get_hash())
 }
 
 pub fn paths_to_txns(
@@ -54,7 +54,7 @@ pub fn paths_to_txns(
         .flatten_ok()
         .collect();
 
-    TxnData::from(None, txns?, &settings.audit.hash)
+    TxnData::from(None, txns?, &settings.get_hash())
 }
 
 pub fn git_to_txns(
@@ -150,7 +150,7 @@ pub fn git_to_txns(
     TxnData::from(
         Some(MetadataItem::GitInputReference(gitmd)),
         txns?,
-        &settings.audit.hash,
+        &settings.get_hash(),
     )
 }
 

@@ -44,7 +44,7 @@ pub fn get_account_selector_checksum(
     cfg: &Settings,
     ras: &Option<Vec<String>>,
 ) -> Result<Option<AccountSelectorChecksum>, Box<dyn Error>> {
-    if let Some(hash) = &cfg.audit.hash {
+    if let Some(hash) = cfg.get_hash() {
         if let Some(ras) = ras {
             // todo: ras or cfg.accounts?
             // todo: refactor and test this

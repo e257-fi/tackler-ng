@@ -22,7 +22,7 @@ use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 
-#[derive(Debug, Clone, Default, Hash, PartialOrd, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Commodity {
     pub name: String,
 }
@@ -38,7 +38,7 @@ impl Commodity {
 impl Commodity {
     pub fn from(name: String) -> Result<Commodity, Box<dyn Error>> {
         if !parser::is_valid_id(&name) {
-            let msg = format!("This is not a valid commodity/currency: [{name}]");
+            let msg = format!("This is not a valid commodity: '{name}'");
             return Err(msg.into());
         }
         Ok(Commodity { name })
@@ -64,40 +64,35 @@ pub struct TxnAccount {
     pub(crate) comm: Rc<Commodity>,
 }
 
-impl PartialEq for TxnAccount {
-    fn eq(&self, other: &Self) -> bool {
-        self.comm == other.comm && self.atn == other.atn
-    }
-}
-
-impl TxnAccount {
-    // todo: make this static data
-    // todo-perf: this is on hot path (for all Txns)
-    pub fn get_full(&self) -> String {
-        String::from(&self.comm.name) + "@" + &self.atn.account
-    }
-
-    pub(crate) fn is_parent_of(&self, atn: &TxnAccount) -> bool {
-        self.atn.account == atn.atn.parent && self.comm.name == atn.comm.name
-    }
-}
-
 impl Hash for TxnAccount {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.atn.account.hash(state);
         self.comm.name.hash(state);
     }
 }
-impl Ord for TxnAccount {
-    fn cmp(&self, other: &Self) -> Ordering {
-        // todo: ATN: more sensible ordering without getFull
-        self.get_full().cmp(&other.get_full())
+impl PartialEq for TxnAccount {
+    fn eq(&self, other: &Self) -> bool {
+        self.atn == other.atn && self.comm == other.comm
     }
 }
-
+impl Ord for TxnAccount {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.comm.cmp(&other.comm) {
+            Ordering::Less => Ordering::Less,
+            Ordering::Greater => Ordering::Greater,
+            Ordering::Equal => self.atn.account.cmp(&other.atn.account),
+        }
+    }
+}
 impl PartialOrd for TxnAccount {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl TxnAccount {
+    pub(crate) fn is_parent_of(&self, atn: &TxnAccount) -> bool {
+        self.atn.account == atn.atn.parent && self.comm.name == atn.comm.name
     }
 }
 
@@ -129,7 +124,7 @@ impl AccountTreeNode {
             let acc = account.trim();
 
             if acc.len() != account.len() {
-                let msg = format!("account name contains whitespaces [{account}]");
+                let msg = format!("Account name contains whitespaces '{account}'");
                 return Err(msg.into());
             }
         }
@@ -138,7 +133,7 @@ impl AccountTreeNode {
 
         if parts.is_empty() {
             let msg = format!(
-                "Empty account names are not allowed (all sub-components are empty): [{account}]"
+                "Empty account names are not allowed (all sub-components are empty): '{account}'"
             );
             return Err(msg.into());
         }
@@ -147,7 +142,7 @@ impl AccountTreeNode {
             .map(|subpath| parser::is_valid_sub_id(subpath.trim()))
             .any(|valid| !valid)
         {
-            let msg = format!("This is not valid account name: [{account}]");
+            let msg = format!("This is not a valid account name: '{account}'");
             return Err(msg.into());
         }
 

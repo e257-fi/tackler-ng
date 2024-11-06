@@ -27,12 +27,8 @@ use tackler_api::txn_ts;
                 .args(["input_filename", "input_fs_dir", "input_git_repo"]),
         ))]
 pub(crate) struct Cli {
-    #[arg(
-        long = "config",
-        value_name = "config file path",
-        default_value = "./tackler.toml"
-    )]
-    pub(crate) config: Option<PathBuf>,
+    #[arg(long = "config", value_name = "config file path")]
+    pub(crate) conf_path: Option<PathBuf>,
 
     /// Enable audit mode
     ///

@@ -157,8 +157,8 @@ impl Balance {
         let account_sums: Vec<_> = txns
             .iter()
             .flat_map(|txn| &txn.posts)
-            .sorted_by_key(|p| p.acctn.get_full())
-            .chunk_by(|p| p.acctn.get_full())
+            .sorted_by_key(|p| &p.acctn)
+            .chunk_by(|p| &p.acctn)
             .into_iter()
             .map(|(_, postings)| {
                 let mut ps = postings.peekable();

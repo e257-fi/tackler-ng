@@ -19,7 +19,7 @@
 mod cli_args;
 
 use std::error::Error;
-use std::{fs, io};
+use std::io;
 
 use log::error;
 
@@ -35,8 +35,7 @@ use tackler_core::report::{
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_api::txn_ts;
-use tackler_core::kernel::hash::Hash;
-use tackler_core::kernel::settings::Config;
+use tackler_core::kernel::config::Config;
 use time_tz::timezones;
 
 #[cfg(not(target_env = "msvc"))]
@@ -48,19 +47,12 @@ static GLOBAL: Jemalloc = Jemalloc;
 
 fn run() -> Result<i32, Box<dyn Error>> {
     let cli = cli_args::Cli::parse();
-    let cfg: Config = toml::from_str(fs::read_to_string(cli.config.unwrap(/*:todo:*/))?.as_str())?;
-
-    let hash = if let Some(audit) = cli.audit_mode {
-        if audit {
-            Some(Hash::default())
-        } else {
-            None
-        }
-    } else {
-        None
+    let cfg = match cli.conf_path {
+        Some(path) => Some(Config::from(path)?),
+        None => None,
     };
 
-    let mut settings = Settings::from(&cfg, hash, cli.accounts)?;
+    let mut settings = Settings::from(cfg, cli.audit_mode, cli.accounts)?;
 
     let result = if cli.input_filename.is_some()
         || (cli.input_fs_dir.is_some() && cli.input_fs_ext.is_some())

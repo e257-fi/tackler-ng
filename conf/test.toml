@@ -1,43 +1,24 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
-
-[accounts]
+[kernel]
 #strict = true
-names = [
-    "Income",
-    "Income:Lottery",
-    "Expenses",
-    "Expenses:ice_cream",
-    "Expenses:jäätelö",
-    "Expenses:jäätelö:mansikka-vadelma",
-    "Expenses:crème·glacée",
-    "Expenses:мороженое",
-    "Expenses:アイスクリーム",
-    "Expenses:風:空",
-    "Assets",
-    "Assets:Banks:Acme_Inc",
-    "Assets:Cash",
-    "Credit·Card:1234567890",
-    "a",
-    "a:b",
-    "e",
-    "e:b",
-    "風:空",
-    "空",
-    "assets:cash",
-]
+strict = false
 
-[commodities]
-#strict = true
-permit_empty_commodity = true
-names = [
-    "€",
-    "£",
-    "$",
-#    "¥",
-    "EUR",
-    "USD",
-     "JPY",
-#    "He·bar",
-#    "O2·bar"
-]
+[kernel.timestamp]
+default-time = 12:12:12
 
+[kernel.timestamp.timezone]
+name = "Europe/Helsinki"
+#offset = "-07:00"
+
+[kernel.audit]
+hash = "SHA-256"
+mode = false
+
+[transaction.accounts]
+file = "accounts.toml"
+
+[transaction.commodities]
+file = "commodities.toml"
+
+[transaction.tags]
+file = "tags.toml"

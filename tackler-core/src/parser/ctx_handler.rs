@@ -20,7 +20,7 @@ use antlr_rust::token::Token;
 use std::error::Error;
 use std::rc::Rc;
 use std::string::String;
-use time::{OffsetDateTime, PrimitiveDateTime, Time};
+use time::{OffsetDateTime, PrimitiveDateTime};
 use uuid::Uuid;
 
 use crate::kernel::Settings;
@@ -47,58 +47,48 @@ where
 
 fn handle_date(
     date_ctx: Rc<DateContextAll>,
-    _settings: &Settings,
+    settings: &Settings,
 ) -> Result<OffsetDateTime, Box<dyn Error>> {
     let zoned_timestamp: Result<OffsetDateTime, Box<dyn Error>> = match date_ctx.TS_TZ() {
-        Some(ts_tz) => {
-            match OffsetDateTime::parse(&ts_tz.get_text(), &Rfc3339) {
-                Ok(zoned_ts) => Ok(zoned_ts),
-                Err(_) => {
-                    // todo: err
-                    let msg = error_on_line(&date_ctx, "timezone");
-                    Err(msg.into())
-                }
+        Some(ts_tz) => match OffsetDateTime::parse(&ts_tz.get_text(), &Rfc3339) {
+            Ok(zoned_ts) => Ok(zoned_ts),
+            Err(_) => {
+                let msg = error_on_line(&date_ctx, "timestamp with timezone");
+                Err(msg.into())
             }
-        }
-        None => {
-            match date_ctx.TS() {
-                Some(local_ts) => {
-                    let format = format_description!(
+        },
+        None => match date_ctx.TS() {
+            Some(local_ts) => {
+                let format = format_description!(
                         "[year]-[month]-[day]T[hour]:[minute]:[second][optional [.[subsecond digits:1+]]]");
-                    match PrimitiveDateTime::parse(&local_ts.get_text(), &format) {
-                        Ok(local_ts) => {
-                            // todo: fix zone by cfg
-                            Ok(local_ts.assume_utc())
-                        }
-                        Err(_) => {
-                            // todo: err
-                            Err("todo".into())
-                        }
-                    }
-                }
-                None => {
-                    let format = format_description!("[year]-[month]-[day]");
-                    match date_ctx.DATE() {
-                        Some(d_ctx) => match time::Date::parse(&d_ctx.get_text(), &format) {
-                            Ok(date) => {
-                                // todo: fix time by cfg
-                                let naive_ts = PrimitiveDateTime::new(date, Time::MIDNIGHT);
-                                // todo: fix zone by cfg
-                                Ok(naive_ts.assume_utc())
-                            }
-                            Err(_) => {
-                                // todo: err
-                                Err("todo".into())
-                            }
-                        },
-                        None => {
-                            // todo: intrenal error
-                            Err("todo".into())
-                        }
+                match PrimitiveDateTime::parse(&local_ts.get_text(), &format) {
+                    Ok(local_ts) => Ok(settings.get_offset_datetime(local_ts)?),
+                    Err(_) => {
+                        let msg = error_on_line(&date_ctx, "timestamp in local time");
+                        Err(msg.into())
                     }
                 }
             }
-        }
+            None => {
+                let format = format_description!("[year]-[month]-[day]");
+                match date_ctx.DATE() {
+                    Some(d_ctx) => match time::Date::parse(&d_ctx.get_text(), &format) {
+                        Ok(date) => Ok(settings.get_offset_date(date)?),
+                        Err(_) => {
+                            let msg = error_on_line(&date_ctx, "plain date");
+                            Err(msg.into())
+                        }
+                    },
+                    None => {
+                        let msg = error_on_line(
+                            &date_ctx,
+                            "Internal logic error with timestamp handling",
+                        );
+                        Err(msg.into())
+                    }
+                }
+            }
+        },
     };
     zoned_timestamp
 }

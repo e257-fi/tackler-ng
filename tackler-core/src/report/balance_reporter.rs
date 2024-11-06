@@ -195,7 +195,7 @@ impl Report for BalanceReporter<'_> {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
-        writeln!(writer, "{}", "-".repeat(82))?;
+        writeln!(writer, "{}", "*".repeat(82))?;
         if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
@@ -214,7 +214,7 @@ impl Report for BalanceReporter<'_> {
         );
 
         BalanceReporter::txt_report(writer, &bal_report)?;
-        writeln!(writer, "{}", "=".repeat(82))?;
+        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }

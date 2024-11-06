@@ -33,10 +33,6 @@ pub struct Posting {
     pub is_total_amount: bool,
     pub txn_commodity: Rc<Commodity>, // todo: check / fix this
     pub comment: Option<String>,
-
-    // fixme: remove duplicate information, this is kind of available via ATN
-    // See fixme in ATN
-    pub atn_key: String,
 }
 
 impl Posting {
@@ -53,7 +49,6 @@ impl Posting {
             return Err(msg.into());
         }
 
-        let atn_key = acctn.get_full();
         Ok(Posting {
             acctn,
             amount,
@@ -61,7 +56,6 @@ impl Posting {
             is_total_amount,
             txn_commodity,
             comment,
-            atn_key,
         })
     }
 }

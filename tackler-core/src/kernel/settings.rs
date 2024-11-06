@@ -14,100 +14,221 @@
  * limitations under the License.
  *
  */
+use crate::kernel::config::{Config, Kernel, Report};
 use crate::kernel::hash::Hash;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
-use serde::Deserialize;
 use std::collections::HashMap;
 use std::error::Error;
-use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use tackler_api::txn_header::Tag;
+use time::{format_description, Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
+use time_tz::{timezones, OffsetResult, PrimitiveDateTimeExt, Tz};
 
-#[derive(Debug, Clone, Default, Deserialize)]
-pub struct Accounts {
-    names: Vec<String>,
+#[derive(Clone, Default)]
+pub struct AuditSettings {
+    pub(crate) hash: Option<Hash>,
 }
 
-#[derive(Debug, Clone, Default, Deserialize)]
-pub struct Commodities {
+#[derive(Debug, Default)]
+struct Commodities {
+    names: HashMap<String, Rc<Commodity>>,
     permit_empty_commodity: bool,
-    names: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct Config {
-    pub accounts: Accounts,
-    pub commodities: Commodities,
+impl Commodities {
+    fn default_empty_ok() -> Self {
+        Commodities {
+            names: HashMap::new(),
+            permit_empty_commodity: true,
+        }
+    }
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct Audit {
-    pub hash: Option<Hash>,
+enum TimezoneType {
+    Offset(UtcOffset),
+    Name(&'static Tz),
 }
-
-#[derive(Debug)]
-pub struct Report {
-    pub accounts: Option<Vec<String>>,
-}
-
-#[derive(Debug)]
 pub struct Settings {
-    pub basedir: Box<Path>,
-    pub audit: Audit,
+    pub kernel: Kernel,
+    timezone: TimezoneType,
+    default_time: Time,
+    pub audit: AuditSettings,
     pub report: Report,
     accounts: HashMap<String, Rc<AccountTreeNode>>,
-    commodities: HashMap<String, Rc<Commodity>>,
+    commodities: Commodities,
+    tags: HashMap<String, Rc<Tag>>,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Settings {
+            kernel: Kernel::default(),
+            default_time: Time::MIDNIGHT,
+            timezone: TimezoneType::Offset(UtcOffset::UTC),
+            report: Report { accounts: None },
+            audit: AuditSettings { hash: None },
+            accounts: HashMap::new(),
+            commodities: Commodities::default_empty_ok(),
+            tags: HashMap::new(),
+        }
+    }
+}
+
+impl Settings {
+    pub fn default_audit() -> Self {
+        Settings {
+            kernel: Kernel::default(),
+            default_time: Time::MIDNIGHT,
+            timezone: TimezoneType::Offset(UtcOffset::UTC),
+            report: Report { accounts: None },
+            audit: AuditSettings {
+                hash: Some(Hash::default()),
+            },
+            accounts: HashMap::new(),
+            commodities: Commodities::default_empty_ok(),
+            tags: HashMap::new(),
+        }
+    }
 }
 
 impl Settings {
     pub fn from(
-        cfg: &Config,
-        hash: Option<Hash>,
+        cfg_opt: Option<Config>,
+        hash: Option<bool>,
         report_accounts: Option<Vec<String>>,
     ) -> Result<Settings, Box<dyn Error>> {
-        let accs = cfg
-            .accounts
-            .names
-            .iter()
-            .fold(HashMap::new(), |mut accs, acc| {
-                let atn = Rc::new(AccountTreeNode::from(acc).unwrap());
-                accs.insert(acc.into(), atn);
-                accs
-            });
+        let cfg = match cfg_opt {
+            Some(c) => c,
+            None => {
+                return match (hash, report_accounts) {
+                    (Some(h), Some(ra)) => {
+                        let mut s = match h {
+                            true => Self::default_audit(),
+                            false => Self::default(),
+                        };
+                        s.report.accounts = Some(ra);
+                        Ok(s)
+                    }
+                    (Some(h), None) => {
+                        return Ok(match h {
+                            true => Self::default_audit(),
+                            false => Self::default(),
+                        })
+                    }
+                    (None, Some(ra)) => {
+                        let mut s = Self::default();
+                        s.report.accounts = Some(ra);
+                        Ok(s)
+                    }
+                    (None, None) => Ok(Settings::default()),
+                }
+            }
+        };
+        let accs = cfg.transaction.accounts.names.iter().try_fold(
+            HashMap::new(),
+            |mut accs, account| match AccountTreeNode::from(account) {
+                Ok(atn) => {
+                    accs.insert(account.into(), Rc::new(atn));
+                    Ok(accs)
+                }
+                Err(e) => {
+                    let msg = format!("Invalid Chart of Accounts: {e}");
+                    Err(msg)
+                }
+            },
+        )?;
 
-        let comms = cfg
-            .commodities
-            .names
-            .iter()
-            .fold(HashMap::new(), |mut chm, acc| {
-                chm.insert(
-                    acc.into(),
-                    Rc::new(Commodity::from(acc.to_string()).unwrap()),
-                );
-                chm
-            });
+        let comms = cfg.transaction.commodities.names.iter().try_fold(
+            HashMap::new(),
+            |mut chm, comm| match Commodity::from(comm.to_string()) {
+                Ok(c) => {
+                    chm.insert(comm.into(), Rc::new(c));
+                    Ok(chm)
+                }
+                Err(e) => {
+                    let msg = format!("Invalid Chart of Commodities: {e}");
+                    Err(msg)
+                }
+            },
+        )?;
 
         Ok(Settings {
-            basedir: PathBuf::new().into_boxed_path(),
+            kernel: cfg.kernel.clone(),
+            default_time: {
+                let t = &cfg.kernel.timestamp.default_time;
+                Time::from_hms_nano(t.hour, t.minute, t.second, t.nanosecond)?
+            },
+            timezone: {
+                match (
+                    &cfg.kernel.timestamp.timezone.name,
+                    &cfg.kernel.timestamp.timezone.offset,
+                ) {
+                    (Some(_), Some(_)) => {
+                        let msg =
+                            "kernel.timezone: 'name' and 'offset' are both defined".to_string();
+                        return Err(msg.into());
+                    }
+                    (None, None) => TimezoneType::Name(
+                        timezones::get_by_name("UTC").ok_or("Undefined default (UTC) timezone")?,
+                    ),
+                    (Some(tz_name), None) => TimezoneType::Name(
+                        timezones::get_by_name(tz_name)
+                            .ok_or(format!("Unknown timezone '{tz_name}'"))?,
+                    ),
+                    (None, Some(offset)) => {
+                        let offset_format =
+                            format_description::parse("[offset_hour]:[offset_minute]")?;
+                        let offset = UtcOffset::parse(offset, &offset_format)?;
+                        TimezoneType::Offset(offset)
+                    }
+                }
+            },
             report: Report {
                 accounts: report_accounts,
             },
-            audit: Audit { hash },
+            audit: match hash {
+                Some(true) => {
+                    let hasher = match &cfg.kernel.audit {
+                        Some(audit) => Some(Hash::from(audit.hash.as_str())?),
+                        _ => {
+                            let msg = "kernel.audit.hash is not configured".to_string();
+                            return Err(msg.into());
+                        }
+                    };
+                    AuditSettings { hash: hasher }
+                }
+                Some(false) => AuditSettings::default(),
+                None => {
+                    let hasher = match &cfg.kernel.audit {
+                        Some(audit) => {
+                            if audit.mode {
+                                Some(Hash::from(audit.hash.as_str())?)
+                            } else {
+                                None
+                            }
+                        }
+                        _ => None,
+                    };
+                    AuditSettings { hash: hasher }
+                }
+            },
             accounts: accs,
-            commodities: comms,
+            commodities: Commodities {
+                names: comms,
+                permit_empty_commodity: cfg
+                    .transaction
+                    .commodities
+                    .permit_empty_commodity
+                    .unwrap_or(false),
+            },
+            tags: HashMap::new(), //todo: implement
         })
     }
-
-    pub fn default_audit() -> Self {
-        Settings {
-            basedir: PathBuf::default().into_boxed_path(),
-            report: Report { accounts: None },
-            audit: Audit {
-                hash: Some(Hash::default()),
-            },
-            accounts: HashMap::new(),
-            commodities: HashMap::new(),
-        }
+}
+impl Settings {
+    pub fn get_hash(&self) -> Option<Hash> {
+        self.audit.hash.clone()
     }
 
     pub fn get_txn_account(
@@ -115,7 +236,6 @@ impl Settings {
         name: &str,
         commodity: Rc<Commodity>,
     ) -> Result<TxnAccount, Box<dyn Error>> {
-        // todo: check cfg.strict => account is defined
         let comm = self.get_commodity(Some(commodity.name.as_str()))?;
 
         match self.accounts.get(name) {
@@ -124,31 +244,41 @@ impl Settings {
                 comm,
             }),
             None => {
-                //let msg = format!("Unknown account: '{}'", name);
-                //Err(msg.into())
-
-                let atn = Rc::new(AccountTreeNode::from(name)?);
-                self.accounts.insert(name.into(), atn.clone());
-                Ok(TxnAccount { atn, comm })
+                if self.kernel.strict {
+                    let msg = format!("Unknown account: '{}'", name);
+                    Err(msg.into())
+                } else {
+                    let atn = Rc::new(AccountTreeNode::from(name)?);
+                    self.accounts.insert(name.into(), atn.clone());
+                    Ok(TxnAccount { atn, comm })
+                }
             }
         }
     }
 
     pub fn get_commodity(&mut self, name: Option<&str>) -> Result<Rc<Commodity>, Box<dyn Error>> {
-        // todo: check cfg.strict => commodity is defined
         match name {
             Some(n) => {
                 if n.is_empty() {
-                    return Ok(Rc::new(Commodity::default()));
+                    if self.commodities.permit_empty_commodity {
+                        return Ok(Rc::new(Commodity::default()));
+                    } else {
+                        let msg =
+                            "Empty commodity and 'permit-empty-commodity' is not set".to_string();
+                        return Err(msg.into());
+                    }
                 }
-                match self.commodities.get(n) {
+                match self.commodities.names.get(n) {
                     Some(comm) => Ok(comm.clone()),
                     None => {
-                        //let msg = format!("Unknown commodity: '{}'", n);
-                        //Err(msg.into())
-                        let comm = Rc::new(Commodity::from(n.into())?);
-                        self.commodities.insert(n.into(), comm.clone());
-                        Ok(comm)
+                        if self.kernel.strict {
+                            let msg = format!("Unknown commodity: '{}'", n);
+                            Err(msg.into())
+                        } else {
+                            let comm = Rc::new(Commodity::from(n.into())?);
+                            self.commodities.names.insert(n.into(), comm.clone());
+                            Ok(comm)
+                        }
                     }
                 }
             }
@@ -158,17 +288,51 @@ impl Settings {
             }
         }
     }
+    pub fn get_tag(&mut self, name: &str) -> Result<Rc<Tag>, Box<dyn Error>> {
+        if name.is_empty() {
+            let msg = "Tag name is empty string".to_string();
+            return Err(msg.into());
+        }
+        match self.tags.get(name) {
+            Some(tag) => Ok(tag.clone()),
+            None => {
+                if self.kernel.strict {
+                    let msg = format!("Unknown tag: '{}'", name);
+                    Err(msg.into())
+                } else {
+                    let tag = Rc::new(Tag::from(name));
+                    self.tags.insert(name.into(), tag.clone());
+                    Ok(tag)
+                }
+            }
+        }
+    }
 }
 
-impl Default for Settings {
-    fn default() -> Self {
-        Settings {
-            basedir: PathBuf::default().into_boxed_path(),
-            report: Report { accounts: None },
-            audit: Audit { hash: None },
-            accounts: HashMap::new(),
-            commodities: HashMap::new(),
-        }
+impl Settings {
+    pub fn get_offset_datetime(
+        &self,
+        dt: PrimitiveDateTime,
+    ) -> Result<OffsetDateTime, Box<dyn Error>> {
+        let ts_tz = match self.timezone {
+            TimezoneType::Name(tz) => match dt.assume_timezone(tz) {
+                OffsetResult::Some(ts) => ts,
+                OffsetResult::Ambiguous(_, _) => {
+                    let msg = format!("time conversion is ambiguous '{dt:?}'");
+                    return Err(msg.into());
+                }
+                OffsetResult::None => {
+                    let msg = format!("time is invalid '{dt:?}'");
+                    return Err(msg.into());
+                }
+            },
+            TimezoneType::Offset(tz) => dt.assume_offset(tz),
+        };
+        Ok(ts_tz)
+    }
+    pub fn get_offset_date(&self, date: Date) -> Result<OffsetDateTime, Box<dyn Error>> {
+        let ts = PrimitiveDateTime::new(date, self.default_time);
+        self.get_offset_datetime(ts)
     }
 }
 

@@ -82,7 +82,7 @@ impl Report for BalanceGroupReporter<'_> {
         let bal_groups =
             accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref(), cfg);
 
-        writeln!(writer, "{}", "-".repeat(82))?;
+        writeln!(writer, "{}", "*".repeat(82))?;
         if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
@@ -99,7 +99,7 @@ impl Report for BalanceGroupReporter<'_> {
         for bal in &bal_groups {
             BalanceReporter::txt_report(writer, bal)?
         }
-        writeln!(writer, "{}", "-".repeat(82))?;
+        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }

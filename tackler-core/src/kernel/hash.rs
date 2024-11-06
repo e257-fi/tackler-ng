@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,37 +15,41 @@
  *
  */
 
-use sha2::Digest;
+use digest::DynDigest;
 use std::error::Error;
+use std::fmt::Write;
 use tackler_api::metadata::Checksum;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Hash {
     hash_algo: String,
-    // todo: hasher instance
+    hasher: Box<dyn DynDigest>,
 }
 
 impl Default for Hash {
     fn default() -> Self {
         Hash {
             hash_algo: "SHA-256".to_string(),
+            hasher: Box::new(sha2::Sha256::default()),
         }
     }
 }
 
 impl Hash {
     pub fn from(algo: &str) -> Result<Hash, Box<dyn Error>> {
-        // todo: SHA-256, SHA-512/256, SHA-512
         match algo {
-            "SHA-256" => {
-                //sha2::Sha256::default()
-                Ok(Hash {
-                    hash_algo: "SHA-256".to_string(),
-                })
-            }
-            //"SHA-256" => Box::new(sha2::Sha256::default()),
-            //"SHA-512/256" => Box::new(sha2::Sha512_256::default()),
-            //"SHA-512" => Box::new(sha2::Sha512::default()),
+            "SHA-256" => Ok(Hash {
+                hash_algo: "SHA-256".to_string(),
+                hasher: Box::new(sha2::Sha256::default()),
+            }),
+            "SHA-512" => Ok(Hash {
+                hash_algo: "SHA-512".to_string(),
+                hasher: Box::new(sha2::Sha512::default()),
+            }),
+            "SHA-512/256" => Ok(Hash {
+                hash_algo: "SHA-512/256".to_string(),
+                hasher: Box::new(sha2::Sha512_256::default()),
+            }),
             _ => {
                 let msg = format!("Unsupported hash algorithm: {algo}");
                 Err(msg.into())
@@ -54,19 +58,7 @@ impl Hash {
     }
 
     pub fn checksum(&self, items: &[String], separator: &[u8]) -> Result<Checksum, Box<dyn Error>> {
-        //let mut hasher: Box<dyn DynDigest> = match hash_algo {
-        let mut hasher = match self.hash_algo.as_str() {
-            "SHA-256" => sha2::Sha256::default(),
-            //"SHA-256" => Box::new(sha2::Sha256::default()),
-            //"SHA-512/256" => Box::new(sha2::Sha512_256::default()),
-            //"SHA-512" => Box::new(sha2::Sha512::default()),
-            _ => {
-                let msg = format!("Unsupported hash algorithm: {}", self.hash_algo);
-                return Err(msg.into());
-            }
-        };
-
-        hasher.reset();
+        let mut hasher = self.hasher.clone();
 
         for i in items {
             hasher.update(i.as_bytes());
@@ -76,7 +68,10 @@ impl Hash {
 
         Ok(Checksum {
             algorithm: self.hash_algo.clone(),
-            value: format!("{:x}", hash),
+            value: hash.iter().fold(String::new(), |mut output, b| {
+                let _ = write!(output, "{b:02x}");
+                output
+            }),
         })
     }
 }
@@ -103,6 +98,7 @@ mod tests {
     fn hasher_err() {
         let hash = Hash {
             hash_algo: "foo".to_string(),
+            hasher: Box::new(sha2::Sha512_256::default()),
         };
 
         assert_eq!(hash.hash_algo, "foo".to_string());

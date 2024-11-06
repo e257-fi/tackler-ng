@@ -1,23 +1,38 @@
-timezone = "Z"
-basedir = "../"
+[kernel]
 strict = true
 
-[audit]
-hash = "sha-256"
-txn-set-checksum = "off"
+[kernel.timestamp]
+default-time = 00:00:00
 
-[input]
+[kernel.timestamp.timezone]
+name = "Europe/Helsinki"
+#offset = "-07:00"
+
+[kernel.audit]
+hash = "sha-256"
+mode = true
+
+[kernel.input]
 storage = "fs"
 
-[input.fs]
+[kernel.input.fs]
 dir = "txns"
 glob = "**.txn"
 
-[input.git]
+[kernel.input.git]
 repository = "tackler-data.git"
 ref = "main"
 dir = "txns"
 suffix = ".txn"
+
+[transaction.accounts]
+file = "accounts.toml"
+
+[transaction.commodities]
+file = "commodities.toml"
+
+[transaction.tags]
+file = "tags.toml"
 
 [report]
 report-timezone = "Europe/Helsinki"
