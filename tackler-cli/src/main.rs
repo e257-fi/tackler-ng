@@ -20,7 +20,6 @@ mod cli_args;
 
 use std::error::Error;
 use std::io;
-use std::path::PathBuf;
 
 use log::error;
 
@@ -36,8 +35,7 @@ use tackler_core::report::{
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_api::txn_ts;
-use tackler_core::kernel::hash::Hash;
-use tackler_core::kernel::settings::Audit;
+use tackler_core::kernel::config::Config;
 use time_tz::timezones;
 
 #[cfg(not(target_env = "msvc"))]
@@ -49,34 +47,24 @@ static GLOBAL: Jemalloc = Jemalloc;
 
 fn run() -> Result<i32, Box<dyn Error>> {
     let cli = cli_args::Cli::parse();
-
-    let hash = if let Some(audit) = cli.audit_mode {
-        if audit {
-            Some(Hash::default())
-        } else {
-            None
-        }
-    } else {
-        None
+    let cfg = match cli.conf_path {
+        Some(path) => Some(Config::from(path)?),
+        None => None,
     };
 
-    let cfg = Settings {
-        basedir: PathBuf::new().into_boxed_path(),
-        accounts: cli.accounts,
-        audit: Audit { hash },
-    };
+    let mut settings = Settings::from(cfg, cli.audit_mode, cli.accounts)?;
 
     let result = if cli.input_filename.is_some()
         || (cli.input_fs_dir.is_some() && cli.input_fs_ext.is_some())
     {
         if let Some(filename) = cli.input_filename {
-            parser::paths_to_txns(&[filename], &cfg)
+            parser::paths_to_txns(&[filename], &mut settings)
         } else {
             let paths = tackler_rs::get_paths_by_ext(
                 cli.input_fs_dir.unwrap(/*:ok: clap */).as_path(),
                 &cli.input_fs_ext.unwrap(/*:ok: clap */),
             )?;
-            parser::paths_to_txns(&paths, &cfg)
+            parser::paths_to_txns(&paths, &mut settings)
         }
     } else if cli.input_git_repo.is_some()
         && cli.input_git_dir.is_some()
@@ -87,7 +75,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
             cli.input_git_dir.as_deref().unwrap(/*:ok: clap */),
             "txn",
             GitInputSelector::Reference(cli.input_git_ref.unwrap(/*:ok: clap */)),
-            &cfg,
+            &mut settings,
         )
     } else {
         return Err("No input".into());
@@ -125,10 +113,10 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             let bal_reporter = BalanceReporter {
                                 report_settings: BalanceSettings {
                                     title: Some("BALANCE".to_string()),
-                                    ras: &cfg.accounts,
+                                    ras: &settings.report.accounts.clone(),
                                 },
                             };
-                            bal_reporter.write_txt_report(&cfg, &mut w, &txn_set)?;
+                            bal_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                         }
                         "balance-group" => {
                             let report_tz = cli.report_tz.clone().unwrap(/*:ok: clap*/);
@@ -136,22 +124,22 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             let bal_group_reporter = BalanceGroupReporter {
                                 report_settings: BalanceGroupSettings {
                                     title: Some("BALANCE GROUP".to_string()), // todo: settings
-                                    ras: &cfg.accounts,
+                                    ras: &settings.report.accounts.clone(),
                                     group_by: txn_ts::GroupBy::from(&group_by)?,
                                     report_tz: timezones::get_by_name(&report_tz)
                                         .ok_or(format!("Can't recognise tz [{report_tz}]"))?,
                                 },
                             };
-                            bal_group_reporter.write_txt_report(&cfg, &mut w, &txn_set)?;
+                            bal_group_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                         }
                         "register" => {
                             let reg_reporter = RegisterReporter {
                                 report_settings: RegisterSettings {
                                     title: Some("REGISTER".to_string()),
-                                    ras: &cfg.accounts,
+                                    ras: &settings.report.accounts.clone(),
                                 },
                             };
-                            reg_reporter.write_txt_report(&cfg, &mut w, &txn_set)?;
+                            reg_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                         }
                         _ => {
                             return Err("Internal Logic error with reports cli args".into());
@@ -175,14 +163,14 @@ fn run() -> Result<i32, Box<dyn Error>> {
                             let eq_exporter = EquityExporter {
                                 export_settings: EquitySettings {
                                     eqa: Some(eqa.clone()),
-                                    ras: &cfg.accounts,
+                                    ras: &settings.report.accounts.clone(),
                                 },
                             };
-                            eq_exporter.write_export(&cfg, &mut w, &txn_set)?;
+                            eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;
                         }
                         "identity" => {
                             let eq_exporter = IdentityExporter {};
-                            eq_exporter.write_export(&cfg, &mut w, &txn_set)?;
+                            eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;
                         }
                         _ => {
                             return Err("Internal Logic error with exports cli args".into());

@@ -81,7 +81,6 @@ mod tests {
                 true,
             ),
             (
-                // todo: new, record
                 // test: 20cb5b36-d9fb-4c63-bd68-37394f2c0524
                 // desc: AND(true, true, true)
                 TxnFilter::TxnFilterAND(TxnFilterAND {
@@ -94,7 +93,6 @@ mod tests {
                 true,
             ),
             (
-                // todo: new, record
                 // test: 80b9bcbc-1274-440b-8e63-4be23bc6caa2
                 // desc: AND(false, true, true)
                 TxnFilter::TxnFilterAND(TxnFilterAND {
@@ -131,7 +129,6 @@ mod tests {
                 false,
             ),
             (
-                // todo: new, record
                 // test: 87107bc2-3c6d-435c-ac05-9ddade8352be
                 // desc: AND(AND(true,false), AND(true,true)
                 TxnFilter::TxnFilterAND(TxnFilterAND {
@@ -153,7 +150,6 @@ mod tests {
                 false,
             ),
             (
-                // todo: new, record
                 // test: d7c618df-3840-4cb3-b703-0896168ab448
                 // desc: AND(AND(true,true),  AND(true,false)
                 TxnFilter::TxnFilterAND(TxnFilterAND {
@@ -175,7 +171,6 @@ mod tests {
                 false,
             ),
             (
-                // todo: new, record
                 // test: b48c2765-12a7-4679-82e9-263f023fe731
                 // desc: AND(AND(true,true),  AND(true,true)
                 TxnFilter::TxnFilterAND(TxnFilterAND {

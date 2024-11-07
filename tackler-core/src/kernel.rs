@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 pub use settings::Settings;
 pub(crate) mod accumulator;
 pub mod balance;
+pub mod config;
 pub mod hash;
 pub mod report_item_selector;
 pub mod settings;

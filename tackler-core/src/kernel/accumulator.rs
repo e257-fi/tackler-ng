@@ -17,7 +17,8 @@
 
 use crate::kernel::balance::Balance;
 use crate::kernel::report_item_selector::{BalanceSelector, RegisterSelector};
-use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnRefs, TxnSet};
+use crate::kernel::Settings;
+use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs, TxnSet};
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::HashMap;
@@ -29,7 +30,12 @@ pub(crate) type RegisterReporterFn<W> =
 
 pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
-pub(crate) fn balance_groups<T>(txns: &TxnRefs, group_by_op: TxnGroupByOp, ras: &T) -> Vec<Balance>
+pub(crate) fn balance_groups<T>(
+    txns: &TxnRefs,
+    group_by_op: TxnGroupByOp,
+    ras: &T,
+    settings: &mut Settings,
+) -> Vec<Balance>
 where
     T: BalanceSelector + ?Sized,
 {
@@ -46,7 +52,7 @@ where
             let metadata = None;
             let txn_set = TxnSet { metadata, txns };
 
-            Balance::from(&group_by_key, &txn_set, ras)
+            Balance::from(&group_by_key, &txn_set, ras, settings)
         })
         .filter(|bal| !bal.is_empty())
         .sorted_by_key(|bal| bal.title.clone()) // todo: could this clone be avoided?
@@ -63,13 +69,13 @@ where
     W: io::Write + ?Sized,
     T: RegisterSelector<'a> + ?Sized,
 {
-    let mut register_engine: HashMap<String, Decimal> = HashMap::new();
+    let mut register_engine: HashMap<&TxnAccount, Decimal> = HashMap::new();
     for txn in txns {
         let register_postings: Vec<_> = txn
             .posts
             .iter()
             .map(|p| {
-                let key = p.acctn.get_full();
+                let key = &p.acctn;
                 let running_total = *register_engine
                     .entry(key)
                     .and_modify(|v| {

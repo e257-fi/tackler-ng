@@ -27,6 +27,24 @@ use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
 ///
+/// Convert path to absolute by anchor file
+/// If the path is already absolute, then use the path as it is
+///
+pub fn get_abs_path<P: AsRef<Path>>(anchor: P, path: &str) -> Result<PathBuf, Box<dyn Error>> {
+    let p = Path::new(path);
+    if p.is_absolute() {
+        return Ok(p.to_path_buf());
+    }
+
+    let a: &Path = anchor.as_ref();
+    let abspath = match a.canonicalize()?.parent() {
+        Some(parent) => parent.join(p),
+        None => p.to_path_buf(),
+    };
+    Ok(abspath)
+}
+
+///
 /// Get a list of paths by base dir and file extension
 ///
 pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>, Box<dyn Error>> {

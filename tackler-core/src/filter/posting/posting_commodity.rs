@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,9 @@ use crate::kernel::Predicate;
 
 impl Predicate<Transaction> for TxnFilterPostingCommodity {
     fn eval(&self, txn: &Transaction) -> bool {
-        txn.posts.iter().any(|p| {
-            p.acctn
-                .commodity
-                .as_ref()
-                .map_or(false, |c| self.regex.is_match(&c.name))
-        })
+        txn.posts
+            .iter()
+            .any(|p| self.regex.is_match(&p.acctn.comm.name))
     }
 }
 

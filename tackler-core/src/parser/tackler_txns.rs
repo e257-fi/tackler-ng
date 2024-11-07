@@ -35,23 +35,26 @@ pub enum GitInputSelector {
     Reference(String),
 }
 
-pub fn string_to_txns(input: &str, settings: &Settings) -> Result<TxnData, Box<dyn Error>> {
-    let txns = tackler_parser::txns_text(input)?;
+pub fn string_to_txns(input: &str, settings: &mut Settings) -> Result<TxnData, Box<dyn Error>> {
+    let txns = tackler_parser::txns_text(input, settings)?;
 
     // feature: a94d4a60-40dc-4ec0-97a3-eeb69399f01b
     // coverage: "sorted" tested by 200aad57-9275-4d16-bdad-2f1c484bcf17
 
-    TxnData::from(None, txns, &settings.audit.hash)
+    TxnData::from(None, txns, &settings.get_hash())
 }
 
-pub fn paths_to_txns(paths: &[PathBuf], settings: &Settings) -> Result<TxnData, Box<dyn Error>> {
+pub fn paths_to_txns(
+    paths: &[PathBuf],
+    settings: &mut Settings,
+) -> Result<TxnData, Box<dyn Error>> {
     let txns: Result<Txns, Box<dyn Error>> = paths
         .iter()
-        .map(|p| tackler_parser::txns_file(p))
+        .map(|p| tackler_parser::txns_file(p, settings))
         .flatten_ok()
         .collect();
 
-    TxnData::from(None, txns?, &settings.audit.hash)
+    TxnData::from(None, txns?, &settings.get_hash())
 }
 
 pub fn git_to_txns(
@@ -59,7 +62,7 @@ pub fn git_to_txns(
     dir: &str,
     extension: &str,
     input_selector: GitInputSelector,
-    settings: &Settings,
+    settings: &mut Settings,
 ) -> Result<TxnData, Box<dyn Error>> {
     // perf: let mut ts_par_total: u128 = 0;
     // perf: let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
@@ -108,7 +111,8 @@ pub fn git_to_txns(
                         let obj = repo.find_object(entry.oid)?;
                         // perf: let ts_par_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
 
-                        let par_res = tackler_parser::txns_text(str::from_utf8(&obj.data)?);
+                        let par_res =
+                            tackler_parser::txns_text(str::from_utf8(&obj.data)?, settings);
 
                         // perf: let ts_par_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
                         // perf: ts_par_total = ts_par_total + (ts_par_end.as_millis() - ts_par_start.as_millis());
@@ -146,7 +150,7 @@ pub fn git_to_txns(
     TxnData::from(
         Some(MetadataItem::GitInputReference(gitmd)),
         txns?,
-        &settings.audit.hash,
+        &settings.get_hash(),
     )
 }
 

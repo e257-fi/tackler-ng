@@ -61,15 +61,15 @@ impl EquityExporter<'_> {
 }
 
 impl Export for EquityExporter<'_> {
-    fn write_export<W: io::Write + ?Sized>(
+    fn write_export<'a, W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
-        let bal = Balance::from(&String::default(), txn_data, bal_acc_sel.as_ref());
+        let bal = Balance::from(&String::default(), txn_data, bal_acc_sel.as_ref(), cfg);
 
         if bal.is_empty() {
             // todo: check if this is actually possible?
@@ -97,7 +97,7 @@ impl Export for EquityExporter<'_> {
                 Some(txn) => {
                     format!(
                         "{} 'Equity{}{}",
-                        txn.header.timestamp.format(&Rfc3339).unwrap(), // todo: unwrap
+                        txn.header.timestamp.format(&Rfc3339).unwrap(/*:ok: predefined frmt string*/),
                         comm_str(),
                         txn_uuid_str(txn.header.uuid)
                     )
@@ -113,7 +113,7 @@ impl Export for EquityExporter<'_> {
         let equity_txn_str: Vec<String> = bal
             .bal
             .iter()
-            .chunk_by(|btn| &btn.acctn.commodity_str)
+            .chunk_by(|btn| &btn.acctn.comm.name)
             .into_iter()
             .flat_map(|(c, bs)| {
                 let btns: Vec<_> = bs.collect();
@@ -136,16 +136,16 @@ impl Export for EquityExporter<'_> {
                 let eq_postings = btns
                     .into_iter()
                     .map(|b| {
+                        let comm = &b.acctn.comm;
                         format!(
                             "{}{}  {}{}",
                             eq_txn_indent,
-                            b.acctn.account,
+                            b.acctn.atn.account,
                             b.account_sum,
-                            b.acctn
-                                .commodity
-                                .as_ref()
-                                .map(|c| { format!(" {}", c.name) })
-                                .get_or_insert(String::default())
+                            match comm.is_some() {
+                                true => { format!(" {}", comm.name) },
+                                false => String::new(),
+                            }
                         )
                     })
                     .collect::<Vec<String>>();

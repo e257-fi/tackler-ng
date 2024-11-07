@@ -63,7 +63,6 @@ mod tests {
                 false,
             ),
             (
-                // todo: new, record
                 // test: dac1a5b1-9128-452f-94d9-06ab163b0a02
                 // desc: NOT(NOT(true)
                 TxnFilter::TxnFilterNOT(TxnFilterNOT {

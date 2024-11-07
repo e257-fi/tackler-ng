@@ -72,10 +72,12 @@ impl Display for Transaction {
             f,
             "{}{}",
             self.header.to_string_with_indent(indent, txn_ts::rfc_3339),
-            self.posts.iter().fold(String::with_capacity(256), |mut output, p| {
-                let _ = writeln!(output, "{indent}{p}");
-                output
-            })
+            self.posts
+                .iter()
+                .fold(String::with_capacity(256), |mut output, p| {
+                    let _ = writeln!(output, "{indent}{p}");
+                    output
+                })
         )
     }
 }
@@ -85,11 +87,20 @@ mod tests {
     use super::*;
     use indoc::indoc;
     use rust_decimal::Decimal;
+    use std::rc::Rc;
     use tackler_rs::IndocUtils;
     use time::macros::datetime;
 
-    use crate::model::{AccountTreeNode, Posting};
+    use crate::model::TxnAccount;
+    use crate::model::{AccountTreeNode, Commodity, Posting};
     use tackler_api::txn_header::TxnHeader;
+
+    fn atn2txntn(atn: AccountTreeNode) -> TxnAccount {
+        TxnAccount {
+            atn: Rc::new(atn),
+            comm: Rc::new(Commodity::default()),
+        }
+    }
 
     #[test]
     fn txn_to_display() {
@@ -105,34 +116,34 @@ mod tests {
             comments: None,
         };
 
-        let atn_ab = AccountTreeNode::from("a:b".to_string(), None).unwrap(/*:test:*/);
-        let atn_cd = AccountTreeNode::from("c:d".to_string(), None).unwrap(/*:test:*/);
-        let atn_ef = AccountTreeNode::from("e:f".to_string(), None).unwrap(/*:test:*/);
+        let atn_ab = AccountTreeNode::from("a:b").unwrap(/*:test:*/);
+        let atn_cd = AccountTreeNode::from("c:d").unwrap(/*:test:*/);
+        let atn_ef = AccountTreeNode::from("e:f").unwrap(/*:test:*/);
 
         let ef_post = Posting::from(
-            atn_ef,
+            atn2txntn(atn_ef),
             Decimal::from_str_exact("1").unwrap(/*:test:*/),
             Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
-            None,
+            Rc::new(Commodity::default()),
             None,
         )
         .unwrap(/*:test:*/);
         let cd_post = Posting::from(
-            atn_cd,
+            atn2txntn(atn_cd),
             Decimal::from_str_exact("2").unwrap(/*:test:*/),
             Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
-            None,
+            Rc::new(Commodity::default()),
             None,
         )
         .unwrap(/*:test:*/);
         let ab_post = Posting::from(
-            atn_ab,
+            atn2txntn(atn_ab),
             Decimal::from_str_exact("-3").unwrap(/*:test:*/),
             Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
-            None,
+            Rc::new(Commodity::default()),
             None,
         )
         .unwrap(/*:test:*/);

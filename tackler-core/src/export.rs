@@ -30,7 +30,7 @@ mod identity_exporter;
 pub trait Export {
     fn write_export<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         w: &mut W,
         txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>>;

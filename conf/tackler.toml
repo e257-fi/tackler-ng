@@ -1,0 +1,53 @@
+[kernel]
+strict = true
+
+[kernel.timestamp]
+default-time = 00:00:00
+
+[kernel.timestamp.timezone]
+name = "Europe/Helsinki"
+#offset = "-07:00"
+
+[kernel.audit]
+hash = "sha-256"
+mode = true
+
+[kernel.input]
+storage = "fs"
+
+[kernel.input.fs]
+dir = "txns"
+glob = "**.txn"
+
+[kernel.input.git]
+repository = "tackler-data.git"
+ref = "main"
+dir = "txns"
+suffix = ".txn"
+
+[transaction.accounts]
+file = "accounts.toml"
+
+[transaction.commodities]
+file = "commodities.toml"
+
+[transaction.tags]
+file = "tags.toml"
+
+[report]
+report-timezone = "Europe/Helsinki"
+types = [ "balance", "balance-group", "register", "equity", "identity" ]
+formats = [ "txt", "json" ]
+accounts = [ ]
+
+[report.scale]
+min = 2
+max = 7
+
+[reports.balance]
+title = "BALANCE"
+accounts = [ "" ]
+
+[reports.balance.scale]
+min = 2
+max = 7

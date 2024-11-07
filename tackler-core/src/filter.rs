@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,9 +65,12 @@ impl Predicate<Transaction> for TxnFilter {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::kernel::Predicate;
+    use crate::model::TxnAccount;
     use crate::model::{AccountTreeNode, Commodity, Posting};
     use rust_decimal::Decimal;
+    use std::rc::Rc;
     use tackler_api::filters::{
         logic::TxnFilterAND, logic::TxnFilterNOT, logic::TxnFilterOR, NullaryFALSE, NullaryTRUE,
         TxnFilter,
@@ -76,8 +79,6 @@ mod tests {
     use tackler_api::txn_header::TxnHeader;
     use time::{OffsetDateTime, PrimitiveDateTime};
     use uuid::Uuid;
-
-    use super::*;
 
     pub(crate) fn make_ts_txn(ts: OffsetDateTime) -> Transaction {
         Transaction {
@@ -195,12 +196,21 @@ mod tests {
 
     pub(crate) fn make_posts_txn(e: &str, e_value: i64, a: &str) -> Transaction {
         let e_v = Decimal::new(e_value, 0);
-        let e_acctn = AccountTreeNode::from(e.to_string(), None).unwrap(/*:test:*/);
-        let e_p = Posting::from(e_acctn, e_v, e_v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
+        let e_acctn = Rc::new(AccountTreeNode::from(e).unwrap(/*:test:*/));
+        let e_txntn = TxnAccount {
+            atn: e_acctn,
+            comm: Rc::new(Commodity::default()),
+        };
+
+        let e_p = Posting::from(e_txntn, e_v, e_v, false, Rc::new(Commodity::default()), Some("comment".to_string())).unwrap(/*:test:*/);
 
         let a_v = Decimal::new(-e_value, 0);
-        let a_acctn = AccountTreeNode::from(a.to_string(), None).unwrap(/*:test:*/);
-        let a_p = Posting::from(a_acctn, a_v, a_v, false, None, Some("comment".to_string())).unwrap(/*:test:*/);
+        let a_acctn = Rc::new(AccountTreeNode::from(a).unwrap(/*:test:*/));
+        let a_txntn = TxnAccount {
+            atn: a_acctn,
+            comm: Rc::new(Commodity::default()),
+        };
+        let a_p = Posting::from(a_txntn, a_v, a_v, false, Rc::new(Commodity::default()), Some("comment".to_string())).unwrap(/*:test:*/);
 
         Transaction::from(
             TxnHeader {
@@ -223,14 +233,21 @@ mod tests {
         a_value: i64,
         e: &str,
     ) -> Transaction {
-        fn make_commodity(c: Option<&str>) -> Option<Commodity> {
-            c.map(|c| Commodity::from(c.to_string()).unwrap(/*:test:*/))
+        fn make_commodity(c: Option<&str>) -> Rc<Commodity> {
+            match c {
+                Some(name) => Rc::new(Commodity::from(name.to_string()).unwrap(/*:test:*/)),
+                None => Rc::new(Commodity::default()),
+            }
         }
 
         let e_v = Decimal::new(a_value, 0);
-        let e_acctn = AccountTreeNode::from(e.to_string(), make_commodity(c)).unwrap(/*:test:*/);
+        let e_acctn = Rc::new(AccountTreeNode::from(e).unwrap(/*:test:*/));
+        let e_txntn = TxnAccount {
+            atn: e_acctn,
+            comm: make_commodity(c),
+        };
         let e_p = Posting::from(
-            e_acctn,
+            e_txntn,
             e_v,
             e_v,
             false,
@@ -240,9 +257,13 @@ mod tests {
         .unwrap(/*:test:*/);
 
         let a_v = Decimal::new(-a_value, 0);
-        let a_acctn = AccountTreeNode::from(a.to_string(), make_commodity(c)).unwrap(/*:test:*/);
+        let a_acctn = Rc::new(AccountTreeNode::from(a).unwrap(/*:test:*/));
+        let a_txntn = TxnAccount {
+            atn: a_acctn,
+            comm: make_commodity(c),
+        };
         let a_p = Posting::from(
-            a_acctn,
+            a_txntn,
             a_v,
             a_v,
             false,

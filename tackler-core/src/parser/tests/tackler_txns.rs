@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2023 E257.FI
+ * Copyright 2016-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ use tackler_rs::IndocUtils;
       let mut count = 0;
       let should_be_count = txns_str.len();
       for t in txns_str {
-        let res = parser::string_to_txns(&t.0, &Settings::default());
+        let res = parser::string_to_txns(&t.0, &mut Settings::default());
         assert!(res.is_err(),
                 "Testing Error: Offending test vector item: {}", count);
         assert!(res.err().unwrap(/*:test:*/).to_string().contains(t.1),
@@ -77,7 +77,7 @@ use tackler_rs::IndocUtils;
           |
           |").strip_margin();
 
-      let res = parser::string_to_txns(&txns_str, &Settings::default());
+      let res = parser::string_to_txns(&txns_str, &mut Settings::default());
       assert!(res.is_ok());
       let txn_data = &res.unwrap(/*:test:*/);
       assert_eq!(txn_data.len(), 3);

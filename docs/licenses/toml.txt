@@ -1,0 +1,4 @@
+name: toml
+url: https://github.com/toml-rs/toml/tree/main/crates/toml
+license-url: https://github.com/toml-rs/toml/blob/main/crates/toml/LICENSE-MIT
+SPDX-License-Identifier: Apache-2.0 OR MIT

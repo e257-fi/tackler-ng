@@ -33,6 +33,7 @@ tackler-core = { path = "../tackler-core", version = "0.4.0-dev" }
 log = { workspace = true }
 clap = { version = "4.5.20", features = [ "derive" ] }
 time-tz = { workspace = true }
+toml = "0.8.19"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 tikv-jemallocator = { workspace = true }

@@ -68,13 +68,13 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
 impl Report for RegisterReporter<'_> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         writer: &mut W,
         txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let empty = String::default();
 
-        writeln!(writer, "{}", "-".repeat(82))?;
+        writeln!(writer, "{}", "*".repeat(82))?;
         if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
@@ -89,7 +89,7 @@ impl Report for RegisterReporter<'_> {
         let ras = self.get_acc_selector()?;
 
         accumulator::register_engine(&txns.txns, ras.as_ref(), writer, reg_entry_txt_writer)?;
-        writeln!(writer, "{}", "=".repeat(82))?;
+        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }

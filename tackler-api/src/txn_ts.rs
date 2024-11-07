@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 E257.FI
+ * Copyright 2023-2024 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -510,7 +510,7 @@ mod tests {
     use time_tz::timezones;
 
     fn txt2ts(txt_ts: &str) -> OffsetDateTime {
-        OffsetDateTime::parse(txt_ts, &Rfc3339).unwrap(/*:test*/)
+        OffsetDateTime::parse(txt_ts, &Rfc3339).unwrap(/*:test:*/)
     }
 
     #[test]
@@ -865,8 +865,8 @@ mod tests {
 
     #[test]
     fn test_zoned_seconds() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(
@@ -900,8 +900,8 @@ mod tests {
 
     #[test]
     fn test_zoned_full() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(
@@ -935,8 +935,8 @@ mod tests {
 
     #[test]
     fn test_zoned_date() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(
@@ -965,8 +965,8 @@ mod tests {
 
     #[test]
     fn test_zoned_month() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(
@@ -995,8 +995,8 @@ mod tests {
 
     #[test]
     fn test_zoned_year() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(
@@ -1015,8 +1015,8 @@ mod tests {
 
     #[test]
     fn test_zoned_week() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(
@@ -1057,8 +1057,8 @@ mod tests {
 
     #[test]
     fn test_zoned_week_date() {
-        let utc_tz = timezones::get_by_name("UTC").unwrap();
-        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap();
+        let utc_tz = timezones::get_by_name("UTC").unwrap(/*:test:*/);
+        let helsinki_tz = timezones::get_by_name("Europe/Helsinki").unwrap(/*:test:*/);
 
         // standard time
         assert_eq!(

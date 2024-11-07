@@ -25,7 +25,6 @@ use tackler_api::filters::FilterDefinition;
 use tackler_api::metadata::items::{MetadataItem, TxnFilterDescription, TxnSetChecksum};
 use tackler_api::metadata::{Checksum, Metadata};
 
-#[derive(Debug)]
 pub struct TxnData {
     metadata: Option<Metadata>,
     txns: Txns,

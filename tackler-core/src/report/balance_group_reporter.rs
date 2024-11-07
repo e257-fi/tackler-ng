@@ -69,10 +69,10 @@ impl<'a> BalanceGroupReporter<'a> {
     }
 }
 
-impl<'a> Report for BalanceGroupReporter<'a> {
+impl Report for BalanceGroupReporter<'_> {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &Settings,
+        cfg: &mut Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
@@ -80,9 +80,9 @@ impl<'a> Report for BalanceGroupReporter<'a> {
 
         let group_by_op = self.get_group_by_op();
         let bal_groups =
-            accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref());
+            accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref(), cfg);
 
-        writeln!(writer, "{}", "-".repeat(82))?;
+        writeln!(writer, "{}", "*".repeat(82))?;
         if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
@@ -99,7 +99,7 @@ impl<'a> Report for BalanceGroupReporter<'a> {
         for bal in &bal_groups {
             BalanceReporter::txt_report(writer, bal)?
         }
-        writeln!(writer, "{}", "-".repeat(82))?;
+        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }
