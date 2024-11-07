@@ -1,0 +1,4 @@
+name: sha3
+url: https://github.com/RustCrypto/hashes
+license-url: None
+SPDX-License-Identifier: Apache-2.0 OR MIT
