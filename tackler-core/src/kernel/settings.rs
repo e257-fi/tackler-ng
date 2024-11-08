@@ -14,16 +14,41 @@
  * limitations under the License.
  *
  */
+use crate::kernel;
 use crate::kernel::config::{Config, Kernel, Report};
 use crate::kernel::hash::Hash;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
+use crate::parser::GitInputSelector;
 use std::collections::HashMap;
 use std::error::Error;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use tackler_api::txn_header::Tag;
 use time::{format_description, Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
 use time_tz::{timezones, OffsetResult, PrimitiveDateTimeExt, Tz};
+
+pub struct GitInput {
+    pub repo: PathBuf,
+    pub dir: String,
+    pub git_ref: GitInputSelector,
+    pub ext: String,
+}
+
+pub struct FileInput {
+    pub path: PathBuf,
+}
+
+pub struct FsInput {
+    pub dir: PathBuf,
+    pub glob: String,
+}
+
+pub enum Input {
+    File(FileInput),
+    Fs(FsInput),
+    Git(GitInput),
+}
 
 #[derive(Clone, Default)]
 pub struct AuditSettings {
@@ -305,6 +330,46 @@ impl Settings {
                     Ok(tag)
                 }
             }
+        }
+    }
+
+    pub fn get_input(
+        &self,
+        storage: Option<&String>,
+        ref_path: Option<&Path>,
+    ) -> Result<Input, Box<dyn Error>> {
+        let input = self.kernel.input.clone();
+        let storage = match storage {
+            Some(storage) => storage,
+            None => &input.storage,
+        };
+        match storage.as_str() {
+            kernel::config::Input::STORAGE_FS => match &input.fs {
+                Some(fs) => {
+                    let i = FsInput {
+                        dir: tackler_rs::get_abs_path(ref_path.unwrap(), fs.dir.as_str())?, // todo:
+                        glob: fs.glob.clone(),
+                    };
+                    Ok(Input::Fs(i))
+                }
+                None => Err("conf error: fs".into()),
+            },
+            kernel::config::Input::STORAGE_GIT => match &input.git {
+                Some(ref git) => {
+                    let i = GitInput {
+                        repo: tackler_rs::get_abs_path(
+                            ref_path.unwrap(), // todo:
+                            git.repo.as_str(),
+                        )?,
+                        git_ref: GitInputSelector::Reference(git.git_ref.clone()),
+                        dir: git.dir.clone(),
+                        ext: git.suffix.clone(),
+                    };
+                    Ok(Input::Git(i))
+                }
+                None => Err("conf error: git".into()),
+            },
+            _ => Err("conf error: fs".into()),
         }
     }
 }

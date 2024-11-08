@@ -4,7 +4,7 @@
 strict = false
 
 [kernel.timestamp]
-default-time = 12:12:12
+default-time = 12:13:14
 
 [kernel.timestamp.timezone]
 name = "Europe/Helsinki"
@@ -13,6 +13,13 @@ name = "Europe/Helsinki"
 [kernel.audit]
 hash = "SHA-256"
 mode = false
+
+[kernel.input]
+#storage = "fs"
+storage = "git"
+fs = { dir = "../suite/parser/ok/txns", glob = "txn" }
+git = { repo = "../suite/audit/audit-repo.git", ref = "txns-1E2", dir = "txns", suffix = "txn" }
+
 
 [transaction.accounts]
 file = "accounts.toml"

@@ -15,17 +15,16 @@
  *
  */
 use clap::builder::PossibleValue;
-use clap::{ArgGroup, Parser};
+use clap::Parser;
+use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
+use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, Input};
+use tackler_core::kernel::{config, Settings};
+use tackler_core::parser::GitInputSelector;
 
 #[derive(Parser)]
 #[command(author, version=env!("VERSION"), about, long_about = None)]
-#[command(group(
-            ArgGroup::new("input")
-                .required(true)
-                .args(["input_filename", "input_fs_dir", "input_git_repo"]),
-        ))]
 pub(crate) struct Cli {
     #[arg(long = "config", value_name = "config file path")]
     pub(crate) conf_path: Option<PathBuf>,
@@ -49,6 +48,18 @@ pub(crate) struct Cli {
     )]
     pub(crate) input_filename: Option<PathBuf>,
 
+    ///
+    /// Selects used transaction storage
+    ///
+    #[arg(long="input.storage",
+        value_name = "storage type",
+        value_parser([
+            PossibleValue::new(config::Input::STORAGE_FS),
+            PossibleValue::new(config::Input::STORAGE_GIT),
+        ])
+    )]
+    pub(crate) input_storage: Option<String>,
+
     /// Filsystem path to txn directory (tree)
     #[arg(long="input.fs.dir",
         value_name = "txn dir path",
@@ -61,7 +72,11 @@ pub(crate) struct Cli {
     pub(crate) input_fs_dir: Option<PathBuf>,
 
     /// Txn file extension
-    #[arg(long = "input.fs.ext", value_name = "txn file extension")]
+    #[arg(
+        long = "input.fs.ext",
+        value_name = "txn file extension",
+        requires("input_fs_dir")
+    )]
     pub(crate) input_fs_ext: Option<String>,
 
     /// Path to git repository
@@ -162,6 +177,35 @@ pub(crate) struct Cli {
     /// "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K"
     #[arg(long = "api-filter-def", value_name = "filter def in json")]
     pub(crate) api_filter_def: Option<String>,
+}
+
+impl Cli {
+    pub fn get_input_type(&self, settings: &Settings) -> Result<Input, Box<dyn Error>> {
+        if let Some(filename) = &self.input_filename {
+            let i = FileInput {
+                path: filename.clone(),
+            };
+            Ok(Input::File(i))
+        } else if self.input_fs_dir.is_some() {
+            let i = FsInput {
+                dir: self.input_fs_dir.clone().unwrap(/*:ok: clap */),
+                glob: self.input_fs_ext.clone().unwrap(/*:ok: clap */),
+            };
+            Ok(Input::Fs(i))
+        } else if self.input_git_repo.is_some() {
+            let i = GitInput {
+                repo: self.input_git_repo.clone().unwrap(/*:ok: clap */),
+                git_ref: GitInputSelector::Reference(
+                    self.input_git_ref.clone().unwrap(/*:ok: clap */),
+                ),
+                dir: self.input_git_dir.clone().unwrap(/*:ok: clap */).clone(),
+                ext: String::from("txn"),
+            };
+            Ok(Input::Git(i))
+        } else {
+            settings.get_input(self.input_storage.as_ref(), self.conf_path.as_deref())
+        }
+    }
 }
 
 #[cfg(test)]

@@ -62,6 +62,7 @@ pub struct Kernel {
     pub(crate) strict: bool,
     pub(crate) timestamp: Timestamp,
     pub(crate) audit: Option<Audit>,
+    pub input: Input,
 }
 
 #[allow(dead_code)]
@@ -150,6 +151,37 @@ struct TagsRaw {
 pub struct Tags {
     #[serde(rename = "tags")]
     pub(crate) names: Vec<String>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct Input {
+    pub storage: String,
+    pub fs: Option<FS>,
+    pub git: Option<Git>,
+}
+
+#[rustfmt::skip]
+impl Input {
+    pub const STORAGE_FS:  &'static str = "fs";
+    pub const STORAGE_GIT: &'static str = "git";
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct FS {
+    pub dir: String,
+    pub glob: String,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct Git {
+    pub repo: String,
+    #[serde(rename = "ref")]
+    pub git_ref: String,
+    pub dir: String,
+    pub suffix: String,
 }
 
 #[derive(Debug)]
