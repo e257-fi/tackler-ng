@@ -43,6 +43,10 @@ pub enum MetadataItem {
     TxnFilterDescription(TxnFilterDescription),
 }
 
+impl MetadataItem {
+    pub const ITEM_PAD: usize = 15;
+}
+
 impl Text for MetadataItem {
     fn text(&self) -> Vec<String> {
         match self {
@@ -65,7 +69,7 @@ pub struct TxnSetChecksum {
 impl Text for TxnSetChecksum {
     fn text(&self) -> Vec<String> {
         // echo -n "SHA-512/256" | wc -c => 11
-        let pad = 15;
+        let pad = MetadataItem::ITEM_PAD;
         vec![
             format!("Txn Set Checksum"),
             format!("{:>pad$} : {}", self.hash.algorithm, &self.hash.value),
@@ -83,7 +87,7 @@ pub struct AccountSelectorChecksum {
 impl Text for AccountSelectorChecksum {
     fn text(&self) -> Vec<String> {
         // echo -n "SHA-512/256" | wc -c => 11
-        let pad = 15;
+        let pad = MetadataItem::ITEM_PAD;
         vec![
             format!("Account Selector Checksum"),
             format!("{:>pad$} : {}", self.hash.algorithm, &self.hash.value),
@@ -91,6 +95,21 @@ impl Text for AccountSelectorChecksum {
     }
 }
 
+/// Report timezone item
+#[derive(Debug, Clone)]
+pub struct ReportTimezone {
+    /// Timezone name
+    pub timezone: String,
+}
+impl Text for ReportTimezone {
+    fn text(&self) -> Vec<String> {
+        let pad = MetadataItem::ITEM_PAD;
+        vec![
+            "Report timezone".to_string(),
+            format!("{:>pad$} : {}", "TZ name", &self.timezone),
+        ]
+    }
+}
 /// Metadata information about active Txn Filters
 ///
 #[derive(Debug, Clone)]
@@ -141,7 +160,7 @@ impl Text for GitInputReference {
        )
     */
     fn text(&self) -> Vec<String> {
-        let pad = 15;
+        let pad = MetadataItem::ITEM_PAD;
         vec![
             format!("Git Storage"),
             format!("{:>pad$} : {}", "commit", self.commit),

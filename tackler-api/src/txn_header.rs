@@ -19,11 +19,13 @@
 //!
 use std::cmp::Ordering;
 use std::fmt::Write;
+use std::rc::Rc;
 use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
+use time_tz::Tz;
 use uuid::Uuid;
 
 /// Collection of Txn Tags
-pub type Tags = Vec<String>;
+pub type Tags = Vec<Rc<String>>;
 
 /// Single Txn Tag
 pub type Tag = String;
@@ -69,7 +71,15 @@ impl Default for TxnHeader {
 
 impl TxnHeader {
     fn t_to_s(tags: &Tags) -> String {
-        tags.join(", ")
+        let t = tags.iter().fold((0, String::new()), |mut tags, t| {
+            if tags.0 == 0 {
+                let _ = write!(tags.1, "{t}");
+            } else {
+                let _ = write!(tags.1, ", {t}");
+            }
+            (tags.0 + 1, tags.1)
+        });
+        t.1
     }
     /// Get Tags as string.
     ///
@@ -149,12 +159,13 @@ impl TxnHeader {
     pub fn to_string_with_indent(
         &self,
         indent: &str,
-        ts_formatter: fn(OffsetDateTime) -> String,
+        ts_formatter: fn(OffsetDateTime, &'static Tz) -> String,
+        tz: &'static Tz,
     ) -> String {
         format!(
             "{}{}{}\n{}{}{}{}",
             // txn header line: ts, code, desc
-            ts_formatter(self.timestamp),
+            ts_formatter(self.timestamp, tz),
             self.code
                 .as_ref()
                 .map_or_else(String::new, |c| format!(" ({c})")),
@@ -207,10 +218,10 @@ mod tests {
         let geo = GeoPoint::from(60.167, 24.955, Some(5.0)).unwrap(/*:test:*/);
 
         let txn_tags = vec![
-            "a".to_string(),
-            "b".to_string(),
-            "c".to_string(),
-            "a:b:c".to_string(),
+            Rc::new("a".to_string()),
+            Rc::new("b".to_string()),
+            Rc::new("c".to_string()),
+            Rc::new("a:b:c".to_string()),
         ];
         let comments = vec![
             "z 1st line".to_string(),
@@ -380,7 +391,8 @@ mod tests {
         let mut count = 0;
         let should_be_count = tests.len();
         for t in tests {
-            let txn_hdr_str = t.0.to_string_with_indent("   ", txn_ts::rfc_3339);
+            let txn_hdr_str =
+                t.0.to_string_with_indent("   ", |ts, _tz| txn_ts::rfc_3339(ts), txn_ts::TZ_UTC);
             assert_eq!(txn_hdr_str, t.1);
             count += 1;
         }

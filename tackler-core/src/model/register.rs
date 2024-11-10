@@ -20,6 +20,8 @@ use rust_decimal::Decimal;
 use std::cmp::{max, Ordering};
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_ts;
+use time::OffsetDateTime;
+use time_tz::Tz;
 
 #[derive(Debug, Clone)]
 pub struct RegisterPosting<'a> {
@@ -63,18 +65,17 @@ pub(crate) struct RegisterEntry<'a> {
     pub posts: Vec<RegisterPosting<'a>>,
 }
 
-impl<'a> Display for RegisterEntry<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl<'a> RegisterEntry<'a> {
+    pub fn fmt_with_tz(
+        &self,
+        ts_fmtr: fn(OffsetDateTime, &'static Tz) -> String,
+        tz: &'static Tz,
+    ) -> String {
         let indent = " ".repeat(12);
         let mut line_len = 0;
 
-        write!(
-            f,
-            "{}",
-            self.txn
-                .header
-                .to_string_with_indent(&indent, txn_ts::rfc_3339)
-        )?;
+        let mut s = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
+
         for p in &self.posts {
             let comm = &p.post.acctn.comm;
 
@@ -91,8 +92,18 @@ impl<'a> Display for RegisterEntry<'a> {
                 prec = 2,
             );
             line_len = max(line_len, line.len());
-            writeln!(f, "{line}")?;
+            s += &line;
+            s += "\n";
         }
-        writeln!(f, "{}", "-".repeat(line_len))
+        format!("{s}\n{}\n", "-".repeat(line_len))
+    }
+}
+impl<'a> Display for RegisterEntry<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            self.fmt_with_tz(|ts, _tz| { txn_ts::rfc_3339(ts) }, txn_ts::TZ_UTC)
+        )
     }
 }

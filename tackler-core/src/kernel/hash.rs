@@ -17,7 +17,7 @@
 
 use digest::DynDigest;
 use std::error::Error;
-use std::fmt::Write;
+use std::fmt::{Debug, Formatter, Write};
 use tackler_api::metadata::Checksum;
 
 #[derive(Clone)]
@@ -32,6 +32,12 @@ impl Default for Hash {
             hash_algo: "SHA-256".to_string(),
             hasher: Box::new(sha2::Sha256::default()),
         }
+    }
+}
+
+impl Debug for Hash {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "hash: {:?}", self.hash_algo)
     }
 }
 
@@ -147,8 +153,10 @@ mod tests {
         let hash = Hash::from("foo");
 
         assert!(hash.is_err());
-        assert_eq!(hash.err().unwrap(/*:test:*/).to_string(),
-                   "Unsupported hash algorithm: 'foo'".to_string());
+        assert_eq!(
+            hash.err().unwrap(/*:test:*/).to_string(),
+            "Unsupported hash algorithm: 'foo'".to_string()
+        );
     }
 
     //

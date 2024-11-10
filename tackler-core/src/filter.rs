@@ -171,7 +171,7 @@ mod tests {
                 description: None,
                 uuid: None,
                 location: None,
-                tags: tags.map(|tags| tags.iter().map(|t| str::to_string(*t)).collect()),
+                tags: tags.map(|tags| tags.iter().map(|t| Rc::new(str::to_string(*t))).collect()),
                 comments: None,
             },
             posts: vec![],

@@ -24,9 +24,11 @@ use rust_decimal::Decimal;
 use std::collections::HashMap;
 use std::error::Error;
 use std::io;
+use tackler_api::txn_ts::TimestampStyle;
+use time_tz::Tz;
 
 pub(crate) type RegisterReporterFn<W> =
-    fn(writer: &mut W, &RegisterEntry) -> Result<(), Box<dyn Error>>;
+    fn(writer: &mut W, &RegisterEntry, TimestampStyle, &'static Tz) -> Result<(), Box<dyn Error>>;
 
 pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
@@ -62,6 +64,8 @@ where
 pub(crate) fn register_engine<'a, W, T>(
     txns: &'a TxnRefs,
     ras: &T,
+    ts_style: TimestampStyle,
+    report_tz: &'static Tz,
     w: &mut W,
     reporter: RegisterReporterFn<W>,
 ) -> Result<(), Box<dyn Error>>
@@ -102,7 +106,7 @@ where
             txn,
             posts: filt_postings,
         };
-        reporter(w, &register_entry)?;
+        reporter(w, &register_entry, ts_style, report_tz)?;
     }
     Ok(())
 }

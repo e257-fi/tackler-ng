@@ -109,15 +109,6 @@ pub(crate) struct Cli {
     )]
     pub(crate) input_git_dir: Option<String>,
 
-    /// Report's Timezone [UTC, Europe/Helsinki, America/New_York, ...]
-    #[arg(
-        long = "report-tz",
-        value_name = "timezone name",
-        num_args(1),
-        default_value = "UTC"
-    )]
-    pub(crate) report_tz: Option<String>,
-
     /// Account selectors for reports and exports
     ///
     /// List of regex patterns for account names. For full match, use anchors ('^...$').

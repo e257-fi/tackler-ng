@@ -1,0 +1,17 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
+#
+# This is the Chart of Commodities (and Shares)
+#
+
+permit-empty-commodity = true
+#permit-empty-commodity = false
+
+commodities = [
+    "€",
+    "$",
+    "¥",
+    "EUR",
+    "USD",
+    "He·bar",
+    "O2·bar"
+]

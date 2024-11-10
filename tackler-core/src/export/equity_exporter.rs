@@ -161,7 +161,8 @@ impl Export for EquityExporter<'_> {
                             eq_txn.push(format!("{};", eq_txn_indent));
                         }
 
-                        if let Some(asc) = get_account_selector_checksum(cfg, self.export_settings.ras).unwrap() { // todo: unwrap
+                        let v = &self.export_settings.ras.as_ref().unwrap_or(&vec![]).clone();
+                        if let Some(asc) = get_account_selector_checksum(cfg, v).unwrap() { // todo: unwrap
                             for v in asc.text() {
                                 eq_txn.push(format!("{}; {}", eq_txn_indent, &v));
                             }

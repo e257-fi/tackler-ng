@@ -33,7 +33,6 @@ use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_api::txn_ts;
 use tackler_core::kernel::config::Config;
-use time_tz::timezones;
 
 use tackler_core::kernel::settings::Input;
 #[cfg(not(target_env = "msvc"))]
@@ -111,33 +110,23 @@ fn run() -> Result<i32, Box<dyn Error>> {
                 // todo: fix this
                 "balance" => {
                     let bal_reporter = BalanceReporter {
-                        report_settings: BalanceSettings {
-                            title: Some("BALANCE".to_string()),
-                            ras: &settings.report.accounts.clone(),
-                        },
+                        report_settings: BalanceSettings::from(&settings)?,
                     };
                     bal_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }
                 "balance-group" => {
-                    let report_tz = cli.report_tz.clone().unwrap(/*:ok: clap*/);
                     let group_by = cli.group_by.clone().unwrap(/*:ok: clap*/);
                     let bal_group_reporter = BalanceGroupReporter {
-                        report_settings: BalanceGroupSettings {
-                            title: Some("BALANCE GROUP".to_string()), // todo: settings
-                            ras: &settings.report.accounts.clone(),
-                            group_by: txn_ts::GroupBy::from(&group_by)?,
-                            report_tz: timezones::get_by_name(&report_tz)
-                                .ok_or(format!("Can't recognise tz [{report_tz}]"))?,
-                        },
+                        report_settings: BalanceGroupSettings::from(
+                            &settings,
+                            Some(txn_ts::GroupBy::from(group_by.as_str())?),
+                        )?,
                     };
                     bal_group_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }
                 "register" => {
                     let reg_reporter = RegisterReporter {
-                        report_settings: RegisterSettings {
-                            title: Some("REGISTER".to_string()),
-                            ras: &settings.report.accounts.clone(),
-                        },
+                        report_settings: RegisterSettings::from(&settings)?,
                     };
                     reg_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }
@@ -166,7 +155,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
                     let eq_exporter = EquityExporter {
                         export_settings: EquitySettings {
                             eqa: Some(eqa.clone()),
-                            ras: &settings.report.accounts.clone(),
+                            ras: &settings.report.report_acc_sel.clone(),
                         },
                     };
                     eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;

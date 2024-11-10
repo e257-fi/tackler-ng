@@ -24,15 +24,45 @@ use std::error::Error;
 use time::format_description::well_known::Rfc3339;
 use time::macros::format_description;
 use time::{OffsetDateTime, UtcOffset};
-use time_tz::OffsetDateTimeExt;
 use time_tz::Tz;
+use time_tz::{timezones, OffsetDateTimeExt};
+
+/// UTC Timezone
+pub static TZ_UTC: &Tz = timezones::db::etc::UTC;
+
+/// Time stamp style
+#[derive(Debug, Copy, Clone, Default)]
+pub enum TimestampStyle {
+    /// 2024-11-09T14:15:16.123456789 -> 2024-11-09
+    Date,
+    /// 2024-11-09T14:15:16.123456789 -> 2024-11-09 14:15:16
+    Secodns,
+    /// 2024-11-09T14:15:16.123456789 -> 2024-11-09 14:15:16.123456789
+    /// This is the default
+    #[default]
+    Full,
+}
+
+impl TimestampStyle {
+    /// Get Timestamp style by name
+    pub fn from(name: &str) -> Result<Self, Box<dyn Error>> {
+        match name {
+            "date" => Ok(TimestampStyle::Date),
+            "seconds" => Ok(TimestampStyle::Secodns),
+            "full" => Ok(TimestampStyle::Full),
+            _ => Err(format!("Unknown timestamp style {}", name).into()),
+        }
+    }
+}
 
 /// Time granularity selector for GroupBy operations
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, Default)]
 pub enum GroupBy {
     /// Group by year
     Year,
     /// Group by year-month
+    /// This is the default
+    #[default]
     Month,
     /// Group by year-month-day
     Date,
@@ -338,14 +368,14 @@ pub fn utc_iso_week_date(ts: OffsetDateTime) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2022-12-24 12:15:16 +00:00);
-/// assert_eq!(txn_ts::zoned_seconds(ts, new_york_tz), "2022-12-24 07:15:16");
-/// assert_eq!(txn_ts::zoned_seconds(ts, helsinki_tz), "2022-12-24 14:15:16");
+/// assert_eq!(txn_ts::local_seconds(ts, new_york_tz), "2022-12-24 07:15:16");
+/// assert_eq!(txn_ts::local_seconds(ts, helsinki_tz), "2022-12-24 14:15:16");
 ///
 /// let ns = datetime!(2022-06-24 12:15:16.123456789 +00:00);
-/// assert_eq!(txn_ts::zoned_seconds(ns, helsinki_tz), "2022-06-24 15:15:16");
+/// assert_eq!(txn_ts::local_seconds(ns, helsinki_tz), "2022-06-24 15:15:16");
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_seconds(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_seconds(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_seconds(ts.to_timezone(tz))
 }
 
@@ -365,14 +395,14 @@ pub fn zoned_seconds(ts: OffsetDateTime, tz: &Tz) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2022-12-24 12:15:16 +00:00);
-/// assert_eq!(txn_ts::zoned_full(ts, new_york_tz), "2022-12-24 07:15:16.0");
-/// assert_eq!(txn_ts::zoned_full(ts, helsinki_tz), "2022-12-24 14:15:16.0");
+/// assert_eq!(txn_ts::local_full(ts, new_york_tz), "2022-12-24 07:15:16.0");
+/// assert_eq!(txn_ts::local_full(ts, helsinki_tz), "2022-12-24 14:15:16.0");
 ///
 /// let ns = datetime!(2022-06-24 12:15:16.123456789 +00:00);
-/// assert_eq!(txn_ts::zoned_full(ns, helsinki_tz), "2022-06-24 15:15:16.123456789");
+/// assert_eq!(txn_ts::local_full(ns, helsinki_tz), "2022-06-24 15:15:16.123456789");
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_full(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_full(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_full(ts.to_timezone(tz))
 }
 
@@ -392,14 +422,14 @@ pub fn zoned_full(ts: OffsetDateTime, tz: &Tz) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2022-12-23 22:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_date(ts, new_york_tz), "2022-12-23");
-/// assert_eq!(txn_ts::zoned_date(ts, helsinki_tz), "2022-12-24");
+/// assert_eq!(txn_ts::local_date(ts, new_york_tz), "2022-12-23");
+/// assert_eq!(txn_ts::local_date(ts, helsinki_tz), "2022-12-24");
 ///
 /// let ns = datetime!(2022-06-23 21:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_date(ns, helsinki_tz), "2022-06-24");
+/// assert_eq!(txn_ts::local_date(ns, helsinki_tz), "2022-06-24");
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_date(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_date(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_date(ts.to_timezone(tz))
 }
 
@@ -419,14 +449,14 @@ pub fn zoned_date(ts: OffsetDateTime, tz: &Tz) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2022-12-31 22:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_month(ts, new_york_tz), "2022-12");
-/// assert_eq!(txn_ts::zoned_month(ts, helsinki_tz), "2023-01");
+/// assert_eq!(txn_ts::local_month(ts, new_york_tz), "2022-12");
+/// assert_eq!(txn_ts::local_month(ts, helsinki_tz), "2023-01");
 ///
 /// let ns = datetime!(2022-06-30 21:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_month(ns, helsinki_tz), "2022-07");
+/// assert_eq!(txn_ts::local_month(ns, helsinki_tz), "2022-07");
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_month(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_month(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_month(ts.to_timezone(tz))
 }
 
@@ -446,12 +476,12 @@ pub fn zoned_month(ts: OffsetDateTime, tz: &Tz) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2022-12-31 22:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_year(ts, new_york_tz), "2022");
-/// assert_eq!(txn_ts::zoned_year(ts, helsinki_tz), "2023");
+/// assert_eq!(txn_ts::local_year(ts, new_york_tz), "2022");
+/// assert_eq!(txn_ts::local_year(ts, helsinki_tz), "2023");
 ///
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_year(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_year(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_year(ts.to_timezone(tz))
 }
 
@@ -470,12 +500,12 @@ pub fn zoned_year(ts: OffsetDateTime, tz: &Tz) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2010-01-04 00:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_iso_week(ts, new_york_tz), "2009-W53");
-/// assert_eq!(txn_ts::zoned_iso_week(ts, helsinki_tz), "2010-W01");
+/// assert_eq!(txn_ts::local_iso_week(ts, new_york_tz), "2009-W53");
+/// assert_eq!(txn_ts::local_iso_week(ts, helsinki_tz), "2010-W01");
 ///
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_iso_week(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_iso_week(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_week(ts.to_timezone(tz))
 }
 
@@ -494,12 +524,12 @@ pub fn zoned_iso_week(ts: OffsetDateTime, tz: &Tz) -> String {
 /// let helsinki_tz = timezones::get_by_name("Europe/Helsinki").ok_or("tz not found")?;
 ///
 /// let ts = datetime!(2010-01-04 00:00:00 +00:00);
-/// assert_eq!(txn_ts::zoned_iso_week_date(ts, new_york_tz), "2009-W53-7");
-/// assert_eq!(txn_ts::zoned_iso_week_date(ts, helsinki_tz), "2010-W01-1");
+/// assert_eq!(txn_ts::local_iso_week_date(ts, new_york_tz), "2009-W53-7");
+/// assert_eq!(txn_ts::local_iso_week_date(ts, helsinki_tz), "2010-W01-1");
 ///
 /// # Ok::<(), Box<dyn Error>>(())
 /// ```
-pub fn zoned_iso_week_date(ts: OffsetDateTime, tz: &Tz) -> String {
+pub fn local_iso_week_date(ts: OffsetDateTime, tz: &Tz) -> String {
     fmt_week_date(ts.to_timezone(tz))
 }
 
@@ -870,30 +900,30 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_seconds(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
+            local_seconds(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
             "2010-01-02 00:00:00"
         );
         assert_eq!(
-            zoned_seconds(txt2ts("2010-01-02T00:00:00+00:00"), helsinki_tz),
+            local_seconds(txt2ts("2010-01-02T00:00:00+00:00"), helsinki_tz),
             "2010-01-02 02:00:00"
         );
 
         // daylight saving time
         assert_eq!(
-            zoned_seconds(txt2ts("2022-06-24T00:00:00+00:00"), utc_tz),
+            local_seconds(txt2ts("2022-06-24T00:00:00+00:00"), utc_tz),
             "2022-06-24 00:00:00"
         );
         assert_eq!(
-            zoned_seconds(txt2ts("2022-06-24T00:00:00+00:00"), helsinki_tz),
+            local_seconds(txt2ts("2022-06-24T00:00:00+00:00"), helsinki_tz),
             "2022-06-24 03:00:00"
         );
 
         assert_eq!(
-            zoned_seconds(txt2ts("2010-01-02T00:00:00+16:00"), utc_tz),
+            local_seconds(txt2ts("2010-01-02T00:00:00+16:00"), utc_tz),
             "2010-01-01 08:00:00"
         );
         assert_eq!(
-            zoned_seconds(txt2ts("2010-01-02T00:00:00+16:00"), helsinki_tz),
+            local_seconds(txt2ts("2010-01-02T00:00:00+16:00"), helsinki_tz),
             "2010-01-01 10:00:00"
         );
     }
@@ -905,30 +935,30 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_full(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
+            local_full(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
             "2010-01-02 00:00:00.0"
         );
         assert_eq!(
-            zoned_full(txt2ts("2010-01-02T00:00:00+00:00"), helsinki_tz),
+            local_full(txt2ts("2010-01-02T00:00:00+00:00"), helsinki_tz),
             "2010-01-02 02:00:00.0"
         );
 
         // daylight saving time
         assert_eq!(
-            zoned_full(txt2ts("2022-06-24T00:00:00+00:00"), utc_tz),
+            local_full(txt2ts("2022-06-24T00:00:00+00:00"), utc_tz),
             "2022-06-24 00:00:00.0"
         );
         assert_eq!(
-            zoned_full(txt2ts("2022-06-24T00:00:00+00:00"), helsinki_tz),
+            local_full(txt2ts("2022-06-24T00:00:00+00:00"), helsinki_tz),
             "2022-06-24 03:00:00.0"
         );
 
         assert_eq!(
-            zoned_full(txt2ts("2010-01-02T00:00:00.123+16:00"), utc_tz),
+            local_full(txt2ts("2010-01-02T00:00:00.123+16:00"), utc_tz),
             "2010-01-01 08:00:00.123"
         );
         assert_eq!(
-            zoned_full(txt2ts("2010-01-02T00:00:00.123+16:00"), helsinki_tz),
+            local_full(txt2ts("2010-01-02T00:00:00.123+16:00"), helsinki_tz),
             "2010-01-01 10:00:00.123"
         );
     }
@@ -940,25 +970,25 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_date(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
+            local_date(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
             "2010-01-02"
         );
         assert_eq!(
-            zoned_date(txt2ts("2009-12-31T21:59:59.999999999+00:00"), helsinki_tz),
+            local_date(txt2ts("2009-12-31T21:59:59.999999999+00:00"), helsinki_tz),
             "2009-12-31"
         );
         assert_eq!(
-            zoned_date(txt2ts("2009-12-31T22:00:00+00:00"), helsinki_tz),
+            local_date(txt2ts("2009-12-31T22:00:00+00:00"), helsinki_tz),
             "2010-01-01"
         );
 
         // daylight saving time
         assert_eq!(
-            zoned_date(txt2ts("2022-06-24T00:00:00+00:00"), utc_tz),
+            local_date(txt2ts("2022-06-24T00:00:00+00:00"), utc_tz),
             "2022-06-24"
         );
         assert_eq!(
-            zoned_date(txt2ts("2022-06-23T21:00:00+00:00"), helsinki_tz),
+            local_date(txt2ts("2022-06-23T21:00:00+00:00"), helsinki_tz),
             "2022-06-24"
         );
     }
@@ -970,25 +1000,25 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_month(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
+            local_month(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
             "2010-01"
         );
         assert_eq!(
-            zoned_month(txt2ts("2009-12-31T21:59:59.999999999+00:00"), helsinki_tz),
+            local_month(txt2ts("2009-12-31T21:59:59.999999999+00:00"), helsinki_tz),
             "2009-12"
         );
         assert_eq!(
-            zoned_month(txt2ts("2009-12-31T22:00:00+00:00"), helsinki_tz),
+            local_month(txt2ts("2009-12-31T22:00:00+00:00"), helsinki_tz),
             "2010-01"
         );
 
         // daylight saving time
         assert_eq!(
-            zoned_month(txt2ts("2022-06-30T00:00:00+00:00"), utc_tz),
+            local_month(txt2ts("2022-06-30T00:00:00+00:00"), utc_tz),
             "2022-06"
         );
         assert_eq!(
-            zoned_month(txt2ts("2022-06-30T21:00:00+00:00"), helsinki_tz),
+            local_month(txt2ts("2022-06-30T21:00:00+00:00"), helsinki_tz),
             "2022-07"
         );
     }
@@ -1000,15 +1030,15 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_year(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
+            local_year(txt2ts("2010-01-02T00:00:00+00:00"), utc_tz),
             "2010"
         );
         assert_eq!(
-            zoned_year(txt2ts("2009-12-31T21:59:59.999999999+00:00"), helsinki_tz),
+            local_year(txt2ts("2009-12-31T21:59:59.999999999+00:00"), helsinki_tz),
             "2009"
         );
         assert_eq!(
-            zoned_year(txt2ts("2009-12-31T22:00:00+00:00"), helsinki_tz),
+            local_year(txt2ts("2009-12-31T22:00:00+00:00"), helsinki_tz),
             "2010"
         );
     }
@@ -1020,37 +1050,37 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_iso_week(txt2ts("2010-01-03T00:00:00+00:00"), utc_tz),
+            local_iso_week(txt2ts("2010-01-03T00:00:00+00:00"), utc_tz),
             "2009-W53"
         );
         assert_eq!(
-            zoned_iso_week(txt2ts("2010-01-03T21:59:59.999999999+00:00"), helsinki_tz),
+            local_iso_week(txt2ts("2010-01-03T21:59:59.999999999+00:00"), helsinki_tz),
             "2009-W53"
         );
         assert_eq!(
-            zoned_iso_week(txt2ts("2010-01-04T00:00:00+00:00"), utc_tz),
+            local_iso_week(txt2ts("2010-01-04T00:00:00+00:00"), utc_tz),
             "2010-W01"
         );
         assert_eq!(
-            zoned_iso_week(txt2ts("2010-01-03T22:00:00+00:00"), helsinki_tz),
+            local_iso_week(txt2ts("2010-01-03T22:00:00+00:00"), helsinki_tz),
             "2010-W01"
         );
 
         // daylight saving time
         assert_eq!(
-            zoned_iso_week(txt2ts("2022-06-19T23:59:59.999999999+00:00"), utc_tz),
+            local_iso_week(txt2ts("2022-06-19T23:59:59.999999999+00:00"), utc_tz),
             "2022-W24"
         );
         assert_eq!(
-            zoned_iso_week(txt2ts("2022-06-19T20:59:59.999999999+00:00"), helsinki_tz),
+            local_iso_week(txt2ts("2022-06-19T20:59:59.999999999+00:00"), helsinki_tz),
             "2022-W24"
         );
         assert_eq!(
-            zoned_iso_week(txt2ts("2022-06-20T00:00:00+00:00"), utc_tz),
+            local_iso_week(txt2ts("2022-06-20T00:00:00+00:00"), utc_tz),
             "2022-W25"
         );
         assert_eq!(
-            zoned_iso_week(txt2ts("2022-06-19T21:00:00+00:00"), helsinki_tz),
+            local_iso_week(txt2ts("2022-06-19T21:00:00+00:00"), helsinki_tz),
             "2022-W25"
         );
     }
@@ -1062,37 +1092,37 @@ mod tests {
 
         // standard time
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2010-01-03T00:00:00+00:00"), utc_tz),
+            local_iso_week_date(txt2ts("2010-01-03T00:00:00+00:00"), utc_tz),
             "2009-W53-7"
         );
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2010-01-03T21:59:59.999999999+00:00"), helsinki_tz),
+            local_iso_week_date(txt2ts("2010-01-03T21:59:59.999999999+00:00"), helsinki_tz),
             "2009-W53-7"
         );
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2010-01-04T00:00:00+00:00"), utc_tz),
+            local_iso_week_date(txt2ts("2010-01-04T00:00:00+00:00"), utc_tz),
             "2010-W01-1"
         );
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2010-01-03T22:00:00+00:00"), helsinki_tz),
+            local_iso_week_date(txt2ts("2010-01-03T22:00:00+00:00"), helsinki_tz),
             "2010-W01-1"
         );
 
         // daylight saving time
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2022-06-19T23:59:59.999999999+00:00"), utc_tz),
+            local_iso_week_date(txt2ts("2022-06-19T23:59:59.999999999+00:00"), utc_tz),
             "2022-W24-7"
         );
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2022-06-19T20:59:59.999999999+00:00"), helsinki_tz),
+            local_iso_week_date(txt2ts("2022-06-19T20:59:59.999999999+00:00"), helsinki_tz),
             "2022-W24-7"
         );
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2022-06-20T00:00:00+00:00"), utc_tz),
+            local_iso_week_date(txt2ts("2022-06-20T00:00:00+00:00"), utc_tz),
             "2022-W25-1"
         );
         assert_eq!(
-            zoned_iso_week_date(txt2ts("2022-06-19T21:00:00+00:00"), helsinki_tz),
+            local_iso_week_date(txt2ts("2022-06-19T21:00:00+00:00"), helsinki_tz),
             "2022-W25-1"
         );
     }

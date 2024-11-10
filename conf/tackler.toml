@@ -39,15 +39,46 @@ report-timezone = "Europe/Helsinki"
 types = [ "balance", "balance-group", "register", "equity", "identity" ]
 formats = [ "txt", "json" ]
 accounts = [ ]
+###
+### Scale Settings for Reports
+###
+# todo: scale in action
+scale = { min = 2, max = 7 }
 
-[report.scale]
-min = 2
-max = 7
 
-[reports.balance]
-title = "BALANCE"
-accounts = [ "" ]
+###
+### Balance Report
+###
+[report.balance]
+title = "Balance Report"
+accounts = [ ]
 
-[reports.balance.scale]
-min = 2
-max = 7
+###
+### Balance Group Report
+###
+[report.balance-group]
+title = "Balance Group Report"
+### Group by criteria
+###
+### Group by balances based on criteria.
+### Criteria could be:
+###   "year", "month", "date", "iso-week", "iso-week-date"
+group-by = "month"
+accounts = [ ]
+
+###
+### Register Report
+###
+[report.register]
+title = "Register Report"
+### Timestamp style
+###
+### This set how timestamps are displayed with register report
+### See also 'timezone', 'report-timezone' options.
+###
+### Valid values are: date, seconds, full
+###   date:    only date part is displayed (this is default)
+###   seconds: date and time is displayed (up to seconds)
+###   full:    date and time is displayed (up to nanoseconds)
+timestamp-style = "seconds"
+accounts = [ "^e:ey2016" ]

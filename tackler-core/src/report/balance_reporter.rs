@@ -31,41 +31,42 @@ use std::io;
 use tackler_api::metadata::items::Text;
 
 #[derive(Debug, Clone)]
-pub struct BalanceSettings<'a> {
-    pub title: Option<String>,
-    pub ras: &'a Option<Vec<String>>,
+pub struct BalanceSettings {
+    pub title: String,
+    pub ras: Vec<String>,
 }
 
+impl BalanceSettings {
+    pub fn from(settings: &Settings) -> Result<BalanceSettings, Box<dyn Error>> {
+        let bs = BalanceSettings {
+            title: settings.report.balance.title.clone(),
+            ras: settings.get_balance_ras(),
+        };
+        Ok(bs)
+    }
+}
 #[derive(Debug, Clone)]
-pub struct BalanceReporter<'a> {
-    pub report_settings: BalanceSettings<'a>,
+pub struct BalanceReporter {
+    pub report_settings: BalanceSettings,
 }
 
-impl BalanceReporter<'_> {
-    pub(crate) fn acc_selector(
-        ras: &Option<Vec<String>>,
-    ) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        match ras.as_ref() {
-            Some(v) => {
-                if v.is_empty() {
-                    Ok(Box::new(BalanceAllSelector {}))
-                } else {
-                    let s: Vec<_> = v.iter().map(|s| s.as_str()).collect();
-                    let ras = BalanceByAccountSelector::from(&s)?;
-
-                    Ok(Box::new(ras))
-                }
-            }
-            None => Ok(Box::<BalanceAllSelector>::default()),
+impl BalanceReporter {
+    pub(crate) fn acc_selector(ras: &[String]) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+        if ras.is_empty() {
+            Ok(Box::<BalanceAllSelector>::default())
+        } else {
+            let s: Vec<_> = ras.iter().map(|s| s.as_str()).collect();
+            let ras = BalanceByAccountSelector::from(&s)?;
+            Ok(Box::new(ras))
         }
     }
 
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        BalanceReporter::acc_selector(self.report_settings.ras)
+        BalanceReporter::acc_selector(&self.report_settings.ras)
     }
 }
 
-impl BalanceReporter<'_> {
+impl BalanceReporter {
     pub(crate) fn txt_report<W: io::Write + ?Sized>(
         writer: &mut W,
         bal_report: &Balance,
@@ -186,7 +187,7 @@ impl BalanceReporter<'_> {
     }
 }
 
-impl Report for BalanceReporter<'_> {
+impl Report for BalanceReporter {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
         cfg: &mut Settings,
@@ -196,7 +197,7 @@ impl Report for BalanceReporter<'_> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         writeln!(writer, "{}", "*".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
+        if let Some(asc) = get_account_selector_checksum(cfg, &self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
             }
@@ -204,10 +205,7 @@ impl Report for BalanceReporter<'_> {
         writeln!(writer)?;
 
         let bal_report = Balance::from(
-            self.report_settings
-                .title
-                .as_ref()
-                .unwrap_or(&String::default()),
+            &self.report_settings.title,
             txn_data,
             bal_acc_sel.as_ref(),
             cfg,

@@ -1,7 +1,7 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
 [kernel]
-#strict = true
-strict = false
+strict = true
+#strict = false
 
 [kernel.timestamp]
 default-time = 12:13:14
@@ -17,15 +17,68 @@ mode = false
 [kernel.input]
 #storage = "fs"
 storage = "git"
+
 fs = { dir = "../suite/parser/ok/txns", glob = "txn" }
 git = { repo = "../suite/audit/audit-repo.git", ref = "txns-1E2", dir = "txns", suffix = "txn" }
 
 
 [transaction.accounts]
-file = "accounts.toml"
+file = "test-accs.toml"
 
 [transaction.commodities]
-file = "commodities.toml"
+file = "test-comms.toml"
 
 [transaction.tags]
-file = "tags.toml"
+file = "test-tags.toml"
+
+[report]
+report-timezone = "Europe/Helsinki"
+#report-timezone = "UTC"
+#accounts = [ "^a:ay2016" ]
+accounts = [ ]
+
+###
+### Scale Settings for Reports
+###
+# todo: scale in action
+scale = { min = 2, max = 7 }
+
+
+###
+### Balance Report
+###
+[report.balance]
+title = "Balance Report"
+#accounts = [ "^a:ay2016" ]
+accounts = [ ]
+
+###
+### Balance Group Report
+###
+[report.balance-group]
+title = "Balance Group Report"
+### Group by criteria
+###
+### Group by balances based on criteria.
+### Criteria could be:
+###   "year", "month", "date", "iso-week", "iso-week-date"
+group-by = "month"
+accounts = [ ]
+
+###
+### Register Report
+###
+[report.register]
+title = "Register Report"
+### Timestamp style
+###
+### This set how timestamps are displayed with register report
+### See also 'timezone', 'report-timezone' options.
+###
+### Valid values are: date, seconds, full
+###   date:    only date part is displayed (this is default)
+###   seconds: date and time is displayed (up to seconds)
+###   full:    date and time is displayed (up to nanoseconds)
+timestamp-style = "seconds"
+#accounts = [ "^e:ey2016" ]
+accounts = [ ]
