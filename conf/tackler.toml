@@ -42,7 +42,10 @@ accounts = [ ]
 ###
 ### Scale Settings for Reports
 ###
-# todo: scale in action
+### Number of decimals to be printed
+###
+### min can not be negative or bigger than max value
+### max has no effect at the moment
 scale = { min = 2, max = 7 }
 
 

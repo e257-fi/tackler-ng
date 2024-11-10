@@ -85,7 +85,7 @@ impl Config {
                     report_tz: timezones::get_by_name(cfg_raw.report.report_tz.as_str())
                         .ok_or("Timezone err TODO")?,
                     report_acc_sel: cfg_raw.report.accounts.clone(),
-                    scale: cfg_raw.report.scale.clone(),
+                    scale: Scale::from(&cfg_raw.report.scale)?,
                     register: Register::from(&cfg_raw.report.register, &cfg_raw.report)?,
                     balance_group: BalanceGroup::from(
                         &cfg_raw.report.balance_group,
@@ -310,7 +310,7 @@ pub struct ReportRaw {
     #[serde(rename = "report-timezone")]
     pub report_tz: String,
     pub accounts: Option<Vec<String>>,
-    pub scale: Scale,
+    pub scale: ScaleRaw,
     pub register: RegisterRaw,
     #[serde(rename = "balance-group")]
     pub balance_group: BalanceGroupRaw,
@@ -340,10 +340,28 @@ impl Default for Report {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Scale {
-    pub min: u16,
-    pub max: u16,
+    pub min: usize,
+    pub max: usize,
+}
+impl Scale {
+    pub fn from(scale_raw: &ScaleRaw) -> Result<Scale, Box<dyn Error>> {
+        if scale_raw.max < scale_raw.min {
+            let msg = "Scale: 'min' can't be greater than 'max'";
+            return Err(msg.into());
+        }
+        Ok(Scale {
+            min: scale_raw.min,
+            max: scale_raw.max,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ScaleRaw {
+    pub min: usize,
+    pub max: usize,
 }
 
 impl Default for Scale {

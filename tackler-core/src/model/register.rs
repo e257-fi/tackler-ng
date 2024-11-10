@@ -15,6 +15,7 @@
  *
  */
 
+use crate::kernel::config::Scale;
 use crate::model::{Posting, Transaction};
 use rust_decimal::Decimal;
 use std::cmp::{max, Ordering};
@@ -70,6 +71,7 @@ impl<'a> RegisterEntry<'a> {
         &self,
         ts_fmtr: fn(OffsetDateTime, &'static Tz) -> String,
         tz: &'static Tz,
+        scale: &Scale,
     ) -> String {
         let indent = " ".repeat(12);
         let mut line_len = 0;
@@ -89,7 +91,7 @@ impl<'a> RegisterEntry<'a> {
                     true => format!(" {}", comm.name),
                     false => String::new(),
                 },
-                prec = 2,
+                prec = scale.min,
             );
             line_len = max(line_len, line.len());
             s += &line;
@@ -103,7 +105,11 @@ impl<'a> Display for RegisterEntry<'a> {
         write!(
             f,
             "{}",
-            self.fmt_with_tz(|ts, _tz| { txn_ts::rfc_3339(ts) }, txn_ts::TZ_UTC)
+            self.fmt_with_tz(
+                |ts, _tz| { txn_ts::rfc_3339(ts) },
+                txn_ts::TZ_UTC,
+                &Scale::default()
+            )
         )
     }
 }

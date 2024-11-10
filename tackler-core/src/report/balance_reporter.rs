@@ -16,6 +16,7 @@
  */
 
 use crate::kernel::balance::{BTNs, Balance, Deltas};
+use crate::kernel::config::Scale;
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
 };
@@ -32,8 +33,9 @@ use tackler_api::metadata::items::Text;
 
 #[derive(Debug, Clone)]
 pub struct BalanceSettings {
-    pub title: String,
-    pub ras: Vec<String>,
+    pub(crate) title: String,
+    pub(crate) ras: Vec<String>,
+    pub(crate) scale: Scale,
 }
 
 impl BalanceSettings {
@@ -41,6 +43,7 @@ impl BalanceSettings {
         let bs = BalanceSettings {
             title: settings.report.balance.title.clone(),
             ras: settings.get_balance_ras(),
+            scale: settings.report.scale.clone(),
         };
         Ok(bs)
     }
@@ -70,13 +73,13 @@ impl BalanceReporter {
     pub(crate) fn txt_report<W: io::Write + ?Sized>(
         writer: &mut W,
         bal_report: &Balance,
+        bal_settings: &BalanceSettings,
     ) -> Result<(), Box<dyn Error>> {
-        fn get_max_sum_len(bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal) -> usize {
+        let get_max_sum_len = |bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal| -> usize {
             bal.iter()
-                .map(|btn| format!("{:.prec$}", f(btn), prec = 2).len())
+                .map(|btn| format!("{:.prec$}", f(btn), prec = bal_settings.scale.min).len())
                 .fold(0, max)
-        }
-
+        };
         fn get_max_delta_len(deltas: &Deltas) -> usize {
             deltas
                 .iter()
@@ -141,7 +144,7 @@ impl BalanceReporter {
                 writeln!(
                     writer,
                     "{left_ruler}{:>asl$.prec$}{:>width$}{:>atl$.prec$}{}{}",
-                    btn.account_sum,
+                    btn.account_sum.scale(),
                     "",
                     btn.sub_acc_tree_sum,
                     make_commodity_field(comm_max_len, btn),
@@ -149,7 +152,7 @@ impl BalanceReporter {
                     asl = left_sum_len,
                     atl = sub_acc_sum_len,
                     width = filler_field,
-                    prec = 2,
+                    prec = bal_settings.scale.min,
                 )?;
             }
 
@@ -178,7 +181,7 @@ impl BalanceReporter {
                     delta.1,
                     delta.0.as_ref().map_or(&String::default(), |c| &c.name),
                     width = left_sum_len,
-                    prec = 2,
+                    prec = bal_settings.scale.min,
                 )?;
             }
         }
@@ -211,7 +214,7 @@ impl Report for BalanceReporter {
             cfg,
         );
 
-        BalanceReporter::txt_report(writer, &bal_report)?;
+        BalanceReporter::txt_report(writer, &bal_report, &self.report_settings)?;
         writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }

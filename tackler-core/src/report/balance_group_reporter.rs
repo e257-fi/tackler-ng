@@ -17,11 +17,12 @@
 
 use crate::kernel::accumulator;
 use crate::kernel::accumulator::TxnGroupByOp;
+use crate::kernel::config::Scale;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
-use crate::report::BalanceReporter;
 use crate::report::{get_account_selector_checksum, Report};
+use crate::report::{BalanceReporter, BalanceSettings};
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::Text;
@@ -35,6 +36,7 @@ pub struct BalanceGroupSettings {
     pub ras: Vec<String>,
     pub group_by: GroupBy,
     pub report_tz: &'static Tz,
+    pub scale: Scale,
 }
 
 impl BalanceGroupSettings {
@@ -50,6 +52,7 @@ impl BalanceGroupSettings {
                 None => settings.report.balance_group.group_by,
             },
             report_tz: settings.report.report_tz,
+            scale: settings.report.scale.clone(),
         };
         Ok(bgs)
     }
@@ -112,8 +115,13 @@ impl Report for BalanceGroupReporter {
         writeln!(writer, "{}", "-".repeat(title.len()))?;
         writeln!(writer)?;
 
+        let bal_settings = BalanceSettings {
+            title: String::default(),
+            ras: vec![],
+            scale: self.report_settings.scale.clone(),
+        };
         for bal in &bal_groups {
-            BalanceReporter::txt_report(writer, bal)?
+            BalanceReporter::txt_report(writer, bal, &bal_settings)?
         }
         writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())

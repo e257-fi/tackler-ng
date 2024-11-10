@@ -16,6 +16,7 @@
  */
 
 use crate::kernel::accumulator;
+use crate::kernel::config::Scale;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
@@ -36,6 +37,7 @@ pub struct RegisterSettings {
     pub ras: Vec<String>,
     pub report_tz: &'static Tz,
     pub timestamp_style: TimestampStyle,
+    pub(crate) scale: Scale,
 }
 
 impl RegisterSettings {
@@ -45,6 +47,7 @@ impl RegisterSettings {
             ras: settings.get_register_ras(),
             report_tz: settings.report.report_tz,
             timestamp_style: settings.report.register.timestamp_style,
+            scale: settings.report.scale.clone(),
         };
         Ok(rs)
     }
@@ -74,6 +77,7 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     re: &RegisterEntry,
     ts_style: TimestampStyle,
     report_tz: &'static Tz,
+    register_settings: &RegisterSettings,
 ) -> Result<(), Box<dyn Error>> {
     let fmt: fn(OffsetDateTime, &Tz) -> String = match ts_style {
         TimestampStyle::Date => txn_ts::local_date,
@@ -82,7 +86,11 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     };
 
     if !re.posts.is_empty() {
-        write!(f, "{}", re.fmt_with_tz(fmt, report_tz))?;
+        write!(
+            f,
+            "{}",
+            re.fmt_with_tz(fmt, report_tz, &register_settings.scale)
+        )?;
     }
     Ok(())
 }
@@ -121,6 +129,7 @@ impl Report for RegisterReporter {
             self.report_settings.report_tz,
             writer,
             reg_entry_txt_writer,
+            &self.report_settings,
         )?;
         writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())

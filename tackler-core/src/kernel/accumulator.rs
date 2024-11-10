@@ -19,6 +19,7 @@ use crate::kernel::balance::Balance;
 use crate::kernel::report_item_selector::{BalanceSelector, RegisterSelector};
 use crate::kernel::Settings;
 use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs, TxnSet};
+use crate::report::RegisterSettings;
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::HashMap;
@@ -27,8 +28,13 @@ use std::io;
 use tackler_api::txn_ts::TimestampStyle;
 use time_tz::Tz;
 
-pub(crate) type RegisterReporterFn<W> =
-    fn(writer: &mut W, &RegisterEntry, TimestampStyle, &'static Tz) -> Result<(), Box<dyn Error>>;
+pub(crate) type RegisterReporterFn<W> = fn(
+    writer: &mut W,
+    &RegisterEntry,
+    TimestampStyle,
+    &'static Tz,
+    &RegisterSettings,
+) -> Result<(), Box<dyn Error>>;
 
 pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
@@ -68,6 +74,7 @@ pub(crate) fn register_engine<'a, W, T>(
     report_tz: &'static Tz,
     w: &mut W,
     reporter: RegisterReporterFn<W>,
+    register_settings: &RegisterSettings,
 ) -> Result<(), Box<dyn Error>>
 where
     W: io::Write + ?Sized,
@@ -106,7 +113,7 @@ where
             txn,
             posts: filt_postings,
         };
-        reporter(w, &register_entry, ts_style, report_tz)?;
+        reporter(w, &register_entry, ts_style, report_tz, register_settings)?;
     }
     Ok(())
 }
