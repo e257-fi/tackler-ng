@@ -496,7 +496,10 @@ impl Register {
     fn from(reg_raw: &RegisterRaw, report: &ReportRaw) -> Result<Register, Box<dyn Error>> {
         Ok(Register {
             title: reg_raw.title.clone(),
-            timestamp_style: TimestampStyle::from(reg_raw.timestamp_style.as_str())?,
+            timestamp_style: match &reg_raw.timestamp_style {
+                Some(style) => TimestampStyle::from(style.as_str())?,
+                None => TimestampStyle::Date,
+            },
             acc_sel: get_account_selector(&reg_raw.acc_sel, report),
         })
     }

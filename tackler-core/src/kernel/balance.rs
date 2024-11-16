@@ -22,6 +22,7 @@ use crate::model::{BalanceTreeNode, Commodity, TxnAccount, TxnRefs, TxnSet};
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::{HashMap, HashSet};
+use std::error::Error;
 
 pub type Deltas = HashMap<Option<Commodity>, Decimal>;
 pub type BTNs = Vec<BalanceTreeNode>;
@@ -98,13 +99,13 @@ impl Balance {
         my_acctn_sum: &(TxnAccount, Decimal),
         acc_sums: &[(TxnAccount, Decimal)],
         settings: &mut Settings,
-    ) -> Vec<(TxnAccount, Decimal)> {
+    ) -> Result<Vec<(TxnAccount, Decimal)>, Box<dyn Error>> {
         let my_acctn = &my_acctn_sum.0;
         if my_acctn.atn.depth == 1 {
             // we are on top, so either this node (my_acctn) exist already
             // or it has been created by its child;
             // End of recursion
-            vec![my_acctn_sum.clone()]
+            Ok(vec![my_acctn_sum.clone()])
         } else {
             // Not on top => find parent for this node
             let parent = acc_sums
@@ -116,28 +117,30 @@ impl Balance {
 
             if parent.is_empty() {
                 if my_acctn.atn.depth > 2 {
-                    let new_parent_atn = settings.get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone()).unwrap(/*:ok: existing account*/);
+                    let new_parent_atn = settings
+                        .get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone())?;
                     let mut sub_tree = vec![my_acctn_sum.clone()];
                     let mut x = Balance::bubble_up_acctn(
                         &(new_parent_atn, Decimal::ZERO),
                         acc_sums,
                         settings,
-                    );
+                    )?;
                     x.append(&mut sub_tree);
-                    x
+                    Ok(x)
                 } else {
                     // todo: the perfect tree of CoA
                     // This is on depth 2 and it doesn't have parent, => let's create root account
                     // End of Recursion
-                    let new_parent_atn = settings.get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone()).unwrap(/*:ok: existing account*/);
-                    vec![(new_parent_atn, Decimal::ZERO), my_acctn_sum.clone()]
+                    let new_parent_atn = settings
+                        .get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone())?;
+                    Ok(vec![(new_parent_atn, Decimal::ZERO), my_acctn_sum.clone()])
                 }
             } else {
                 // Parent of this exists, just bubble them up together
                 let mut sub_tree = vec![my_acctn_sum.clone()];
-                let mut x = Balance::bubble_up_acctn(parent[0], acc_sums, settings);
+                let mut x = Balance::bubble_up_acctn(parent[0], acc_sums, settings)?;
                 x.append(&mut sub_tree);
-                x
+                Ok(x)
             }
         }
     }
@@ -149,7 +152,10 @@ impl Balance {
     ///
     /// * `txns` sequence of transactions
     /// * `returns` unfiltered sequence of BalanceTreeNodes
-    fn balance(txns: &TxnRefs, settings: &mut Settings) -> Vec<BalanceTreeNode> {
+    fn balance(
+        txns: &TxnRefs,
+        settings: &mut Settings,
+    ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>> {
         // Calculate sum of postings for each account.
         //
         // Input size: is "big",    ~ all transactions
@@ -180,25 +186,35 @@ impl Balance {
         // so the same fork in trunk will be "missing" multiple times.
         //
         //
-        // Input size: is "small",  ~ size of CoA
-        // Output size: is "small", ~ size of CoA
-        let complete_coa_sum_tree = &account_sums
+        // Input size:  "small", e.g. ~ size of CoA
+        // Output size: "small", e.g. ~ size of CoA
+        let complete_coa_sum_tree: &Vec<(TxnAccount, Decimal)> = &account_sums
             .iter()
-            .flat_map(|acc| Balance::bubble_up_acctn(acc, &account_sums, settings))
+            .try_fold(
+                Vec::new(),
+                |mut trees: Vec<Vec<(TxnAccount, Decimal)>>, acc| {
+                    let bua = Balance::bubble_up_acctn(acc, &account_sums, settings)?;
+                    trees.push(bua);
+                    Ok::<Vec<Vec<(TxnAccount, Decimal)>>, Box<dyn Error>>(trees)
+                },
+            )?
+            .iter()
+            .flatten()
+            .cloned()
             .collect::<HashSet<_>>() // make it distinct
             .into_iter()
             .collect::<Vec<(TxnAccount, Decimal)>>();
 
         // Get all root accounts
-        // Input size: is "small",  ~ size of CoA
-        // Output size: is "small", ~ size of CoA
+        // Input size:  "small", e.g. ~ size of CoA
+        // Output size: "small", e.g. ~ size of CoA
         let roots = complete_coa_sum_tree
             .iter()
             .filter(|(acctn, _)| acctn.atn.depth == 1);
 
         // Start from all roots and get all subtree BalanceTreeNodes
-        // Input size: is "small",  ~ size of CoA
-        // Output size: is "small", ~ size of CoA
+        // Input size:  "small", e.g. ~ size of CoA
+        // Output size: "small", e.g. ~ size of CoA
         let mut bal = roots
             .flat_map(|root_acc_sum| {
                 Balance::get_balance_tree_nodes(root_acc_sum, complete_coa_sum_tree)
@@ -206,23 +222,28 @@ impl Balance {
             .collect::<Vec<BalanceTreeNode>>();
 
         bal.sort_by(ord_by_btn);
-        bal
+        Ok(bal)
     }
 
-    pub fn from<T>(title: &str, txn_set: &TxnSet, accounts: &T, settings: &mut Settings) -> Balance
+    pub fn from<T>(
+        title: &str,
+        txn_set: &TxnSet,
+        accounts: &T,
+        settings: &mut Settings,
+    ) -> Result<Balance, Box<dyn Error>>
     where
         T: BalanceSelector + ?Sized,
     {
-        let bal = Balance::balance(&txn_set.txns, settings);
+        let bal = Balance::balance(&txn_set.txns, settings)?;
 
         let filt_bal: Vec<_> = bal.iter().filter(|b| accounts.eval(b)).cloned().collect();
 
         if filt_bal.is_empty() {
-            Balance {
+            Ok(Balance {
                 title: title.to_string(),
                 bal: Default::default(),
                 deltas: Default::default(),
-            }
+            })
         } else {
             let deltas = filt_bal
                 .iter()
@@ -238,11 +259,11 @@ impl Balance {
                 })
                 .collect();
 
-            Balance {
+            Ok(Balance {
                 title: title.to_string(),
                 bal: filt_bal,
                 deltas,
-            }
+            })
         }
     }
 }

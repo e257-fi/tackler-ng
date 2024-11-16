@@ -86,20 +86,15 @@ pub(crate) struct Cli {
     /// This is path to '.git' directory.
     /// Either it is path to '.git' on bare repository, or path to '.git' on working copy
     #[arg(
-        long = "input.git.repo",
-        value_name = "git repo path",
+        long = "input.git.repository",
+        value_name = "git repository path",
         requires("input_git_ref"),
         requires("input_git_dir")
     )]
     pub(crate) input_git_repo: Option<PathBuf>,
 
     /// Git reference name
-    #[arg(
-        long = "input.git.ref",
-        value_name = "git ref",
-        requires("input_git_repo"),
-        requires("input_git_dir")
-    )]
+    #[arg(long = "input.git.ref", value_name = "git ref")]
     pub(crate) input_git_ref: Option<String>,
 
     /// Path prefix inside git repository
@@ -131,7 +126,7 @@ pub(crate) struct Cli {
     pub(crate) reports: Option<Vec<String>>,
 
     /// Group-by -selector for 'balance-group' report
-    #[arg(long = "group-by", value_name = "group-by", num_args(1), default_value = "year",
+    #[arg(long = "group-by", value_name = "group-by", num_args(1),
         value_parser([
             PossibleValue::new(txn_ts::GroupBy::YEAR),
             PossibleValue::new(txn_ts::GroupBy::MONTH),
@@ -184,6 +179,21 @@ impl Cli {
                 ext: String::from("txn"),
             };
             Ok(InputSettings::Git(i))
+        } else if self.input_git_ref.is_some() && self.input_git_repo.is_none() {
+            let input_git_ref = self.input_git_ref.clone().unwrap(/*:ok: clap */);
+            match settings.get_input_settings(
+                Some(&config::StorageType::STORAGE_GIT.to_string()),
+                Some(self.conf_path.as_path()),
+            )? {
+                InputSettings::Git(git) => Ok(InputSettings::Git(GitInput {
+                    git_ref: GitInputSelector::Reference(input_git_ref),
+                    ..git
+                })),
+                _ => {
+                    let msg = "CLI Arg handling: Internal logic error";
+                    Err(msg.into())
+                }
+            }
         } else {
             settings.get_input_settings(self.input_storage.as_ref(), Some(self.conf_path.as_path()))
         }

@@ -56,26 +56,27 @@ pub(super) struct AuditRaw {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct InputRaw {
-    pub storage: String,
-    pub fs: Option<FsRaw>,
-    pub git: Option<GitRaw>,
+pub(super) struct InputRaw {
+    pub(super) storage: String,
+    pub(super) fs: Option<FsRaw>,
+    pub(super) git: Option<GitRaw>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct FsRaw {
-    pub dir: String,
-    pub suffix: String,
+pub(super) struct FsRaw {
+    pub(super) dir: String,
+    pub(super) suffix: String,
 }
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
-pub struct GitRaw {
-    pub repo: String,
+pub(super) struct GitRaw {
+    #[serde(rename = "repository")]
+    pub(super) repo: String,
     #[serde(rename = "ref")]
-    pub git_ref: String,
-    pub dir: String,
-    pub suffix: String,
+    pub(super) git_ref: String,
+    pub(super) dir: String,
+    pub(super) suffix: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -160,7 +161,7 @@ pub(super) struct BalanceGroupRaw {
 pub(super) struct RegisterRaw {
     pub(super) title: String,
     #[serde(rename = "timestamp-style")]
-    pub(super) timestamp_style: String,
+    pub(super) timestamp_style: Option<String>,
     #[serde(rename = "accounts")]
     pub(super) acc_sel: Option<AccountSelectors>,
 }

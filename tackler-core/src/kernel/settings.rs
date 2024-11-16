@@ -334,7 +334,7 @@ impl Settings {
                     };
                     Ok(InputSettings::Git(i))
                 }
-                None => Err("Storage type 'git' is not configure".into()),
+                None => Err("Storage type 'git' is not configured".into()),
             },
         }
     }
