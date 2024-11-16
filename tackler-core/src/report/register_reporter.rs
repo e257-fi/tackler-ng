@@ -80,9 +80,9 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     register_settings: &RegisterSettings,
 ) -> Result<(), Box<dyn Error>> {
     let fmt: fn(OffsetDateTime, &Tz) -> String = match ts_style {
-        TimestampStyle::Date => txn_ts::local_date,
-        TimestampStyle::Secodns => txn_ts::local_seconds,
-        TimestampStyle::Full => txn_ts::local_full,
+        TimestampStyle::Date => txn_ts::as_tz_date,
+        TimestampStyle::Secodns => txn_ts::as_tz_seconds,
+        TimestampStyle::Full => txn_ts::as_tz_full,
     };
 
     if !re.posts.is_empty() {
