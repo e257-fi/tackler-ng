@@ -16,6 +16,7 @@
  */
 #![forbid(unsafe_code)]
 
+pub mod config;
 pub mod export;
 pub mod filter;
 pub mod kernel;

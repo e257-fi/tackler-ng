@@ -18,6 +18,7 @@
 use antlr_rust::parser_rule_context::ParserRuleContext;
 use antlr_rust::token::Token;
 use std::error::Error;
+use std::fmt::Write;
 use std::rc::Rc;
 use std::string::String;
 use time::{OffsetDateTime, PrimitiveDateTime};
@@ -35,6 +36,7 @@ use itertools::Itertools;
 use rust_decimal::Decimal;
 use tackler_api::location::GeoPoint;
 use tackler_api::txn_header::{Tag, Tags, TxnHeader};
+use tackler_api::txn_ts;
 use time::format_description::well_known::Rfc3339;
 use time::macros::format_description;
 
@@ -330,14 +332,6 @@ fn handle_raw_posting(
 ) -> Result<Posting, Box<dyn Error>> {
     let val_pos = handle_value_position(posting_ctx, settings)?;
 
-    /*
-    // todo: check & Error
-    if (settings.Accounts.strict) {
-        checkCommodity(foo._4, postingCtx)
-        checkCommodity(foo._5, postingCtx)
-    }
-    */
-
     let atn = handle_account(
         posting_ctx.account().unwrap(/*:ok: parser */),
         val_pos.3,
@@ -382,8 +376,17 @@ fn handle_txn(
     let location = meta.1;
     let tags = meta.2;
 
-    // todo: check cfg.auditing && Uuid == None => error
-    // "Configuration setting '" + CfgKeys.Auditing.txnSetChecksum + "' is activated and there is txn without UUID."
+    if settings.audit_mode && uuid.is_none() {
+        let mut msg = "Audit mode is activated and there is a txn without UUID".to_string();
+        let _ = write!(msg, "\n   txn date: {}", txn_ts::rfc_3339(date));
+        let _ = write!(
+            msg,
+            "{}",
+            code.map(|c| format!("\n   txn code: {c}"))
+                .unwrap_or_default()
+        );
+        return Err(msg.into());
+    }
 
     let comments = {
         // txnCtx.txn_comment is never null, even when there aren't any comments

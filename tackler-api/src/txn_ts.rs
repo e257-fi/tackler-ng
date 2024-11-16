@@ -37,19 +37,29 @@ pub enum TimestampStyle {
     Date,
     /// 2024-11-09T14:15:16.123456789 -> 2024-11-09 14:15:16
     Secodns,
-    /// 2024-11-09T14:15:16.123456789 -> 2024-11-09 14:15:16.123456789
     /// This is the default
+    ///
+    /// 2024-11-09T14:15:16.123456789 -> 2024-11-09 14:15:16.123456789
     #[default]
     Full,
 }
 
 impl TimestampStyle {
+    /// UI/CFG string for date 'timestamp style' -selector
+    pub const DATE: &'static str = "date";
+
+    /// UI/CFG string for seconds 'timestamp style' -selector
+    pub const SECONDS: &'static str = "seconds";
+
+    /// UI/CFG string for full 'timestamp style' -selector
+    pub const FULL: &'static str = "full";
+
     /// Get Timestamp style by name
     pub fn from(name: &str) -> Result<Self, Box<dyn Error>> {
         match name {
-            "date" => Ok(TimestampStyle::Date),
-            "seconds" => Ok(TimestampStyle::Secodns),
-            "full" => Ok(TimestampStyle::Full),
+            TimestampStyle::DATE => Ok(TimestampStyle::Date),
+            TimestampStyle::SECONDS => Ok(TimestampStyle::Secodns),
+            TimestampStyle::FULL => Ok(TimestampStyle::Full),
             _ => Err(format!("Unknown timestamp style {}", name).into()),
         }
     }

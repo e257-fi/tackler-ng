@@ -15,9 +15,9 @@
  *
  */
 
-use crate::kernel::config::Scale;
+use crate::config::Scale;
 use crate::model::{Posting, Transaction};
-use rust_decimal::Decimal;
+use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::{max, Ordering};
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_ts;
@@ -81,17 +81,22 @@ impl<'a> RegisterEntry<'a> {
         for p in &self.posts {
             let comm = &p.post.acctn.comm;
 
+            let prec_1 = scale.get_precision(&p.post.amount);
+            let prec_2 = scale.get_precision(&p.amount);
+
             let line = format!(
-                "{}{:<33}{:>18.prec$} {:>18.prec$}{}",
+                "{}{:<33}{:>18.prec_1$} {:>18.prec_2$}{}",
                 indent,
                 p.post.acctn.atn.account,
-                p.post.amount,
-                p.amount,
+                p.post
+                    .amount
+                    .round_dp_with_strategy(prec_1 as u32, RoundingStrategy::MidpointAwayFromZero),
+                p.amount
+                    .round_dp_with_strategy(prec_2 as u32, RoundingStrategy::MidpointAwayFromZero),
                 match &comm.is_some() {
                     true => format!(" {}", comm.name),
                     false => String::new(),
                 },
-                prec = scale.min,
             );
             line_len = max(line_len, line.len());
             s += &line;

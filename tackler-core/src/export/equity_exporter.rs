@@ -32,36 +32,42 @@ use time::format_description::well_known::Rfc3339;
 use uuid::Uuid;
 
 #[derive(Debug, Clone)]
-pub struct EquitySettings<'a> {
+pub struct EquitySettings {
     pub eqa: Option<String>,
-    pub ras: &'a Option<Vec<String>>,
+    pub ras: Vec<String>,
+}
+
+impl EquitySettings {
+    pub fn from(settings: &Settings) -> Result<EquitySettings, Box<dyn Error>> {
+        let bs = EquitySettings {
+            eqa: Some(settings.export.equity.equity_account.clone()),
+            ras: settings.get_equity_ras(),
+        };
+        Ok(bs)
+    }
 }
 
 #[derive(Debug, Clone)]
-pub struct EquityExporter<'a> {
-    pub export_settings: EquitySettings<'a>,
+pub struct EquityExporter {
+    pub export_settings: EquitySettings,
 }
 
-impl EquityExporter<'_> {
+impl EquityExporter {
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        match self.export_settings.ras {
-            Some(v) => {
-                if v.is_empty() {
-                    Ok(Box::new(BalanceNonZeroSelector {}))
-                } else {
-                    let s: Vec<_> = v.iter().map(|s| s.as_str()).collect();
-                    let ras = BalanceNonZeroByAccountSelector::from(&s)?;
+        let v = &self.export_settings.ras;
+        if v.is_empty() {
+            Ok(Box::new(BalanceNonZeroSelector {}))
+        } else {
+            let s: Vec<_> = v.iter().map(|s| s.as_str()).collect();
+            let ras = BalanceNonZeroByAccountSelector::from(&s)?;
 
-                    Ok(Box::new(ras))
-                }
-            }
-            None => Ok(Box::<BalanceNonZeroSelector>::default()),
+            Ok(Box::new(ras))
         }
     }
 }
 
-impl Export for EquityExporter<'_> {
-    fn write_export<'a, W: io::Write + ?Sized>(
+impl Export for EquityExporter {
+    fn write_export<W: io::Write + ?Sized>(
         &self,
         cfg: &mut Settings,
         writer: &mut W,
@@ -109,6 +115,8 @@ impl Export for EquityExporter<'_> {
         };
 
         let last_txn = txn_data.txns.last();
+
+        let acc_sel_checksum = get_account_selector_checksum(cfg, &self.export_settings.ras)?;
 
         let equity_txn_str: Vec<String> = bal
             .bal
@@ -161,8 +169,7 @@ impl Export for EquityExporter<'_> {
                             eq_txn.push(format!("{};", eq_txn_indent));
                         }
 
-                        let v = &self.export_settings.ras.as_ref().unwrap_or(&vec![]).clone();
-                        if let Some(asc) = get_account_selector_checksum(cfg, v).unwrap() { // todo: unwrap
+                        if let Some(asc) = &acc_sel_checksum {
                             for v in asc.text() {
                                 eq_txn.push(format!("{}; {}", eq_txn_indent, &v));
                             }
@@ -173,7 +180,7 @@ impl Export for EquityExporter<'_> {
                     eq_txn.push(format!("{}; WARNING:", eq_txn_indent));
                     eq_txn.push(format!("{}; WARNING: The sum of equity transaction is zero without equity account.", eq_txn_indent));
                     eq_txn.push(format!("{}; WARNING: Therefore there is no equity posting row, and this is probably not right.", eq_txn_indent));
-                    eq_txn.push(format!("{}; WARNING: Is account selector correct for this Equity Export?", eq_txn_indent));
+                    eq_txn.push(format!("{}; WARNING: Is the account selector correct for this Equity Export?", eq_txn_indent));
                     eq_txn.push(format!("{}; WARNING:", eq_txn_indent));
                 }
 

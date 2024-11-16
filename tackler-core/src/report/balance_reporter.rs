@@ -15,8 +15,8 @@
  *
  */
 
+use crate::config::Scale;
 use crate::kernel::balance::{BTNs, Balance, Deltas};
-use crate::kernel::config::Scale;
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
 };
@@ -25,7 +25,7 @@ use crate::model::{BalanceTreeNode, TxnSet};
 use crate::report::{get_account_selector_checksum, Report};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
-use rust_decimal::Decimal;
+use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::max;
 use std::error::Error;
 use std::io;
@@ -77,7 +77,10 @@ impl BalanceReporter {
     ) -> Result<(), Box<dyn Error>> {
         let get_max_sum_len = |bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal| -> usize {
             bal.iter()
-                .map(|btn| format!("{:.prec$}", f(btn), prec = bal_settings.scale.min).len())
+                .map(|btn| {
+                    let d = f(btn);
+                    format!("{:.prec$}", d, prec = bal_settings.scale.get_precision(&d)).len()
+                })
                 .fold(0, max)
         };
         fn get_max_delta_len(deltas: &Deltas) -> usize {
@@ -141,18 +144,26 @@ impl BalanceReporter {
 
         if !bal_report.is_empty() {
             for btn in &bal_report.bal {
+                let prec_1 = bal_settings.scale.get_precision(&btn.account_sum);
+                let prec_2 = bal_settings.scale.get_precision(&btn.sub_acc_tree_sum);
+
                 writeln!(
                     writer,
-                    "{left_ruler}{:>asl$.prec$}{:>width$}{:>atl$.prec$}{}{}",
-                    btn.account_sum.scale(),
+                    "{left_ruler}{:>asl$.prec_1$}{:>width$}{:>atl$.prec_2$}{}{}",
+                    btn.account_sum.round_dp_with_strategy(
+                        prec_1 as u32,
+                        RoundingStrategy::MidpointAwayFromZero
+                    ),
                     "",
-                    btn.sub_acc_tree_sum,
+                    btn.sub_acc_tree_sum.round_dp_with_strategy(
+                        prec_2 as u32,
+                        RoundingStrategy::MidpointAwayFromZero
+                    ),
                     make_commodity_field(comm_max_len, btn),
                     btn.acctn.atn,
                     asl = left_sum_len,
                     atl = sub_acc_sum_len,
                     width = filler_field,
-                    prec = bal_settings.scale.min,
                 )?;
             }
 
@@ -175,17 +186,19 @@ impl BalanceReporter {
                     .map_or(String::default(), |comm| comm.name.clone())
             });
             for delta in deltas {
+                let prec = bal_settings.scale.get_precision(delta.1);
                 writeln!(
                     writer,
                     "{left_ruler}{:>width$.prec$} {}",
-                    delta.1,
+                    delta.1.round_dp_with_strategy(
+                        prec as u32,
+                        RoundingStrategy::MidpointAwayFromZero
+                    ),
                     delta.0.as_ref().map_or(&String::default(), |c| &c.name),
                     width = left_sum_len,
-                    prec = bal_settings.scale.min,
                 )?;
             }
         }
-
         Ok(())
     }
 }

@@ -15,9 +15,9 @@
  *
  */
 
+use crate::config::Scale;
 use crate::kernel::accumulator;
 use crate::kernel::accumulator::TxnGroupByOp;
-use crate::kernel::config::Scale;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};

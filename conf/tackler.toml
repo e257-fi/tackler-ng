@@ -1,78 +1,268 @@
+### Configuration settings for Tackler-NG
+###
+### The format of this file TOML (https://toml.io/en/)
 [kernel]
+### Stric mode
+###
+### When this is true, then all accounts, commodities and tags
+### must be predefined.  If there is an undefined item,
+### it's fatal halting error.
+###
+### Valid options are: true | false
 strict = true
 
+### Configuration Options for Timestamp
 [kernel.timestamp]
+### Default time value for timestamps
+###
+### This time value is used for timestamp if it's only
+### on date granularity, e.g. "2024-11-15".
+###
+### See also "kernel.timestamp.timezone" and "report.report-timezone"
+### about transaction timezones and txn timestamps on reports.
 default-time = 00:00:00
 
+### Default Timezone of Timestamp
 [kernel.timestamp.timezone]
+### Default timezone which is used with timestamp
+### if it does not have timezone info.
+###
+### See also "report.report-timezone" about
+### timestamp presentation on reports.
+###
+### Format is either zone's offset or name of ZoneID entry
+### (IANA Time Zone Database), for example:
+###    name = "GMT", "UTC", "Europe/Helsinki"
+### or
+###    offset = "+02:00",
+###
+### If timezone is offset, then timestamp is not adjusted based on
+### daylight saving time.
+###
+### If timezone is zone name, then it is adjusted according
+### the DST rules for that zone.
+###
+### offset = "+02:00"
+###    2016-01-01T00:00:00 => 2016-01-01T00:00:00+02:00
+###    2016-06-25T00:00:00 => 2016-06-25T00:00:00+02:00
+###
+### timezone = "Europe/Helsinki"
+###    2016-01-01T00:00:00 => 2016-01-01T00:00:00+02:00
+###    2016-06-25T00:00:00 => 2016-06-25T00:00:00+03:00
+###
+### It's an error to have both defined at the same time.
 name = "Europe/Helsinki"
 #offset = "-07:00"
 
+### Settings related to audit features
 [kernel.audit]
-hash = "sha-256"
+### Hash algorithm
+###
+### Supported hash algorithms are:
+###   SHA-256, SHA-512/256, SHA-512
+###   SHA3-256, SHA3-512
+hash = "SHA-256"
+### Audit mode
+###
+### This turns audit mode on or off.
+### When audit mode is on,
+### then also strict checking is on.
+### See "kernel.strict"
+###
+### Valid options are: true | false
+### CLI: --audit.mode
 mode = true
 
+
+
+### Transaction Input Configuration
 [kernel.input]
+### Type of input storage system
+###
+### Valid options are: "fs" | "git"
 storage = "fs"
 
+### Filesystem based input storage
 [kernel.input.fs]
+### Top-level directory of storage tree
+###
+### This is the top level location of txn shard structure,
+### the scanning is started from here.
+###
+### If the directory path is relative, then it's based on this file.
+### In case of CLI option, it's relative to the current working directory.
+###
+### CLI: --input.fs.dir
 dir = "txns"
-glob = "**.txn"
+### Filename suffix
+###
+### This is transaction file extension, e.g. all files with
+### this suffix are included into input.
+###
+### CLI: --input.fs.ext
+suffix = "txn"
 
+### Git SCM based input storage
 [kernel.input.git]
+### Path to git repository
+###
+### This must point to "bare" section of repository, e.g.
+###   * to the bare git repository `git clone --bare`
+### or
+###   * to '.git'-directory inside the normal working tree (clone)
+###
+### If the repository path is relative, then it's based on this file.
+### In case of CLI option, it's relative to the current working directory.
+###
+### It's possible to have 'kernel.input.fs.dir' pointing working tree,
+### and at the same time 'kernel.input.git.repository' to point '.git'
+### directory inside that same working tree. Then used storage could be
+### selected by 'kernel.input.storage'
+###
+### CLI: --input.git.repo
 repository = "tackler-data.git"
+### Git reference name
+###
+### This is git reference name (ref or symbolic ref). It is used
+### to define branch or tag to find transaction data.
+### HEAD revision is automatically used for that branch.
+###
+### This could be a branch or tag name:
+###    "main", "cleared", "Y2024", etc.
+### See git's documentation for further information about git references.
+###
+### CLI: --input.git.ref
 ref = "main"
+### Txn directory inside the repository
+###
+### This the directory inside git repository where transactions are stored.
+### This is a filesystem path "inside repository" and working copy,
+### and it is relative to the top of repository (and working copy) root.
+###
+### CLI: --input.git.dir
 dir = "txns"
-suffix = ".txn"
+### Suffix of file names which are processed as transactions.
+suffix = "txn"
 
+############################################################################
+
+### Transaction Data Configuration
+###
+### See the actual files for information about the content
 [transaction.accounts]
-file = "accounts.toml"
+### Path to accounts data
+###
+### If the path is relative, then it's based on this file.
+path = "accounts.toml"
 
 [transaction.commodities]
-file = "commodities.toml"
+### Path to commodities data
+###
+### If the path is relative, then it's based on this file.
+path = "commodities.toml"
 
 [transaction.tags]
-file = "tags.toml"
-
-[report]
-report-timezone = "Europe/Helsinki"
-types = [ "balance", "balance-group", "register", "equity", "identity" ]
-formats = [ "txt", "json" ]
-accounts = [ ]
+### Path to tags data
 ###
+### If the path is relative, then it's based on this file.
+path = "tags.toml"
+
+############################################################################
+
+### Report Configuration
+[report]
+### Timezone setting for reports
+###
+### The dates, times and timestamps are displayd on
+### this time zone on reports. The timezone info is
+### dropped from dates and timestamps, but Report's active
+### timezone is printed in the metadata section.
+###
+### Valid options are: name of IANA Time Zone Database entry (ZoneID)
+### For example:
+###   "GMT", "UTC", "Europe/Helsinki"
+report-timezone = "Europe/Helsinki"
+
+### Reports to generate
+###
+### This is a list of report targets to generate.
+###
+### Valid options are: "balance", "balance-group", "register"
+### CLI: --reports
+targets = [ "balance", "balance-group", "register" ]
+### Account selector for Reports and Exports
+###
+### This is default, global list of report accounts. It can be
+### overriden by CLI option and by per report target settings.
+###
+### Each entry is regexp which is matched with account name
+### Empty list will include everything
+###
+### Valid values: list of regex as string
+###
+### For example:
+###  Income and Expenses accounts
+###    accounts = [ "^Income(:.*)?", "^Expenses(:.*)?" ]
+###  All accounts
+###    accounts = [ ]
+###
+### CLI: --accounts <regexp1> <regexp2> ...
+### All: --accounts ""
+accounts = [ ]
+
 ### Scale Settings for Reports
 ###
-### Number of decimals to be printed
+### This is the numbers of decimals to be printed
 ###
-### min can not be negative or bigger than max value
-### max has no effect at the moment
+###
+### Scale is amount of decimals printed with values.
+### Founding mode is HALF_UP / Midpoint Away From Zero
+### For example:
+###        decimals:   123456789
+###           value: 0.000123456
+### is printed with
+### scale.max = 6 as 0.000123
+### scale.max = 7 as 0.0001235
+###
+### min can't be negative or bigger than max value
+### max can't be negative or smaller than min value
+### Maximum value of min and max is 28 decimals.
 scale = { min = 2, max = 7 }
 
 
-###
 ### Balance Report
-###
 [report.balance]
+### Report title
 title = "Balance Report"
-accounts = [ ]
+### Account selector for Balance Report
+###
+### If set, this will override 'report.accounts'
+### See 'report.accounts' for further info.
+#accounts = [ ]
 
-###
+
 ### Balance Group Report
-###
 [report.balance-group]
 title = "Balance Group Report"
 ### Group by criteria
 ###
-### Group by balances based on criteria.
-### Criteria could be:
+### Group by balances based on selected criteria.
+###
+### Valid options are:
 ###   "year", "month", "date", "iso-week", "iso-week-date"
+###
+### CLI: --groub-by
 group-by = "month"
-accounts = [ ]
+### Account selector for Balance Group Report
+###
+### If set, this will override 'report.accounts'
+### See 'report.accounts' for further info.
+# accounts = [ ]
 
-###
+
 ### Register Report
-###
 [report.register]
+### Report title
 title = "Register Report"
 ### Timestamp style
 ###
@@ -84,4 +274,30 @@ title = "Register Report"
 ###   seconds: date and time is displayed (up to seconds)
 ###   full:    date and time is displayed (up to nanoseconds)
 timestamp-style = "seconds"
-accounts = [ "^e:ey2016" ]
+### Account selector for Register Report
+###
+### If set, this will override 'report.accounts'
+### See 'report.accounts' for further info.
+# accounts = [ ]
+
+############################################################################
+
+### Export Configuration
+[export]
+
+### Equity Export
+[export.equity]
+# Account name of Equity txn's target account
+equity-account = "Equity:Balance"
+### Account selector for Register Report
+###
+### If set, this will override 'report.accounts'
+### See 'report.accounts' for further info.
+# accounts = [ ]
+
+###
+### Identity
+###
+### There are no configuration options for identity export
+###
+############################################################################

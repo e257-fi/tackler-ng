@@ -1,13 +1,14 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
 [kernel]
-strict = true
-#strict = false
+#strict = true
+strict = false
 
 [kernel.timestamp]
 default-time = 12:13:14
 
 [kernel.timestamp.timezone]
-name = "Europe/Helsinki"
+#name = "Europe/Helsinki"
+name = "UTC"
 #offset = "-07:00"
 
 [kernel.audit]
@@ -18,29 +19,30 @@ mode = false
 #storage = "fs"
 storage = "git"
 
-fs = { dir = "../suite/parser/ok/txns", glob = "txn" }
-git = { repo = "../suite/audit/audit-repo.git", ref = "txns-1E2", dir = "txns", suffix = "txn" }
+fs = { dir = "../suite/parser/ok/txns", suffix = ".txn" }
+git = { repo = "../suite/audit/audit-repo.git", ref = "txns-1E2", dir = "txns", suffix = ".txn" }
 
 
 [transaction.accounts]
-file = "test-accs.toml"
+path = "test-accs.toml"
 
 [transaction.commodities]
-file = "test-comms.toml"
+path = "test-comms.toml"
 
 [transaction.tags]
-file = "test-tags.toml"
+path = "test-tags.toml"
 
 [report]
 report-timezone = "Europe/Helsinki"
 #report-timezone = "UTC"
 #accounts = [ "^a:ay2016" ]
-accounts = [ ]
+accounts = [ "^a:ay2016:am1" ]
+targets = [ "balance" ]
 
 ###
 ### Scale Settings for Reports
 ###
-scale = { min = 1, max = 7 }
+scale = { min = 2, max = 4 }
 
 
 ###
@@ -49,7 +51,7 @@ scale = { min = 1, max = 7 }
 [report.balance]
 title = "Balance Report"
 #accounts = [ "^a:ay2016" ]
-accounts = [ ]
+accounts = [ "^e:" ]
 
 ###
 ### Balance Group Report
@@ -81,3 +83,21 @@ title = "Register Report"
 timestamp-style = "seconds"
 #accounts = [ "^e:ey2016" ]
 accounts = [ ]
+
+###
+### Export targets
+###
+[export]
+
+###
+### Equity Export
+###
+[export.equity]
+equity-account = "Equity:Balance"
+accounts = [ ]
+
+###
+### Identity
+###
+### There are no configuration options for identity export
+###

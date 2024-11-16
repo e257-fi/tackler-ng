@@ -22,7 +22,7 @@ use log::error;
 use std::error::Error;
 use std::io;
 use tackler_core::export::{EquityExporter, EquitySettings, Export, IdentityExporter};
-use tackler_core::kernel::Settings;
+use tackler_core::kernel::settings::Settings;
 use tackler_core::parser;
 use tackler_core::report::{
     BalanceGroupReporter, BalanceGroupSettings, BalanceReporter, BalanceSettings, RegisterReporter,
@@ -32,9 +32,9 @@ use tackler_core::report::{
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_api::txn_ts;
-use tackler_core::kernel::config::Config;
+use tackler_core::config::{Config, ExportType, ReportType};
 
-use tackler_core::kernel::settings::Input;
+use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
 
@@ -44,10 +44,7 @@ static GLOBAL: Jemalloc = Jemalloc;
 
 fn run() -> Result<i32, Box<dyn Error>> {
     let cli = cli_args::Cli::parse();
-    let cfg = match &cli.conf_path {
-        Some(path) => Some(Config::from(path)?),
-        None => None,
-    };
+    let cfg = Some(Config::from(&cli.conf_path)?);
 
     let mut settings = Settings::from(cfg, cli.audit_mode, cli.accounts.clone())?;
 
@@ -55,14 +52,14 @@ fn run() -> Result<i32, Box<dyn Error>> {
 
     #[rustfmt::skip]
     let result = match input_type {
-        Input::File(f) => {
+        InputSettings::File(f) => {
             parser::paths_to_txns(&[f.path], &mut settings)
         },
-        Input::Fs(fs) => {
-            let paths = tackler_rs::get_paths_by_ext(fs.dir.as_path(), fs.glob.as_str())?;
+        InputSettings::Fs(fs) => {
+            let paths = tackler_rs::get_paths_by_ext(fs.dir.as_path(), fs.suffix.as_str())?;
             parser::paths_to_txns(&paths, &mut settings)
         }
-        Input::Git(git) => {
+        InputSettings::Git(git) => {
             parser::git_to_txns(
                 git.repo.as_path(),
                 git.dir.as_str(),
@@ -98,7 +95,8 @@ fn run() -> Result<i32, Box<dyn Error>> {
         None => txn_data.get_all()?,
     };
 
-    if let Some(reports) = cli.reports {
+    let reports = settings.get_report_targets(cli.reports)?;
+    if !reports.is_empty() {
         let mut w: Box<dyn io::Write> = Box::new(io::stdout());
 
         if let Some(metadata) = &txn_set.metadata() {
@@ -106,15 +104,14 @@ fn run() -> Result<i32, Box<dyn Error>> {
         }
 
         for r in reports {
-            match r.as_str() {
-                // todo: fix this
-                "balance" => {
+            match r {
+                ReportType::Balance => {
                     let bal_reporter = BalanceReporter {
                         report_settings: BalanceSettings::from(&settings)?,
                     };
                     bal_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }
-                "balance-group" => {
+                ReportType::BalanceGroup => {
                     let group_by = cli.group_by.clone().unwrap(/*:ok: clap*/);
                     let bal_group_reporter = BalanceGroupReporter {
                         report_settings: BalanceGroupSettings::from(
@@ -124,14 +121,11 @@ fn run() -> Result<i32, Box<dyn Error>> {
                     };
                     bal_group_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }
-                "register" => {
+                ReportType::Register => {
                     let reg_reporter = RegisterReporter {
                         report_settings: RegisterSettings::from(&settings)?,
                     };
                     reg_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
-                }
-                _ => {
-                    return Err("Internal Logic error with reports cli args".into());
                 }
             }
         }
@@ -141,31 +135,16 @@ fn run() -> Result<i32, Box<dyn Error>> {
         let mut w: Box<dyn io::Write> = Box::new(io::stdout());
 
         for e in exports {
-            match e.as_str() {
-                "equity" => {
-                    let eqa = match &cli.equity_account_name {
-                        Some(e) => e,
-                        _ => {
-                            return Err(
-                                "Internal Logic error with exports cli args (equity account name)"
-                                    .into(),
-                            );
-                        }
-                    };
+            match ExportType::from(e.as_str())? {
+                ExportType::Equity => {
                     let eq_exporter = EquityExporter {
-                        export_settings: EquitySettings {
-                            eqa: Some(eqa.clone()),
-                            ras: &settings.report.report_acc_sel.clone(),
-                        },
+                        export_settings: EquitySettings::from(&settings)?,
                     };
                     eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;
                 }
-                "identity" => {
+                ExportType::Identity => {
                     let eq_exporter = IdentityExporter {};
                     eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;
-                }
-                _ => {
-                    return Err("Internal Logic error with exports cli args".into());
                 }
             }
         }

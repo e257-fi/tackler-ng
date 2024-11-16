@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  */
-use crate::kernel;
-use crate::kernel::config::{Config, Kernel, Report, TimezoneType};
+use crate::config;
+use crate::config::{AccountSelectors, Config, Export, Kernel, Report, ReportType, TimezoneType};
 use crate::kernel::hash::Hash;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
@@ -41,10 +41,10 @@ pub struct FileInput {
 
 pub struct FsInput {
     pub dir: PathBuf,
-    pub glob: String,
+    pub suffix: String,
 }
 
-pub enum Input {
+pub enum InputSettings {
     File(FileInput),
     Fs(FsInput),
     Git(GitInput),
@@ -66,10 +66,12 @@ impl Commodities {
 }
 
 pub struct Settings {
+    pub audit_mode: bool,
     pub report: Report,
+    pub export: Export,
     kernel: Kernel,
-    audit_mode: bool,
-    arg_report_acc_sel: Option<Vec<String>>,
+    global_acc_sel: Option<AccountSelectors>,
+    targets: Vec<ReportType>,
     accounts: HashMap<String, Rc<AccountTreeNode>>,
     commodities: Commodities,
     tags: HashMap<String, Rc<Tag>>,
@@ -78,10 +80,12 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Settings {
-            kernel: Kernel::default(),
-            arg_report_acc_sel: None,
-            report: Report::default(),
             audit_mode: false,
+            report: Report::default(),
+            export: Export::default(),
+            kernel: Kernel::default(),
+            global_acc_sel: None,
+            targets: Vec::new(),
             accounts: HashMap::new(),
             commodities: Commodities::default_empty_ok(),
             tags: HashMap::new(),
@@ -92,10 +96,13 @@ impl Default for Settings {
 impl Settings {
     pub fn default_audit() -> Self {
         Settings {
-            kernel: Kernel::default(),
-            arg_report_acc_sel: None,
-            report: Report::default(),
             audit_mode: true,
+            report: Report::default(),
+            export: Export::default(),
+
+            kernel: Kernel::default(),
+            global_acc_sel: None,
+            targets: Vec::new(),
             accounts: HashMap::new(),
             commodities: Commodities::default_empty_ok(),
             tags: HashMap::new(),
@@ -118,7 +125,7 @@ impl Settings {
                             true => Self::default_audit(),
                             false => Self::default(),
                         };
-                        s.arg_report_acc_sel = Some(ra);
+                        s.global_acc_sel = Some(ra);
                         Ok(s)
                     }
                     (Some(h), None) => {
@@ -128,7 +135,7 @@ impl Settings {
                         })
                     }
                     (None, Some(ra)) => Ok(Settings {
-                        arg_report_acc_sel: Some(ra),
+                        global_acc_sel: Some(ra),
                         ..Default::default()
                     }),
                     (None, None) => Ok(Settings::default()),
@@ -176,8 +183,10 @@ impl Settings {
 
         Ok(Settings {
             kernel: cfg.kernel.clone(),
-            arg_report_acc_sel: report_accounts,
+            global_acc_sel: report_accounts,
+            targets: cfg.report.targets.clone(),
             report: cfg.report,
+            export: cfg.export,
             audit_mode: match audit_mode {
                 Some(true) => true,
                 Some(false) => false,
@@ -282,43 +291,51 @@ impl Settings {
         }
     }
 
-    pub fn get_input(
+    pub fn get_input_settings(
         &self,
         storage: Option<&String>,
         ref_path: Option<&Path>,
-    ) -> Result<Input, Box<dyn Error>> {
-        let input = self.kernel.input.clone();
-        let storage = match storage {
-            Some(storage) => storage,
-            None => &input.storage,
+    ) -> Result<InputSettings, Box<dyn Error>> {
+        let input = &self.kernel.input;
+
+        let storage_type = match storage {
+            Some(storage) => config::StorageType::from(storage.as_str())?,
+            None => input.storage.clone(),
         };
-        match storage.as_str() {
-            kernel::config::Input::STORAGE_FS => match &input.fs {
+
+        match storage_type {
+            config::StorageType::FS => match &input.fs {
                 Some(fs) => {
+                    let dir = fs.dir.as_str();
+                    let suffix = &fs.suffix;
                     let i = FsInput {
-                        dir: tackler_rs::get_abs_path(ref_path.unwrap(), fs.dir.as_str())?, // todo:
-                        glob: fs.glob.clone(),
+                        dir: match ref_path {
+                            Some(p) => tackler_rs::get_abs_path(p, dir)?,
+                            None => PathBuf::from(dir),
+                        },
+                        suffix: suffix.strip_prefix('.').unwrap_or(suffix.as_str()).into(),
                     };
-                    Ok(Input::Fs(i))
+                    Ok(InputSettings::Fs(i))
                 }
-                None => Err("conf error: fs".into()),
+                None => Err("Storage type 'fs' is not configured".into()),
             },
-            kernel::config::Input::STORAGE_GIT => match &input.git {
+            config::StorageType::Git => match &input.git {
                 Some(ref git) => {
+                    let repo = git.repo.as_str();
+                    let suffix = &git.suffix;
                     let i = GitInput {
-                        repo: tackler_rs::get_abs_path(
-                            ref_path.unwrap(), // todo:
-                            git.repo.as_str(),
-                        )?,
+                        repo: match ref_path {
+                            Some(p) => tackler_rs::get_abs_path(p, repo)?,
+                            None => PathBuf::from(repo),
+                        },
                         git_ref: GitInputSelector::Reference(git.git_ref.clone()),
                         dir: git.dir.clone(),
-                        ext: git.suffix.clone(),
+                        ext: suffix.strip_prefix('.').unwrap_or(suffix.as_str()).into(),
                     };
-                    Ok(Input::Git(i))
+                    Ok(InputSettings::Git(i))
                 }
-                None => Err("conf error: git".into()),
+                None => Err("Storage type 'git' is not configure".into()),
             },
-            _ => Err("conf error: fs".into()),
         }
     }
 }
@@ -349,23 +366,37 @@ impl Settings {
         self.get_offset_datetime(ts)
     }
 
-    pub fn get_balance_ras(&self) -> Vec<String> {
-        match &self.arg_report_acc_sel {
-            Some(ras) => ras.clone(),
-            None => self.report.balance.acc_sel.names.clone(),
+    fn get_account_selector(&self, acc_sel: &AccountSelectors) -> AccountSelectors {
+        match &self.global_acc_sel {
+            Some(global_acc_sel) => global_acc_sel.clone(),
+            None => acc_sel.clone(),
         }
     }
-    pub fn get_balance_group_ras(&self) -> Vec<String> {
-        match &self.arg_report_acc_sel {
-            Some(ras) => ras.clone(),
-            None => self.report.balance_group.acc_sel.names.clone(),
+
+    pub fn get_report_targets(
+        &self,
+        arg_trgs: Option<Vec<String>>,
+    ) -> Result<Vec<ReportType>, Box<dyn Error>> {
+        match arg_trgs {
+            Some(trgs) => config::to_report_targets(&trgs),
+            None => Ok(self.targets.clone()),
         }
     }
-    pub fn get_register_ras(&self) -> Vec<String> {
-        match &self.arg_report_acc_sel {
-            Some(ras) => ras.clone(),
-            None => self.report.register.acc_sel.names.clone(),
-        }
+
+    pub fn get_balance_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.report.balance.acc_sel)
+    }
+
+    pub fn get_balance_group_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.report.balance_group.acc_sel)
+    }
+
+    pub fn get_register_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.report.register.acc_sel)
+    }
+
+    pub fn get_equity_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.export.equity.acc_sel)
     }
 }
 
