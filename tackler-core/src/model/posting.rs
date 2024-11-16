@@ -21,7 +21,7 @@ use crate::model::TxnAccount;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 #[non_exhaustive]
@@ -31,7 +31,7 @@ pub struct Posting {
     // todo: fix / rename these (position?, exchange? amount, commodity)
     pub txn_amount: Decimal,
     pub is_total_amount: bool,
-    pub txn_commodity: Rc<Commodity>, // todo: check / fix this
+    pub txn_commodity: Arc<Commodity>, // todo: check / fix this
     pub comment: Option<String>,
 }
 
@@ -41,7 +41,7 @@ impl Posting {
         amount: Decimal,
         txn_amount: Decimal,
         is_total_amount: bool,
-        txn_commodity: Rc<Commodity>,
+        txn_commodity: Arc<Commodity>,
         comment: Option<String>,
     ) -> Result<Posting, Box<dyn Error>> {
         if amount.is_zero() {
@@ -114,40 +114,40 @@ impl Display for Posting {
 mod tests {
     use super::*;
     use crate::model::AccountTreeNode;
-    use std::rc::Rc;
+    use std::sync::Arc;
 
     #[test]
     // desc: "reject zero postings"
     fn id_42ad9d32_64aa_4fcd_a4ab_1e8521b921e3__reject_zero_posting() {
         {
-            let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+            let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
             let txntn = TxnAccount {
                 atn: acctn,
-                comm: Rc::new(Commodity::default()),
+                comm: Arc::new(Commodity::default()),
             };
             let p = Posting::from(
                 txntn,
                 Decimal::new(0, 0),
                 Decimal::new(0, 0),
                 false,
-                Rc::new(Commodity::default()),
+                Arc::new(Commodity::default()),
                 None,
             );
             assert!(p.is_err());
         }
         {
             // check that difference precision doesn't mess Decimal comparisons
-            let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+            let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
             let txntn = TxnAccount {
                 atn: acctn,
-                comm: Rc::new(Commodity::default()),
+                comm: Arc::new(Commodity::default()),
             };
             let p = Posting::from(
                 txntn,
                 Decimal::new(0, 28),
                 Decimal::new(0, 28),
                 false,
-                Rc::new(Commodity::default()),
+                Arc::new(Commodity::default()),
                 None,
             );
             assert!(p.is_err());
@@ -168,12 +168,12 @@ mod tests {
              "12345678901234567890.123456789";
         let ref_str = format!("a:b   {}", v_str);
         let v = Decimal::from_str_exact(v_str).unwrap(/*:test:*/);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
-        let p = Posting::from(txntn, v, v, false, Rc::new(Commodity::default()), None).unwrap(/*:test:*/);
+        let p = Posting::from(txntn, v, v, false, Arc::new(Commodity::default()), None).unwrap(/*:test:*/);
 
         let p_str = format!("{}", p);
         assert_eq!(p_str, ref_str);
@@ -195,12 +195,12 @@ mod tests {
                   "678901234567890.12345678901234";
         let ref_str = format!("a:b   {}", v_str);
         let v = Decimal::from_str_exact(v_str).unwrap(/*:test:*/);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
-        let p = Posting::from(txntn, v, v, false, Rc::new(Commodity::default()), None).unwrap(/*:test:*/);
+        let p = Posting::from(txntn, v, v, false, Arc::new(Commodity::default()), None).unwrap(/*:test:*/);
         let p_str = format!("{}", p);
         assert_eq!(p_str, ref_str);
         assert_eq!(p.to_string(), ref_str);
@@ -210,12 +210,12 @@ mod tests {
     // desc: "toString e.g. Display"
     fn id_6ce68af4_5349_44e0_8fbc_35bebd8ac1ac__display() {
         let v = Decimal::new(12301, 2);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
-        let p = Posting::from(txntn, v, v, false, Rc::new(Commodity::default()), Some("comment".to_string())).unwrap(/*:test:*/);
+        let p = Posting::from(txntn, v, v, false, Arc::new(Commodity::default()), Some("comment".to_string())).unwrap(/*:test:*/);
 
         let p_str = format!("{}", p);
         assert_eq!(p_str, "a:b   123.01 ; comment");
@@ -226,17 +226,17 @@ mod tests {
     fn id_16b54e8c_5ea6_420c_bd72_157dbcc06a49__unit_price() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
         let p = Posting::from(
             txntn,
             pv,
             tv,
             false,
-            Rc::new(Commodity {
+            Arc::new(Commodity {
                 name: "€".to_string(),
             }),
             None,
@@ -251,17 +251,17 @@ mod tests {
     fn id_22059d1d_7c10_42dc_831f_03bd1f1d6257__unit_price_w_comment() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
         let p = Posting::from(
             txntn,
             pv,
             tv,
             false,
-            Rc::new(Commodity {
+            Arc::new(Commodity {
                 name: "€".to_string(),
             }),
             Some("comment".to_string()),
@@ -276,17 +276,17 @@ mod tests {
     fn id_0fef204a_19da_418f_b7d0_86b5211c2182__total_price() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
         let p = Posting::from(
             txntn,
             pv,
             tv,
             true,
-            Rc::new(Commodity {
+            Arc::new(Commodity {
                 name: "€".to_string(),
             }),
             None,
@@ -301,17 +301,17 @@ mod tests {
     fn id_718dd25c_aebc_4f29_9903_67942c6ba531__total_price_w_comment() {
         let pv = Decimal::new(12300, 2);
         let tv = Decimal::new(24600, 2);
-        let acctn = Rc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
+        let acctn = Arc::new(AccountTreeNode::from("a:b").unwrap(/*:test:*/));
         let txntn = TxnAccount {
             atn: acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
         let p = Posting::from(
             txntn,
             pv,
             tv,
             true,
-            Rc::new(Commodity {
+            Arc::new(Commodity {
                 name: "€".to_string(),
             }),
             Some("comment".to_string()),

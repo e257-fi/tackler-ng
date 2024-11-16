@@ -77,7 +77,7 @@ mod tests {
 
         match tf.txn_filter {
             TxnFilter::TxnFilterTxnTSEnd(_) => (),
-            _ => panic!(),
+            _ => panic!(/*:test:*/),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
@@ -106,7 +106,7 @@ mod tests {
 
         match tf.txn_filter {
             TxnFilter::TxnFilterTxnTSEnd(_) => (),
-            _ => panic!(),
+            _ => panic!(/*:test:*/),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);

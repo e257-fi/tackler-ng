@@ -21,6 +21,7 @@ use std::error::Error;
 use std::fmt::Write;
 use std::rc::Rc;
 use std::string::String;
+use std::sync::Arc;
 use time::{OffsetDateTime, PrimitiveDateTime};
 use uuid::Uuid;
 
@@ -106,7 +107,7 @@ where
 fn handle_tag_ctx(
     tag_ctx: Rc<TagContextAll>,
     settings: &mut Settings,
-) -> Result<Rc<Tag>, Box<dyn Error>> {
+) -> Result<Arc<Tag>, Box<dyn Error>> {
     let tag = context_to_string(tag_ctx);
     settings.get_tag(&tag)
 }
@@ -188,7 +189,7 @@ fn handle_meta(
 
 fn handle_account(
     account_ctx: Rc<AccountContextAll>,
-    commodity: Rc<Commodity>,
+    commodity: Arc<Commodity>,
     settings: &mut Settings,
 ) -> Result<TxnAccount, Box<dyn Error>> {
     let account = context_to_string(account_ctx);
@@ -209,7 +210,7 @@ fn handle_amount(amount_ctx: Rc<AmountContextAll>) -> Result<Decimal, Box<dyn Er
         }
     }
 }
-type ValuePosition = (Decimal, Decimal, bool, Rc<Commodity>, Rc<Commodity>);
+type ValuePosition = (Decimal, Decimal, bool, Arc<Commodity>, Arc<Commodity>);
 
 fn handle_value_position(
     posting_ctx: &Rc<PostingContextAll>,

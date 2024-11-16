@@ -39,6 +39,7 @@ const TXN_SET_1E5_CHECKSUM: &str =
     "27060dc1ebde35bebd8f7af2fd9815bc9949558d3e3c85919813cd80748c99a7";
 const TXN_SET_1E5_COMMIT_ID: &str = "cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5";
 
+#[rustfmt::skip]
 fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksum: &str) {
     match result {
         Ok(txn_data) => {
@@ -59,8 +60,7 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
                             assert_eq!(tscsmd.hash.value, checksum);
                         }
                         _ => {
-                            panic!(
-                                /*:test:*/
+                            panic!(/*:test:*/
                                 "The second item is not Txn Set Checksum Metadata item"
                             )
                         }

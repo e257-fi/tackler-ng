@@ -19,13 +19,13 @@
 //!
 use std::cmp::Ordering;
 use std::fmt::Write;
-use std::rc::Rc;
+use std::sync::Arc;
 use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
 use time_tz::Tz;
 use uuid::Uuid;
 
 /// Collection of Txn Tags
-pub type Tags = Vec<Rc<String>>;
+pub type Tags = Vec<Arc<String>>;
 
 /// Single Txn Tag
 pub type Tag = String;
@@ -218,10 +218,10 @@ mod tests {
         let geo = GeoPoint::from(60.167, 24.955, Some(5.0)).unwrap(/*:test:*/);
 
         let txn_tags = vec![
-            Rc::new("a".to_string()),
-            Rc::new("b".to_string()),
-            Rc::new("c".to_string()),
-            Rc::new("a:b:c".to_string()),
+            Arc::new("a".to_string()),
+            Arc::new("b".to_string()),
+            Arc::new("c".to_string()),
+            Arc::new("a:b:c".to_string()),
         ];
         let comments = vec![
             "z 1st line".to_string(),

@@ -72,19 +72,19 @@ impl<'a> BalanceGroupReporter {
         let tz: &'static Tz = self.report_settings.report_tz;
         match self.report_settings.group_by {
             GroupBy::IsoWeekDate => Box::new(move |txn: &Transaction| {
-                txn_ts::local_iso_week_date(txn.header.timestamp, tz)
+                txn_ts::as_tz_iso_week_date(txn.header.timestamp, tz)
             }),
             GroupBy::IsoWeek => {
-                Box::new(|txn: &Transaction| txn_ts::local_iso_week(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::as_tz_iso_week(txn.header.timestamp, tz))
             }
             GroupBy::Date => {
-                Box::new(|txn: &Transaction| txn_ts::local_date(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::as_tz_date(txn.header.timestamp, tz))
             }
             GroupBy::Month => {
-                Box::new(|txn: &Transaction| txn_ts::local_month(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::as_tz_month(txn.header.timestamp, tz))
             }
             GroupBy::Year => {
-                Box::new(|txn: &Transaction| txn_ts::local_year(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::as_tz_year(txn.header.timestamp, tz))
             }
         }
     }
