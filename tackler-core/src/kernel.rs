@@ -23,7 +23,6 @@
 pub use settings::Settings;
 pub(crate) mod accumulator;
 pub mod balance;
-pub mod config;
 pub mod hash;
 pub mod report_item_selector;
 pub mod settings;

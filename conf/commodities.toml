@@ -1,17 +1,51 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
-#
-# This is the Chart of Commodities (and Shares)
-#
-
+###
+###  This is the Chart of Commodities (and Shares)
+###
+###  Permit empty or missing units and commodities
+###
+###  This option is effective when 'kernel.strict' is true
+###
+###  If this is false, then all postings must have a
+###  commodity or unit. To have posting without commodity,
+###  set this to true or disable strict mode.
+###
+###  Valid options are: true, false
 permit-empty-commodity = true
-#permit-empty-commodity = false
-
+###
+###  List of commodities
+###
+###  This is list of known commodities
+###
+###  Commodity names have same restrictions
+###  as top-level account name element (ID)
+###
+###  Commody Name must start with character,
+###  and after that there could be
+###  '_', '-', '·', numbers and characters.
+###
+###  Characters can be a wide range of
+###  international UTF-8 characters.
+###
+###  See https://tackler.e257.fi/docs/journal/charsets/ for full list.
+###
+###  Or in other words:
+###
+###     commodity
+###        = NameStartChar (NameChar)*
+###
+###     NameStartChar
+###        = <same as for account names>
+###
+###     NameChar
+###        = <same as for account names>
+###
+###  Example list of commodities:
 commodities = [
     "€",
     "$",
     "¥",
     "EUR",
     "USD",
-    "He·bar",
-    "O2·bar"
+    "He·litre",
+    "O2·litre"
 ]

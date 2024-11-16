@@ -14,20 +14,40 @@
  * limitations under the License.
  *
  */
-use crate::kernel::config::{Config, Kernel, Report};
+use crate::config;
+use crate::config::{AccountSelectors, Config, Export, Kernel, Report, ReportType, TimezoneType};
 use crate::kernel::hash::Hash;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
+use crate::parser::GitInputSelector;
 use std::collections::HashMap;
 use std::error::Error;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use tackler_api::txn_header::Tag;
-use time::{format_description, Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
-use time_tz::{timezones, OffsetResult, PrimitiveDateTimeExt, Tz};
+use time::{Date, OffsetDateTime, PrimitiveDateTime};
+use time_tz::{OffsetResult, PrimitiveDateTimeExt};
 
-#[derive(Clone, Default)]
-pub struct AuditSettings {
-    pub(crate) hash: Option<Hash>,
+pub struct GitInput {
+    pub repo: PathBuf,
+    pub dir: String,
+    pub git_ref: GitInputSelector,
+    pub ext: String,
+}
+
+pub struct FileInput {
+    pub path: PathBuf,
+}
+
+pub struct FsInput {
+    pub dir: PathBuf,
+    pub suffix: String,
+}
+
+pub enum InputSettings {
+    File(FileInput),
+    Fs(FsInput),
+    Git(GitInput),
 }
 
 #[derive(Debug, Default)]
@@ -45,16 +65,13 @@ impl Commodities {
     }
 }
 
-enum TimezoneType {
-    Offset(UtcOffset),
-    Name(&'static Tz),
-}
 pub struct Settings {
-    pub kernel: Kernel,
-    timezone: TimezoneType,
-    default_time: Time,
-    pub audit: AuditSettings,
+    pub audit_mode: bool,
     pub report: Report,
+    pub export: Export,
+    kernel: Kernel,
+    global_acc_sel: Option<AccountSelectors>,
+    targets: Vec<ReportType>,
     accounts: HashMap<String, Rc<AccountTreeNode>>,
     commodities: Commodities,
     tags: HashMap<String, Rc<Tag>>,
@@ -63,11 +80,12 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            audit_mode: false,
+            report: Report::default(),
+            export: Export::default(),
             kernel: Kernel::default(),
-            default_time: Time::MIDNIGHT,
-            timezone: TimezoneType::Offset(UtcOffset::UTC),
-            report: Report { accounts: None },
-            audit: AuditSettings { hash: None },
+            global_acc_sel: None,
+            targets: Vec::new(),
             accounts: HashMap::new(),
             commodities: Commodities::default_empty_ok(),
             tags: HashMap::new(),
@@ -78,13 +96,13 @@ impl Default for Settings {
 impl Settings {
     pub fn default_audit() -> Self {
         Settings {
+            audit_mode: true,
+            report: Report::default(),
+            export: Export::default(),
+
             kernel: Kernel::default(),
-            default_time: Time::MIDNIGHT,
-            timezone: TimezoneType::Offset(UtcOffset::UTC),
-            report: Report { accounts: None },
-            audit: AuditSettings {
-                hash: Some(Hash::default()),
-            },
+            global_acc_sel: None,
+            targets: Vec::new(),
             accounts: HashMap::new(),
             commodities: Commodities::default_empty_ok(),
             tags: HashMap::new(),
@@ -95,19 +113,19 @@ impl Settings {
 impl Settings {
     pub fn from(
         cfg_opt: Option<Config>,
-        hash: Option<bool>,
+        audit_mode: Option<bool>,
         report_accounts: Option<Vec<String>>,
     ) -> Result<Settings, Box<dyn Error>> {
         let cfg = match cfg_opt {
             Some(c) => c,
             None => {
-                return match (hash, report_accounts) {
+                return match (audit_mode, report_accounts) {
                     (Some(h), Some(ra)) => {
                         let mut s = match h {
                             true => Self::default_audit(),
                             false => Self::default(),
                         };
-                        s.report.accounts = Some(ra);
+                        s.global_acc_sel = Some(ra);
                         Ok(s)
                     }
                     (Some(h), None) => {
@@ -116,16 +134,15 @@ impl Settings {
                             false => Self::default(),
                         })
                     }
-                    (None, Some(ra)) => {
-                        let mut s = Self::default();
-                        s.report.accounts = Some(ra);
-                        Ok(s)
-                    }
+                    (None, Some(ra)) => Ok(Settings {
+                        global_acc_sel: Some(ra),
+                        ..Default::default()
+                    }),
                     (None, None) => Ok(Settings::default()),
                 }
             }
         };
-        let accs = cfg.transaction.accounts.names.iter().try_fold(
+        let accounts = cfg.transaction.accounts.names.iter().try_fold(
             HashMap::new(),
             |mut accs, account| match AccountTreeNode::from(account) {
                 Ok(atn) => {
@@ -153,67 +170,29 @@ impl Settings {
             },
         )?;
 
+        let tags = cfg
+            .transaction
+            .tags
+            .names
+            .iter()
+            .fold(HashMap::new(), |mut tags, tag| {
+                let t = Tag::from(tag.to_string());
+                tags.insert(tag.into(), Rc::new(t));
+                tags
+            });
+
         Ok(Settings {
             kernel: cfg.kernel.clone(),
-            default_time: {
-                let t = &cfg.kernel.timestamp.default_time;
-                Time::from_hms_nano(t.hour, t.minute, t.second, t.nanosecond)?
+            global_acc_sel: report_accounts,
+            targets: cfg.report.targets.clone(),
+            report: cfg.report,
+            export: cfg.export,
+            audit_mode: match audit_mode {
+                Some(true) => true,
+                Some(false) => false,
+                None => cfg.kernel.audit.mode,
             },
-            timezone: {
-                match (
-                    &cfg.kernel.timestamp.timezone.name,
-                    &cfg.kernel.timestamp.timezone.offset,
-                ) {
-                    (Some(_), Some(_)) => {
-                        let msg =
-                            "kernel.timezone: 'name' and 'offset' are both defined".to_string();
-                        return Err(msg.into());
-                    }
-                    (None, None) => TimezoneType::Name(
-                        timezones::get_by_name("UTC").ok_or("Undefined default (UTC) timezone")?,
-                    ),
-                    (Some(tz_name), None) => TimezoneType::Name(
-                        timezones::get_by_name(tz_name)
-                            .ok_or(format!("Unknown timezone '{tz_name}'"))?,
-                    ),
-                    (None, Some(offset)) => {
-                        let offset_format =
-                            format_description::parse("[offset_hour]:[offset_minute]")?;
-                        let offset = UtcOffset::parse(offset, &offset_format)?;
-                        TimezoneType::Offset(offset)
-                    }
-                }
-            },
-            report: Report {
-                accounts: report_accounts,
-            },
-            audit: match hash {
-                Some(true) => {
-                    let hasher = match &cfg.kernel.audit {
-                        Some(audit) => Some(Hash::from(audit.hash.as_str())?),
-                        _ => {
-                            let msg = "kernel.audit.hash is not configured".to_string();
-                            return Err(msg.into());
-                        }
-                    };
-                    AuditSettings { hash: hasher }
-                }
-                Some(false) => AuditSettings::default(),
-                None => {
-                    let hasher = match &cfg.kernel.audit {
-                        Some(audit) => {
-                            if audit.mode {
-                                Some(Hash::from(audit.hash.as_str())?)
-                            } else {
-                                None
-                            }
-                        }
-                        _ => None,
-                    };
-                    AuditSettings { hash: hasher }
-                }
-            },
-            accounts: accs,
+            accounts,
             commodities: Commodities {
                 names: comms,
                 permit_empty_commodity: cfg
@@ -222,13 +201,17 @@ impl Settings {
                     .permit_empty_commodity
                     .unwrap_or(false),
             },
-            tags: HashMap::new(), //todo: implement
+            tags,
         })
     }
 }
 impl Settings {
     pub fn get_hash(&self) -> Option<Hash> {
-        self.audit.hash.clone()
+        if self.audit_mode {
+            Some(self.kernel.audit.hash.clone())
+        } else {
+            None
+        }
     }
 
     pub fn get_txn_account(
@@ -307,6 +290,54 @@ impl Settings {
             }
         }
     }
+
+    pub fn get_input_settings(
+        &self,
+        storage: Option<&String>,
+        ref_path: Option<&Path>,
+    ) -> Result<InputSettings, Box<dyn Error>> {
+        let input = &self.kernel.input;
+
+        let storage_type = match storage {
+            Some(storage) => config::StorageType::from(storage.as_str())?,
+            None => input.storage.clone(),
+        };
+
+        match storage_type {
+            config::StorageType::FS => match &input.fs {
+                Some(fs) => {
+                    let dir = fs.dir.as_str();
+                    let suffix = &fs.suffix;
+                    let i = FsInput {
+                        dir: match ref_path {
+                            Some(p) => tackler_rs::get_abs_path(p, dir)?,
+                            None => PathBuf::from(dir),
+                        },
+                        suffix: suffix.strip_prefix('.').unwrap_or(suffix.as_str()).into(),
+                    };
+                    Ok(InputSettings::Fs(i))
+                }
+                None => Err("Storage type 'fs' is not configured".into()),
+            },
+            config::StorageType::Git => match &input.git {
+                Some(ref git) => {
+                    let repo = git.repo.as_str();
+                    let suffix = &git.suffix;
+                    let i = GitInput {
+                        repo: match ref_path {
+                            Some(p) => tackler_rs::get_abs_path(p, repo)?,
+                            None => PathBuf::from(repo),
+                        },
+                        git_ref: GitInputSelector::Reference(git.git_ref.clone()),
+                        dir: git.dir.clone(),
+                        ext: suffix.strip_prefix('.').unwrap_or(suffix.as_str()).into(),
+                    };
+                    Ok(InputSettings::Git(i))
+                }
+                None => Err("Storage type 'git' is not configure".into()),
+            },
+        }
+    }
 }
 
 impl Settings {
@@ -314,7 +345,7 @@ impl Settings {
         &self,
         dt: PrimitiveDateTime,
     ) -> Result<OffsetDateTime, Box<dyn Error>> {
-        let ts_tz = match self.timezone {
+        let ts_tz = match self.kernel.timestamp.timezone {
             TimezoneType::Name(tz) => match dt.assume_timezone(tz) {
                 OffsetResult::Some(ts) => ts,
                 OffsetResult::Ambiguous(_, _) => {
@@ -331,8 +362,41 @@ impl Settings {
         Ok(ts_tz)
     }
     pub fn get_offset_date(&self, date: Date) -> Result<OffsetDateTime, Box<dyn Error>> {
-        let ts = PrimitiveDateTime::new(date, self.default_time);
+        let ts = PrimitiveDateTime::new(date, self.kernel.timestamp.default_time);
         self.get_offset_datetime(ts)
+    }
+
+    fn get_account_selector(&self, acc_sel: &AccountSelectors) -> AccountSelectors {
+        match &self.global_acc_sel {
+            Some(global_acc_sel) => global_acc_sel.clone(),
+            None => acc_sel.clone(),
+        }
+    }
+
+    pub fn get_report_targets(
+        &self,
+        arg_trgs: Option<Vec<String>>,
+    ) -> Result<Vec<ReportType>, Box<dyn Error>> {
+        match arg_trgs {
+            Some(trgs) => config::to_report_targets(&trgs),
+            None => Ok(self.targets.clone()),
+        }
+    }
+
+    pub fn get_balance_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.report.balance.acc_sel)
+    }
+
+    pub fn get_balance_group_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.report.balance_group.acc_sel)
+    }
+
+    pub fn get_register_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.report.register.acc_sel)
+    }
+
+    pub fn get_equity_ras(&self) -> AccountSelectors {
+        self.get_account_selector(&self.export.equity.acc_sel)
     }
 }
 

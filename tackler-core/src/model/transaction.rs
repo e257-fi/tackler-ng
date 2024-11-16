@@ -71,7 +71,11 @@ impl Display for Transaction {
         write!(
             f,
             "{}{}",
-            self.header.to_string_with_indent(indent, txn_ts::rfc_3339),
+            self.header.to_string_with_indent(
+                indent,
+                |ts, _tz| { txn_ts::rfc_3339(ts) },
+                txn_ts::TZ_UTC
+            ),
             self.posts
                 .iter()
                 .fold(String::with_capacity(256), |mut output, p| {

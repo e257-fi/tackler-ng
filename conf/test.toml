@@ -4,21 +4,100 @@
 strict = false
 
 [kernel.timestamp]
-default-time = 12:12:12
+default-time = 12:13:14
 
 [kernel.timestamp.timezone]
-name = "Europe/Helsinki"
+#name = "Europe/Helsinki"
+name = "UTC"
 #offset = "-07:00"
 
 [kernel.audit]
 hash = "SHA-256"
 mode = false
 
+[kernel.input]
+#storage = "fs"
+storage = "git"
+
+fs = { dir = "../suite/parser/ok/txns", suffix = ".txn" }
+git = { repo = "../suite/audit/audit-repo.git", ref = "txns-1E2", dir = "txns", suffix = ".txn" }
+
+
 [transaction.accounts]
-file = "accounts.toml"
+path = "test-accs.toml"
 
 [transaction.commodities]
-file = "commodities.toml"
+path = "test-comms.toml"
 
 [transaction.tags]
-file = "tags.toml"
+path = "test-tags.toml"
+
+[report]
+report-timezone = "Europe/Helsinki"
+#report-timezone = "UTC"
+#accounts = [ "^a:ay2016" ]
+accounts = [ "^a:ay2016:am1" ]
+targets = [ "balance" ]
+
+###
+### Scale Settings for Reports
+###
+scale = { min = 2, max = 4 }
+
+
+###
+### Balance Report
+###
+[report.balance]
+title = "Balance Report"
+#accounts = [ "^a:ay2016" ]
+accounts = [ "^e:" ]
+
+###
+### Balance Group Report
+###
+[report.balance-group]
+title = "Balance Group Report"
+### Group by criteria
+###
+### Group by balances based on criteria.
+### Criteria could be:
+###   "year", "month", "date", "iso-week", "iso-week-date"
+group-by = "month"
+accounts = [ ]
+
+###
+### Register Report
+###
+[report.register]
+title = "Register Report"
+### Timestamp style
+###
+### This set how timestamps are displayed with register report
+### See also 'timezone', 'report-timezone' options.
+###
+### Valid values are: date, seconds, full
+###   date:    only date part is displayed (this is default)
+###   seconds: date and time is displayed (up to seconds)
+###   full:    date and time is displayed (up to nanoseconds)
+timestamp-style = "seconds"
+#accounts = [ "^e:ey2016" ]
+accounts = [ ]
+
+###
+### Export targets
+###
+[export]
+
+###
+### Equity Export
+###
+[export.equity]
+equity-account = "Equity:Balance"
+accounts = [ ]
+
+###
+### Identity
+###
+### There are no configuration options for identity export
+###

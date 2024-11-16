@@ -1,8 +1,69 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
-#
-# This is the Chart of Accounts
-#
-
+###
+### Chart of Accounts
+###
+### This is a list of known account names.
+###
+### Account names have the following form:
+###
+###    TOPACCT[:SUBACCT[:...]]
+###
+### Top-account name (ID) must start with character,
+### and after that there could be
+### '_', '-', '·', numbers and characters.
+###
+### The Sub-account name (SUBID) must be separated with ':',
+### can start with numbers and can be all numeric.
+###
+### Characters can be a wide range of
+### international UTF-8 encoded characters.
+###
+### See https://tackler.e257.fi/docs/journal/charsets/ for full list.
+###
+### Or in other words:
+###
+###    account
+###       = ID (':' (ID | SUBID))*
+###
+###    ID
+###       = NameStartChar (NameChar)*
+###
+###    SUBID
+###       = (NameStartChar | '0'..'9') (NameChar)*
+###
+###    NameStartChar
+###       = '$' | '¢' | '£' | '¤' | '¥' // not in block 20A0-20CF
+###       | '\u00B5' //  Micro Sign
+###       | '\u00B9' | '\u00B2' | '\u00B3' // not in block 2070-209F
+###       | '\u00B0' // Degree Sign
+###       | '\u00BC' | '\u00BD' | '\u00BE' // not in block 2150-218F
+###       | 'A'..'Z' | 'a'..'z'
+###       | '\u00C0'..'\u00D6'
+###       | '\u00D8'..'\u00F6'
+###       | '\u00F8'..'\u02FF'
+###       | '\u0370'..'\u037D'
+###       | '\u037F'..'\u1FFF'
+###       | '\u200C'..'\u200D'
+###       | '\u2070'..'\u218F'
+###       | '\u2C00'..'\u2FEF'
+###       | '\u3001'..'\uD7FF'
+###       | '\uF900'..'\uFDCF'
+###       | '\uFDF0'..'\uFFFD'
+###    NameChar
+###       = NameStartChar
+###       | '0'..'9'
+###       | '-'
+###       | '_'
+###       | '\u00B7'
+###       | '\u0300'..'\u036F'
+###       | '\u203F'..'\u2040'
+###
+### Names must be quoted ("name")
+### and they are comma separated.
+### There could be comma after the last entry
+###
+### Example Chart of Accounts (CoA) with top-level
+###     Income, Expenses, Assets and Liabilities
+### accounts - these are not mandatory.
 accounts = [
     "Income",
     "Income:Lottery",
@@ -17,5 +78,5 @@ accounts = [
     "Assets",
     "Assets:Banks:Acme_Inc",
     "Assets:Cash",
-    "Credit·Card:1234567890"
+    "Liabilities:Credit·Card:1234567890",
 ]

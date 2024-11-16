@@ -15,11 +15,14 @@
  *
  */
 
+use crate::config::Scale;
 use crate::model::{Posting, Transaction};
-use rust_decimal::Decimal;
+use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::{max, Ordering};
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_ts;
+use time::OffsetDateTime;
+use time_tz::Tz;
 
 #[derive(Debug, Clone)]
 pub struct RegisterPosting<'a> {
@@ -63,36 +66,55 @@ pub(crate) struct RegisterEntry<'a> {
     pub posts: Vec<RegisterPosting<'a>>,
 }
 
-impl<'a> Display for RegisterEntry<'a> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl<'a> RegisterEntry<'a> {
+    pub fn fmt_with_tz(
+        &self,
+        ts_fmtr: fn(OffsetDateTime, &'static Tz) -> String,
+        tz: &'static Tz,
+        scale: &Scale,
+    ) -> String {
         let indent = " ".repeat(12);
         let mut line_len = 0;
 
-        write!(
-            f,
-            "{}",
-            self.txn
-                .header
-                .to_string_with_indent(&indent, txn_ts::rfc_3339)
-        )?;
+        let mut s = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
+
         for p in &self.posts {
             let comm = &p.post.acctn.comm;
 
+            let prec_1 = scale.get_precision(&p.post.amount);
+            let prec_2 = scale.get_precision(&p.amount);
+
             let line = format!(
-                "{}{:<33}{:>18.prec$} {:>18.prec$}{}",
+                "{}{:<33}{:>18.prec_1$} {:>18.prec_2$}{}",
                 indent,
                 p.post.acctn.atn.account,
-                p.post.amount,
-                p.amount,
+                p.post
+                    .amount
+                    .round_dp_with_strategy(prec_1 as u32, RoundingStrategy::MidpointAwayFromZero),
+                p.amount
+                    .round_dp_with_strategy(prec_2 as u32, RoundingStrategy::MidpointAwayFromZero),
                 match &comm.is_some() {
                     true => format!(" {}", comm.name),
                     false => String::new(),
                 },
-                prec = 2,
             );
             line_len = max(line_len, line.len());
-            writeln!(f, "{line}")?;
+            s += &line;
+            s += "\n";
         }
-        writeln!(f, "{}", "-".repeat(line_len))
+        format!("{s}\n{}\n", "-".repeat(line_len))
+    }
+}
+impl<'a> Display for RegisterEntry<'a> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            self.fmt_with_tz(
+                |ts, _tz| { txn_ts::rfc_3339(ts) },
+                txn_ts::TZ_UTC,
+                &Scale::default()
+            )
+        )
     }
 }

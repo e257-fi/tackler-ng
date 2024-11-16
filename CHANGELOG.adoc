@@ -31,8 +31,11 @@ tackler-core = "0.3.0"
 
 New features:
 
-* ...
-  ** ...
+* Full support for configuration, see:
+  ** xref:./conf/tackler.toml[Main Tackler configuration]
+  ** xref:./conf/accounts.toml[Chart of Accounts]
+  ** xref:./conf/commodities.toml[Chart of Commodities]
+  ** xref:./conf/tags.toml[Chart of Tags]
 
 
 ==== Fixes

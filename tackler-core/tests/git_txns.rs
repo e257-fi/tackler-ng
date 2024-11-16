@@ -122,10 +122,9 @@ fn id_a6cfe3b6_feec_4422_afbf_faeca5baf752__error_reporting() {
                                      GitInputSelector::Reference("errs-1E2".to_string()),
                                      &mut Settings::default_audit());
 
-    assert!(result.is_ok()); // todo: is_ok -> is_err once ctx_handler has settings support
-    let txn_data = result.unwrap(/*:test:*/);
-    let txn_set = txn_data.get_all();
-    assert!(txn_set.is_err());
-    // todo: check error message, once there is settings support
-    eprintln!("{:#?}", txn_set.err());
+    assert!(result.is_err());
+    let msg = result.err().unwrap(/*:test:*/).to_string();
+    assert!(msg.contains("63014ea235b23aa7330511a25bcba0b62cd33c6f"));
+    assert!(msg.contains("d87737611e7a2bc551117c77fadd06dbc2c848d8"));
+    assert!(msg.contains("without UUID"));
 }

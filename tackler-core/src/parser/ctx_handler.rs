@@ -18,6 +18,7 @@
 use antlr_rust::parser_rule_context::ParserRuleContext;
 use antlr_rust::token::Token;
 use std::error::Error;
+use std::fmt::Write;
 use std::rc::Rc;
 use std::string::String;
 use time::{OffsetDateTime, PrimitiveDateTime};
@@ -35,6 +36,7 @@ use itertools::Itertools;
 use rust_decimal::Decimal;
 use tackler_api::location::GeoPoint;
 use tackler_api::txn_header::{Tag, Tags, TxnHeader};
+use tackler_api::txn_ts;
 use time::format_description::well_known::Rfc3339;
 use time::macros::format_description;
 
@@ -101,25 +103,30 @@ where
     v.join("")
 }
 
-fn handle_tag_ctx(tag_ctx: Rc<TagContextAll>) -> Result<Tag, Box<dyn Error>> {
+fn handle_tag_ctx(
+    tag_ctx: Rc<TagContextAll>,
+    settings: &mut Settings,
+) -> Result<Rc<Tag>, Box<dyn Error>> {
     let tag = context_to_string(tag_ctx);
-    // todo: cfg.strict check chart of tags
-    Ok(tag)
+    settings.get_tag(&tag)
 }
 
-fn handle_tags_ctx(tags_ctx: Rc<TagsContextAll>) -> Result<Tags, Box<dyn Error>> {
+fn handle_tags_ctx(
+    tags_ctx: Rc<TagsContextAll>,
+    settings: &mut Settings,
+) -> Result<Tags, Box<dyn Error>> {
     // Tags parse tree ctx:
     //   tagsCtx.tag  always
     //   tagsCtx.tags sometimes (when multiple tags, recursive)
     //
     // See TxnParser.g4: 'txn_meta_tags' and 'tags' rules
 
-    let tag = handle_tag_ctx(tags_ctx.tag().unwrap(/*:ok: parser */))?;
+    let tag = handle_tag_ctx(tags_ctx.tag().unwrap(/*:ok: parser */), settings)?;
 
     match tags_ctx.tags() {
         None => Ok(vec![tag]),
         Some(tags_tags_ctx) => {
-            let mut tags = handle_tags_ctx(tags_tags_ctx)?;
+            let mut tags = handle_tags_ctx(tags_tags_ctx, settings)?;
             tags.push(tag);
             Ok(tags)
         }
@@ -127,7 +134,10 @@ fn handle_tags_ctx(tags_ctx: Rc<TagsContextAll>) -> Result<Tags, Box<dyn Error>>
 }
 
 type TxnMeta = (Option<Uuid>, Option<GeoPoint>, Option<Tags>);
-fn handle_meta(meta_ctx: Rc<Txn_metaContextAll>) -> Result<TxnMeta, Box<dyn Error>> {
+fn handle_meta(
+    meta_ctx: Rc<Txn_metaContextAll>,
+    settings: &mut Settings,
+) -> Result<TxnMeta, Box<dyn Error>> {
     let uuid = match meta_ctx.txn_meta_uuid(0) {
         Some(uuid_ctx) => {
             let uuid_str = uuid_ctx.UUID_VALUE().unwrap(/*:ok: parser */).get_text();
@@ -159,7 +169,10 @@ fn handle_meta(meta_ctx: Rc<Txn_metaContextAll>) -> Result<TxnMeta, Box<dyn Erro
     };
 
     let tags: Option<Tags> = match meta_ctx.txn_meta_tags(0) {
-        Some(tags_ctx) => Some(handle_tags_ctx(tags_ctx.tags().unwrap(/*:ok: parser */))?),
+        Some(tags_ctx) => Some(handle_tags_ctx(
+            tags_ctx.tags().unwrap(/*:ok: parser */),
+            settings,
+        )?),
         None => None,
     };
 
@@ -319,14 +332,6 @@ fn handle_raw_posting(
 ) -> Result<Posting, Box<dyn Error>> {
     let val_pos = handle_value_position(posting_ctx, settings)?;
 
-    /*
-    // todo: check & Error
-    if (settings.Accounts.strict) {
-        checkCommodity(foo._4, postingCtx)
-        checkCommodity(foo._5, postingCtx)
-    }
-    */
-
     let atn = handle_account(
         posting_ctx.account().unwrap(/*:ok: parser */),
         val_pos.3,
@@ -364,15 +369,24 @@ fn handle_txn(
     };
 
     let meta = match txn_ctx.txn_meta() {
-        Some(meta_ctx) => handle_meta(meta_ctx)?,
+        Some(meta_ctx) => handle_meta(meta_ctx, settings)?,
         None => (None, None, None),
     };
     let uuid = meta.0;
     let location = meta.1;
     let tags = meta.2;
 
-    // todo: check cfg.auditing && Uuid == None => error
-    // "Configuration setting '" + CfgKeys.Auditing.txnSetChecksum + "' is activated and there is txn without UUID."
+    if settings.audit_mode && uuid.is_none() {
+        let mut msg = "Audit mode is activated and there is a txn without UUID".to_string();
+        let _ = write!(msg, "\n   txn date: {}", txn_ts::rfc_3339(date));
+        let _ = write!(
+            msg,
+            "{}",
+            code.map(|c| format!("\n   txn code: {c}"))
+                .unwrap_or_default()
+        );
+        return Err(msg.into());
+    }
 
     let comments = {
         // txnCtx.txn_comment is never null, even when there aren't any comments

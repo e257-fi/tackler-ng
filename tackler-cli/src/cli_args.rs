@@ -15,20 +15,20 @@
  *
  */
 use clap::builder::PossibleValue;
-use clap::{ArgGroup, Parser};
+use clap::Parser;
+use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
+use tackler_core::config;
+use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
+use tackler_core::kernel::Settings;
+use tackler_core::parser::GitInputSelector;
 
 #[derive(Parser)]
 #[command(author, version=env!("VERSION"), about, long_about = None)]
-#[command(group(
-            ArgGroup::new("input")
-                .required(true)
-                .args(["input_filename", "input_fs_dir", "input_git_repo"]),
-        ))]
 pub(crate) struct Cli {
     #[arg(long = "config", value_name = "config file path")]
-    pub(crate) conf_path: Option<PathBuf>,
+    pub(crate) conf_path: PathBuf,
 
     /// Enable audit mode
     ///
@@ -41,6 +41,7 @@ pub(crate) struct Cli {
     #[arg(long="input.file",
         value_name = "txn file path",
         conflicts_with_all([
+            "input_storage",
             "input_fs_dir",
             "input_fs_ext",
             "input_git_repo",
@@ -48,6 +49,18 @@ pub(crate) struct Cli {
             "input_git_dir"])
     )]
     pub(crate) input_filename: Option<PathBuf>,
+
+    ///
+    /// Selects used transaction storage
+    ///
+    #[arg(long="input.storage",
+        value_name = "storage type",
+        value_parser([
+            PossibleValue::new(config::StorageType::STORAGE_FS),
+            PossibleValue::new(config::StorageType::STORAGE_GIT),
+        ])
+    )]
+    pub(crate) input_storage: Option<String>,
 
     /// Filsystem path to txn directory (tree)
     #[arg(long="input.fs.dir",
@@ -61,7 +74,11 @@ pub(crate) struct Cli {
     pub(crate) input_fs_dir: Option<PathBuf>,
 
     /// Txn file extension
-    #[arg(long = "input.fs.ext", value_name = "txn file extension")]
+    #[arg(
+        long = "input.fs.ext",
+        value_name = "txn file suffix",
+        requires("input_fs_dir")
+    )]
     pub(crate) input_fs_ext: Option<String>,
 
     /// Path to git repository
@@ -94,18 +111,10 @@ pub(crate) struct Cli {
     )]
     pub(crate) input_git_dir: Option<String>,
 
-    /// Report's Timezone [UTC, Europe/Helsinki, America/New_York, ...]
-    #[arg(
-        long = "report-tz",
-        value_name = "timezone name",
-        num_args(1),
-        default_value = "UTC"
-    )]
-    pub(crate) report_tz: Option<String>,
-
     /// Account selectors for reports and exports
     ///
     /// List of regex patterns for account names. For full match, use anchors ('^...$').
+    /// Use an empty string "" as an argument to have all accounts
     #[arg(long = "accounts", value_name = "regex", num_args(1..))]
     pub(crate) accounts: Option<Vec<String>>,
 
@@ -144,24 +153,41 @@ pub(crate) struct Cli {
     )]
     pub(crate) exports: Option<Vec<String>>,
 
-    /// Equity Account Name
-    ///
-    /// If not given, then default name is used
-    #[arg(
-        long = "equity.account.name",
-        value_name = "account name",
-        num_args(1),
-        default_value = "Equity:Default·Account",
-        requires("exports")
-    )]
-    pub(crate) equity_account_name: Option<String>,
-
     /// Txn Filter definition (JSON), it could be ascii armored as base64 encoded
     ///
     /// The base64 ascii armor must have prefix "base64:". For example
     /// "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K"
     #[arg(long = "api-filter-def", value_name = "filter def in json")]
     pub(crate) api_filter_def: Option<String>,
+}
+
+impl Cli {
+    pub fn get_input_type(&self, settings: &Settings) -> Result<InputSettings, Box<dyn Error>> {
+        if let Some(filename) = &self.input_filename {
+            let i = FileInput {
+                path: filename.clone(),
+            };
+            Ok(InputSettings::File(i))
+        } else if self.input_fs_dir.is_some() {
+            let i = FsInput {
+                dir: self.input_fs_dir.clone().unwrap(/*:ok: clap */),
+                suffix: self.input_fs_ext.clone().unwrap(/*:ok: clap */),
+            };
+            Ok(InputSettings::Fs(i))
+        } else if self.input_git_repo.is_some() {
+            let i = GitInput {
+                repo: self.input_git_repo.clone().unwrap(/*:ok: clap */),
+                git_ref: GitInputSelector::Reference(
+                    self.input_git_ref.clone().unwrap(/*:ok: clap */),
+                ),
+                dir: self.input_git_dir.clone().unwrap(/*:ok: clap */).clone(),
+                ext: String::from("txn"),
+            };
+            Ok(InputSettings::Git(i))
+        } else {
+            settings.get_input_settings(self.input_storage.as_ref(), Some(self.conf_path.as_path()))
+        }
+    }
 }
 
 #[cfg(test)]

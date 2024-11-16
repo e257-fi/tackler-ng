@@ -25,7 +25,8 @@ pub use balance_reporter::BalanceSettings;
 pub use register_reporter::RegisterReporter;
 pub use register_reporter::RegisterSettings;
 use std::io;
-use tackler_api::metadata::items::AccountSelectorChecksum;
+use tackler_api::metadata::items::{AccountSelectorChecksum, ReportTimezone};
+use time_tz::{TimeZone, Tz};
 
 mod balance_group_reporter;
 mod balance_reporter;
@@ -40,21 +41,27 @@ pub trait Report {
     ) -> Result<(), Box<dyn Error>>;
 }
 
+pub fn get_report_tz(_cfg: &Settings, tz: &'static Tz) -> Result<ReportTimezone, Box<dyn Error>> {
+    let rtz = ReportTimezone {
+        timezone: tz.name().to_string(),
+    };
+    Ok(rtz)
+}
+
 pub fn get_account_selector_checksum(
     cfg: &Settings,
-    ras: &Option<Vec<String>>,
+    ras: &[String],
 ) -> Result<Option<AccountSelectorChecksum>, Box<dyn Error>> {
     if let Some(hash) = cfg.get_hash() {
-        if let Some(ras) = ras {
-            // todo: ras or cfg.accounts?
+        if ras.is_empty() {
+            Ok(None)
+        } else {
             // todo: refactor and test this
-            let mut accsel = ras.clone();
+            let mut accsel = ras.to_owned();
             accsel.sort();
             let h = hash.checksum(&accsel, "\n".as_bytes())?;
             let asc = AccountSelectorChecksum { hash: h };
             Ok(Some(asc))
-        } else {
-            Ok(None)
         }
     } else {
         Ok(None)

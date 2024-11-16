@@ -15,13 +15,14 @@
  *
  */
 
+use crate::config::Scale;
 use crate::kernel::accumulator;
 use crate::kernel::accumulator::TxnGroupByOp;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
-use crate::report::BalanceReporter;
 use crate::report::{get_account_selector_checksum, Report};
+use crate::report::{BalanceReporter, BalanceSettings};
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::Text;
@@ -30,46 +31,66 @@ use tackler_api::txn_ts::GroupBy;
 use time_tz::Tz;
 
 #[derive(Debug, Clone)]
-pub struct BalanceGroupSettings<'a> {
-    pub title: Option<String>,
-    pub ras: &'a Option<Vec<String>>,
+pub struct BalanceGroupSettings {
+    pub title: String,
+    pub ras: Vec<String>,
     pub group_by: GroupBy,
-    pub report_tz: &'a Tz,
+    pub report_tz: &'static Tz,
+    pub scale: Scale,
+}
+
+impl BalanceGroupSettings {
+    pub fn from(
+        settings: &Settings,
+        group_by: Option<GroupBy>,
+    ) -> Result<BalanceGroupSettings, Box<dyn Error>> {
+        let bgs = BalanceGroupSettings {
+            title: settings.report.balance_group.title.clone(),
+            ras: settings.get_balance_group_ras(),
+            group_by: match group_by {
+                Some(group_by) => group_by,
+                None => settings.report.balance_group.group_by,
+            },
+            report_tz: settings.report.report_tz,
+            scale: settings.report.scale.clone(),
+        };
+        Ok(bgs)
+    }
 }
 
 #[derive(Debug, Clone)]
-pub struct BalanceGroupReporter<'a> {
-    pub report_settings: BalanceGroupSettings<'a>,
+pub struct BalanceGroupReporter {
+    pub report_settings: BalanceGroupSettings,
 }
 
-impl<'a> BalanceGroupReporter<'a> {
+impl<'a> BalanceGroupReporter {
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
-        BalanceReporter::acc_selector(self.report_settings.ras)
+        BalanceReporter::acc_selector(&self.report_settings.ras)
     }
 
     fn get_group_by_op(&self) -> TxnGroupByOp<'a> {
-        let tz = self.report_settings.report_tz;
+        let tz: &'static Tz = self.report_settings.report_tz;
         match self.report_settings.group_by {
-            GroupBy::IsoWeekDate => {
-                Box::new(|txn: &Transaction| txn_ts::zoned_iso_week_date(txn.header.timestamp, tz))
-            }
+            GroupBy::IsoWeekDate => Box::new(move |txn: &Transaction| {
+                txn_ts::local_iso_week_date(txn.header.timestamp, tz)
+            }),
             GroupBy::IsoWeek => {
-                Box::new(|txn: &Transaction| txn_ts::zoned_iso_week(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::local_iso_week(txn.header.timestamp, tz))
             }
             GroupBy::Date => {
-                Box::new(|txn: &Transaction| txn_ts::zoned_date(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::local_date(txn.header.timestamp, tz))
             }
             GroupBy::Month => {
-                Box::new(|txn: &Transaction| txn_ts::zoned_month(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::local_month(txn.header.timestamp, tz))
             }
             GroupBy::Year => {
-                Box::new(|txn: &Transaction| txn_ts::zoned_year(txn.header.timestamp, tz))
+                Box::new(|txn: &Transaction| txn_ts::local_year(txn.header.timestamp, tz))
             }
         }
     }
 }
 
-impl Report for BalanceGroupReporter<'_> {
+impl Report for BalanceGroupReporter {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
         cfg: &mut Settings,
@@ -83,21 +104,24 @@ impl Report for BalanceGroupReporter<'_> {
             accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref(), cfg);
 
         writeln!(writer, "{}", "*".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(cfg, self.report_settings.ras)? {
+        if let Some(asc) = get_account_selector_checksum(cfg, &self.report_settings.ras)? {
             for v in asc.text() {
                 writeln!(writer, "{}", &v)?;
             }
         }
         writeln!(writer)?;
+        let title = &self.report_settings.title;
+        writeln!(writer, "{}", title)?;
+        writeln!(writer, "{}", "-".repeat(title.len()))?;
+        writeln!(writer)?;
 
-        if let Some(title) = &self.report_settings.title {
-            writeln!(writer, "{}", title)?;
-            writeln!(writer, "{}", "-".repeat(title.len()))?;
-            writeln!(writer)?;
-        }
-
+        let bal_settings = BalanceSettings {
+            title: String::default(),
+            ras: vec![],
+            scale: self.report_settings.scale.clone(),
+        };
         for bal in &bal_groups {
-            BalanceReporter::txt_report(writer, bal)?
+            BalanceReporter::txt_report(writer, bal, &bal_settings)?
         }
         writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())

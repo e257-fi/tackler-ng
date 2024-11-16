@@ -1,0 +1,39 @@
+# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
+#
+# This is the Chart of Accounts
+#
+
+accounts = [
+"a",
+"a-2:c",
+"a_2:c",
+"a·2:c",
+"a-2:c-c",
+"a_2:c_c",
+"a·2:c·c",
+"a-2:c-c-c",
+"a_2:c_c_c",
+"a·2:c·c·c",
+"a:b",
+"a-b:c",
+"a:b:c",
+"a_b:c",
+"a·b:c",
+"a:b:c:d",
+"a:b:c:d:x",
+"a:c",
+"a:c-c",
+"a:c_c",
+"a:c·c",
+"Assets:Cash",
+"Assets:Stocks",
+"e",
+"e:b",
+"e:b:c",
+"e:c",
+"e:d",
+"e:e",
+"Equity:Balance",
+"EUR:a",
+"EUR:e:b:c",
+]
