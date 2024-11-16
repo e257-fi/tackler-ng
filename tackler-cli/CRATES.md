@@ -1,19 +1,23 @@
 # Tackler-NG: Tackler CLI Application
 
+[![Build Status](https://github.com/e257-fi/tackler-ng/actions/workflows/build.yml/badge.svg)](https://github.com/e257-fi/tackler-ng/actions)
+[![Github Releases](https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da)](https://github.com/e257-fi/tackler-ng/releases)
 [![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
+[![Tackler Docs](https://img.shields.io/badge/tackler-documentation-%23ffcb00)](https://tackler.e257.fi/docs)
 
-This is rusty version of [Tackler](https://tackler.e257.fi/) CLI application.
 
-Tackler is an accounting engine and reporting tool 
-for text based double-entry accounting.
+Tackler-ng is an accounting engine and reporting tool for text based double-entry accounting.
 
 ## Project Status
 
-The project is in Technology Preview Release phase.
+The rusty Tackler-NG is in feature parity with old scala based [Tackler](https://tackler.e257.fi/) CLI application.
 
-The [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/) is fully 
-supported, as are all transaction backends ([Filesystem](https://tackler.e257.fi/docs/usage/#storage-selector)
-and [Git Storage](https://tackler.e257.fi/docs/journal/git-storage/)). See `tackler --help` how to use these.
+Especially the [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/) is fully supported, and also all transaction storage backends are supported:
+
+- [FS backend](https://tackler.e257.fi/docs/usage/#storage-selector) (filesystem based)
+- [Git backend](https://tackler.e257.fi/docs/journal/git-storage/)  (native [Gitoxide](https://github.com/GitoxideLabs/gitoxide/) based support for [Git SCM](https://git-scm.com/))
+
+See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use these.
 
 All reports and exports are supported:
 * Reports
@@ -30,119 +34,74 @@ Other supported notable features are:
 * [Transacation Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction Geo Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
 
 
-**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE ARE MISSING FEATURES
-AND KNOWN INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
-
-Major missing features are lack of configuration support
-and missing support for Chart of Accounts.
-
+**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE COULD BE MISSING FEATURES
+AND INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
 
 ## Build and install tackler
 
-You need Rust to build tackler
 
 ````bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# Get the source code
 git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
-````
 
-````bash
 cd tackler-ng
-# Check the latest relase version
+
+# Check the latest relase version, format is YY-MM-<digit>
 git tag -l
-# Get the release, e.g. v24.11.0
+
+# Select the latest release, e.g. v24.11.0
 git checkout v24.11.0
 
-# Build and install tacker
-cargo install tackler
-# check that it works
-tackler --version
-tackler --help
+# Build tackler on the workspace root
+cargo build --release --locked --bin tackler
+
+# Check the version info
+target/release/tackler --version
 ````
 
-## Simple demo
+## Simple example
 
-### Create a playground
 
+This setup doesn't have any check enabled, and it uses filesystem storage as transaction storage.
+
+#### Command
 ````bash
-mkdir -p tackler/txns; cd tackler
+target/release/tackler --config examples/simple.toml
 ````
-
-### Let's record some transaction data
-
-````bash
-cat > txns/journal.txn << EOF
-2023-04-01 'It was warm, sunny day
-  Expenses:Ice_cream  2
-  Assets:Cash
-
-2023-05-01 'Ice cream 'n soda!
- Expenses:BostonCooler 3
- Assets:Cash
- 
-EOF
-````
-
-### Create some reports
-
-#### Simple balance
-````bash
-tackler --input.file txns/journal.txn --reports balance
-````
-
 #### Output
 
 ````
-BALANCE
--------
-                 0.00   -5.00  Assets
-                -5.00   -5.00  Assets:Cash
-                 0.00    5.00  Expenses
-                 3.00    3.00  Expenses:BostonCooler
-                 2.00    2.00  Expenses:Ice_cream
+**********************************************************************************
+
+Balance Report
+--------------
+                 0.00   12.00  Expenses:Food
+                12.00   12.00  Expenses:Food:Groceries
+                 0.00    3.32  Expenses:Sweets
+                 2.12    2.12  Expenses:Sweets:Ice·cream
+                 1.20    1.20  Expenses:Sweets:Salmiakki
 =====================
-                 0.00
+                15.32
+##################################################################################
+**********************************************************************************
+...
+...
+...
 ````
-
-#### Balance with account filters
-
-````bash
-tackler --input.file txns/journal.txn --reports balance --accounts '^Expenses'
-````
-
-#### Output
-````
-BALANCE
--------
-                 0.00   5.00  Expenses
-                 3.00   3.00  Expenses:BostonCooler
-                 2.00   2.00  Expenses:Ice_cream
-=====================
-                 5.00
-````
-
-
 
 ## Let's play for real
 
-### Get test vectors and full source code of Tackler
+Following examples use bare git repository as transaction storage, and also strict and audit mode is activated by configuration.
 
-````bash
-git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
-````
+The triplet of git commit id, Txn Set Checksum and Account Selector Checksum provides auditable (cryptographic) proof of transactions used by reports.
 
-### Use Git repository as Txn storage
+### Use Git repository as Transaction storage
 
 #### Reports with Txn Checksum
 
 ````bash
-tackler \
-    --input.git.repo tackler-ng/suite/audit/audit-repo.git \
-    --input.git.dir txns \
-    --input.git.ref txns-1E1 \
-    --reports balance \
-    --accounts '^a:.*' \
-    --audit.mode true
+target/release/tackler \
+    --config examples/audit.toml \
 ````
 
 #### Output
@@ -152,40 +111,43 @@ Git Storage
          commit : 4aa4e9797501c1aefc92f32dff30ab462dae5545
       reference : txns-1E1
       directory : txns
-         suffix : txn
+         suffix : .txn
         message : txns-1E1: 2016/12
 
 Txn Set Checksum
         SHA-256 : 9b29071e1bf228cfbd31ca2b8e7263212e4b86e51cfee1e8002c9b795ab03f76
        Set size : 10
 
-BALANCE
--------
-                 0.00   -161.00  a:ay2016
-                -6.00     -6.00  a:ay2016:am02
-               -14.00    -14.00  a:ay2016:am03
-               -19.00    -19.00  a:ay2016:am04
-               -26.00    -26.00  a:ay2016:am05
-                -1.00     -1.00  a:ay2016:am07
-                -7.00     -7.00  a:ay2016:am08
-               -13.00    -13.00  a:ay2016:am09
-               -19.00    -19.00  a:ay2016:am10
-               -25.00    -25.00  a:ay2016:am11
-               -31.00    -31.00  a:ay2016:am12
+**********************************************************************************
+Account Selector Checksum
+        SHA-256 : 19d31a48bf9a8604a1128ccfd281511f961c5469748a97897a21fc0fa2a5f519
+
+Balance Report
+--------------
+                 0.00   -161.0000  a:ay2016
+              -6.0000     -6.0000  a:ay2016:am02
+             -14.0000    -14.0000  a:ay2016:am03
+             -19.0000    -19.0000  a:ay2016:am04
+             -26.0000    -26.0000  a:ay2016:am05
+              -1.0000     -1.0000  a:ay2016:am07
+              -7.0000     -7.0000  a:ay2016:am08
+             -13.0000    -13.0000  a:ay2016:am09
+             -19.0000    -19.0000  a:ay2016:am10
+             -25.0000    -25.0000  a:ay2016:am11
+             -31.0000    -31.0000  a:ay2016:am12
 =====================
-              -161.00
+            -161.0000
+##################################################################################
 ````
 
 #### Report with 100_000 Transactions
 
+There is git ref 'txns-1E5' inside the example audit -repository.
+
 ````bash
-tackler \
-    --input.git.repo tackler-ng/suite/audit/audit-repo.git \
-    --input.git.dir txns \
-    --input.git.ref txns-1E5 \
-    --reports balance \
-    --accounts '^a:.*' \
-    --audit.mode true
+target/release/tackler \
+    --config examples/audit.toml \
+    --input.git.ref txns-1E5
 ````
 
 #### Output
@@ -195,30 +157,35 @@ Git Storage
          commit : cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5
       reference : txns-1E5
       directory : txns
-         suffix : txn
+         suffix : .txn
         message : txns-1E5: 2016/12
 
 Txn Set Checksum
         SHA-256 : 27060dc1ebde35bebd8f7af2fd9815bc9949558d3e3c85919813cd80748c99a7
        Set size : 100000
 
-BALANCE
--------
-                     0.00   -1574609.01  a:ay2016
-               -135600.00    -135600.00  a:ay2016:am01
-               -118950.00    -118950.00  a:ay2016:am02
-               -135631.00    -135631.00  a:ay2016:am03
-               -127137.00    -127137.00  a:ay2016:am04
-               -135616.00    -135616.00  a:ay2016:am05
-               -127154.00    -127154.00  a:ay2016:am06
-               -135600.00    -135600.00  a:ay2016:am07
-               -135603.00    -135603.00  a:ay2016:am08
-               -127140.00    -127140.00  a:ay2016:am09
-               -135619.00    -135619.00  a:ay2016:am10
-               -127126.00    -127126.00  a:ay2016:am11
-               -133433.00    -133433.00  a:ay2016:am12
+**********************************************************************************
+Account Selector Checksum
+        SHA-256 : 19d31a48bf9a8604a1128ccfd281511f961c5469748a97897a21fc0fa2a5f519
+
+Balance Report
+--------------
+                     0.00   -1574609.0100  a:ay2016
+             -135600.0008    -135600.0008  a:ay2016:am01
+             -118950.0008    -118950.0008  a:ay2016:am02
+             -135631.0008    -135631.0008  a:ay2016:am03
+             -127137.0008    -127137.0008  a:ay2016:am04
+             -135616.0008    -135616.0008  a:ay2016:am05
+             -127154.0008    -127154.0008  a:ay2016:am06
+             -135600.0008    -135600.0008  a:ay2016:am07
+             -135603.0008    -135603.0008  a:ay2016:am08
+             -127140.0008    -127140.0008  a:ay2016:am09
+             -135619.0008    -135619.0008  a:ay2016:am10
+             -127126.0008    -127126.0008  a:ay2016:am11
+             -133433.0008    -133433.0008  a:ay2016:am12
 =========================
-              -1574609.01
+            -1574609.0100
+##################################################################################
 ````
 
 ### Transaction Filters
@@ -226,20 +193,17 @@ BALANCE
 #### Filter definition
 
 ````bash
-tackler \
-    --input.git.repo tackler-ng/suite/audit/audit-repo.git \
-    --input.git.dir txns \
+target/release/tackler \
+    --config examples/audit.toml \
     --input.git.ref txns-1E5 \
-    --reports balance \
-    --accounts '^a:.*' \
-    --audit.mode true \
     --api-filter-def '{"txnFilter":{"TxnFilterPostingAccount":{"regex":"^a:ay2016:am12"}}}'
 ````
 
 The transaction filter definition could be given also as Base64 ascii armored string:
 
 ````
---api-filter-def base64:eyJ0eG5GaWx0ZXIiOnsiVHhuRmlsdGVyUG9zdGluZ0FjY291bnQiOnsicmVnZXgiOiJeYTpheTIwMTY6YW0xMiJ9fX0=
+--api-filter-def \
+base64:eyJ0eG5GaWx0ZXIiOnsiVHhuRmlsdGVyUG9zdGluZ0FjY291bnQiOnsicmVnZXgiOiJeYTpheTIwMTY6YW0xMiJ9fX0=
 ````
 
 
@@ -250,23 +214,27 @@ Git Storage
          commit : cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5
       reference : txns-1E5
       directory : txns
-         suffix : txn
+         suffix : .txn
         message : txns-1E5: 2016/12
 
 Txn Set Checksum
         SHA-256 : 51faa6d2133d22d3ff8b60aff57722d1869fc4677911b13161dce558e7498073
        Set size : 8406
 
-Filter:
-  Posting Account: "^a:ay2016:am12$"
+Filter
+  Posting Account: "^a:ay2016:am12"
 
+**********************************************************************************
+Account Selector Checksum
+        SHA-256 : 19d31a48bf9a8604a1128ccfd281511f961c5469748a97897a21fc0fa2a5f519
 
-BALANCE
--------
-                    0.00   -133433.00  a:ay2016
-              -133433.00   -133433.00  a:ay2016:am12
+Balance Report
+--------------
+                    0.00   -133433.0008  a:ay2016
+            -133433.0008   -133433.0008  a:ay2016:am12
 ========================
-              -133433.00
+            -133433.0008
+##################################################################################
 ````
 
 ## Further info

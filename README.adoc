@@ -21,11 +21,16 @@ Why not? -- Because it uses simplified Ledger syntax.
 
 == Project Status
 
-The project is in Technology Preview Release phase of the rusty Tackler.
+The rusty Tackler-NG is in feature parity with old scala based Tackler CLI.
 
-The link:https://tackler.e257.fi/docs/journal/format/[Tackler Journal Format] is fully
-supported, as are all transaction backends (link:https://tackler.e257.fi/docs/usage/#storage-selector[Filesystem]
-and link:https://tackler.e257.fi/docs/journal/git-storage/[Git Storage]). See `tackler --help` how to use these.
+Especially the link:https://tackler.e257.fi/docs/journal/format/[Tackler Journal Format] is fully
+supported, and also all transaction storage backends are supported.
+
+ * link:https://tackler.e257.fi/docs/usage/#storage-selector[Filesystem]
+ * link:https://tackler.e257.fi/docs/journal/git-storage/[Git Storage]
+
+See `tackler --help` and link:examples/tackler.toml[Tackler Configuration] how to use these.
+
 
 All reports and exports are supported:
 
@@ -46,8 +51,8 @@ Other supported notable features are:
 
 [IMPORTANT]
 ====
-**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE ARE MISSING FEATURES
-AND KNOWN INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
+**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE COULD BE MISSING FEATURES
+AND INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
 ====
 
 
@@ -80,33 +85,25 @@ git tag -l
 git checkout v24.11.0
 
 # Build tackler
-cargo build --release --bin tackler
+cargo build --release --locked --bin tackler
 ----
 
-The final binary will be located at `target/release/tackler`.
-
-Optionall, you can also install tackler:
-----
-cargo install --path tackler-cli --bin tackler
-----
-
-
-You can check that the version of source code and the version of binary match:
+The tackler binary will be located at `target/release/tackler`. You can try it following way:
 
 ----
-# Show commit id of source code
-git show --oneline --no-patch
+target/release/tackler --config examples/simple.toml
 
-# Print build info
+----
+
+
+You can check the source code and version info of tackler by running:
+
+----
 target/release/tackler --version
-
-# Or if you installed tackler
-tackler --version
 ----
 
 
-See `tackler --help`, link:docs/examples.adoc[examples] and tackler-cli crate's link:tackler-cli/CRATES.md[README]
-how to use the rusty version of tackler.
+See `tackler --help`, link:examples/tackler.toml[full Tackler configuration file], example link:docs/examples.adoc[commands] and link:tackler-cli/CRATES.md[Tackler CLI documentation]how to use the rusty version of tackler.
 
 link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG.
 
@@ -140,4 +137,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ....
-
