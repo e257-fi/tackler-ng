@@ -33,6 +33,9 @@ use tackler_rs::get_abs_path;
 use time::{format_description, Time, UtcOffset};
 use time_tz::{timezones, Tz};
 
+/// UI/CFG key value for none
+const NONE_VALUE: &str = "none";
+
 #[derive(Debug, Clone, Default)]
 pub enum StorageType {
     #[default]
@@ -307,14 +310,25 @@ pub struct Accounts {
 impl Accounts {
     fn from<P: AsRef<Path>>(
         path: P,
-        acc_path_raw: &AccountsPathRaw,
+        accs_path_raw: &AccountsPathRaw,
     ) -> Result<Accounts, Box<dyn Error>> {
-        let accs_path = get_abs_path(&path, acc_path_raw.path.as_str())?;
-        let acc_raw: AccountsRaw = toml::from_str(fs::read_to_string(accs_path)?.as_str())?;
-
-        Ok(Accounts {
-            names: acc_raw.names,
-        })
+        let accs_path_str = accs_path_raw.path.as_str();
+        match accs_path_str {
+            NONE_VALUE => Ok(Accounts::default()),
+            _ => {
+                let accs_path = get_abs_path(&path, accs_path_str)?;
+                let acc_raw: AccountsRaw = match fs::read_to_string(&accs_path) {
+                    Ok(s) => toml::from_str(s.as_str())?,
+                    Err(err) => {
+                        let msg = format!("Accounts configuration error while reading file '{accs_path_str}': {err}");
+                        return Err(msg.into());
+                    }
+                };
+                Ok(Accounts {
+                    names: acc_raw.names,
+                })
+            }
+        }
     }
 }
 
@@ -329,13 +343,27 @@ impl Commodities {
         path: P,
         comm_path_raw: &CommoditiesPathRaw,
     ) -> Result<Commodities, Box<dyn Error>> {
-        let comms_path = get_abs_path(&path, comm_path_raw.path.as_str())?;
-        let comm_raw: CommoditiesRaw = toml::from_str(fs::read_to_string(comms_path)?.as_str())?;
-
-        Ok(Commodities {
-            permit_empty_commodity: comm_raw.permit_empty_commodity,
-            names: comm_raw.names,
-        })
+        let comm_path_str = comm_path_raw.path.as_str();
+        match comm_path_str {
+            NONE_VALUE => Ok(Commodities {
+                permit_empty_commodity: Some(true),
+                names: Vec::new(),
+            }),
+            _ => {
+                let comm_path = get_abs_path(&path, comm_path_str)?;
+                let comm_raw: CommoditiesRaw = match fs::read_to_string(&comm_path) {
+                    Ok(s) => toml::from_str(s.as_str())?,
+                    Err(err) => {
+                        let msg = format!("Commodities configuration error while reading file '{comm_path_str}': {err}");
+                        return Err(msg.into());
+                    }
+                };
+                Ok(Commodities {
+                    permit_empty_commodity: comm_raw.permit_empty_commodity,
+                    names: comm_raw.names,
+                })
+            }
+        }
     }
 }
 
@@ -347,12 +375,25 @@ pub struct Tags {
 
 impl Tags {
     fn from<P: AsRef<Path>>(path: P, tags_path_raw: &TagsPathRaw) -> Result<Tags, Box<dyn Error>> {
-        let tags_path = get_abs_path(&path, tags_path_raw.path.as_str())?;
-        let tags_raw: TagsRaw = toml::from_str(fs::read_to_string(tags_path)?.as_str())?;
-
-        Ok(Tags {
-            names: tags_raw.names,
-        })
+        let tags_path_str = tags_path_raw.path.as_str();
+        match tags_path_str {
+            NONE_VALUE => Ok(Tags::default()),
+            _ => {
+                let tags_path = get_abs_path(&path, tags_path_str)?;
+                let tags_raw: TagsRaw = match fs::read_to_string(&tags_path) {
+                    Ok(s) => toml::from_str(s.as_str())?,
+                    Err(err) => {
+                        let msg = format!(
+                            "Tags configuration error while reading file '{tags_path_str}': {err}"
+                        );
+                        return Err(msg.into());
+                    }
+                };
+                Ok(Tags {
+                    names: tags_raw.names,
+                })
+            }
+        }
     }
 }
 
