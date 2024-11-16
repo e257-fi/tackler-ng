@@ -147,8 +147,10 @@ mod tests {
         let hash = Hash::from("foo");
 
         assert!(hash.is_err());
-        assert_eq!(hash.err().unwrap(/*:test:*/).to_string(),
-                   "Unsupported hash algorithm: 'foo'".to_string());
+        assert_eq!(
+            hash.err().unwrap(/*:test:*/).to_string(),
+            "Unsupported hash algorithm: 'foo'".to_string()
+        );
     }
 
     //
