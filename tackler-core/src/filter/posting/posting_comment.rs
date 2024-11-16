@@ -35,7 +35,7 @@ mod tests {
     use crate::model::{AccountTreeNode, Commodity, Posting, Transaction, TxnAccount};
     use regex::Regex;
     use rust_decimal::Decimal;
-    use std::rc::Rc;
+    use std::sync::Arc;
     use tackler_api::filters::TxnFilter;
     use tackler_api::txn_header::TxnHeader;
 
@@ -46,21 +46,21 @@ mod tests {
         e: &str,
     ) -> Transaction {
         let e_v = Decimal::new(a_value, 0);
-        let e_acctn = Rc::new(AccountTreeNode::from(e).unwrap(/*:test:*/));
+        let e_acctn = Arc::new(AccountTreeNode::from(e).unwrap(/*:test:*/));
         let e_txntn = TxnAccount {
             atn: e_acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
 
-        let e_p = Posting::from(e_txntn, e_v, e_v, false, Rc::new(Commodity::default()), comment.map(str::to_string)).unwrap(/*:test:*/);
+        let e_p = Posting::from(e_txntn, e_v, e_v, false, Arc::new(Commodity::default()), comment.map(str::to_string)).unwrap(/*:test:*/);
 
         let a_v = Decimal::new(-a_value, 0);
-        let a_acctn = Rc::new(AccountTreeNode::from(a).unwrap(/*:test:*/));
+        let a_acctn = Arc::new(AccountTreeNode::from(a).unwrap(/*:test:*/));
         let a_txntn = TxnAccount {
             atn: a_acctn,
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
-        let a_p = Posting::from(a_txntn, a_v, a_v, false, Rc::new(Commodity::default()), None).unwrap(/*:test:*/);
+        let a_p = Posting::from(a_txntn, a_v, a_v, false, Arc::new(Commodity::default()), None).unwrap(/*:test:*/);
 
         Transaction::from(TxnHeader::default(), vec![e_p, a_p]).unwrap(/*:test:*/)
     }

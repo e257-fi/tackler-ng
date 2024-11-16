@@ -875,8 +875,14 @@ mod tests {
 
     #[test]
     fn test_utc_date() {
-        assert_eq!(as_utc_date(txt2ts("2010-01-01T15:00:00+16:00")), "2009-12-31");
-        assert_eq!(as_utc_date(txt2ts("2010-01-01T08:02:03-16:00")), "2010-01-02");
+        assert_eq!(
+            as_utc_date(txt2ts("2010-01-01T15:00:00+16:00")),
+            "2009-12-31"
+        );
+        assert_eq!(
+            as_utc_date(txt2ts("2010-01-01T08:02:03-16:00")),
+            "2010-01-02"
+        );
         assert_eq!(
             as_utc_date(txt2ts("2020-12-31T23:59:59.999999999+00:00")),
             "2020-12-31"

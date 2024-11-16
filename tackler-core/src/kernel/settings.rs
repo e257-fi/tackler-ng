@@ -23,7 +23,7 @@ use crate::parser::GitInputSelector;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::{Path, PathBuf};
-use std::rc::Rc;
+use std::sync::Arc;
 use tackler_api::txn_header::Tag;
 use time::{Date, OffsetDateTime, PrimitiveDateTime};
 use time_tz::{OffsetResult, PrimitiveDateTimeExt};
@@ -52,7 +52,7 @@ pub enum InputSettings {
 
 #[derive(Debug, Default)]
 struct Commodities {
-    names: HashMap<String, Rc<Commodity>>,
+    names: HashMap<String, Arc<Commodity>>,
     permit_empty_commodity: bool,
 }
 
@@ -72,9 +72,9 @@ pub struct Settings {
     kernel: Kernel,
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
-    accounts: HashMap<String, Rc<AccountTreeNode>>,
+    accounts: HashMap<String, Arc<AccountTreeNode>>,
     commodities: Commodities,
-    tags: HashMap<String, Rc<Tag>>,
+    tags: HashMap<String, Arc<Tag>>,
 }
 
 impl Default for Settings {
@@ -146,7 +146,7 @@ impl Settings {
             HashMap::new(),
             |mut accs, account| match AccountTreeNode::from(account) {
                 Ok(atn) => {
-                    accs.insert(account.into(), Rc::new(atn));
+                    accs.insert(account.into(), Arc::new(atn));
                     Ok(accs)
                 }
                 Err(e) => {
@@ -160,7 +160,7 @@ impl Settings {
             HashMap::new(),
             |mut chm, comm| match Commodity::from(comm.to_string()) {
                 Ok(c) => {
-                    chm.insert(comm.into(), Rc::new(c));
+                    chm.insert(comm.into(), Arc::new(c));
                     Ok(chm)
                 }
                 Err(e) => {
@@ -177,7 +177,7 @@ impl Settings {
             .iter()
             .fold(HashMap::new(), |mut tags, tag| {
                 let t = Tag::from(tag.to_string());
-                tags.insert(tag.into(), Rc::new(t));
+                tags.insert(tag.into(), Arc::new(t));
                 tags
             });
 
@@ -217,7 +217,7 @@ impl Settings {
     pub fn get_txn_account(
         &mut self,
         name: &str,
-        commodity: Rc<Commodity>,
+        commodity: Arc<Commodity>,
     ) -> Result<TxnAccount, Box<dyn Error>> {
         let comm = self.get_commodity(Some(commodity.name.as_str()))?;
 
@@ -231,7 +231,7 @@ impl Settings {
                     let msg = format!("Unknown account: '{}'", name);
                     Err(msg.into())
                 } else {
-                    let atn = Rc::new(AccountTreeNode::from(name)?);
+                    let atn = Arc::new(AccountTreeNode::from(name)?);
                     self.accounts.insert(name.into(), atn.clone());
                     Ok(TxnAccount { atn, comm })
                 }
@@ -239,12 +239,12 @@ impl Settings {
         }
     }
 
-    pub fn get_commodity(&mut self, name: Option<&str>) -> Result<Rc<Commodity>, Box<dyn Error>> {
+    pub fn get_commodity(&mut self, name: Option<&str>) -> Result<Arc<Commodity>, Box<dyn Error>> {
         match name {
             Some(n) => {
                 if n.is_empty() {
                     if self.commodities.permit_empty_commodity {
-                        return Ok(Rc::new(Commodity::default()));
+                        return Ok(Arc::new(Commodity::default()));
                     } else {
                         let msg =
                             "Empty commodity and 'permit-empty-commodity' is not set".to_string();
@@ -258,7 +258,7 @@ impl Settings {
                             let msg = format!("Unknown commodity: '{}'", n);
                             Err(msg.into())
                         } else {
-                            let comm = Rc::new(Commodity::from(n.into())?);
+                            let comm = Arc::new(Commodity::from(n.into())?);
                             self.commodities.names.insert(n.into(), comm.clone());
                             Ok(comm)
                         }
@@ -266,12 +266,12 @@ impl Settings {
                 }
             }
             None => {
-                let comm = Rc::new(Commodity::default());
+                let comm = Arc::new(Commodity::default());
                 Ok(comm)
             }
         }
     }
-    pub fn get_tag(&mut self, name: &str) -> Result<Rc<Tag>, Box<dyn Error>> {
+    pub fn get_tag(&mut self, name: &str) -> Result<Arc<Tag>, Box<dyn Error>> {
         if name.is_empty() {
             let msg = "Tag name is empty string".to_string();
             return Err(msg.into());
@@ -283,7 +283,7 @@ impl Settings {
                     let msg = format!("Unknown tag: '{}'", name);
                     Err(msg.into())
                 } else {
-                    let tag = Rc::new(Tag::from(name));
+                    let tag = Arc::new(Tag::from(name));
                     self.tags.insert(name.into(), tag.clone());
                     Ok(tag)
                 }
@@ -410,7 +410,7 @@ mod tests {
         let mut settings = Settings::default();
 
         let txnatn_1 =
-            settings.get_txn_account("a:b:c", Rc::new(Commodity::default())).unwrap(/*:test:*/);
+            settings.get_txn_account("a:b:c", Arc::new(Commodity::default())).unwrap(/*:test:*/);
 
         assert_eq!(txnatn_1.atn.depth, 3);
         assert_eq!(txnatn_1.atn.get_root(), "a");
@@ -419,7 +419,7 @@ mod tests {
         assert_eq!(txnatn_1.atn.get_name(), "c");
 
         let txnatn_2 =
-            settings.get_txn_account("a:b:c", Rc::new(Commodity::default())).unwrap(/*:test:*/);
+            settings.get_txn_account("a:b:c", Arc::new(Commodity::default())).unwrap(/*:test:*/);
 
         assert_eq!(txnatn_2.atn.depth, 3);
         assert_eq!(txnatn_2.atn.get_root(), "a");

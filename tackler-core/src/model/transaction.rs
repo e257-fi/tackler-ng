@@ -91,7 +91,7 @@ mod tests {
     use super::*;
     use indoc::indoc;
     use rust_decimal::Decimal;
-    use std::rc::Rc;
+    use std::sync::Arc;
     use tackler_rs::IndocUtils;
     use time::macros::datetime;
 
@@ -101,8 +101,8 @@ mod tests {
 
     fn atn2txntn(atn: AccountTreeNode) -> TxnAccount {
         TxnAccount {
-            atn: Rc::new(atn),
-            comm: Rc::new(Commodity::default()),
+            atn: Arc::new(atn),
+            comm: Arc::new(Commodity::default()),
         }
     }
 
@@ -129,7 +129,7 @@ mod tests {
             Decimal::from_str_exact("1").unwrap(/*:test:*/),
             Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
-            Rc::new(Commodity::default()),
+            Arc::new(Commodity::default()),
             None,
         )
         .unwrap(/*:test:*/);
@@ -138,7 +138,7 @@ mod tests {
             Decimal::from_str_exact("2").unwrap(/*:test:*/),
             Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
-            Rc::new(Commodity::default()),
+            Arc::new(Commodity::default()),
             None,
         )
         .unwrap(/*:test:*/);
@@ -147,7 +147,7 @@ mod tests {
             Decimal::from_str_exact("-3").unwrap(/*:test:*/),
             Decimal::from_str_exact("0").unwrap(/*:test:*/),
             false,
-            Rc::new(Commodity::default()),
+            Arc::new(Commodity::default()),
             None,
         )
         .unwrap(/*:test:*/);

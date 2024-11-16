@@ -20,7 +20,7 @@ use std::cmp::Ordering;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, Hash, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Commodity {
@@ -60,8 +60,8 @@ pub struct AccountTreeNode {
 
 #[derive(Debug, Clone, Eq)]
 pub struct TxnAccount {
-    pub(crate) atn: Rc<AccountTreeNode>,
-    pub(crate) comm: Rc<Commodity>,
+    pub(crate) atn: Arc<AccountTreeNode>,
+    pub(crate) comm: Arc<Commodity>,
 }
 
 impl Hash for TxnAccount {
@@ -213,14 +213,14 @@ mod tests {
     #[test]
     fn atn_is_parent() {
         let parent = TxnAccount {
-            atn: Rc::new(AccountTreeNode::from("a:b")
+            atn: Arc::new(AccountTreeNode::from("a:b")
                 .unwrap(/*:test:*/)),
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
         let leaf = TxnAccount {
-            atn: Rc::new(AccountTreeNode::from("a:b:c")
+            atn: Arc::new(AccountTreeNode::from("a:b:c")
             .unwrap(/*:test:*/)),
-            comm: Rc::new(Commodity::default()),
+            comm: Arc::new(Commodity::default()),
         };
         assert!(parent.is_parent_of(&leaf));
         assert!(!parent.is_parent_of(&parent));
