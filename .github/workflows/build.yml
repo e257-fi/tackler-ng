@@ -44,5 +44,6 @@ jobs:
           submodules: 'true'
       - run: rustup show
       - uses: Swatinem/rust-cache@v2
-      - run: cargo build
-
+      - run: cargo build --release
+      - run: target/release/tackler --config examples/simple.toml
+      - run: target/release/tackler --config examples/audit.toml
