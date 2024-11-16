@@ -86,7 +86,7 @@ mod tests {
 
         match tf.txn_filter {
             TxnFilter::TxnFilterPostingAmountGreater(_) => (),
-            _ => panic!(),
+            _ => panic!(/*:test:*/),
         }
 
         assert_eq!(format!("{tf}"), filter_text_str);
