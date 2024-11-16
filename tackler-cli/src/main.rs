@@ -112,12 +112,12 @@ fn run() -> Result<i32, Box<dyn Error>> {
                     bal_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }
                 ReportType::BalanceGroup => {
-                    let group_by = cli.group_by.clone().unwrap(/*:ok: clap*/);
+                    let group_by = match &cli.group_by {
+                        Some(gb) => txn_ts::GroupBy::from(gb)?,
+                        None => settings.report.balance_group.group_by,
+                    };
                     let bal_group_reporter = BalanceGroupReporter {
-                        report_settings: BalanceGroupSettings::from(
-                            &settings,
-                            Some(txn_ts::GroupBy::from(group_by.as_str())?),
-                        )?,
+                        report_settings: BalanceGroupSettings::from(&settings, Some(group_by))?,
                     };
                     bal_group_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
                 }

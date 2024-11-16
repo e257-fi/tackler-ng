@@ -1,6 +1,6 @@
 ### Configuration settings for Tackler-NG
 ###
-### The format of this file TOML (https://toml.io/en/)
+### The format of this file is TOML (https://toml.io/en/)
 [kernel]
 ### Stric mode
 ###
@@ -93,7 +93,7 @@ storage = "fs"
 ### In case of CLI option, it's relative to the current working directory.
 ###
 ### CLI: --input.fs.dir
-dir = "txns"
+dir = "tackler/txns"
 ### Filename suffix
 ###
 ### This is transaction file extension, e.g. all files with
@@ -155,7 +155,7 @@ suffix = "txn"
 ### If the path is relative, then it's based on this file.
 ###
 ### Set the value to string "none", to disable the Chart of Accounts.
-path = "accounts.toml"
+path = "tackler/conf/accounts.toml"
 
 [transaction.commodities]
 ### Path to commodities data
@@ -164,7 +164,7 @@ path = "accounts.toml"
 ###
 ### Set the value to string "none", to disable the Chart of Commodities,
 ### in that case, empty commodities are allowed by default.
-path = "commodities.toml"
+path = "tackler/conf/commodities.toml"
 
 [transaction.tags]
 ### Path to tags data
@@ -172,7 +172,7 @@ path = "commodities.toml"
 ### If the path is relative, then it's based on this file.
 ###
 ### Set the value to string "none", to disable the Chart of Tags
-path = "tags.toml"
+path = "tackler/conf/tags.toml"
 
 ############################################################################
 
@@ -273,8 +273,10 @@ group-by = "month"
 title = "Register Report"
 ### Timestamp style
 ###
-### This set how timestamps are displayed with register report
-### See also 'timezone', 'report-timezone' options.
+### This optional setting controls how timestamps are
+### displayed with register report. Default is "date".
+### See also 'kernel.timestamp.timezone'
+### and 'report.report-timezone' settings.
 ###
 ### Valid values are: date, seconds, full
 ###   date:    only date part is displayed (this is default)

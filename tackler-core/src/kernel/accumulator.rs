@@ -60,7 +60,7 @@ where
             let metadata = None;
             let txn_set = TxnSet { metadata, txns };
 
-            Balance::from(&group_by_key, &txn_set, ras, settings)
+            Balance::from(&group_by_key, &txn_set, ras, settings).unwrap() // todo: fix
         })
         .filter(|bal| !bal.is_empty())
         .sorted_by_key(|bal| bal.title.clone()) // todo: could this clone be avoided?

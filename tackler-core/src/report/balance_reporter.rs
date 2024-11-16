@@ -225,7 +225,7 @@ impl Report for BalanceReporter {
             txn_data,
             bal_acc_sel.as_ref(),
             cfg,
-        );
+        )?;
 
         BalanceReporter::txt_report(writer, &bal_report, &self.report_settings)?;
         writeln!(writer, "{}", "#".repeat(82))?;
