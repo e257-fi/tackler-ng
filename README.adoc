@@ -1,3 +1,5 @@
+image:https://github.com/e257-fi/tackler-ng/actions/workflows/build.yml/badge.svg["build status", link="https://github.com/e257-fi/tackler-ng/actions"]
+image:https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da["Github Release", https://github.com/e257-fi/tackler-ng/releases]
 image:https://tackler.e257.fi/img/tackler-ng.svg["crates.io: tackler", link="https://crates.io/crates/tackler"]
 image:https://tackler.e257.fi/img/badge-matrix.svg["matrix: tackler", link="https://matrix.to/#/#tackler:matrix.org"]
 
