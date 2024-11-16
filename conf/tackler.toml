@@ -153,18 +153,25 @@ suffix = "txn"
 ### Path to accounts data
 ###
 ### If the path is relative, then it's based on this file.
+###
+### Set the value to string "none", to disable the Chart of Accounts.
 path = "accounts.toml"
 
 [transaction.commodities]
 ### Path to commodities data
 ###
 ### If the path is relative, then it's based on this file.
+###
+### Set the value to string "none", to disable the Chart of Commodities,
+### in that case, empty commodities are allowed by default.
 path = "commodities.toml"
 
 [transaction.tags]
 ### Path to tags data
 ###
 ### If the path is relative, then it's based on this file.
+###
+### Set the value to string "none", to disable the Chart of Tags
 path = "tags.toml"
 
 ############################################################################
