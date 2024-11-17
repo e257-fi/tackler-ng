@@ -81,8 +81,8 @@ cd tackler-ng
 # Check the latest relase version
 git tag -l
 
-# Get the release, e.g. v24.11.0
-git checkout v24.11.0
+# Get the release, e.g. v24.11.1
+git checkout v24.11.1
 
 # Build tackler
 cargo build --release --locked --bin tackler
