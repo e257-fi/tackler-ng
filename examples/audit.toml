@@ -26,9 +26,9 @@ targets = [ "balance" ]
 
 balance       = { title = "Balance Report" }
 balance-group = { title = "Balance Group Report", group-by = "month" }
-register      = { title = "Register Report", accounts = [ "^Expenses:", "^Income:" ]}
+register      = { title = "Register Report", accounts = [ "^e:", "^a:" ]}
 
 
 ### Export Configuration
 [export]
-equity = { accounts = [ "^Assets:", ], equity-account = "Equity:Balance" }
+equity = { accounts = [ "^a:", ], equity-account = "Equity:Balance" }
