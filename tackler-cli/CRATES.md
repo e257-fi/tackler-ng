@@ -49,8 +49,8 @@ cd tackler-ng
 # Check the latest relase version, format is YY-MM-<digit>
 git tag -l
 
-# Select the latest release, e.g. v24.11.0
-git checkout v24.11.0
+# Select the latest release, e.g. v24.11.1
+git checkout v24.11.1
 
 # Build tackler on the workspace root
 cargo build --release --locked --bin tackler

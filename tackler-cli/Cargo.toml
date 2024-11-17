@@ -15,7 +15,7 @@
 #
 [package]
 name = "tackler"
-version = "0.4.0-dev"
+version = "24.11.1"
 description = "Rusty implementation of Tackler CLI app"
 edition.workspace = true
 license.workspace = true
@@ -27,9 +27,9 @@ include.workspace = true
 readme = "CRATES.md"
 
 [dependencies]
-tackler-rs =   { path = "../tackler-rs",   version = "0.4.0-dev" }
-tackler-api =  { path = "../tackler-api", version = "0.4.0-dev" }
-tackler-core = { path = "../tackler-core", version = "0.4.0-dev" }
+tackler-rs =   { path = "../tackler-rs",   version = "0.4.0" }
+tackler-api =  { path = "../tackler-api", version = "0.4.0" }
+tackler-core = { path = "../tackler-core", version = "0.4.0" }
 log = { workspace = true }
 clap = { version = "4.5.20", features = [ "derive" ] }
 time-tz = { workspace = true }

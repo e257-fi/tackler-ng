@@ -5,25 +5,25 @@
 Currently published crates are:
 
 ....
-tackler      = "0.3.0"
-tackler-rs   = "0.3.0"
-tackler-api  = "0.3.0"
-tackler-core = "0.3.0"
+tackler      = "24.11.1"
+tackler-rs   = "0.4.0"
+tackler-api  = "0.4.0"
+tackler-core = "0.4.0"
 ....
 
 
 == Releases
 
-=== Tackler release XX.YY.0
+=== Tackler release 24.11.1
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 0.4.0-dev
-|tackler-core | 0.4.0-dev
-|tackler-api  | 0.4.0-dev
-|tackler-rs   | 0.4.0-dev
+|Tackler CLI  | 24.11.1
+|tackler-core | 0.4.0
+|tackler-api  | 0.4.0
+|tackler-rs   | 0.4.0
 |===
 
 
@@ -32,15 +32,20 @@ tackler-core = "0.3.0"
 New features:
 
 * Full support for configuration, see:
-  ** xref:./conf/tackler.toml[Main Tackler configuration]
-  ** xref:./conf/accounts.toml[Chart of Accounts]
-  ** xref:./conf/commodities.toml[Chart of Commodities]
-  ** xref:./conf/tags.toml[Chart of Tags]
+  ** xref:./examples/tackler.toml[Main Tackler configuration]
+     *** xref:./examples/tackler/conf/accounts.toml[Chart of Accounts]
+     *** xref:./examples/tackler/conf/commodities.toml[Chart of Commodities]
+     *** xref:./examples/tackler/conf/tags.toml[Chart of Tags]
+* Added Examples:
+  ** xref:./examples/simple.toml[Simple Filesystem based setup]
+  ** xref:./examples/audit.toml[Complex Git and Audit setup]
 
 
 ==== Fixes
 
-Fixes in this release: None
+Fixes in this release:
+
+* Changed how CLI and configuration options and defaults
 
 
 ==== Development
@@ -48,9 +53,9 @@ Fixes in this release: None
 Updated dependenies and tools:
 
 * Dependencies
-** ...
+** no direct dependency changes
 * Build
-** ...
+** Added Github Actions workflow "build"
 
 
 ===== Rust toolchain
