@@ -44,9 +44,9 @@ static GLOBAL: Jemalloc = Jemalloc;
 
 fn run() -> Result<i32, Box<dyn Error>> {
     let cli = cli_args::Cli::parse();
-    let cfg = Some(Config::from(&cli.conf_path)?);
+    let cfg = Config::from(&cli.conf_path)?;
 
-    let mut settings = Settings::from(cfg, cli.audit_mode, cli.accounts.clone())?;
+    let mut settings = Settings::from(cfg, cli.strict_mode, cli.audit_mode, cli.accounts.clone())?;
 
     let input_type = cli.get_input_type(&settings)?;
 

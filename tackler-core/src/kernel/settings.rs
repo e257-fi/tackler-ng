@@ -69,6 +69,7 @@ pub struct Settings {
     pub audit_mode: bool,
     pub report: Report,
     pub export: Export,
+    strict_mode: bool,
     kernel: Kernel,
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
@@ -80,6 +81,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            strict_mode: false,
             audit_mode: false,
             report: Report::default(),
             export: Export::default(),
@@ -96,6 +98,7 @@ impl Default for Settings {
 impl Settings {
     pub fn default_audit() -> Self {
         Settings {
+            strict_mode: false,
             audit_mode: true,
             report: Report::default(),
             export: Export::default(),
@@ -112,36 +115,11 @@ impl Settings {
 
 impl Settings {
     pub fn from(
-        cfg_opt: Option<Config>,
+        cfg: Config,
+        strict_mode: Option<bool>,
         audit_mode: Option<bool>,
         report_accounts: Option<Vec<String>>,
     ) -> Result<Settings, Box<dyn Error>> {
-        let cfg = match cfg_opt {
-            Some(c) => c,
-            None => {
-                return match (audit_mode, report_accounts) {
-                    (Some(h), Some(ra)) => {
-                        let mut s = match h {
-                            true => Self::default_audit(),
-                            false => Self::default(),
-                        };
-                        s.global_acc_sel = Some(ra);
-                        Ok(s)
-                    }
-                    (Some(h), None) => {
-                        return Ok(match h {
-                            true => Self::default_audit(),
-                            false => Self::default(),
-                        })
-                    }
-                    (None, Some(ra)) => Ok(Settings {
-                        global_acc_sel: Some(ra),
-                        ..Default::default()
-                    }),
-                    (None, None) => Ok(Settings::default()),
-                }
-            }
-        };
         let accounts = cfg.transaction.accounts.names.iter().try_fold(
             HashMap::new(),
             |mut accs, account| match AccountTreeNode::from(account) {
@@ -182,16 +160,19 @@ impl Settings {
             });
 
         Ok(Settings {
-            kernel: cfg.kernel.clone(),
+            strict_mode: match strict_mode {
+                Some(s) => s,
+                None => cfg.kernel.strict,
+            },
+            audit_mode: match audit_mode {
+                Some(a) => a,
+                None => cfg.kernel.audit.mode,
+            },
+            kernel: cfg.kernel,
             global_acc_sel: report_accounts,
             targets: cfg.report.targets.clone(),
             report: cfg.report,
             export: cfg.export,
-            audit_mode: match audit_mode {
-                Some(true) => true,
-                Some(false) => false,
-                None => cfg.kernel.audit.mode,
-            },
             accounts,
             commodities: Commodities {
                 names: comms,
@@ -227,7 +208,7 @@ impl Settings {
                 comm,
             }),
             None => {
-                if self.kernel.strict {
+                if self.strict_mode {
                     let msg = format!("Unknown account: '{}'", name);
                     Err(msg.into())
                 } else {
@@ -254,7 +235,7 @@ impl Settings {
                 match self.commodities.names.get(n) {
                     Some(comm) => Ok(comm.clone()),
                     None => {
-                        if self.kernel.strict {
+                        if self.strict_mode {
                             let msg = format!("Unknown commodity: '{}'", n);
                             Err(msg.into())
                         } else {
@@ -279,7 +260,7 @@ impl Settings {
         match self.tags.get(name) {
             Some(tag) => Ok(tag.clone()),
             None => {
-                if self.kernel.strict {
+                if self.strict_mode {
                     let msg = format!("Unknown tag: '{}'", name);
                     Err(msg.into())
                 } else {

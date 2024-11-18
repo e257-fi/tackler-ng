@@ -30,10 +30,15 @@ pub(crate) struct Cli {
     #[arg(long = "config", value_name = "config file path")]
     pub(crate) conf_path: PathBuf,
 
-    /// Enable audit mode
+    /// Strict txn data mode
     ///
-    /// Audit mode turns on validation of journal data and
-    /// produces checksums of data and used selectors.
+    /// Turns on strict validation of journal data (accounts, commodities and tags).
+    #[arg(long = "strict.mode", value_name = "true|false")]
+    pub(crate) strict_mode: Option<bool>,
+
+    /// Txn set audit mode
+    ///
+    /// Produces checksum of account selectors and transaction set data
     #[arg(long = "audit.mode", value_name = "true|false")]
     pub(crate) audit_mode: Option<bool>,
 
