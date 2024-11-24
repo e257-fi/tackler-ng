@@ -108,11 +108,11 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
 
     eprintln!("\nOn average {txn_per_s_ave:.0} txn/s");
     eprintln!(
-        "Reference system (laptop): {rust_txn_per_s_ref:.0} txn/s ({:>6.0} txn/s)",
+        "Reference system (laptop): {rust_txn_per_s_ref:.0} txn/s ({:+>6.0} txn/s)",
         txn_per_s_ave - rust_txn_per_s_ref
     );
     eprintln!(
-        "Reference implementation:  {scala_txn_per_s_ref:.0} txn/s ({:>6.0} txn/s)",
+        "Reference implementation:  {scala_txn_per_s_ref:.0} txn/s ({:+>6.0} txn/s)",
         txn_per_s_ave - scala_txn_per_s_ref
     );
 }

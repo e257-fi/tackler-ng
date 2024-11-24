@@ -16,7 +16,7 @@
 [package]
 name = "tackler"
 version = "24.11.2-dev"
-description = "Rusty implementation of Tackler CLI app"
+description = "Fast, reliable bookkeeping engine with native GIT SCM support for plain text accounting"
 edition.workspace = true
 license.workspace = true
 homepage.workspace = true

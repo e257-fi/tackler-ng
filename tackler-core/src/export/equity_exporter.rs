@@ -22,12 +22,11 @@ use crate::kernel::report_item_selector::{
 };
 use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
-use crate::report::get_account_selector_checksum;
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::io;
-use tackler_api::metadata::items::Text;
+use tackler_api::metadata::items::{AccountSelectorChecksum, Text};
 use time::format_description::well_known::Rfc3339;
 use uuid::Uuid;
 
@@ -69,7 +68,7 @@ impl EquityExporter {
 impl Export for EquityExporter {
     fn write_export<W: io::Write + ?Sized>(
         &self,
-        cfg: &mut Settings,
+        cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
@@ -116,7 +115,12 @@ impl Export for EquityExporter {
 
         let last_txn = txn_data.txns.last();
 
-        let acc_sel_checksum = get_account_selector_checksum(cfg, &self.export_settings.ras)?;
+        let acc_sel_checksum = match cfg.get_hash() {
+            Some(hash) => Some(AccountSelectorChecksum {
+                hash: bal_acc_sel.checksum(hash)?,
+            }),
+            None => None,
+        };
 
         let equity_txn_str: Vec<String> = bal
             .bal
@@ -166,21 +170,21 @@ impl Export for EquityExporter {
                             eq_txn.extend(mdi.text().iter().map(|v| {
                                 format!("{}; {}", eq_txn_indent, v)
                             }).collect::<Vec<_>>());
-                            eq_txn.push(format!("{};", eq_txn_indent));
+                            eq_txn.push(format!("{}; ", eq_txn_indent));
                         }
 
                         if let Some(asc) = &acc_sel_checksum {
                             for v in asc.text() {
                                 eq_txn.push(format!("{}; {}", eq_txn_indent, &v));
                             }
-                            eq_txn.push(format!("{};", eq_txn_indent));
+                            eq_txn.push(format!("{}; ", eq_txn_indent));
                         }
                 };
                 if dsum.is_zero() {
                     eq_txn.push(format!("{}; WARNING:", eq_txn_indent));
                     eq_txn.push(format!("{}; WARNING: The sum of equity transaction is zero without equity account.", eq_txn_indent));
                     eq_txn.push(format!("{}; WARNING: Therefore there is no equity posting row, and this is probably not right.", eq_txn_indent));
-                    eq_txn.push(format!("{}; WARNING: Is the account selector correct for this Equity Export?", eq_txn_indent));
+                    eq_txn.push(format!("{}; WARNING: Is the account selector correct for this Equity export?", eq_txn_indent));
                     eq_txn.push(format!("{}; WARNING:", eq_txn_indent));
                 }
 

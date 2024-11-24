@@ -105,7 +105,7 @@ impl Text for ReportTimezone {
     fn text(&self) -> Vec<String> {
         let pad = MetadataItem::ITEM_PAD;
         vec![
-            "Report timezone".to_string(),
+            "Report Time Zone".to_string(),
             format!("{:>pad$} : {}", "TZ name", &self.timezone),
         ]
     }
@@ -128,7 +128,13 @@ impl TxnFilterDescription {
 }
 impl Text for TxnFilterDescription {
     fn text(&self) -> Vec<String> {
-        vec![String::from(format!("{}", self.txn_filter_def).trim_end())]
+        // todo: TxnFilterDescription needs proper implementation for Text
+        //       See equity_exporter::write_export
+        format!("{}", self.txn_filter_def)
+            .trim_end()
+            .split("\n")
+            .map(String::from)
+            .collect::<Vec<String>>()
     }
 }
 

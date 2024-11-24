@@ -21,18 +21,14 @@ mod cli_args;
 use log::error;
 use std::error::Error;
 use std::io;
-use tackler_core::export::{EquityExporter, EquitySettings, Export, IdentityExporter};
+use tackler_core::export::write_exports;
 use tackler_core::kernel::settings::Settings;
 use tackler_core::parser;
-use tackler_core::report::{
-    BalanceGroupReporter, BalanceGroupSettings, BalanceReporter, BalanceSettings, RegisterReporter,
-    RegisterSettings, Report,
-};
+use tackler_core::report::write_txt_reports;
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
-use tackler_api::txn_ts;
-use tackler_core::config::{Config, ExportType, ReportType};
+use tackler_core::config::Config;
 
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
@@ -44,9 +40,19 @@ static GLOBAL: Jemalloc = Jemalloc;
 
 fn run() -> Result<i32, Box<dyn Error>> {
     let cli = cli_args::Cli::parse();
-    let cfg = Some(Config::from(&cli.conf_path)?);
+    let cfg = match Config::from(&cli.conf_path) {
+        Ok(cfg) => cfg,
+        Err(err) => {
+            let msg = format!(
+                "Configuration error with '{}': {err}",
+                cli.conf_path.display()
+            );
+            error!("{}", msg);
+            return Err(msg.into());
+        }
+    };
 
-    let mut settings = Settings::from(cfg, cli.audit_mode, cli.accounts.clone())?;
+    let mut settings = Settings::from(cfg, cli.strict_mode, cli.audit_mode, cli.accounts.clone())?;
 
     let input_type = cli.get_input_type(&settings)?;
 
@@ -73,7 +79,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
     let txn_data = match result {
         Ok(txn_data) => txn_data,
         Err(err) => {
-            let msg = format!("Error with transaction input: {err}");
+            let msg = format!("Invalid transaction input: {err}");
             error!("{}", msg);
             return Err(msg.into());
         }
@@ -95,59 +101,40 @@ fn run() -> Result<i32, Box<dyn Error>> {
         None => txn_data.get_all()?,
     };
 
+    let mut console_output = if cli.output_directory.is_none() {
+        Some(Box::new(io::stdout()))
+    } else {
+        None
+    };
+
     let reports = settings.get_report_targets(cli.reports)?;
     if !reports.is_empty() {
-        let mut w: Box<dyn io::Write> = Box::new(io::stdout());
-
-        if let Some(metadata) = &txn_set.metadata() {
-            writeln!(&mut w, "{}", metadata.text())?;
-        }
-
-        for r in reports {
-            match r {
-                ReportType::Balance => {
-                    let bal_reporter = BalanceReporter {
-                        report_settings: BalanceSettings::from(&settings)?,
-                    };
-                    bal_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
-                }
-                ReportType::BalanceGroup => {
-                    let group_by = match &cli.group_by {
-                        Some(gb) => txn_ts::GroupBy::from(gb)?,
-                        None => settings.report.balance_group.group_by,
-                    };
-                    let bal_group_reporter = BalanceGroupReporter {
-                        report_settings: BalanceGroupSettings::from(&settings, Some(group_by))?,
-                    };
-                    bal_group_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
-                }
-                ReportType::Register => {
-                    let reg_reporter = RegisterReporter {
-                        report_settings: RegisterSettings::from(&settings)?,
-                    };
-                    reg_reporter.write_txt_report(&mut settings, &mut w, &txn_set)?;
-                }
-            }
-        }
+        write_txt_reports(
+            &mut console_output,
+            cli.output_directory.as_ref(),
+            &cli.output_name,
+            &reports,
+            &txn_set,
+            cli.group_by,
+            &settings,
+            &mut Some(Box::new(io::stdout())),
+        )?;
     }
 
-    if let Some(exports) = cli.exports {
-        let mut w: Box<dyn io::Write> = Box::new(io::stdout());
-
-        for e in exports {
-            match ExportType::from(e.as_str())? {
-                ExportType::Equity => {
-                    let eq_exporter = EquityExporter {
-                        export_settings: EquitySettings::from(&settings)?,
-                    };
-                    eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;
-                }
-                ExportType::Identity => {
-                    let eq_exporter = IdentityExporter {};
-                    eq_exporter.write_export(&mut settings, &mut w, &txn_set)?;
-                }
-            }
-        }
+    let exports = settings.get_export_targets(cli.exports)?;
+    if !exports.is_empty() && cli.output_directory.is_some() {
+        write_exports(
+            cli.output_directory
+                .as_ref()
+                .expect("IE: logic error with CLI arguments"),
+            cli.output_name
+                .expect("IE: logic error with CLI arguments")
+                .as_str(),
+            &exports,
+            &txn_set,
+            &mut settings,
+            &mut Some(Box::new(io::stdout())),
+        )?;
     }
     Ok(0)
 }

@@ -47,3 +47,21 @@ pub fn to_report_targets(targets: &[String]) -> Result<Vec<ReportType>, Box<dyn 
         )?;
     Ok(trgs)
 }
+
+pub fn to_export_targets(targets: &[String]) -> Result<Vec<ExportType>, Box<dyn Error>> {
+    let trgs =
+        targets.iter().try_fold(
+            Vec::new(),
+            |mut trgs: Vec<ExportType>, trg| match ExportType::from(trg.as_str()) {
+                Ok(t) => {
+                    trgs.push(t);
+                    Ok::<Vec<ExportType>, Box<dyn Error>>(trgs)
+                }
+                Err(e) => {
+                    let msg = format!("Invalid export target: {e}");
+                    Err(msg.into())
+                }
+            },
+        )?;
+    Ok(trgs)
+}

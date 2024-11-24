@@ -15,6 +15,7 @@
  *
  */
 
+use crate::kernel::hash::Hash;
 use crate::kernel::Predicate;
 use crate::model::{BalanceTreeNode, RegisterPosting};
 use regex::RegexSet;
@@ -22,7 +23,7 @@ use std::error::Error;
 use tackler_api::metadata::Checksum;
 
 pub trait ReportItemSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>>;
+    fn checksum(&self, _: Hash) -> Result<Checksum, Box<dyn Error>>;
 }
 
 pub trait BalanceItemSelector: Predicate<BalanceTreeNode> {}
@@ -35,8 +36,11 @@ impl BalanceSelector for BalanceAllSelector {}
 impl BalanceItemSelector for BalanceAllSelector {}
 
 impl ReportItemSelector for BalanceAllSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
+    fn checksum(&self, _hash: Hash) -> Result<Checksum, Box<dyn Error>> {
+        Ok(Checksum {
+            algorithm: "None".to_string(),
+            value: "select all".to_string(),
+        })
     }
 }
 
@@ -52,8 +56,11 @@ impl BalanceSelector for BalanceNonZeroSelector {}
 impl BalanceItemSelector for BalanceNonZeroSelector {}
 
 impl ReportItemSelector for BalanceNonZeroSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
+    fn checksum(&self, _hash: Hash) -> Result<Checksum, Box<dyn Error>> {
+        Ok(Checksum {
+            algorithm: "None".to_string(),
+            value: "select all non-zero".to_string(),
+        })
     }
 }
 
@@ -66,18 +73,16 @@ impl Predicate<BalanceTreeNode> for BalanceNonZeroSelector {
 pub struct BalanceNonZeroByAccountSelector {
     acc_sel: BalanceByAccountSelector,
 }
-impl BalanceSelector for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector {}
-impl BalanceItemSelector for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector {}
+impl BalanceSelector for BalanceNonZeroByAccountSelector {}
+impl BalanceItemSelector for BalanceNonZeroByAccountSelector {}
 
-impl ReportItemSelector for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
+impl ReportItemSelector for BalanceNonZeroByAccountSelector {
+    fn checksum(&self, hash: Hash) -> Result<Checksum, Box<dyn Error>> {
+        self.acc_sel.checksum(hash)
     }
 }
 
-impl Predicate<BalanceTreeNode>
-    for crate::kernel::report_item_selector::BalanceNonZeroByAccountSelector
-{
+impl Predicate<BalanceTreeNode> for BalanceNonZeroByAccountSelector {
     fn eval(&self, btn: &BalanceTreeNode) -> bool {
         !btn.account_sum.is_zero() && self.acc_sel.eval(btn)
     }
@@ -116,8 +121,11 @@ impl Predicate<BalanceTreeNode> for BalanceByAccountSelector {
 }
 
 impl ReportItemSelector for BalanceByAccountSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
+    fn checksum(&self, hash: Hash) -> Result<Checksum, Box<dyn Error>> {
+        let mut accsel = self.regexs.patterns().to_vec();
+        accsel.sort();
+        let h = hash.checksum(&accsel, "\n".as_bytes())?;
+        Ok(h)
     }
 }
 
@@ -147,8 +155,11 @@ impl<'a> Predicate<RegisterPosting<'a>> for RegisterByAccountSelector {
 }
 
 impl ReportItemSelector for RegisterByAccountSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
+    fn checksum(&self, hash: Hash) -> Result<Checksum, Box<dyn Error>> {
+        let mut accsel = self.regexs.patterns().to_vec();
+        accsel.sort();
+        let h = hash.checksum(&accsel, "\n".as_bytes())?;
+        Ok(h)
     }
 }
 
@@ -165,7 +176,10 @@ impl<'a> RegisterItemSelector<'a> for RegisterAllSelector {}
 impl<'a> RegisterSelector<'a> for RegisterAllSelector {}
 
 impl ReportItemSelector for RegisterAllSelector {
-    fn checksum(&self) -> Result<Checksum, Box<dyn Error>> {
-        todo!()
+    fn checksum(&self, _hash: Hash) -> Result<Checksum, Box<dyn Error>> {
+        Ok(Checksum {
+            algorithm: "None".to_string(),
+            value: "select all".to_string(),
+        })
     }
 }

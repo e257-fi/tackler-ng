@@ -6,36 +6,38 @@
 [![Tackler Docs](https://img.shields.io/badge/tackler-documentation-%23ffcb00)](https://tackler.e257.fi/docs)
 
 
-Tackler-ng is an accounting engine and reporting tool for text based double-entry accounting.
+Tackler is fast, reliable bookkeeping engine with native GIT SCM 
+support for plain text accounting written in rust. 
+Tackler-NG is rusty version of [Tackler](https://tackler.e257.fi/).
 
 ## Project Status
 
-The rusty Tackler-NG is in feature parity with old scala based [Tackler](https://tackler.e257.fi/) CLI application.
-
-Especially the [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/) is fully supported, and also all transaction storage backends are supported:
-
-- [FS backend](https://tackler.e257.fi/docs/usage/#storage-selector) (filesystem based)
-- [Git backend](https://tackler.e257.fi/docs/journal/git-storage/)  (native [Gitoxide](https://github.com/GitoxideLabs/gitoxide/) based support for [Git SCM](https://git-scm.com/))
-
-See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use these.
-
-All reports and exports are supported:
-* Reports
-  * [Balance](https://tackler.e257.fi/docs/report-balance/)
-  * [Balance Group](https://tackler.e257.fi/docs/report-balance-group/)
-  * [Register](https://tackler.e257.fi/docs/report-register/)
-* Exports
-  * [Equity](https://tackler.e257.fi/docs/export-equity/)
-  * [Identity](https://tackler.e257.fi/docs/export-equity/)
-
-Other supported notable features are:
-* Handling [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
-* [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/)
-* [Transacation Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction Geo Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
+The rusty Tackler-NG is in [feature](https://tackler.e257.fi/features/)
+parity with old scala based Tackler  CLI, and this will be 
+the basis of all future Tackler development.
 
 
-**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE COULD BE MISSING FEATURES
-AND INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
+Basic functionality is fully supported, including 
+[Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
+transaction storages ([FS backend](https://tackler.e257.fi/docs/usage/#storage-selector), 
+[Gitoxide](https://github.com/GitoxideLabs/gitoxide/) based [Git backend](https://tackler.e257.fi/docs/journal/git-storage/)), 
+all reports 
+([Balance](https://tackler.e257.fi/docs/report-balance/), 
+[Balance Group](https://tackler.e257.fi/docs/report-balance-group/), 
+[Register](https://tackler.e257.fi/docs/report-register/))
+and all exports 
+([Equity](https://tackler.e257.fi/docs/export-equity/), 
+[Identity](https://tackler.e257.fi/docs/export-equity/)).
+
+Other notable supported features are:
+
+* [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
+* All [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/)
+* Accounting based on [Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction GIS Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
+
+See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use tackler-ng.
+
+**NOTE: Tackler-NG is tested with the most essential tackler tests vectors at the moment.**
 
 ## Build and install tackler
 
@@ -46,23 +48,23 @@ git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
 
 cd tackler-ng
 
-# Check the latest relase version, format is YY-MM-<digit>
+# The main branch should build and pass all tests.
+# To build a release, check relased versions:
 git tag -l
 
-# Select the latest release, e.g. v24.11.1
+# Get the release, e.g. v24.11.1
 git checkout v24.11.1
 
-# Build tackler on the workspace root
+# Build tackler
 cargo build --release --locked --bin tackler
 
-# Check the version info
-target/release/tackler --version
+# the binary is located at 'target/release/tackler'
 ````
 
 ## Simple example
 
 
-This setup doesn't have any check enabled, and it uses filesystem storage as transaction storage.
+This setup doesn't have any checks enabled and it uses plain filesystem as transaction storage.
 
 #### Command
 ````bash
@@ -91,9 +93,12 @@ Balance Report
 
 ## Let's play for real
 
-Following examples use bare git repository as transaction storage, and also strict and audit mode is activated by configuration.
+Following examples use bare git repository as transaction storage, 
+and also strict and audit mode is activated by configuration.
 
-The triplet of git commit id, Txn Set Checksum and Account Selector Checksum provides auditable (cryptographic) proof of transactions used by reports.
+The triplet of git commit id, Txn Set Checksum and 
+Account Selector Checksum provides auditable (cryptographic)
+proof of transactions used by reports.
 
 ### Use Git repository as Transaction storage
 
@@ -199,7 +204,8 @@ target/release/tackler \
     --api-filter-def '{"txnFilter":{"TxnFilterPostingAccount":{"regex":"^a:ay2016:am12"}}}'
 ````
 
-The transaction filter definition could be given also as Base64 ascii armored string:
+The transaction filter definition could be given also 
+as Base64 ascii armored string:
 
 ````
 --api-filter-def \

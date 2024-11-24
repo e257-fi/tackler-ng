@@ -98,10 +98,10 @@ impl Balance {
     fn bubble_up_acctn(
         my_acctn_sum: &(TxnAccount, Decimal),
         acc_sums: &[(TxnAccount, Decimal)],
-        settings: &mut Settings,
+        settings: &Settings,
     ) -> Result<Vec<(TxnAccount, Decimal)>, Box<dyn Error>> {
         let my_acctn = &my_acctn_sum.0;
-        if my_acctn.atn.depth == 1 {
+        if my_acctn.is_root() {
             // we are on top, so either this node (my_acctn) exist already
             // or it has been created by its child;
             // End of recursion
@@ -116,7 +116,14 @@ impl Balance {
             assert!(parent.is_empty() || parent.len() == 1);
 
             if parent.is_empty() {
-                if my_acctn.atn.depth > 2 {
+                if my_acctn.my_parent_is_root() {
+                    // This is on depth 2, and it doesn't have parent
+                    // => let's create root account
+                    // End of Recursion
+                    let new_parent_atn = settings
+                        .get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone())?;
+                    Ok(vec![(new_parent_atn, Decimal::ZERO), my_acctn_sum.clone()])
+                } else {
                     let new_parent_atn = settings
                         .get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone())?;
                     let mut sub_tree = vec![my_acctn_sum.clone()];
@@ -127,13 +134,6 @@ impl Balance {
                     )?;
                     x.append(&mut sub_tree);
                     Ok(x)
-                } else {
-                    // todo: the perfect tree of CoA
-                    // This is on depth 2 and it doesn't have parent, => let's create root account
-                    // End of Recursion
-                    let new_parent_atn = settings
-                        .get_txn_account(my_acctn.atn.parent.as_str(), my_acctn.comm.clone())?;
-                    Ok(vec![(new_parent_atn, Decimal::ZERO), my_acctn_sum.clone()])
                 }
             } else {
                 // Parent of this exists, just bubble them up together
@@ -154,7 +154,7 @@ impl Balance {
     /// * `returns` unfiltered sequence of BalanceTreeNodes
     fn balance(
         txns: &TxnRefs,
-        settings: &mut Settings,
+        settings: &Settings,
     ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>> {
         // Calculate sum of postings for each account.
         //
@@ -229,7 +229,7 @@ impl Balance {
         title: &str,
         txn_set: &TxnSet,
         accounts: &T,
-        settings: &mut Settings,
+        settings: &Settings,
     ) -> Result<Balance, Box<dyn Error>>
     where
         T: BalanceSelector + ?Sized,

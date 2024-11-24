@@ -1,5 +1,5 @@
 #
-# Copyright 2022-2024 E257.FI
+# Copyright 2024 E257.FI
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,25 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-[package]
-name = "tackler-rs"
-version = "0.5.0-dev"
-description = "Rusty Services for Tackler accounting engine with native GIT SCM support"
-edition.workspace = true
-license.workspace = true
-homepage.workspace = true
-repository.workspace = true
-categories.workspace = true
-keywords.workspace = true
-include.workspace = true
-readme = "CRATES.md"
 
-[lib]
-name = "tackler_rs"
-path = "src/lib.rs"
+cmp_result () {
+    local module=$1
+    local test_name=$2
+    local suffix=$3
+    local target=$4
 
-[dependencies]
-indoc.workspace = true
-log = { workspace = true }
-walkdir = "2.5.0"
+    ref=$SUITE_PATH/$module/ok/$test_name.ref.$target.$suffix
+    out=$OUTPUT_DIR/$test_name.$target.$suffix
 
+    cmp $ref $out || {
+        diff -u $ref $out
+        echo
+        echo "ref: $ref"
+        echo "out: $out"
+        exit 1
+    }
+    echo -n " $target"
+}

@@ -76,7 +76,13 @@ impl FilterDefinition {
     /// # Ok::<(), Box<dyn Error>>(())
     /// ```
     pub fn from_json_str(filt_str: &str) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
-        Ok(serde_json::from_str::<FilterDefinition>(filt_str)?)
+        match serde_json::from_str::<FilterDefinition>(filt_str) {
+            Ok(flt) => Ok(flt),
+            Err(err) => {
+                let msg = format!("Txn Filter definition is not valid JSON: {err}");
+                Err(msg.into())
+            }
+        }
     }
 
     /// Test if filter string is ascii armored
@@ -122,9 +128,15 @@ impl FilterDefinition {
             );
             return Err(msg.into());
         };
-        let data = &general_purpose::STANDARD.decode(filt_armor)?;
+        let filt_json = match general_purpose::STANDARD.decode(filt_armor) {
+            Ok(data) => data,
+            Err(err) => {
+                let msg = format!("Transaction Filter Ascii Armor decoding failure: {}", err);
+                return Err(msg.into());
+            }
+        };
 
-        FilterDefinition::from_json_str(from_utf8(data)?)
+        FilterDefinition::from_json_str(from_utf8(&filt_json)?)
     }
 }
 

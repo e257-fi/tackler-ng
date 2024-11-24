@@ -22,14 +22,13 @@ use crate::kernel::report_item_selector::{
 };
 use crate::kernel::Settings;
 use crate::model::{BalanceTreeNode, TxnSet};
-use crate::report::{get_account_selector_checksum, Report};
+use crate::report::{write_acc_sel_checksum, Report};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::max;
 use std::error::Error;
 use std::io;
-use tackler_api::metadata::items::Text;
 
 #[derive(Debug, Clone)]
 pub struct BalanceSettings {
@@ -79,14 +78,17 @@ impl BalanceReporter {
             bal.iter()
                 .map(|btn| {
                     let d = f(btn);
-                    format!("{:.prec$}", d, prec = bal_settings.scale.get_precision(&d)).len()
+                    // include space for '+-' to the length always
+                    format!("{:+.prec$}", d, prec = bal_settings.scale.get_precision(&d))
+                        .chars()
+                        .count()
                 })
                 .fold(0, max)
         };
         fn get_max_delta_len(deltas: &Deltas) -> usize {
             deltas
                 .iter()
-                .map(|(_, d)| format!("{}", d).len())
+                .map(|(_, d)| format!("{}", d).chars().count())
                 .fold(0, max)
         }
         /// Max used length of commodity could be calculated from deltas
@@ -94,7 +96,11 @@ impl BalanceReporter {
         fn get_max_commodity_len(deltas: &Deltas) -> usize {
             deltas
                 .iter()
-                .map(|(opt_comm, _)| opt_comm.as_ref().map_or(0, |comm| comm.name.len()))
+                .map(|(opt_comm, _)| {
+                    opt_comm
+                        .as_ref()
+                        .map_or(0, |comm| comm.name.chars().count())
+                })
                 .fold(0, max)
         }
 
@@ -110,7 +116,7 @@ impl BalanceReporter {
             ),
         );
 
-        let sub_acc_sum_len = get_max_sum_len(&bal_report.bal, |btn| btn.sub_acc_tree_sum);
+        let sub_acc_tree_sum_len = get_max_sum_len(&bal_report.bal, |btn| btn.sub_acc_tree_sum);
 
         // filler between account sums (acc and accTree sums)
         // width of this filler is mandated by delta sum's max commodity length,
@@ -119,8 +125,8 @@ impl BalanceReporter {
             " ".repeat(3)
         } else {
             " ".repeat(4 + comm_max_len)
-        }
-        .len();
+        };
+        let filler_field_len = filler_field.chars().count();
 
         fn make_commodity_field(comm_max_len: usize, btn: &BalanceTreeNode) -> String {
             if comm_max_len.is_zero() {
@@ -130,9 +136,9 @@ impl BalanceReporter {
                 let comm = &btn.acctn.comm;
                 match &comm.is_some() {
                     true => {
-                        format!(" {: <cl$} ", comm.name, cl = comm_max_len)
+                        format!(" {: <cl$}  ", comm.name, cl = comm_max_len)
                     }
-                    false => format!(" {} ", " ".repeat(comm_max_len)),
+                    false => format!(" {}  ", " ".repeat(comm_max_len)),
                 }
             }
         }
@@ -140,7 +146,7 @@ impl BalanceReporter {
         let left_ruler = " ".repeat(9);
 
         writeln!(writer, "{}", bal_report.title)?;
-        writeln!(writer, "{}", "-".repeat(bal_report.title.len()))?;
+        writeln!(writer, "{}", "-".repeat(bal_report.title.chars().count()))?;
 
         if !bal_report.is_empty() {
             for btn in &bal_report.bal {
@@ -149,7 +155,7 @@ impl BalanceReporter {
 
                 writeln!(
                     writer,
-                    "{left_ruler}{:>asl$.prec_1$}{:>width$}{:>atl$.prec_2$}{}{}",
+                    "{left_ruler}{:>asl$.prec_1$}{:>width$}{:>satsl$.prec_2$}{}{}",
                     btn.account_sum.round_dp_with_strategy(
                         prec_1 as u32,
                         RoundingStrategy::MidpointAwayFromZero
@@ -162,8 +168,8 @@ impl BalanceReporter {
                     make_commodity_field(comm_max_len, btn),
                     btn.acctn.atn,
                     asl = left_sum_len,
-                    atl = sub_acc_sum_len,
-                    width = filler_field,
+                    satsl = sub_acc_tree_sum_len,
+                    width = filler_field_len,
                 )?;
             }
 
@@ -171,7 +177,7 @@ impl BalanceReporter {
                 writer,
                 "{}",
                 "=".repeat(
-                    left_ruler.len()
+                    left_ruler.chars().count()
                         + left_sum_len
                         + (if comm_max_len.is_zero() {
                             0
@@ -189,12 +195,15 @@ impl BalanceReporter {
                 let prec = bal_settings.scale.get_precision(delta.1);
                 writeln!(
                     writer,
-                    "{left_ruler}{:>width$.prec$} {}",
+                    "{left_ruler}{:>width$.prec$}{}",
                     delta.1.round_dp_with_strategy(
                         prec as u32,
                         RoundingStrategy::MidpointAwayFromZero
                     ),
-                    delta.0.as_ref().map_or(&String::default(), |c| &c.name),
+                    delta
+                        .0
+                        .as_ref()
+                        .map_or(String::default(), |c| format!(" {}", &c.name)),
                     width = left_sum_len,
                 )?;
             }
@@ -206,18 +215,13 @@ impl BalanceReporter {
 impl Report for BalanceReporter {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &mut Settings,
+        cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
-        writeln!(writer, "{}", "*".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(cfg, &self.report_settings.ras)? {
-            for v in asc.text() {
-                writeln!(writer, "{}", &v)?;
-            }
-        }
+        write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
         writeln!(writer)?;
 
         let bal_report = Balance::from(
@@ -228,7 +232,6 @@ impl Report for BalanceReporter {
         )?;
 
         BalanceReporter::txt_report(writer, &bal_report, &self.report_settings)?;
-        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }

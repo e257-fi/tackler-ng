@@ -168,6 +168,8 @@ pub(super) struct RegisterRaw {
 
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct ExportRaw {
+    pub(super) targets: Vec<String>,
+
     pub(super) equity: EquityRaw,
 }
 

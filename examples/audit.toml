@@ -1,6 +1,9 @@
-### Configuration settings for Tackler-NG
+### Configuration for Audit Example
 ###
-### See tackler.toml file full configuration options
+### This is an example how to use auditing features
+### with Tackler.
+###
+### See tackler.toml file for full configuration options
 ### and documentation.
 ###
 ### The format of this file is TOML (https://toml.io/en/)
@@ -24,11 +27,12 @@ scale = { min = 2, max = 4 }
 accounts = [ "^a:.*" ]
 targets = [ "balance" ]
 
-balance       = { title = "Balance Report" }
-balance-group = { title = "Balance Group Report", group-by = "month" }
-register      = { title = "Register Report", accounts = [ "^e:", "^a:" ]}
+balance       = { title = "BALANCE REPORT" }
+balance-group = { title = "BALANCE GROUP REPORT", group-by = "month" }
+register      = { title = "REGISTER REPORT", accounts = [ "^e:", "^a:" ]}
 
 
 ### Export Configuration
 [export]
+targets = [ ]
 equity = { accounts = [ "^a:", ], equity-account = "Equity:Balance" }

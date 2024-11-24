@@ -75,7 +75,6 @@ impl<'a> RegisterEntry<'a> {
     ) -> String {
         let indent = " ".repeat(12);
         let mut line_len = 0;
-
         let mut s = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
 
         for p in &self.posts {
@@ -98,11 +97,11 @@ impl<'a> RegisterEntry<'a> {
                     false => String::new(),
                 },
             );
-            line_len = max(line_len, line.len());
+            line_len = max(line_len, line.chars().count());
             s += &line;
             s += "\n";
         }
-        format!("{s}\n{}\n", "-".repeat(line_len))
+        format!("{s}{}\n", "-".repeat(line_len))
     }
 }
 impl<'a> Display for RegisterEntry<'a> {

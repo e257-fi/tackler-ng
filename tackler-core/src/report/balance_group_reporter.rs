@@ -21,7 +21,7 @@ use crate::kernel::accumulator::TxnGroupByOp;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
-use crate::report::{get_account_selector_checksum, Report};
+use crate::report::{get_report_tz, write_acc_sel_checksum, Report};
 use crate::report::{BalanceReporter, BalanceSettings};
 use std::error::Error;
 use std::io;
@@ -93,7 +93,7 @@ impl<'a> BalanceGroupReporter {
 impl Report for BalanceGroupReporter {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &mut Settings,
+        cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
@@ -103,17 +103,17 @@ impl Report for BalanceGroupReporter {
         let bal_groups =
             accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref(), cfg);
 
-        writeln!(writer, "{}", "*".repeat(82))?;
-        if let Some(asc) = get_account_selector_checksum(cfg, &self.report_settings.ras)? {
-            for v in asc.text() {
-                writeln!(writer, "{}", &v)?;
-            }
+        write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
+
+        for v in get_report_tz(cfg, self.report_settings.report_tz)?.text() {
+            writeln!(writer, "{}", &v)?;
         }
         writeln!(writer)?;
+        writeln!(writer)?;
+
         let title = &self.report_settings.title;
         writeln!(writer, "{}", title)?;
-        writeln!(writer, "{}", "-".repeat(title.len()))?;
-        writeln!(writer)?;
+        writeln!(writer, "{}", "-".repeat(title.chars().count()))?;
 
         let bal_settings = BalanceSettings {
             title: String::default(),
@@ -123,7 +123,6 @@ impl Report for BalanceGroupReporter {
         for bal in &bal_groups {
             BalanceReporter::txt_report(writer, bal, &bal_settings)?
         }
-        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }

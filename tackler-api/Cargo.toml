@@ -16,7 +16,7 @@
 [package]
 name = "tackler-api"
 version = "0.5.0-dev"
-description = "Rusty Tackler api components"
+description = "API components for Tackler accounting engine with native GIT SCM support"
 edition.workspace = true
 license.workspace = true
 homepage.workspace = true
