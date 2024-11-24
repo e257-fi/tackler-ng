@@ -18,14 +18,14 @@ Tackler's original test-vectors and Tackler Test Tracking Database (T3DB) are he
 
 Unsafe code is forbidden in the code base.
 
-All `unwrap` usage is documented, either why they won't panic or why it doesn't matter.
+All `unwrap` usage should be documented, either why they won't panic or why it doesn't matter.
 
 `rg 'unwrap\(' | egrep -v '(:ok:)|(:test:)'`
 
 
 == Rust toolchain
 
-Used unstable features: None
+Used Rust toolchain is the latest or fairly new version of Rust.
 
 
 == Number types: TacklerReal vs. rust_decimal
@@ -55,15 +55,19 @@ link:../../tackler-core/src/parser/txn_antlr/TxnLexer.g4[TxnLexer.g4].
 
 == Running Tests
 
-Run tests on project's workspace root:
-
+Run unit tests at the root of project's workspace:
 ....
 cargo test
 ....
 
-Integration and "Performance" test:
+Simple Performance test:
 ....
 cargo run --release -p tackler-core
+....
+
+Tackler test suite:
+....
+cargo build --release --bin tackler && tests/sh/test-runner-ng.sh
 ....
 
 
@@ -75,10 +79,8 @@ Run flamegraph on tackler-cli crate:
 cd tackler-cli
 
 CARGO_PROFILE_RELEASE_DEBUG=true \
-    cargo flamegraph --  \
-        --input.git.repo ../suite/audit/audit-repo.git \
-        --input.git.dir txns \
-        --input.git.ref txns-1E5 \
-        --audit.mode true
+    cargo flamegraph -- \
+        --config ../examples/audit.toml \
+        --input.git.ref txns-1E5
 ....
 

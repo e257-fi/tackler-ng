@@ -42,7 +42,7 @@ pub(crate) fn balance_groups<T>(
     txns: &TxnRefs,
     group_by_op: TxnGroupByOp,
     ras: &T,
-    settings: &mut Settings,
+    settings: &Settings,
 ) -> Vec<Balance>
 where
     T: BalanceSelector + ?Sized,
@@ -56,14 +56,14 @@ where
             // todo: could this be an iterator?
             let txns = bal_grp_txns.collect();
             // This is a single balance inside balance group,
-            // so there shouldn't be any audit or txn-set-checksum for this sub-group (bal) of txns
+            // so there shouldn't be any audit or txn-set-checksum for this subgroup (bal) of txns
             let metadata = None;
             let txn_set = TxnSet { metadata, txns };
 
-            Balance::from(&group_by_key, &txn_set, ras, settings).unwrap() // todo: fix
+            Balance::from(&group_by_key, &txn_set, ras, settings).unwrap() // todo: fix this unwrap
         })
         .filter(|bal| !bal.is_empty())
-        .sorted_by_key(|bal| bal.title.clone()) // todo: could this clone be avoided?
+        .sorted_by_key(|bal| bal.title.clone())
         .collect()
 }
 

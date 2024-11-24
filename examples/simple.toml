@@ -1,6 +1,9 @@
-### Configuration settings for Tackler-NG
+### Configuration Simple example
 ###
-### See tackler.toml file full configuration options
+### This an example how to use FS storage, without any
+### fancy features (no strict, no audit, no git).
+###
+### See tackler.toml file for full configuration options
 ### and documentation.
 ###
 ### The format of this file is TOML (https://toml.io/en/)
@@ -31,4 +34,5 @@ register      = { title = "Register Report", accounts = [ "^Expenses:", "^Income
 
 ### Export Configuration
 [export]
+targets = [ ]
 equity = { accounts = [ "^Assets:", ], equity-account = "Equity:Balance" }

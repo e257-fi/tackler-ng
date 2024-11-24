@@ -2,7 +2,7 @@
 
 Tackler-NG has been written by e257.fi contributors.
 Following projects have provided valuable contributions,
-feedback, inspiration and ideas for this project.
+feedback, inspiration and ideas for this work.
 
 Thank you for your help!
 
@@ -16,7 +16,7 @@ Components (used direclty by Tackler-NG):
 * https://github.com/Byron/gitoxide[gix-hash]
 * https://github.com/dtolnay/indoc[indoc]
 * https://github.com/rust-itertools/itertools[itertools]
-* https://github.com/tikv/jemallocator[jemallocator]
+* https://github.com/tikv/jemallocator[tikv-jemallocator]
 * https://github.com/rust-lang/log[log]
 * https://github.com/rust-lang/regex[regex]
 * https://github.com/paupino/rust-decimal[rust_decimal]

@@ -22,9 +22,56 @@
 #![deny(missing_docs)]
 #![forbid(unsafe_code)]
 
+use log::error;
 use std::error::Error;
+use std::fs::File;
+use std::io;
+use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
+
+///
+/// Get full path based on
+/// directory, filename prefix, filename and extension
+///
+pub fn get_path_by_parts(
+    dir: &Path,
+    prefix: &str,
+    name: &str,
+    ext: &str,
+) -> Result<PathBuf, Box<dyn Error>> {
+    // #[unstable(feature = "path_add_extension", issue = "127292")]
+    // pub fn with_added_extension<S: AsRef<OsStr>>(&self, extension: S) -> PathBuf {
+    let filename = prefix.to_string() + name + "." + ext;
+    Ok(dir.join(filename))
+}
+
+/// Creates a new file
+///
+/// output_dir, output_prefix, name and extension
+///     "dir/prefix.name.ext"
+///
+/// See [`File::create_new`] for platform specific semantics.
+pub fn create_output_file(
+    dir: &Path,
+    prefix: &str,
+    name: &str,
+    ext: &str,
+) -> Result<(Box<dyn io::Write>, String), Box<dyn Error>> {
+    let rpt = ".".to_string() + name;
+    let p = get_path_by_parts(dir, prefix, rpt.as_str(), ext)?;
+    let f = match File::create_new(&p) {
+        Ok(f) => f,
+        Err(err) => {
+            let msg = format!("{}: '{}'", err, p.as_path().to_string_lossy());
+            error!("{}", msg);
+            return Err(msg.into());
+        }
+    };
+    let bw = BufWriter::new(f);
+    let path = p.to_string_lossy().to_string();
+    Ok((Box::new(bw), path))
+}
 
 ///
 /// Convert path to absolute by anchor file

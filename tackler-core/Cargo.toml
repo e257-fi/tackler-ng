@@ -16,7 +16,7 @@
 [package]
 name = "tackler-core"
 version = "0.5.0-dev"
-description = "Rusty Tackler core components"
+description = "Core components for Tackler accounting engine with native GIT SCM support"
 edition.workspace = true
 license.workspace = true
 homepage.workspace = true
@@ -34,6 +34,7 @@ path = "src/lib.rs"
 tackler-api =  { path = "../tackler-api",  version = "0.5.0-dev" }
 tackler-rs =   { path = "../tackler-rs",   version = "0.5.0-dev" }
 antlr-rust = "0.3.0-beta"
+log = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true }
 time = { workspace = true }

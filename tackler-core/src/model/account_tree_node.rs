@@ -58,6 +58,14 @@ pub struct AccountTreeNode {
     name: String,
 }
 
+impl AccountTreeNode {
+    pub(crate) fn is_root(&self) -> bool {
+        self.depth == 1
+    }
+    pub(crate) fn my_parent_is_root(&self) -> bool {
+        self.depth == 2
+    }
+}
 #[derive(Debug, Clone, Eq)]
 pub struct TxnAccount {
     pub(crate) atn: Arc<AccountTreeNode>,
@@ -93,6 +101,13 @@ impl PartialOrd for TxnAccount {
 impl TxnAccount {
     pub(crate) fn is_parent_of(&self, atn: &TxnAccount) -> bool {
         self.atn.account == atn.atn.parent && self.comm.name == atn.comm.name
+    }
+    pub(crate) fn is_root(&self) -> bool {
+        self.atn.is_root()
+    }
+
+    pub(crate) fn my_parent_is_root(&self) -> bool {
+        self.atn.my_parent_is_root()
     }
 }
 
@@ -168,6 +183,7 @@ impl AccountTreeNode {
 
 #[cfg(test)]
 #[allow(non_snake_case)]
+#[allow(clippy::bool_assert_comparison)]
 mod tests {
     use super::*;
 
@@ -209,6 +225,49 @@ mod tests {
         assert_eq!(atn.commodity.name, "He·bar".to_string());
     }
      */
+
+    #[test]
+    fn atn_is_root() {
+        let atn_a = TxnAccount {
+            atn: Arc::new(AccountTreeNode::from("a")
+                .unwrap(/*:test:*/)),
+            comm: Arc::new(Commodity::default()),
+        };
+        let atn_ab = TxnAccount {
+            atn: Arc::new(AccountTreeNode::from("a:b")
+                .unwrap(/*:test:*/)),
+            comm: Arc::new(Commodity::default()),
+        };
+        let atn_abc = TxnAccount {
+            atn: Arc::new(AccountTreeNode::from("a:b:c")
+                .unwrap(/*:test:*/)),
+            comm: Arc::new(Commodity::default()),
+        };
+        assert_eq!(atn_a.is_root(), true);
+        assert_eq!(atn_ab.is_root(), false);
+        assert_eq!(atn_abc.is_root(), false);
+    }
+    #[test]
+    fn atn_my_parent_is_root() {
+        let atn_a = TxnAccount {
+            atn: Arc::new(AccountTreeNode::from("a")
+                .unwrap(/*:test:*/)),
+            comm: Arc::new(Commodity::default()),
+        };
+        let atn_ab = TxnAccount {
+            atn: Arc::new(AccountTreeNode::from("a:b")
+                .unwrap(/*:test:*/)),
+            comm: Arc::new(Commodity::default()),
+        };
+        let atn_abc = TxnAccount {
+            atn: Arc::new(AccountTreeNode::from("a:b:c")
+                .unwrap(/*:test:*/)),
+            comm: Arc::new(Commodity::default()),
+        };
+        assert_eq!(atn_a.my_parent_is_root(), false);
+        assert_eq!(atn_ab.my_parent_is_root(), true);
+        assert_eq!(atn_abc.my_parent_is_root(), false);
+    }
 
     #[test]
     fn atn_is_parent() {

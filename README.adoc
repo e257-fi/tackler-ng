@@ -6,53 +6,39 @@ image:https://img.shields.io/badge/tackler-documentation-%23ffcb00["Tackler Docs
 
 = Tackler-NG
 
+Tackler is fast, reliable bookkeeping engine with native
+GIT SCM support for plain text accounting written in rust.
 Tackler-NG is rusty version of link:https://tackler.e257.fi/[Tackler].
-
-And what is Tackler? Tackler is an accounting engine and reporting tool for
-link:http://plaintextaccounting.org/[text based double-entry accounting] records.
-
-See link:https://tackler.e257.fi/[Tackler's website] for more information about Tackler and its usage.
-
-[NOTE]
-====
-Tackler Ain't Calculator and Kernel for link:http://ledger-cli.org/[Ledger] Equivalent Records. +
-Why not? -- Because it uses simplified Ledger syntax.
-====
 
 == Project Status
 
-The rusty Tackler-NG is in feature parity with old scala based Tackler CLI.
+The rusty Tackler-NG is in link:https://tackler.e257.fi/features/[feature] parity with the old scala based Tackler CLI,
+and this will be the basis of all future Tackler development.
 
-Especially the link:https://tackler.e257.fi/docs/journal/format/[Tackler Journal Format] is fully
-supported, and also all transaction storage backends are supported.
+Basic functionality is fully supported, including
+link:https://tackler.e257.fi/docs/journal/format/[Tackler Journal Format],
+transaction storages (link:https://tackler.e257.fi/docs/usage/#storage-selector[Filesystem],
+link:https://tackler.e257.fi/docs/journal/git-storage/[Git SCM]),
+all reports
+(link:https://tackler.e257.fi/docs/report-balance/[Balance],
+link:https://tackler.e257.fi/docs/report-balance-group/[Balance Group],
+link:https://tackler.e257.fi/docs/report-register/[Register])
+and all exports
+(link:https://tackler.e257.fi/docs/export-equity/[Equity],
+link:https://tackler.e257.fi/docs/export-equity/[Identity]).
 
- * link:https://tackler.e257.fi/docs/usage/#storage-selector[Filesystem]
- * link:https://tackler.e257.fi/docs/journal/git-storage/[Git Storage]
-
-See `tackler --help` and link:examples/tackler.toml[Tackler Configuration] how to use these.
-
-
-All reports and exports are supported:
-
-* Reports
-  ** link:https://tackler.e257.fi/docs/report-balance/[Balance]
-  ** link:https://tackler.e257.fi/docs/report-balance-group/[Balance Group]
-  ** link:https://tackler.e257.fi/docs/report-register/[Register]
-* Exports
-  ** link:https://tackler.e257.fi/docs/export-equity/[Equity]
-  ** link:https://tackler.e257.fi/docs/export-equity/[Identity]
-
-Other supported notable features are:
+Other notable supported features are:
 
 * Handling link:https://tackler.e257.fi/docs/commodities/[Commodities] and link:https://tackler.e257.fi/docs/currencies/[Shares]
-* link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters]
-* link:https://tackler.e257.fi/docs/gis/txn-geo-location[Transacation Geo Location] and link:https://tackler.e257.fi/docs/gis/txn-geo-filters/[Transaction Geo Filters]
+* All link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters]
+* Accounting based on link:https://tackler.e257.fi/docs/gis/txn-geo-location[Geo Location] and link:https://tackler.e257.fi/docs/gis/txn-geo-filters/[Transaction GIS Filters]
+
+See `tackler --help` and link:examples/tackler.toml[Tackler Configuration] how to use tackler-ng.
 
 
 [IMPORTANT]
 ====
-**AS THIS IS TECHNOLOGY PREVIEW RELEASE, THERE COULD BE MISSING FEATURES
-AND INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
+Tackler-NG is tested with the most essential tackler tests vectors at the moment.
 ====
 
 
@@ -60,7 +46,7 @@ AND INCONSISTENCIES WITH EXISTING TACKLER IMPLEMENTATION.**
 
 To build rusty Tackler, you will need git and Rust installed on your environment.
 
-If you don't have Rust installed in your system, get it:
+If you don't have Rust, install it, e.g. by running:
 
 ----
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -78,7 +64,8 @@ And build the Tackler binary:
 ----
 cd tackler-ng
 
-# Check the latest relase version
+# The main branch should build and pass all tests.
+# To build a release, check relased versions:
 git tag -l
 
 # Get the release, e.g. v24.11.1
@@ -86,38 +73,52 @@ git checkout v24.11.1
 
 # Build tackler
 cargo build --release --locked --bin tackler
+
+# the binary is located at 'target/release/tackler'
 ----
 
-The tackler binary will be located at `target/release/tackler`. You can try it following way:
+=== Simple example with Filesystem Journal
 
 ----
 target/release/tackler --config examples/simple.toml
+----
 
+=== Complex example with Git Storage and Audit mode
+
+Audit example uses Git SCM as journal storage, and strict and audit modes are activated by configuration.
+
+----
+target/release/tackler --config examples/audit.toml
+----
+
+Audit test data has a branch with 100_000 transactions, this query will execute in few seconds:
+
+----
+target/release/tackler \
+   --config examples/audit.toml \
+   --input.git.ref txns-1E5
 ----
 
 
-You can check the source code and version info of tackler by running:
 
-----
-target/release/tackler --version
-----
+See `tackler --help`, link:examples/tackler.toml[Tackler configuration] file, example link:docs/examples.adoc[commands] and link:tackler-cli/CRATES.md[Tackler CLI documentation] how to use the rusty version of tackler.
 
-
-See `tackler --help`, link:examples/tackler.toml[full Tackler configuration file], example link:docs/examples.adoc[commands] and link:tackler-cli/CRATES.md[Tackler CLI documentation]how to use the rusty version of tackler.
-
-link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG.
-
-For general information about Tackler, see the original link:https://tackler.e257.fi/docs/[Tackler Documentation].
+link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG. For the general information about Tackler, see the link:https://tackler.e257.fi/docs/[Tackler site].
 
 == Credits
 
-See link:CREDITS.adoc[CREDITS] for full list of credits.
+Special thanks to the Rust community for the all help and advice,
+without forgetting Clippy.
+link:https://github.com/GitoxideLabs/gitoxide[Gitoxide]
+is one of the key components which made Tackler-NG possible - Thank you!
+
+See link:CREDITS.adoc[CREDITS] for full details.
 
 
 == Security
 
 If you find a security issue in Tackler-NG, please report it as outlined in
-link:./SECURITY.md[Security Policy].
+the link:./SECURITY.md[Security Policy].
 
 
 == License

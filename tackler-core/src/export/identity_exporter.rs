@@ -27,7 +27,7 @@ pub struct IdentityExporter {}
 impl Export for IdentityExporter {
     fn write_export<W: io::Write + ?Sized>(
         &self,
-        _cfg: &mut Settings,
+        _cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {

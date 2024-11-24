@@ -1844,6 +1844,7 @@ dependencies = [
  "gix",
  "indoc",
  "itertools",
+ "log",
  "regex",
  "rust_decimal",
  "serde",

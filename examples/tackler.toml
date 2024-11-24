@@ -9,6 +9,7 @@
 ### it's fatal halting error.
 ###
 ### Valid options are: true | false
+### CLI: --strict.mode
 strict = true
 
 ### Configuration Options for Timestamp
@@ -65,9 +66,6 @@ hash = "SHA-256"
 ### Audit mode
 ###
 ### This turns audit mode on or off.
-### When audit mode is on,
-### then also strict checking is on.
-### See "kernel.strict"
 ###
 ### Valid options are: true | false
 ### CLI: --audit.mode
@@ -293,6 +291,13 @@ timestamp-style = "seconds"
 
 ### Export Configuration
 [export]
+### Exports to generate
+###
+### This is a list of exports targets to generate.
+###
+### Valid options are: "equity", "identity"
+### CLI: --exports
+targets = [ ]
 
 ### Equity Export
 [export.equity]

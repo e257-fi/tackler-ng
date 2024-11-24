@@ -109,7 +109,7 @@ fn handle_tag_ctx(
     settings: &mut Settings,
 ) -> Result<Arc<Tag>, Box<dyn Error>> {
     let tag = context_to_string(tag_ctx);
-    settings.get_tag(&tag)
+    settings.get_or_create_tag(&tag)
 }
 
 fn handle_tags_ctx(
@@ -194,7 +194,7 @@ fn handle_account(
 ) -> Result<TxnAccount, Box<dyn Error>> {
     let account = context_to_string(account_ctx);
 
-    settings.get_txn_account(&account, commodity)
+    settings.get_or_create_txn_account(&account, commodity)
 }
 
 fn handle_amount(amount_ctx: Rc<AmountContextAll>) -> Result<Decimal, Box<dyn Error>> {
@@ -217,8 +217,10 @@ fn handle_value_position(
     settings: &mut Settings,
 ) -> Result<ValuePosition, Box<dyn Error>> {
     let post_commodity = match posting_ctx.opt_unit() {
-        Some(u) => settings.get_commodity(Some(&u.unit().unwrap(/*:ok: parser */).get_text()))?,
-        None => settings.get_commodity(None)?,
+        Some(u) => {
+            settings.get_or_create_commodity(Some(&u.unit().unwrap(/*:ok: parser */).get_text()))?
+        }
+        None => settings.get_or_create_commodity(None)?,
     };
 
     // if txnCommodity (e.g. closing position) is not set, then use
@@ -231,7 +233,7 @@ fn handle_value_position(
                         Some(cp) => {
                             // Ok, we have position, so there must be closing position
                             // so, we have closing position, use its commodity
-                            let val_pos_commodity = settings.get_commodity(Some(
+                            let val_pos_commodity = settings.get_or_create_commodity(Some(
                                 &cp.unit().unwrap(/*:ok: parser */).get_text(),
                             ))?;
                             if post_commodity.name == val_pos_commodity.name {
@@ -244,16 +246,18 @@ fn handle_value_position(
                             }
                             val_pos_commodity
                         }
-                        None => settings.get_commodity(None)?,
+                        None => settings.get_or_create_commodity(None)?,
                     }
                 }
                 None => {
                     // no position, use original unit
-                    settings.get_commodity(Some(&u.unit().unwrap(/*:ok: parser */).get_text()))?
+                    settings.get_or_create_commodity(Some(
+                        &u.unit().unwrap(/*:ok: parser */).get_text(),
+                    ))?
                 }
             }
         }
-        None => settings.get_commodity(None)?,
+        None => settings.get_or_create_commodity(None)?,
     };
 
     let post_amount = handle_amount(posting_ctx.amount().unwrap(/*:ok: parser */))?;

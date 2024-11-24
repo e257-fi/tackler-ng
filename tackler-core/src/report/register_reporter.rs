@@ -22,7 +22,7 @@ use crate::kernel::report_item_selector::{
 };
 use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
-use crate::report::{get_account_selector_checksum, get_report_tz, Report};
+use crate::report::{get_report_tz, write_acc_sel_checksum, Report};
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::Text;
@@ -98,27 +98,23 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
 impl Report for RegisterReporter {
     fn write_txt_report<W: io::Write + ?Sized>(
         &self,
-        cfg: &mut Settings,
+        cfg: &Settings,
         writer: &mut W,
         txns: &TxnSet,
     ) -> Result<(), Box<dyn Error>> {
-        writeln!(writer, "{}", "*".repeat(82))?;
+        let acc_sel = self.get_acc_selector()?;
+
+        write_acc_sel_checksum(cfg, writer, acc_sel.as_ref())?;
+
         for v in get_report_tz(cfg, self.report_settings.report_tz)?.text() {
             writeln!(writer, "{}", &v)?;
         }
         writeln!(writer)?;
-
-        if let Some(asc) = get_account_selector_checksum(cfg, &self.report_settings.ras)? {
-            for v in asc.text() {
-                writeln!(writer, "{}", &v)?;
-            }
-            writeln!(writer)?;
-        }
         writeln!(writer)?;
 
         let title = &self.report_settings.title;
         writeln!(writer, "{}", title)?;
-        writeln!(writer, "{}", "-".repeat(title.len()))?;
+        writeln!(writer, "{}", "-".repeat(title.chars().count()))?;
 
         let ras = self.get_acc_selector()?;
 
@@ -131,7 +127,6 @@ impl Report for RegisterReporter {
             reg_entry_txt_writer,
             &self.report_settings,
         )?;
-        writeln!(writer, "{}", "#".repeat(82))?;
         Ok(())
     }
 }

@@ -28,7 +28,7 @@ use time_tz::Tz;
 use time_tz::{timezones, OffsetDateTimeExt};
 
 /// UTC Timezone
-pub static TZ_UTC: &Tz = timezones::db::etc::UTC;
+pub static TZ_UTC: &Tz = timezones::db::UTC;
 
 /// Time stamp style
 #[derive(Debug, Copy, Clone, Default)]

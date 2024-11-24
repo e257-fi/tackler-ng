@@ -54,11 +54,7 @@ pub(crate) fn txns_file(path: &Path, settings: &mut Settings) -> Result<Txns, Bo
     let mut txn_file = match f {
         Ok(file) => file,
         Err(err) => {
-            let msg = format!(
-                "Can't open file: [{}]. Error is: \"{}\"",
-                path.display(),
-                err
-            );
+            let msg = format!("Can't open file: '{}' - {}", path.display(), err);
             return Err(msg.into());
         }
     };

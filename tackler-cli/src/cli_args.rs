@@ -19,6 +19,7 @@ use clap::Parser;
 use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
+use tackler_api::txn_ts::GroupBy;
 use tackler_core::config;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::kernel::Settings;
@@ -32,15 +33,31 @@ pub(crate) struct Cli {
 
     /// Strict txn data mode
     ///
-    /// Turns on strict validation of journal data (accounts, commodities and tags).
+    /// Turn on strict validation of transactions (accounts, commodities and tags).
     #[arg(long = "strict.mode", value_name = "true|false")]
     pub(crate) strict_mode: Option<bool>,
 
     /// Txn set audit mode
     ///
-    /// Produces checksum of account selectors and transaction set data
+    /// Produce checksums for transaction data and account selectors
     #[arg(long = "audit.mode", value_name = "true|false")]
     pub(crate) audit_mode: Option<bool>,
+
+    /// Path to output directory
+    #[arg(
+        long = "output.dir",
+        value_name = "output directory for reports",
+        requires("output_name")
+    )]
+    pub(crate) output_directory: Option<PathBuf>,
+
+    /// Basename of report files
+    #[arg(
+        long = "output.prefix",
+        value_name = "prefix of name for report files",
+        requires("output_directory")
+    )]
+    pub(crate) output_name: Option<String>,
 
     /// Path to single transaction journal file
     #[arg(long="input.file",
@@ -56,7 +73,7 @@ pub(crate) struct Cli {
     pub(crate) input_filename: Option<PathBuf>,
 
     ///
-    /// Selects used transaction storage
+    /// Select used transaction storage
     ///
     #[arg(long="input.storage",
         value_name = "storage type",
@@ -88,8 +105,9 @@ pub(crate) struct Cli {
 
     /// Path to git repository
     ///
-    /// This is path to '.git' directory.
-    /// Either it is path to '.git' on bare repository, or path to '.git' on working copy
+    /// Path to '.git' directory or bare git-repository.
+    ///
+    /// This could be a path to '.git' directory inside working copy
     #[arg(
         long = "input.git.repository",
         value_name = "git repository path",
@@ -113,8 +131,11 @@ pub(crate) struct Cli {
 
     /// Account selectors for reports and exports
     ///
-    /// List of regex patterns for account names. For full match, use anchors ('^...$').
-    /// Use an empty string "" as an argument to have all accounts
+    /// List of patterns (regex) for account names.
+    ///
+    /// Use anchors ('^...$') for exact match.
+    ///
+    /// Use empty string "" to list all accounts
     #[arg(long = "accounts", value_name = "regex", num_args(1..))]
     pub(crate) accounts: Option<Vec<String>>,
 
@@ -140,7 +161,7 @@ pub(crate) struct Cli {
             PossibleValue::new(txn_ts::GroupBy::ISO_WEEK_DATE),
         ])
     )]
-    pub(crate) group_by: Option<String>,
+    pub(crate) group_by: Option<GroupBy>,
 
     /// List of Exports to generate
     ///
@@ -155,8 +176,9 @@ pub(crate) struct Cli {
 
     /// Txn Filter definition (JSON), it could be ascii armored as base64 encoded
     ///
-    /// The base64 ascii armor must have prefix "base64:". For example
-    /// "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K"
+    /// The base64 ascii armor must have prefix "base64:".
+    ///
+    /// For example "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K"
     #[arg(long = "api-filter-def", value_name = "filter def in json")]
     pub(crate) api_filter_def: Option<String>,
 }
