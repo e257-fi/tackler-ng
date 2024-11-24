@@ -20,7 +20,7 @@ use crate::config::raw_items::{
     RegisterRaw, ReportRaw, ScaleRaw, TagsPathRaw, TagsRaw, TimestampRaw, TimezoneRaw,
     TransactionRaw,
 };
-use crate::config::to_report_targets;
+use crate::config::{to_export_targets, to_report_targets};
 use crate::kernel::hash::Hash;
 use rust_decimal::Decimal;
 use std::error::Error;
@@ -75,7 +75,7 @@ impl ReportType {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub enum ExportType {
     #[default]
     Equity,
@@ -401,7 +401,6 @@ impl Tags {
 pub struct Report {
     pub report_tz: &'static Tz,
     pub targets: Vec<ReportType>,
-    pub report_acc_sel: Option<AccountSelectors>,
     pub scale: Scale,
     pub register: Register,
     pub balance_group: BalanceGroup,
@@ -413,7 +412,6 @@ impl Default for Report {
         Report {
             report_tz: txn_ts::TZ_UTC,
             targets: Vec::new(),
-            report_acc_sel: None,
             scale: Scale::default(),
             register: Register::default(),
             balance_group: BalanceGroup::default(),
@@ -429,7 +427,6 @@ impl Report {
             report_tz: timezones::get_by_name(report_raw.report_tz.as_str())
                 .ok_or("Timezone err TODO")?,
             targets: trgs,
-            report_acc_sel: report_raw.accounts.clone(),
             scale: Scale::from(&report_raw.scale)?,
             register: Register::from(&report_raw.register, report_raw)?,
             balance_group: BalanceGroup::from(&report_raw.balance_group, report_raw)?,
@@ -542,11 +539,14 @@ impl Balance {
 
 #[derive(Debug, Clone, Default)]
 pub struct Export {
+    pub targets: Vec<ExportType>,
     pub equity: Equity,
 }
 impl Export {
     fn from(export_raw: &ExportRaw, report: &ReportRaw) -> Result<Export, Box<dyn Error>> {
+        let trgs = to_export_targets(&export_raw.targets)?;
         Ok(Export {
+            targets: trgs,
             equity: Equity::from(&export_raw.equity, report)?,
         })
     }
