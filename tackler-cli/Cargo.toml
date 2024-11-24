@@ -27,9 +27,9 @@ include.workspace = true
 readme = "CRATES.md"
 
 [dependencies]
-tackler-rs =   { path = "../tackler-rs",   version = "0.5.0" }
-tackler-api =  { path = "../tackler-api", version = "0.5.0" }
-tackler-core = { path = "../tackler-core", version = "0.5.0" }
+tackler-rs =   { path = "../tackler-rs",   version = "0.6.0-dev" }
+tackler-api =  { path = "../tackler-api", version = "0.6.0-dev" }
+tackler-core = { path = "../tackler-core", version = "0.6.0-dev" }
 log = { workspace = true }
 clap = { version = "4.5.20", features = [ "derive" ] }
 time-tz = { workspace = true }
