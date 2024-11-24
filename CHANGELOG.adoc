@@ -5,25 +5,25 @@
 Currently published crates are:
 
 ....
-tackler      = "24.11.1"
-tackler-rs   = "0.4.0"
-tackler-api  = "0.4.0"
-tackler-core = "0.4.0"
+tackler      = "24.11.2"
+tackler-rs   = "0.5.0"
+tackler-api  = "0.5.0"
+tackler-core = "0.5.0"
 ....
 
 
 == Releases
 
-=== Tackler release XX.YY.Z
+=== Tackler release 24.11.2
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 24.11.2-dev
-|tackler-core | 0.5.0-dev
-|tackler-api  | 0.5.0-dev
-|tackler-rs   | 0.5.0-dev
+|Tackler CLI  | 24.11.2
+|tackler-core | 0.5.0
+|tackler-api  | 0.5.0
+|tackler-rs   | 0.5.0
 |===
 
 
@@ -31,15 +31,17 @@ tackler-core = "0.4.0"
 
 New features:
 
-* ...
-  ** ...
-* ...
-  ** ...
-
+* Add CLI options
+  ** `--output.dir`
+  ** `--output.prefix`
+  ** `--strict.mode`
+* Add `export.targets` to configuration
 
 ==== Fixes
 
-Fixes in this release: None
+Fixes in this release:
+
+* Tackler compatible output
 
 
 ==== Development
@@ -47,9 +49,7 @@ Fixes in this release: None
 Updated dependencies and tools:
 
 * Dependencies
-** ...
-* Build
-** ...
+** gix: 0.68.0
 
 
 ===== Rust toolchain
