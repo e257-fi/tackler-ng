@@ -1,6 +1,6 @@
 # Tackler-NG: Tackler CLI Application
 
-[![Build Status](https://github.com/e257-fi/tackler-ng/actions/workflows/build.yml/badge.svg)](https://github.com/e257-fi/tackler-ng/actions)
+[![Build Status](https://github.com/e257-fi/tackler-ng/actions/workflows/ci.yml/badge.svg)](https://github.com/e257-fi/tackler-ng/actions)
 [![Github Releases](https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da)](https://github.com/e257-fi/tackler-ng/releases)
 [![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 [![Tackler Docs](https://img.shields.io/badge/tackler-documentation-%23ffcb00)](https://tackler.e257.fi/docs)
