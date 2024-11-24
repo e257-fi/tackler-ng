@@ -1,4 +1,5 @@
-name: build
+
+name: ci
 
 on: [ push, pull_request ]
 
@@ -36,7 +37,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo test
   
-  build:
+  test-suite:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,3 +48,5 @@ jobs:
       - run: cargo build --release
       - run: target/release/tackler --config examples/simple.toml
       - run: target/release/tackler --config examples/audit.toml
+      - run: tests/sh/test-runner-ng.sh
+
