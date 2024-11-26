@@ -198,30 +198,29 @@ echo ": ok"
 
 
 #####################################################################
-##
-## git-commit-04
-##
-## test: 7752eee6-d3cf-4084-93c0-cb43a093fdd0
-#rm -f $OUTPUT_DIR/*
-#test_name=git-commit-04
-#echo "test: $module/$test_name: "
 #
-#$TACKLER_SH \
-#    --output.dir $OUTPUT_DIR \
-#    --output.prefix $test_name \
-#    --config $SUITE_PATH/$module/git-ok.toml \
-#    --input.git.commit 3a1622d0 \
-#    --exports identity equity \
-#    --reports balance balance-group register
+# git-commit-04
 #
-#echo -n "check:"
-#cmp_result $module $test_name txt bal
-#cmp_result $module $test_name txt balgrp
-#cmp_result $module $test_name txt reg
-#cmp_result $module $test_name txn identity
-#cmp_result $module $test_name txn equity
-#echo ": ok"
-#
+# test: 7752eee6-d3cf-4084-93c0-cb43a093fdd0
+rm -f $OUTPUT_DIR/*
+test_name=git-commit-04
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/git-ok.toml \
+    --input.git.commit 3a1622d0 \
+    --exports identity equity \
+    --reports balance balance-group register
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn identity
+cmp_result $module $test_name txn equity
+echo ": ok"
 
 
 #####################################################################
