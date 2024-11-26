@@ -41,6 +41,7 @@ $TEST_DIR/audit.sh
 $TEST_DIR/commodity.sh
 $TEST_DIR/gas-blender.sh
 $TEST_DIR/tags.sh
+$TEST_DIR/core.sh
 
 echo
 echo "All good"

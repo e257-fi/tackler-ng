@@ -155,16 +155,6 @@ pub struct GitInputReference {
 }
 
 impl Text for GitInputReference {
-    /*
-       Seq(
-         "Git storage:",
-         "  commit:  " + commit,
-         "  ref:     " + ref.getOrElse("FIXED by commit"),
-         "  dir:     " + dir,
-         "  suffix:  " + suffix,
-         "  message: " + message,
-       )
-    */
     fn text(&self) -> Vec<String> {
         let pad = MetadataItem::ITEM_PAD;
         vec![
@@ -175,7 +165,7 @@ impl Text for GitInputReference {
                 "reference",
                 self.reference
                     .as_ref()
-                    .unwrap_or(&"FIXED by commit - no ref!".to_string())
+                    .unwrap_or(&"FIXED by commit".to_string())
             ),
             format!("{:>pad$} : {}", "directory", self.dir),
             format!("{:>pad$} : .{}", "suffix", self.suffix),

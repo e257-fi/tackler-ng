@@ -14,20 +14,19 @@
  * limitations under the License.
  *
  */
-
 use itertools::Itertools;
+use std::collections::HashSet;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::str;
-use std::str::FromStr;
 //use std::time::{SystemTime, UNIX_EPOCH};
 
+use crate::kernel::Settings;
 use crate::model::{TxnData, Txns};
 use crate::parser::tackler_parser;
 use gix as git;
+use gix::hash as gix_hash;
 use gix::objs::tree::EntryKind;
-
-use crate::kernel::Settings;
 use tackler_api::metadata::items::{GitInputReference, MetadataItem};
 
 pub enum GitInputSelector {
@@ -71,7 +70,21 @@ pub fn git_to_txns(
 
     let (object, reference) = match input_selector {
         GitInputSelector::CommitId(id) => {
-            let object_id = gix::ObjectId::from_str(&id)?;
+            let mut candidates = Some(HashSet::default());
+            let prefix = match gix_hash::Prefix::try_from(id.as_str()) {
+                Ok(v) => v,
+                Err(err) => {
+                    let msg = format!("Invalid commit id '{id}': {err}");
+                    return Err(msg.into());
+                }
+            };
+
+            let res = repo.objects.lookup_prefix(prefix, candidates.as_mut())?;
+            let object_id = match res {
+                Some(Ok(id)) => id,
+                Some(Err(())) => return Err(format!("Ambiguous abbreviated commit id {id}").into()),
+                None => return Err(format!("Unknown commit id '{id}'").into()),
+            };
             (repo.find_object(object_id)?.try_into_commit()?, None)
         }
         GitInputSelector::Reference(ref_str) => {
