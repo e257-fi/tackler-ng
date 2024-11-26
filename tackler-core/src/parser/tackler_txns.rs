@@ -71,13 +71,19 @@ pub fn git_to_txns(
     let (object, reference) = match input_selector {
         GitInputSelector::CommitId(id) => {
             let mut candidates = Some(HashSet::default());
-            let prefix = gix_hash::Prefix::try_from(id.as_str())?;
+            let prefix = match gix_hash::Prefix::try_from(id.as_str()) {
+                Ok(v) => v,
+                Err(err) => {
+                    let msg = format!("Invalid commit id '{id}': {err}");
+                    return Err(msg.into());
+                }
+            };
 
             let res = repo.objects.lookup_prefix(prefix, candidates.as_mut())?;
             let object_id = match res {
                 Some(Ok(id)) => id,
                 Some(Err(())) => return Err(format!("Ambiguous abbreviated commit id {id}").into()),
-                None => return Err("Unknown commit id '{}'".into()),
+                None => return Err(format!("Unknown commit id '{id}'").into()),
             };
             (repo.find_object(object_id)?.try_into_commit()?, None)
         }
