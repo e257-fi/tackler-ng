@@ -25,10 +25,30 @@ use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings
 use tackler_core::kernel::Settings;
 use tackler_core::parser::GitInputSelector;
 
+#[derive(Debug, clap::Args)]
+#[group(multiple = false)]
+pub struct GitInputGroup {
+    /// Git reference name
+    #[arg(
+        long = "input.git.ref",
+        value_name = "refname",
+        group = "git_input_group"
+    )]
+    pub(crate) input_git_ref: Option<String>,
+
+    /// Git object name (commit id)
+    #[arg(
+        long = "input.git.commit",
+        value_name = "sha",
+        group = "git_input_group"
+    )]
+    pub(crate) input_git_commit: Option<String>,
+}
+
 #[derive(Parser)]
 #[command(author, version=env!("VERSION"), about, long_about = None)]
 pub(crate) struct Cli {
-    #[arg(long = "config", value_name = "config file path")]
+    #[arg(long = "config", value_name = "path_to_config-file")]
     pub(crate) conf_path: PathBuf,
 
     /// Strict txn data mode
@@ -46,7 +66,7 @@ pub(crate) struct Cli {
     /// Path to output directory
     #[arg(
         long = "output.dir",
-        value_name = "output directory for reports",
+        value_name = "path_to_output-directory",
         requires("output_name")
     )]
     pub(crate) output_directory: Option<PathBuf>,
@@ -54,14 +74,14 @@ pub(crate) struct Cli {
     /// Basename of report files
     #[arg(
         long = "output.prefix",
-        value_name = "prefix of name for report files",
+        value_name = "filename-prefix",
         requires("output_directory")
     )]
     pub(crate) output_name: Option<String>,
 
     /// Path to single transaction journal file
     #[arg(long="input.file",
-        value_name = "txn file path",
+        value_name = "path_to_journal-file",
         conflicts_with_all([
             "input_storage",
             "input_fs_dir",
@@ -76,7 +96,7 @@ pub(crate) struct Cli {
     /// Select used transaction storage
     ///
     #[arg(long="input.storage",
-        value_name = "storage type",
+        value_name = "type_of_storage",
         value_parser([
             PossibleValue::new(config::StorageType::STORAGE_FS),
             PossibleValue::new(config::StorageType::STORAGE_GIT),
@@ -84,9 +104,11 @@ pub(crate) struct Cli {
     )]
     pub(crate) input_storage: Option<String>,
 
-    /// Filsystem path to txn directory (tree)
+    /// Filsystem path to transaction directory
+    ///
+    /// This could be a root or node of txn shard tree
     #[arg(long="input.fs.dir",
-        value_name = "txn dir path",
+        value_name = "path_to_transaction-directory",
         requires("input_fs_ext"),
         conflicts_with_all([
             "input_git_repo",
@@ -98,7 +120,7 @@ pub(crate) struct Cli {
     /// Txn file extension
     #[arg(
         long = "input.fs.ext",
-        value_name = "txn file suffix",
+        value_name = "txn_file-suffix",
         requires("input_fs_dir")
     )]
     pub(crate) input_fs_ext: Option<String>,
@@ -110,22 +132,23 @@ pub(crate) struct Cli {
     /// This could be a path to '.git' directory inside working copy
     #[arg(
         long = "input.git.repository",
-        value_name = "git repository path",
-        requires("input_git_ref"),
-        requires("input_git_dir")
+        value_name = "path",
+        requires("input_git_dir"),
+        requires("git_input_group")
     )]
+    //requires("git_input_group"),
     pub(crate) input_git_repo: Option<PathBuf>,
 
-    /// Git reference name
-    #[arg(long = "input.git.ref", value_name = "git ref")]
-    pub(crate) input_git_ref: Option<String>,
+    #[clap(flatten)]
+    git_input_selector: GitInputGroup,
 
-    /// Path prefix inside git repository
+    /// Path (inside git repository) to transaction directory
+    ///
+    /// This could be a root or node of txn shard tree
     #[arg(
         long = "input.git.dir",
-        value_name = "git-path prefix",
-        requires("input_git_repo"),
-        requires("input_git_ref")
+        value_name = "path_to_transaction-directory",
+        requires("input_git_repo")
     )]
     pub(crate) input_git_dir: Option<String>,
 
@@ -174,17 +197,35 @@ pub(crate) struct Cli {
     )]
     pub(crate) exports: Option<Vec<String>>,
 
-    /// Txn Filter definition (JSON), it could be ascii armored as base64 encoded
+    /// Txn Filter definition in JSON
     ///
-    /// The base64 ascii armor must have prefix "base64:".
+    /// This could be ascii armored with base64 encoding
     ///
-    /// For example "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K"
-    #[arg(long = "api-filter-def", value_name = "filter def in json")]
+    /// The ascii armor must have prefix 'base64:'
+    ///
+    /// e.g. "base64:eyJ0eG5GaWx0ZXIiOnsiTnVsbGFyeVRSVUUiOnt9fX0K"
+    #[arg(long = "api-filter-def", value_name = "txn_filter")]
     pub(crate) api_filter_def: Option<String>,
 }
 
 impl Cli {
+    fn get_git_selector(&self) -> Option<GitInputSelector> {
+        match (
+            &self.git_input_selector.input_git_commit,
+            &self.git_input_selector.input_git_ref,
+        ) {
+            (Some(commit), None) => Some(GitInputSelector::CommitId(commit.clone())),
+            (None, Some(git_ref)) => Some(GitInputSelector::Reference(git_ref.clone())),
+            (None, None) => None,
+            (Some(_), Some(_)) => {
+                panic!("IE: this should not be possible, Clap configuration is broken")
+            }
+        }
+    }
+
     pub fn get_input_type(&self, settings: &Settings) -> Result<InputSettings, Box<dyn Error>> {
+        let git_selector = self.get_git_selector();
+
         if let Some(filename) = &self.input_filename {
             let i = FileInput {
                 path: filename.clone(),
@@ -192,28 +233,34 @@ impl Cli {
             Ok(InputSettings::File(i))
         } else if self.input_fs_dir.is_some() {
             let i = FsInput {
-                dir: self.input_fs_dir.clone().unwrap(/*:ok: clap */),
-                suffix: self.input_fs_ext.clone().unwrap(/*:ok: clap */),
+                dir: self
+                    .input_fs_dir
+                    .clone()
+                    .expect("IE: This should not be possible (Clap)"),
+                suffix: self
+                    .input_fs_ext
+                    .clone()
+                    .expect("IE: This should not be possible (Clap)"),
             };
             Ok(InputSettings::Fs(i))
         } else if self.input_git_repo.is_some() {
             let i = GitInput {
-                repo: self.input_git_repo.clone().unwrap(/*:ok: clap */),
-                git_ref: GitInputSelector::Reference(
-                    self.input_git_ref.clone().unwrap(/*:ok: clap */),
-                ),
-                dir: self.input_git_dir.clone().unwrap(/*:ok: clap */).clone(),
+                repo: self.input_git_repo.clone().unwrap(/*:ok: is_some */),
+                git_ref: git_selector.expect("IE: This should not be possible (Clap)"),
+                dir: self
+                    .input_git_dir
+                    .clone()
+                    .expect("IE: This should not be possible (Clap)"),
                 ext: String::from("txn"),
             };
             Ok(InputSettings::Git(i))
-        } else if self.input_git_ref.is_some() && self.input_git_repo.is_none() {
-            let input_git_ref = self.input_git_ref.clone().unwrap(/*:ok: clap */);
+        } else if self.input_git_repo.is_none() && git_selector.is_some() {
             match settings.get_input_settings(
                 Some(&config::StorageType::STORAGE_GIT.to_string()),
                 Some(self.conf_path.as_path()),
             )? {
                 InputSettings::Git(git) => Ok(InputSettings::Git(GitInput {
-                    git_ref: GitInputSelector::Reference(input_git_ref),
+                    git_ref: git_selector.unwrap(/*:ok: is_some */),
                     ..git
                 })),
                 _ => {
