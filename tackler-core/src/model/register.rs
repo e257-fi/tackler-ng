@@ -19,6 +19,7 @@ use crate::config::Scale;
 use crate::model::{Posting, Transaction};
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::{max, Ordering};
+use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_ts;
 use time::OffsetDateTime;
@@ -73,35 +74,43 @@ impl<'a> RegisterEntry<'a> {
         tz: &'static Tz,
         scale: &Scale,
     ) -> String {
+        fn amount_to_string(amount: &Decimal, scale: &Scale, width: usize) -> String {
+            let prec = scale.get_precision(amount);
+            let amount_txt = format!(
+                "{:.prec$}",
+                amount.round_dp_with_strategy(prec as u32, RoundingStrategy::MidpointAwayFromZero)
+            );
+
+            if amount.is_sign_positive() && amount_txt.chars().count() >= width {
+                format!(" {}", amount_txt)
+            } else {
+                amount_txt
+            }
+        }
+
         let indent = " ".repeat(12);
         let mut line_len = 0;
-        let mut s = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
+        let mut reg_entry_txt = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
 
         for p in &self.posts {
             let comm = &p.post.acctn.comm;
 
-            let prec_1 = scale.get_precision(&p.post.amount);
-            let prec_2 = scale.get_precision(&p.amount);
-
             let line = format!(
-                "{}{:<33}{:>18.prec_1$} {:>18.prec_2$}{}",
+                "{}{:<33}{:>18} {:>18}{}",
                 indent,
                 p.post.acctn.atn.account,
-                p.post
-                    .amount
-                    .round_dp_with_strategy(prec_1 as u32, RoundingStrategy::MidpointAwayFromZero),
-                p.amount
-                    .round_dp_with_strategy(prec_2 as u32, RoundingStrategy::MidpointAwayFromZero),
+                amount_to_string(&p.post.amount, scale, 18),
+                amount_to_string(&p.amount, scale, 18),
                 match &comm.is_some() {
                     true => format!(" {}", comm.name),
                     false => String::new(),
                 },
             );
             line_len = max(line_len, line.chars().count());
-            s += &line;
-            s += "\n";
+            let _ = writeln!(reg_entry_txt, "{}", line);
         }
-        format!("{s}{}\n", "-".repeat(line_len))
+        let _ = writeln!(reg_entry_txt, "{}", "-".repeat(line_len));
+        reg_entry_txt
     }
 }
 impl<'a> Display for RegisterEntry<'a> {

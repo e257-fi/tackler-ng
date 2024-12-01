@@ -36,7 +36,9 @@ New features:
 
 ==== Fixes
 
-Fixes in this release: none
+Fixes in this release:
+
+* Register report: Tackler-mkI compatible output
 
 
 ==== Development

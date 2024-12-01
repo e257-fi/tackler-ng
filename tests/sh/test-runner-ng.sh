@@ -42,6 +42,9 @@ $TEST_DIR/commodity.sh
 $TEST_DIR/gas-blender.sh
 $TEST_DIR/tags.sh
 $TEST_DIR/core.sh
+$TEST_DIR/reporting-group_by.sh
+$TEST_DIR/reporting-time_zones.sh
+$TEST_DIR/reporting-equity.sh
 
 echo
 echo "All good"
