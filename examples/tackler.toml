@@ -1,12 +1,12 @@
-### Configuration settings for Tackler-NG
+### The main configuration file for Tackler-NG
 ###
-### The format of this file is TOML (https://toml.io/en/)
+### The format is TOML (https://toml.io/en/)
 [kernel]
 ### Stric mode
 ###
 ### When this is true, then all accounts, commodities and tags
-### must be predefined.  If there is an undefined item,
-### it's fatal halting error.
+### must be predefined. It's fatal halting error,
+### if there is an undefined item in the transaction data.
 ###
 ### Valid options are: true | false
 ### CLI: --strict.mode
@@ -70,8 +70,6 @@ hash = "SHA-256"
 ### Valid options are: true | false
 ### CLI: --audit.mode
 mode = true
-
-
 
 ### Transaction Input Configuration
 [kernel.input]

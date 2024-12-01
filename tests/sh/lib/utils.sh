@@ -19,8 +19,14 @@ cmp_result () {
     local test_name=$2
     local suffix=$3
     local target=$4
+    local ok_path="$5"
 
-    ref=$SUITE_PATH/$module/ok/$test_name.ref.$target.$suffix
+    if [ "x$ok_path" == "x" ]; then
+	ok="ok"
+    else
+	ok=$ok_path
+    fi
+    ref=$SUITE_PATH/$module/$ok/$test_name.ref.$target.$suffix
     out=$OUTPUT_DIR/$test_name.$target.$suffix
 
     cmp $ref $out || {
