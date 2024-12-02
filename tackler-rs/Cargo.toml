@@ -24,6 +24,7 @@ repository.workspace = true
 categories.workspace = true
 keywords.workspace = true
 include.workspace = true
+rust-version.workspace = true
 readme = "CRATES.md"
 
 [lib]
