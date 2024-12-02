@@ -63,12 +63,12 @@ pub struct BalanceGroupReporter {
     pub report_settings: BalanceGroupSettings,
 }
 
-impl<'a> BalanceGroupReporter {
+impl BalanceGroupReporter {
     fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
         BalanceReporter::acc_selector(&self.report_settings.ras)
     }
 
-    fn get_group_by_op(&self) -> TxnGroupByOp<'a> {
+    fn get_group_by_op(&self) -> TxnGroupByOp<'_> {
         let tz: &'static Tz = self.report_settings.report_tz;
         match self.report_settings.group_by {
             GroupBy::IsoWeekDate => Box::new(move |txn: &Transaction| {

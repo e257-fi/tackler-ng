@@ -145,10 +145,10 @@ impl RegisterByAccountSelector {
     }
 }
 
-impl<'a> RegisterSelector<'a> for RegisterByAccountSelector {}
-impl<'a> RegisterItemSelector<'a> for RegisterByAccountSelector {}
+impl RegisterSelector<'_> for RegisterByAccountSelector {}
+impl RegisterItemSelector<'_> for RegisterByAccountSelector {}
 
-impl<'a> Predicate<RegisterPosting<'a>> for RegisterByAccountSelector {
+impl Predicate<RegisterPosting<'_>> for RegisterByAccountSelector {
     fn eval(&self, rep: &RegisterPosting) -> bool {
         self.regexs.is_match(&rep.post.acctn.atn.account)
     }
@@ -166,14 +166,14 @@ impl ReportItemSelector for RegisterByAccountSelector {
 #[derive(Default)]
 pub struct RegisterAllSelector {}
 
-impl<'a> Predicate<RegisterPosting<'a>> for RegisterAllSelector {
+impl Predicate<RegisterPosting<'_>> for RegisterAllSelector {
     fn eval(&self, _: &RegisterPosting) -> bool {
         true
     }
 }
 
-impl<'a> RegisterItemSelector<'a> for RegisterAllSelector {}
-impl<'a> RegisterSelector<'a> for RegisterAllSelector {}
+impl RegisterItemSelector<'_> for RegisterAllSelector {}
+impl RegisterSelector<'_> for RegisterAllSelector {}
 
 impl ReportItemSelector for RegisterAllSelector {
     fn checksum(&self, _hash: Hash) -> Result<Checksum, Box<dyn Error>> {
