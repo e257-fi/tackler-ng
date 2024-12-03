@@ -30,6 +30,7 @@ use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_core::config::Config;
 
+use tackler_api::txn_ts::GroupBy;
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -108,6 +109,11 @@ fn run() -> Result<i32, Box<dyn Error>> {
     };
 
     let reports = settings.get_report_targets(cli.reports)?;
+    let group_by: Option<GroupBy> = match cli.group_by {
+        Some(gp) => Some(GroupBy::from(gp.as_str())?),
+        None => None,
+    };
+
     if !reports.is_empty() {
         write_txt_reports(
             &mut console_output,
@@ -115,7 +121,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
             &cli.output_name,
             &reports,
             &txn_set,
-            cli.group_by,
+            group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),
         )?;

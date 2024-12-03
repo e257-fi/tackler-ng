@@ -39,7 +39,7 @@ New features:
 Fixes in this release:
 
 * Register report: Tackler-mkI compatible output
-
+* Fix broken `--group-by` cli option (clap definition)
 
 ==== Development
 
