@@ -118,6 +118,4 @@ $TACKLER_SH \
 echo -n "check:"
 cmp_result $module $test_name-ng txn identity "."
 echo ": ok"
-
-
-
+rm -rf $OUTPUT_DIR/*

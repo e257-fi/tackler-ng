@@ -44,6 +44,26 @@ cmp_result $module $test_name txn equity
 echo ": ok"
 
 #
+# audit-1E1-02
+#
+# test: f8c0fe2b-f189-4338-b75e-3c8e68a8c7e2
+rm -f $OUTPUT_DIR/*
+test_name=audit-1E1-02
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/audit/fs-audit.toml \
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+echo ": ok"
+
+#
 # audit-1E2-01
 #
 # test: 4e8e1d79-bbb5-4e6f-9072-d7e3c5b8c7ea
@@ -94,7 +114,7 @@ echo ": ok"
 #
 # audit-1E2-03
 #
-# test: f8c0fe2b-f189-4338-b75e-3c8e68a8c7e2
+# test: b2ea4102-40a2-46e5-aca3-398cf4849058
 rm -f $OUTPUT_DIR/*
 test_name=audit-1E2-03
 echo "test: $module/$test_name: "
