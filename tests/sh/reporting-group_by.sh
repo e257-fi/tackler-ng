@@ -91,7 +91,7 @@ echo ": ok"
 #
 # month
 #
-# test: 053ca6b0-6be6-4fc1-9dd8-6abc754d98d1
+# test: a52914e4-0887-4255-abea-c0b457802f56
 rm -f $OUTPUT_DIR/*
 test_name=month
 echo "test: $module/$test_name: "

@@ -31,27 +31,27 @@ pub struct RegisterPosting<'a> {
     pub amount: Decimal,
 }
 
-impl<'a> Eq for RegisterPosting<'a> {}
+impl Eq for RegisterPosting<'_> {}
 
-impl<'a> PartialEq<Self> for RegisterPosting<'a> {
+impl PartialEq<Self> for RegisterPosting<'_> {
     fn eq(&self, other: &Self) -> bool {
         self.post.acctn.atn == other.post.acctn.atn
     }
 }
 
-impl<'a> PartialOrd<Self> for RegisterPosting<'a> {
+impl PartialOrd<Self> for RegisterPosting<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'a> Ord for RegisterPosting<'a> {
+impl Ord for RegisterPosting<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.post.acctn.cmp(&other.post.acctn)
     }
 }
 
-impl<'a> Display for RegisterPosting<'a> {
+impl Display for RegisterPosting<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -67,7 +67,7 @@ pub(crate) struct RegisterEntry<'a> {
     pub posts: Vec<RegisterPosting<'a>>,
 }
 
-impl<'a> RegisterEntry<'a> {
+impl RegisterEntry<'_> {
     pub fn fmt_with_tz(
         &self,
         ts_fmtr: fn(OffsetDateTime, &'static Tz) -> String,
@@ -113,7 +113,7 @@ impl<'a> RegisterEntry<'a> {
         reg_entry_txt
     }
 }
-impl<'a> Display for RegisterEntry<'a> {
+impl Display for RegisterEntry<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

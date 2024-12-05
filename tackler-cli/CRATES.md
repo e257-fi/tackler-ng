@@ -2,8 +2,9 @@
 
 [![Build Status](https://github.com/e257-fi/tackler-ng/actions/workflows/ci.yml/badge.svg)](https://github.com/e257-fi/tackler-ng/actions)
 [![Github Releases](https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da)](https://github.com/e257-fi/tackler-ng/releases)
-[![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 [![Tackler Docs](https://img.shields.io/badge/tackler-documentation-%23ffcb00)](https://tackler.e257.fi/docs)
+[![GitHub Discussions](https://img.shields.io/github/discussions/e257-fi/tackler-ng)](https://github.com/e257-fi/tackler-ng/discussions)
+[![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 
 
 Tackler is fast, reliable bookkeeping engine with native GIT SCM 
@@ -13,11 +14,11 @@ Tackler-NG is rusty version of [Tackler](https://tackler.e257.fi/).
 ## Project Status
 
 The rusty Tackler-NG is in [feature](https://tackler.e257.fi/features/)
-parity with old scala based Tackler  CLI, and this will be 
+parity with old scala based Tackler CLI, and it will be 
 the basis of all future Tackler development.
 
 
-Basic functionality is fully supported, including 
+All Tackler CLI functionality is supported, including 
 [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
 transaction storages ([FS backend](https://tackler.e257.fi/docs/usage/#storage-selector), 
 [Gitoxide](https://github.com/GitoxideLabs/gitoxide/) based [Git backend](https://tackler.e257.fi/docs/journal/git-storage/)), 
@@ -37,7 +38,7 @@ Other notable supported features are:
 
 See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use tackler-ng.
 
-**NOTE: Tackler-NG is tested with the most essential tackler tests vectors at the moment.**
+**NOTE: Tackler-NG is tested with the most essential tackler's tests vectors at the moment.**
 
 ## Build and install tackler
 

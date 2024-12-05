@@ -62,6 +62,69 @@ commodity_test basic-05
 # test: 0dae7dfd-c816-4a77-afff-a372e1802026
 commodity_test basic-06
 
+#####################################################################
+#
+# basic-03-01
+#
+# test: 7616a6e8-8492-4fe7-9921-ae00f86af2cd
+rm -f $OUTPUT_DIR/*
+test_name=basic-03-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/basic-03.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}-step1 \
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $OUTPUT_DIR/${test_name}-step1.identity.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+cmp_result $module $test_name txn identity
+echo ": ok"
+
+#####################################################################
+#
+# basic-03-02
+#
+# test: c7d115a7-664c-479d-8bf4-c1a85a06d5ba
+rm -f $OUTPUT_DIR/*
+test_name=basic-03-02
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/basic-03.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}-step1 \
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $OUTPUT_DIR/${test_name}-step1.equity.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+cmp_result $module $test_name txn identity
+echo ": ok"
+
+#####################################################################
+#
+# valpos
+#
+
 # test: 54cb6baa-6c3d-4196-94bc-b6fd37ed0b57
 commodity_test valpos-01
 
@@ -71,6 +134,7 @@ commodity_test valpos-02
 # test: d0dd6b75-238e-49cf-a048-a77baafba9bd
 commodity_test valpos-03
 
+#####################################################################
 #
 # valpos-01-01
 #
@@ -84,6 +148,35 @@ $TACKLER_SH \
     --output.prefix ${test_name}-step1 \
     --config $SUITE_PATH/$module/ok.toml \
     --input.file $SUITE_PATH/$module/ok/valpos-01.txn
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $OUTPUT_DIR/${test_name}-step1.identity.txn
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+cmp_result $module $test_name txn identity
+echo ": ok"
+
+#####################################################################
+#
+# valpos-02-01
+#
+# test: d37de2c1-61bf-4ffc-8f7a-933ce8380b2f
+rm -f $OUTPUT_DIR/*
+test_name=valpos-02-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/valpos-02.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}-step1 \
 
 $TACKLER_SH \
     --output.dir $OUTPUT_DIR \
@@ -131,4 +224,28 @@ commodity_filter_test "02"
 
 # test: 09e9a673-4730-4a03-b73a-5959730450f6
 commodity_filter_test "03"
+
+#####################################################################
+#
+# unknown-01
+#
+# test: 779fdbd7-93f8-48da-9860-8ce7a5c66e6e
+rm -f $OUTPUT_DIR/*
+test_name=unknown-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/no-commodities.toml \
+    --input.file $SUITE_PATH/$module/ok/unknown-01.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name} \
+    --strict.mode false
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+cmp_result $module $test_name txn identity
+echo ": ok"
 

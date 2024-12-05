@@ -19,7 +19,6 @@ use clap::Parser;
 use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
-use tackler_api::txn_ts::GroupBy;
 use tackler_core::config;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::kernel::Settings;
@@ -184,7 +183,7 @@ pub(crate) struct Cli {
             PossibleValue::new(txn_ts::GroupBy::ISO_WEEK_DATE),
         ])
     )]
-    pub(crate) group_by: Option<GroupBy>,
+    pub(crate) group_by: Option<String>,
 
     /// List of Exports to generate
     ///

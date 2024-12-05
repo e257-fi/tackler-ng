@@ -61,3 +61,57 @@ accumulator_test bal-gap-03
 # test: 2abde44e-929a-467b-9f57-87c8945451c7
 accumulator_test eq-zeros
 
+#####################################################################
+#
+# eq-uuid-01
+#
+# test: 76da1ba6-b17d-4260-bc2d-7d1dcca54d50
+rm -f $OUTPUT_DIR/*
+test_name=eq-uuid-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/eq-uuid.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}-step1 \
+    --accounts "^a.*"
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $OUTPUT_DIR/${test_name}-step1.equity.txn \
+    --reports balance balance-group register \
+    --exports equity identity \
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+cmp_result $module $test_name txn identity
+echo ": ok"
+
+#####################################################################
+#
+# eq-uuid-02
+#
+# test: f46b00a3-b4dc-44e0-a8ae-b8039e2a33a7
+rm -f $OUTPUT_DIR/*
+test_name=eq-uuid-02
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/eq-uuid.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name} \
+    --accounts "^a.*"
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+cmp_result $module $test_name txn equity
+echo ": ok"
