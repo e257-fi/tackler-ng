@@ -148,7 +148,7 @@ mod tests {
         }
     }
 
-    pub(crate) fn make_geo_txn(lat: f64, lon: f64, alt: Option<f64>) -> Transaction {
+    pub(crate) fn make_geo_txn(lat: Decimal, lon: Decimal, alt: Option<Decimal>) -> Transaction {
         Transaction {
             header: TxnHeader {
                 timestamp: PrimitiveDateTime::MIN.assume_utc(),

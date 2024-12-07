@@ -158,10 +158,10 @@ fn handle_meta(
             let uri_ctx = &geo_ctx.geo_uri().unwrap(/*:ok: parser */);
             Some(GeoPoint::from(
                 // there must be lat, lon at least
-                (uri_ctx.lat().unwrap(/*:ok: parser */).get_text()).parse::<f64>()?,
-                (uri_ctx.lon().unwrap(/*:ok: parser */).get_text()).parse::<f64>()?,
+                (uri_ctx.lat().unwrap(/*:ok: parser */).get_text()).parse::<Decimal>()?,
+                (uri_ctx.lon().unwrap(/*:ok: parser */).get_text()).parse::<Decimal>()?,
                 match uri_ctx.alt() {
-                    Some(alt_ctx) => Some((alt_ctx.get_text()).parse::<f64>()?),
+                    Some(alt_ctx) => Some((alt_ctx.get_text()).parse::<Decimal>()?),
                     None => None,
                 },
             )?)

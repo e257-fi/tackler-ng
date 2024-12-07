@@ -40,6 +40,7 @@ Fixes in this release:
 
 * Register report: Tackler-mkI compatible output
 * Fix broken `--group-by` cli option (clap definition)
+* Print location with full precision (with trailing zeros) 
 
 ==== Development
 

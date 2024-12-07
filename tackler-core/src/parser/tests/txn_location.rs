@@ -62,7 +62,7 @@ use tackler_rs::IndocUtils;
             | a
             |
             |").strip_margin(),
-          "geo:66.5436,25.84715,160",
+          "geo:66.5436,25.84715,160.0",
         ),
         (indoc!(
            "|
@@ -82,7 +82,7 @@ use tackler_rs::IndocUtils;
             | a
             |
             |").strip_margin(),
-          "geo:59.90735,16.57532,-155",
+          "geo:59.90735,16.57532,-155.0",
         ),
         (indoc!(
            "|
@@ -152,7 +152,7 @@ use tackler_rs::IndocUtils;
             | a
             |
             |").strip_margin(),
-          "geo:-66.56,-180,0",
+          "geo:-66.56,-180.0,0",
         )
       ];
          let mut count = 0;

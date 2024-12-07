@@ -17,6 +17,7 @@
 
 //! Transaction Geo location
 //!
+use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
@@ -25,17 +26,15 @@ use std::fmt::{Display, Formatter};
 #[derive(Debug, Clone)]
 pub struct GeoPoint {
     /// Latitude in decimal format
-    pub lat: f64,
+    pub lat: Decimal,
     /// Longitude in decimal format
-    pub lon: f64,
+    pub lon: Decimal,
     /// optional depth/altitude, in meters
-    pub alt: Option<f64>,
+    pub alt: Option<Decimal>,
 }
 
 impl Display for GeoPoint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        //"geo:" + GeoPoint.frmt(lat) + "," + GeoPoint.frmt(lon) + alt.map("," + GeoPoint.frmt(_)).getOrElse("")
-        // todo: check the scale behaviour of Decimal
         let alt = match &self.alt {
             Some(a) => format!(",{a}"),
             None => String::new(),
@@ -46,22 +45,30 @@ impl Display for GeoPoint {
 
 #[allow(clippy::manual_range_contains)]
 impl GeoPoint {
+    const MAX_LAT: Decimal = Decimal::from_parts(90, 0, 0, false, 0);
+    const MIN_LAT: Decimal = Decimal::from_parts(90, 0, 0, true, 0);
+    const MAX_LON: Decimal = Decimal::from_parts(180, 0, 0, false, 0);
+    const MIN_LON: Decimal = Decimal::from_parts(180, 0, 0, true, 0);
     /// Make Geo point from given coordinates.
     ///
     /// * `lat` in decimals, must be inclusive -90 -- 90
     /// * `lon` in decimals, must be inclusive -180 -- 180
     /// * `alt` in meters, must be more than -6378137 meters
-    pub fn from(lat: f64, lon: f64, alt: Option<f64>) -> Result<GeoPoint, Box<dyn Error>> {
-        if lat < -90.0 || 90.0 < lat {
+    pub fn from(
+        lat: Decimal,
+        lon: Decimal,
+        alt: Option<Decimal>,
+    ) -> Result<GeoPoint, Box<dyn Error>> {
+        if lat < Self::MIN_LAT || Self::MAX_LAT < lat {
             let msg = format!("Value out of specification for Latitude: {lat}");
             return Err(msg.into());
         }
-        if lon < -180.0 || 180.0 < lon {
+        if lon < Self::MIN_LON || Self::MAX_LON < lon {
             let msg = format!("Value out of specification for Longitude: {lon}");
             return Err(msg.into());
         }
-        if let Some(z) = alt.as_ref() {
-            if z < &-6_378_137.0 {
+        if let Some(z) = alt {
+            if z < Decimal::from(-6_378_137) {
                 // Jules Verne: Voyage au centre de la Terre
                 let msg = format!("Value Out of specification for Altitude: {z}");
                 return Err(msg.into());
@@ -70,5 +77,53 @@ impl GeoPoint {
         Ok(GeoPoint { lat, lon, alt })
     }
 }
+#[cfg(test)]
+mod tests {
+    use crate::location::GeoPoint;
+    use rust_decimal_macros::dec;
 
-// todo: GeoPoint::from + checks
+    // todo: GeoPoint::from + checks
+
+    #[test]
+    fn geo_display() {
+        let tests: Vec<(GeoPoint, String)> = vec![
+            (
+                GeoPoint::from(dec!(60), dec!(24), None).unwrap(/*:test:*/),
+                "geo:60,24".to_string(),
+            ),
+            (
+                GeoPoint::from(dec!(60), dec!(24), Some(dec!(5))).unwrap(/*:test:*/),
+                "geo:60,24,5".to_string(),
+            ),
+            (
+                GeoPoint::from(dec!(60.167), dec!(24.955), Some(dec!(5.0))).unwrap(/*:test:*/),
+                "geo:60.167,24.955,5.0".to_string(),
+            ),
+            (
+                GeoPoint::from(dec!(60.167000), dec!(24.955000), Some(dec!(5.000))).unwrap(/*:test:*/),
+                "geo:60.167000,24.955000,5.000".to_string(),
+            ),
+            (
+                GeoPoint::from(dec!(-60), dec!(-24), Some(dec!(-5))).unwrap(/*:test:*/),
+                "geo:-60,-24,-5".to_string(),
+            ),
+            (
+                GeoPoint::from(dec!(-60.167), dec!(-24.955), Some(dec!(-5.0))).unwrap(/*:test:*/),
+                "geo:-60.167,-24.955,-5.0".to_string(),
+            ),
+            (
+                GeoPoint::from(dec!(-60.167000), dec!(-24.955000), Some(dec!(-5.000))).unwrap(/*:test:*/),
+                "geo:-60.167000,-24.955000,-5.000".to_string(),
+            ),
+        ];
+
+        let mut count = 0;
+        let should_be_count = tests.len();
+        for t in tests {
+            let geo_str = format!("{}", t.0);
+            assert_eq!(geo_str, t.1);
+            count += 1;
+        }
+        assert_eq!(count, should_be_count);
+    }
+}

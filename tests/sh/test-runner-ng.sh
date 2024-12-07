@@ -39,14 +39,15 @@ source $TEST_DIR/lib/utils.sh
 $TEST_DIR/accumulator.sh
 $TEST_DIR/audit.sh
 $TEST_DIR/commodity.sh
-$TEST_DIR/gas-blender.sh
-$TEST_DIR/tags.sh
 $TEST_DIR/core.sh
-$TEST_DIR/reporting-ok.sh
-$TEST_DIR/reporting-group_by.sh
-$TEST_DIR/reporting-time_zones.sh
-$TEST_DIR/reporting-equity.sh
+$TEST_DIR/gas-blender.sh
+$TEST_DIR/location.sh
 $TEST_DIR/parser.sh
+$TEST_DIR/reporting-equity.sh
+$TEST_DIR/reporting-group_by.sh
+$TEST_DIR/reporting-ok.sh
+$TEST_DIR/reporting-time_zones.sh
+$TEST_DIR/tags.sh
 
 echo
 echo "All good"
