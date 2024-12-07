@@ -15,10 +15,10 @@
  *
  */
 
+use crate::filters::IndentDisplay;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
-
-use crate::filters::IndentDisplay;
 
 /// Txn Geo Location (3D) filter
 ///
@@ -27,17 +27,17 @@ use crate::filters::IndentDisplay;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterBBoxLatLonAlt {
     /// min latitude
-    pub south: f64,
+    pub south: Decimal,
     /// min longitude
-    pub west: f64,
+    pub west: Decimal,
     /// max depth
-    pub depth: f64,
+    pub depth: Decimal,
     /// max latitude
-    pub north: f64,
+    pub north: Decimal,
     /// max longitude
-    pub east: f64,
+    pub east: Decimal,
     /// max height
-    pub height: f64,
+    pub height: Decimal,
 }
 
 impl IndentDisplay for TxnFilterBBoxLatLonAlt {
@@ -62,19 +62,20 @@ mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
+    use rust_decimal_macros::dec;
     use tackler_rs::IndocUtils;
 
     #[test]
     // test: c027ef27-3287-411f-aad9-8185f1b55380
     // desc: BBoxLatLonAlt, JSON
     fn txn_bbox_lat_lon_alt_json() {
-        let filter_json_str = r#"{"txnFilter":{"TxnFilterBBoxLatLonAlt":{"south":-1.0,"west":-2.0,"depth":-3.0,"north":1.0,"east":2.0,"height":3.0}}}"#;
+        let filter_json_str = r#"{"txnFilter":{"TxnFilterBBoxLatLonAlt":{"south":"-1.0","west":"-2.0","depth":"-3.0","north":"1.0","east":"2.0","height":"3.0"}}}"#;
 
         let filter_text_str = indoc! {
         "|Filter
          |  Txn Bounding Box 3D
-         |    North, East, Height: geo:1,2,3
-         |    South, West, Depth:  geo:-1,-2,-3
+         |    North, East, Height: geo:1.0,2.0,3.0
+         |    South, West, Depth:  geo:-1.0,-2.0,-3.0
          |"}
         .strip_margin();
 
@@ -116,22 +117,22 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt {
-                        south: -1_f64,
-                        west: -2_f64,
-                        depth: -3_f64,
-                        north: 1_f64,
-                        east: 2_f64,
-                        height: 3_f64,
+                        south: dec!(-1),
+                        west: dec!(-2),
+                        depth: dec!(-3),
+                        north: dec!(1),
+                        east: dec!(2),
+                        height: dec!(3),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterBBoxLatLonAlt(TxnFilterBBoxLatLonAlt {
-                                south: -1_f64,
-                                west: -2_f64,
-                                depth: -3_f64,
-                                north: 1_f64,
-                                east: 2_f64,
-                                height: 3_f64,
+                                south: dec!(-1),
+                                west: dec!(-2),
+                                depth: dec!(-3),
+                                north: dec!(1),
+                                east: dec!(2),
+                                height: dec!(3),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
                         ],

@@ -202,6 +202,7 @@ mod tests {
     use super::*;
     use indoc::formatdoc;
     use indoc::indoc;
+    use rust_decimal_macros::dec;
     use tackler_rs::IndocUtils;
     use time::format_description::well_known::Rfc3339;
 
@@ -215,7 +216,7 @@ mod tests {
         let uuid_str = "ed6d4110-f3c0-4770-87fc-b99e46572244";
         let uuid = Uuid::parse_str(uuid_str).unwrap(/*:test:*/);
 
-        let geo = GeoPoint::from(60.167, 24.955, Some(5.0)).unwrap(/*:test:*/);
+        let geo = GeoPoint::from(dec!(60.167), dec!(24.955), Some(dec!(5.0))).unwrap(/*:test:*/);
 
         let txn_tags = vec![
             Arc::new("a".to_string()),
@@ -323,7 +324,7 @@ mod tests {
                 },
                 indoc!(
                     "|2023-02-04T14:03:05.047974+02:00 'desc
-                     |   # location: geo:60.167,24.955,5
+                     |   # location: geo:60.167,24.955,5.0
                      |"
                 )
                 .strip_margin(),
@@ -377,7 +378,7 @@ mod tests {
                 formatdoc!(
                     "|2023-02-04T14:03:05.047974+02:00 'desc
                      |   # uuid: {uuid_str}
-                     |   # location: geo:60.167,24.955,5
+                     |   # location: geo:60.167,24.955,5.0
                      |   # tags: a, b, c, a:b:c
                      |   ; z 1st line
                      |   ; c 2nd line

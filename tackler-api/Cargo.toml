@@ -43,5 +43,6 @@ time-tz = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]
+rust_decimal_macros = { workspace = true }
 tackler-rs = { path = "../tackler-rs", version = "0.6.0-dev" }
 indoc = { workspace = true }

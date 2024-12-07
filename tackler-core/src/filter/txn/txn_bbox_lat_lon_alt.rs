@@ -62,6 +62,7 @@ mod tests {
     use super::*;
     use crate::filter::tests::make_geo_txn;
     use crate::model::Transaction;
+    use rust_decimal_macros::dec;
     use tackler_api::filters::TxnFilter;
 
     #[test]
@@ -69,22 +70,34 @@ mod tests {
     // desc: Filter 3D Txns
     fn txn_bbox_lat_lon() {
         let tf = TxnFilterBBoxLatLonAlt {
-            south: 40.0,
-            west: 20.0,
-            depth: -2000.0,
-            north: 65.0,
-            east: 26.0,
-            height: 14000.0,
+            south: dec!(40.0),
+            west: dec!(20.0),
+            depth: dec!(-2000.0),
+            north: dec!(65.0),
+            east: dec!(26.0),
+            height: dec!(14000.0),
         };
 
         let cases: Vec<(Transaction, bool)> = vec![
-            (make_geo_txn(60.0, 24.0, None), false),
-            (make_geo_txn(60.0, 24.0, Some(-2001.0)), false),
-            (make_geo_txn(60.0, 24.0, Some(-2000.0)), true),
-            (make_geo_txn(60.0, 24.0, Some(0.0)), true),
-            (make_geo_txn(60.0, 24.0, Some(1.0)), true),
-            (make_geo_txn(60.0, 24.0, Some(14000.0)), true),
-            (make_geo_txn(60.0, 24.0, Some(14001.0)), false),
+            (make_geo_txn(dec!(60.0), dec!(24.0), None), false),
+            (
+                make_geo_txn(dec!(60.0), dec!(24.0), Some(dec!(-2001.0))),
+                false,
+            ),
+            (
+                make_geo_txn(dec!(60.0), dec!(24.0), Some(dec!(-2000.0))),
+                true,
+            ),
+            (make_geo_txn(dec!(60.0), dec!(24.0), Some(dec!(0.0))), true),
+            (make_geo_txn(dec!(60.0), dec!(24.0), Some(dec!(1.0))), true),
+            (
+                make_geo_txn(dec!(60.0), dec!(24.0), Some(dec!(14000.0))),
+                true,
+            ),
+            (
+                make_geo_txn(dec!(60.0), dec!(24.0), Some(dec!(14001.0))),
+                false,
+            ),
         ];
 
         for t in cases.iter() {

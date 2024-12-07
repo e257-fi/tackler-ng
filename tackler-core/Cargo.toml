@@ -55,5 +55,6 @@ tikv-jemallocator = { workspace = true }
 
 [dev-dependencies]
 tackler-rs = { path = "../tackler-rs", version = "0.6.0-dev" }
+rust_decimal_macros = { workspace = true }
 indoc = { workspace = true }
 

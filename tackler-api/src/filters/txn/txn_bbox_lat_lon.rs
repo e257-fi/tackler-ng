@@ -15,23 +15,23 @@
  *
  */
 
+use crate::filters::IndentDisplay;
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
-
-use crate::filters::IndentDisplay;
 
 /// Txn Geo Location (2D) filter
 ///
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterBBoxLatLon {
     /// min latitude
-    pub south: f64,
+    pub south: Decimal,
     /// min longitude
-    pub west: f64,
+    pub west: Decimal,
     /// max latitude
-    pub north: f64,
+    pub north: Decimal,
     /// max longitude
-    pub east: f64,
+    pub east: Decimal,
 }
 
 impl IndentDisplay for TxnFilterBBoxLatLon {
@@ -56,19 +56,20 @@ mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
+    use rust_decimal_macros::dec;
     use tackler_rs::IndocUtils;
 
     #[test]
     // test: 05bfe9c0-0dc1-462a-b452-39c2eaf55d02
     // desc: BBoxLatLon, JSON
     fn txn_bbox_lat_lon_json() {
-        let filter_json_str = r#"{"txnFilter":{"TxnFilterBBoxLatLon":{"south":59.85,"west":24.0,"north":60.8,"east":27.5}}}"#;
+        let filter_json_str = r#"{"txnFilter":{"TxnFilterBBoxLatLon":{"south":"59.85","west":"24.0","north":"60.8","east":"27.5"}}}"#;
 
         let filter_text_str = indoc! {
         "|Filter
          |  Txn Bounding Box 2D
          |    North, East: geo:60.8,27.5
-         |    South, West: geo:59.85,24
+         |    South, West: geo:59.85,24.0
          |"}
         .strip_margin();
 
@@ -97,11 +98,11 @@ mod tests {
          |  AND
          |    Txn Bounding Box 2D
          |      North, East: geo:60.8,27.5
-         |      South, West: geo:59.85,24
+         |      South, West: geo:59.85,24.0
          |    AND
          |      Txn Bounding Box 2D
          |        North, East: geo:60.8,27.5
-         |        South, West: geo:59.85,24
+         |        South, West: geo:59.85,24.0
          |      All pass
          |"}
         .strip_margin();
@@ -110,18 +111,18 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterBBoxLatLon(TxnFilterBBoxLatLon {
-                        south: 59.85,
-                        west: 24.0,
-                        north: 60.8,
-                        east: 27.5,
+                        south: dec!(59.85),
+                        west: dec!(24.0),
+                        north: dec!(60.8),
+                        east: dec!(27.5),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterBBoxLatLon(TxnFilterBBoxLatLon {
-                                south: 59.85,
-                                west: 24.0,
-                                north: 60.8,
-                                east: 27.5,
+                                south: dec!(59.85),
+                                west: dec!(24.0),
+                                north: dec!(60.8),
+                                east: dec!(27.5),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
                         ],
