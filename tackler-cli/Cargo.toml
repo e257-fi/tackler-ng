@@ -16,7 +16,7 @@
 [package]
 name = "tackler"
 version = "24.11.2"
-description = "Fast, reliable bookkeeping engine with native GIT SCM support for plain text accounting"
+description = "Fast, reliable bookkeeping tool with native GIT SCM support for plain text accounting"
 edition.workspace = true
 license.workspace = true
 homepage.workspace = true
@@ -34,7 +34,6 @@ tackler-core = { path = "../tackler-core", version = "0.6.0-dev" }
 log = { workspace = true }
 clap = { version = "4.5.20", features = [ "derive" ] }
 time-tz = { workspace = true }
-toml = "0.8.19"
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 tikv-jemallocator = { workspace = true }

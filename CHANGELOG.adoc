@@ -47,12 +47,17 @@ Fixes in this release:
 Updated dependencies and tools:
 
 * Dependencies
-** ...
+** clap: 4.5.23
+** digest: 0.10.7
+** serde: 1.0.215
+** serde_json: 1.0.133
+** sha2: 0.10.8
+** time: 0.3.37
 
 
 ===== Rust toolchain
 
-Used unstable features: None
+MSRV: 1.77.2
 
 '''
 
