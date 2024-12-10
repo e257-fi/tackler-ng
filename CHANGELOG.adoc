@@ -14,6 +14,49 @@ tackler-core = "0.6.0"
 
 == Releases
 
+=== Tackler release XX.YY.Z
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 24.12.2-dev
+|tackler-core | 0.7.0-dev
+|tackler-api  | 0.7.0-dev
+|tackler-rs   | 0.7.0-dev
+|===
+
+
+==== New features and changes
+
+New features:
+
+* ...
+
+
+==== Fixes
+
+Fixes in this release:
+
+* ...
+
+
+==== Development
+
+Updated dependencies and tools:
+
+* Dependencies
+** ...
+
+
+===== Rust toolchain
+
+MSRV: 1.77.2
+
+'''
+
+
+
 === Tackler release 24.12.1
 
 [cols="1,2",width=50%]
