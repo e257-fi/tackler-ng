@@ -12,4 +12,3 @@ rusty Tackler, but won't fit into the domain of plain text accounting.
 * Tackler Client API: [tackler-api](https://crates.io/crates/tackler-api)
 * Tackler Server API: [tackler-core](https://crates.io/crates/tackler-core)
 * Tackler Rusty Services: [tackler-rs](https://crates.io/crates/tackler-rs)
-

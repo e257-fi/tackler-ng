@@ -2,21 +2,23 @@
 
 [![Build Status](https://github.com/e257-fi/tackler-ng/actions/workflows/ci.yml/badge.svg)](https://github.com/e257-fi/tackler-ng/actions)
 [![Github Releases](https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da)](https://github.com/e257-fi/tackler-ng/releases)
+[![crates.io](https://tackler.e257.fi/img/badge-crates.svg)](https://crates.io/crates/tackler)
 [![Tackler Docs](https://img.shields.io/badge/tackler-documentation-%23ffcb00)](https://tackler.e257.fi/docs)
 [![GitHub Discussions](https://img.shields.io/github/discussions/e257-fi/tackler-ng)](https://github.com/e257-fi/tackler-ng/discussions)
 [![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 
 
-Tackler is fast, reliable bookkeeping engine with native GIT SCM 
+Tackler is fast, reliable bookkeeping tool with native GIT SCM 
 support for plain text accounting written in rust. 
 Tackler-NG is rusty version of [Tackler](https://tackler.e257.fi/).
 
 ## Project Status
 
 The rusty Tackler-NG is in [feature](https://tackler.e257.fi/features/)
-parity with old scala based Tackler CLI, and it will be 
+parity with old scala based Tackler CLI, and it is 
 the basis of all future Tackler development.
 
+**NOTE: Tackler-NG is tested with 284 of tackler's test vectors at the moment**
 
 All Tackler CLI functionality is supported, including 
 [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
@@ -30,15 +32,14 @@ and all exports
 ([Equity](https://tackler.e257.fi/docs/export-equity/), 
 [Identity](https://tackler.e257.fi/docs/export-equity/)).
 
-Other notable supported features are:
+Other notable features are:
 
 * [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
-* All [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/)
+* [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/) for powerfull selectors of accounting data
 * Accounting based on [Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction GIS Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
 
 See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use tackler-ng.
 
-**NOTE: Tackler-NG is tested with the most essential tackler's tests vectors at the moment.**
 
 ## Build and install tackler
 
