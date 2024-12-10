@@ -5,25 +5,25 @@
 Currently published crates are:
 
 ....
-tackler      = "24.11.2"
-tackler-rs   = "0.5.0"
-tackler-api  = "0.5.0"
-tackler-core = "0.5.0"
+tackler      = "24.12.1"
+tackler-rs   = "0.6.0"
+tackler-api  = "0.6.0"
+tackler-core = "0.6.0"
 ....
 
 
 == Releases
 
-=== Tackler release XX.YY.Z
+=== Tackler release 24.12.1
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 24.11.3-dev
-|tackler-core | 0.6.0-dev
-|tackler-api  | 0.6.0-dev
-|tackler-rs   | 0.6.0-dev
+|Tackler CLI  | 24.12.1
+|tackler-core | 0.6.0
+|tackler-api  | 0.6.0
+|tackler-rs   | 0.6.0
 |===
 
 
@@ -38,7 +38,7 @@ New features:
 
 Fixes in this release:
 
-* Register report: Tackler-mkI compatible output
+* Register report: Use Tackler-MkI compatible output
 * Fix broken `--group-by` cli option (clap definition)
 * Print location with full precision (with trailing zeros) 
 
