@@ -15,7 +15,7 @@
 #
 [package]
 name = "tackler-api"
-version = "0.6.0-dev"
+version = "0.7.0-dev"
 description = "API components for Tackler accounting engine with native GIT SCM support"
 edition.workspace = true
 license.workspace = true
@@ -44,5 +44,5 @@ uuid = { workspace = true }
 
 [dev-dependencies]
 rust_decimal_macros = { workspace = true }
-tackler-rs = { path = "../tackler-rs", version = "0.6.0-dev" }
+tackler-rs = { path = "../tackler-rs", version = "0.7.0-dev" }
 indoc = { workspace = true }

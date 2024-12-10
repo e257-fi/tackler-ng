@@ -2,6 +2,6 @@
 
 These are rusty services for Tackler.
 
-The rusty services are assorted bits and pieces which are needed for
-rusty Tackler, but won't fit into the domain of plain text accounting.
-
+The rusty services are assorted bits and pieces which are
+needed for  rusty Tackler, but won't fit into the domain of
+plain text accounting.

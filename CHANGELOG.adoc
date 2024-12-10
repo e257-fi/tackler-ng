@@ -5,10 +5,10 @@
 Currently published crates are:
 
 ....
-tackler      = "24.11.2"
-tackler-rs   = "0.5.0"
-tackler-api  = "0.5.0"
-tackler-core = "0.5.0"
+tackler      = "24.12.1"
+tackler-rs   = "0.6.0"
+tackler-api  = "0.6.0"
+tackler-core = "0.6.0"
 ....
 
 
@@ -20,10 +20,53 @@ tackler-core = "0.5.0"
 |===
 |Component | Version
 
-|Tackler CLI  | 24.11.3-dev
-|tackler-core | 0.6.0-dev
-|tackler-api  | 0.6.0-dev
-|tackler-rs   | 0.6.0-dev
+|Tackler CLI  | 24.12.2-dev
+|tackler-core | 0.7.0-dev
+|tackler-api  | 0.7.0-dev
+|tackler-rs   | 0.7.0-dev
+|===
+
+
+==== New features and changes
+
+New features:
+
+* ...
+
+
+==== Fixes
+
+Fixes in this release:
+
+* ...
+
+
+==== Development
+
+Updated dependencies and tools:
+
+* Dependencies
+** ...
+
+
+===== Rust toolchain
+
+MSRV: 1.77.2
+
+'''
+
+
+
+=== Tackler release 24.12.1
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 24.12.1
+|tackler-core | 0.6.0
+|tackler-api  | 0.6.0
+|tackler-rs   | 0.6.0
 |===
 
 
@@ -38,7 +81,7 @@ New features:
 
 Fixes in this release:
 
-* Register report: Tackler-mkI compatible output
+* Register report: Use Tackler-MkI compatible output
 * Fix broken `--group-by` cli option (clap definition)
 * Print location with full precision (with trailing zeros) 
 
@@ -47,12 +90,17 @@ Fixes in this release:
 Updated dependencies and tools:
 
 * Dependencies
-** ...
+** clap: 4.5.23
+** digest: 0.10.7
+** serde: 1.0.215
+** serde_json: 1.0.133
+** sha2: 0.10.8
+** time: 0.3.37
 
 
 ===== Rust toolchain
 
-Used unstable features: None
+MSRV: 1.77.2
 
 '''
 
