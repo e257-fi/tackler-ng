@@ -13,6 +13,18 @@ link:./perf-hw02-1E3.svg[Graph: HW02 1E3]
 
 image::perf-hw02-1E3.svg[]
 
+== perf-1E4
+
+link:./perf-hw02-1E4.svg[Graph: HW02 1E4]
+
+image::perf-hw02-1E4.svg[]
+
+== perf-1E5
+
+link:./perf-hw02-1E5.svg[Graph: HW02 1E5]
+
+image::perf-hw02-1E5.svg[]
+
 == perf-1E6
 
 link:./perf-hw02-1E6.svg[Graph: HW02 1E6]
