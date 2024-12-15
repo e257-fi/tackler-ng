@@ -1,0 +1,36 @@
+###
+### Configuration Performance testing setup
+###
+[kernel]
+strict = true
+audit = { mode = true, hash = "SHA-256" }
+timestamp = { default-time = 00:00:00, timezone = { name = "UTC" } }
+
+[kernel.input]
+storage = "git"
+fs  = { dir = "data/perf-data", suffix = "txn" }
+git = { repository = "data/perf-data/.git", dir = "txns", ref = "txns-1E5", suffix = "txn" }
+
+[transaction]
+accounts    = { path = "perf-accounts.toml" }
+commodities = { path = "perf-commodities.toml" }
+tags        = { path = "none" }
+
+
+### Report Configuration
+[report]
+report-timezone = "UTC"
+scale = { min = 2, max = 4 }
+accounts = [ ]
+targets = [ "balance" ]
+
+balance       = { title = "BALANCE REPORT" }
+balance-group = { title = "BALANCE GROUPS REPORT", group-by = "iso-week" }
+register      = { title = "REGISTER REPORT" }
+
+
+### Export Configuration
+[export]
+targets = [ ]
+equity = { equity-account = "Equity:Balance" }
+

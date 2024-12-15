@@ -1,0 +1,36 @@
+= Performance test results
+
+Tackler is performance tested to validate sanity of used algorithms and overall performance of system.
+
+These are ballpark figures and  should be treated as such. However these should be good enough to validate
+selected algorithms and overall memory usage with increasing work load.
+
+
+== Test results
+
+Used test sets are sets of 1E3, 1E4, 1E5 and 1E6 transactions. Tests are run for all
+report types, and one run is with filtering, one without.
+
+There are five runs for each report.
+
+Also Filesystem and Git based storage are tested.
+
+
+== HW02: Quad core system
+
+This system is normal-ish laptop system with quad core cpu. CPU has four cores and eight threads.
+All txn data be cached in memory.
+
+Balance report, CPU utilization is around 99% (single thread implementation currently)
+
+ * 1E3 txns: 0.05 sec,    13 MB
+ * 1E4 txns: 0.39 sec,    23 MB
+ * 1E5 txns: 3.85 sec,   112 MB
+ * 1E6 txns:   38 sec,   880 MB
+
+Link to link:./perf-hw02.adoc[detailed HW02 test results].
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

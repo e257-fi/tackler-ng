@@ -1,0 +1,10 @@
+### vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
+###
+### Chart of Commodities for Perf testing
+###
+### 
+
+permit-empty-commodity = true
+
+commodities = [ ]
+
