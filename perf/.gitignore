@@ -1,0 +1,10 @@
+/data/
+/dist/
+/out/
+/refs/
+/results/hwXX/
+/results/*/*.png
+/*.svg
+/bin/*.svg
+/*.png
+/bin/*.png
