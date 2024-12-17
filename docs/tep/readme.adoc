@@ -1,0 +1,45 @@
+= Index of Tackler Enhancement Proposals
+
+Tackler Enhancement Proposals (TEP) are used to 
+do high level planning for new features and changes to Tackler.
+
+
+=== TEPs in implementation phase
+
+None at the moment.
+
+
+=== TEPs in planning phase
+
+* xref:./tep-1003.adoc[TEP-1003: Profit and Loss (PnL)]
+
+
+=== Implemented TEPs
+
+
+==== Archived Tackler-Mk1 TEPs
+
+* xref:./tep-1000.adoc[TEP-1000: Equity]
+* xref:./tep-1001.adoc[TEP-1001: Units and Commodities]
+* xref:./tep-1002.adoc[TEP-1002: Git Storage system]
+* xref:./tep-1004.adoc[TEP-1004: JSON report output]
+* xref:./tep-1005.adoc[TEP-1005: Txn filters]
+* xref:./tep-1006.adoc[TEP-1006: CFG settings for report output scale]
+* xref:./tep-1007.adoc[TEP-1007: Txn set checksum]
+* xref:./tep-1008.adoc[TEP-1008: Numeric account names]
+* xref:./tep-1009.adoc[TEP-1009: Txn header syntax]
+* xref:./tep-1010.adoc[TEP-1010: Txn Geo Location support]
+* xref:./tep-1011.adoc[TEP-1011: Txn Tags support]
+* xref:./tep-1012.adoc[TEP-1012: Custom timestamps for reports]
+* xref:./tep-1013.adoc[TEP-1013: Configuration key change of accounts CoA]
+* xref:./tep-1014.adoc[TEP-1014: Equity Features and Enhancements]
+
+
+=== TEP Template
+
+TEP Template: xref:./tep-0001.adoc[TEP-0001]
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

@@ -1,0 +1,376 @@
+= TEP-1012: Custom timestamps for reports
+
+Add configuration options for how timestamps and time zones are handled and displayed.
+
+== Summary
+
+Add support for:
+
+* Concept of reporting time zone
+* Timestamp style selector for register report
+
+Currently, there is no concept of local timezone or more precisely report's own timezone for which it is generated,
+e.g. there is no indication where a date line should be from report's perspective.
+This is reason why there isn't currently any way to determine to which transactions on different timezones belong to same day
+(from report's perspective).
+
+This will be manifested on Balance Group Report so that balance groups have timezone indicator and
+transactions which in fact happened on same day on reporting timezone, will be grouped on different balance groups.
+
+The second problem with Register Report is that currently timestamps are truncated to date part on register report rows,
+so there is no way to display actual timestamp information on those reports.
+This is suboptimal to say least. On the other hand, displaying timezones for single zone transactions
+is very noisy and doesn't convey any sensible information in register reports.
+
+
+=== Timezone for Reports (report-timezone)
+
+Add report timezone configuration option for reports, so that relevant timestamps can be handled
+and displayed in the report's timezone. This option will change results of `BalanceGroupReport`.
+E.g. transactions which were on separate groups, could be grouped together in the future,
+if this option (`report-timezone`) is activated. There will be no changes in functionality,
+if this option is not set.
+
+When `report-timezone` is activated:
+
+* Convert transaction timestamps to report timezone
+* Do not display timezone field for timestamps on report rows
+(Balance Group names, register report row's timestamps)
+* Provide timezone info on report's metadata (`txt` and `json` -formats)
+
+.Example of transactions on different timezones
+|===
+|Txn Timestamp                      |ReportTZ: Europe/Helsinki  |ReportTZ: Europe/London
+
+|2021-01-01T00:00:00+02:00 (*EET*)  |2021-01-01 00:00:00 +02:00 |2020-12-31 22:00:00 UTC
+
+|2021-01-01T11:00:00+12:00 (*NZST*) |2021-01-01 01:00:00 +02:00 |2020-12-31 23:00:00 UTC
+
+|2021-01-01T00:00:00Z  (*UTC*)      |2021-01-01 02:00:00 +02:00 |2021-01-01 00:00:00 UTC
+
+|2021-01-01T00:00:00-07:00 (*PT*)   |2021-01-01 09:00:00 +02:00 |2021-01-01T07:00:00 UTC
+|===
+
+
+=== Timestamp style selector (timestamp-style)
+
+Register report's default output will be changed so that there is space between date and time zone.
+
+New `report-timezone` -option will be supported by register report.
+
+There will have configuration option (`timestamp-style`) for which timestamp style to output with register report.
+
+.Example of timestamps on register report rows
+[cols="2a,2a,2a", options="header"]
+|===
+| Value of `timestamp-style`
+| When `reportTZ` is not set
+| When `reportTZ` is active +
+(all times are in report's TZ)
+
+
+| `date`
+|
+`YYYY-MM-DD Z` +
+`YYYY-MM-DD ±hh:mm`
+|
+`YYYY-MM-DD`
+
+
+|`seconds`
+|
+`YYYY-MM-DD HH:MM:SS Z` +
+`YYYY-MM-DD HH:MM:SS ±hh:mm`
+|
+`YYYY-MM-DD HH:MM:SS`
+
+
+|`full` +
+(with the most precision available)
+|
+`YYYY-MM-DD HH:MM:SS.SSS Z` +
+`YYYY-MM-DD HH:MM:SS.SSS ±hh:mm`
+|
+`YYYY-MM-DD HH:MM:SS.SSS`
+
+|===
+
+
+== Journal file format
+
+No changes to journal file format.
+
+
+== Implementation
+
+=== CLI changes
+
+No changes to CLI interface
+
+
+=== CONF changes
+
+Changes to conf-settings
+
+* [x] group: `tackler.core.reporting`:
+** [x] string: `report-timezone`, tz offset or name, if set use specified tz when displaying ts on reports
+* [x] group: `tackler.core.reports.register`:
+** [x] string: `timestamp-style`: valid values are: `date`, `seconds` or `full`. Default is `date`
+        This selects displayed timestamp style on register report rows
+*** [x] If reportTZ is specified, then transaction's timestamp will be converted to reportTZ and TZ-part is not displayed
+        - date: `YYYY-MM-DD`
+        - seconds: `YYYY-MM-DD HH:MM:SS`
+        - full: `YYYY-MM-DD HH:MM:SS.SSS` (with the most precision available)
+*** [x] If reportTZ is not set, then txn timestamp's TZ is kept, e.g.
+        - date: `YYYY-MM-DD Z`, `YYYY-MM-DD +02:00`,
+        - seconds: `YYYY-MM-DD HH:MM:SS Z`, or `YYYY-MM-DD HH:MM:SS +02:00`,
+        - full: `YYYY-MM-DD HH:MM:SS.SSS Z` or `YYYY-MM-DD HH:MM:SS.SSS +02:00` (with the most precision available)
+
+
+
+=== Filtering changes
+
+No changes to filtering, filtering engine is using `ZonedDateTime` for time based filter-specs, no changes to that.
+
+
+=== Machinery
+
+Changes to machinery
+
+* [x] reportTZ
+** [x] BalanceGroupSettings
+** [x] RegisterSettings
+*** [x] timestampStyles
+* [x] Settings
+** [x] `timestamp-style` selector
+
+==== API changes
+
+Api changes to server or client interfaces.
+
+
+===== Server API changes
+
+Changes to server API
+
+* [x] BalanceGroupSettings: a new field, reportTZ
+* [x] RegisterSettings: a new field, reportTZ
+
+
+===== Client API changes
+
+There will be changes to client API and JSON model
+
+If reportTZ is activated, there will be following changes to client JSON model
+
+===== JSON Model
+
+* [x] Metadata
+** [x] New metadataItem: TimeZoneInfo
+* [x] JSON Reports
+** [x] BalanceGroupReport
+*** [x] New metadata item, report time zone
+*** [x] Balance group names will have space between date and zone/offset (reportTZ not set)
+*** [x] Balance group names (e.g. truncates ts) will not have time zone info, and they will be displayed on reportTZ
+        This will change how transactions will be clustered, if there are transactions over multiple timezones
+        and/or used reportTZ is different from transactions timezone. This happens because without reportTZ transaction
+        timestamps will be used as-is, e.g. two transactions on different timezones will create two balance groups, even
+        if they would be on "same day".
+
+** [x] RegisterReport - No changes
+*** [x] There are no time manipulations don with register report's jSON (e.g. timestamp are in full ISO-8601 format)
+
+
+====== API
+
+* [x] API TxnTS
+** [x] (deprecate isoXXX methods)
+** [x] new isoOffsetXXX methods (e.g. )
+** [x] new localXXX methods (without offsets)
+
+
+==== New dependencies
+
+No new dependencies.
+
+
+=== Reporting
+
+When reportTZ is activated, there will be changes to reporting, both the layout of report will be changed
+and the actual content (e.g. calculations) could be different, if reportTZ is activated.
+
+
+==== Balance report
+
+No changes to balance report
+
+==== Balance Group report
+
+Balance Groups report's default output will be changed so that there is space between date and zone/offset
+in Balance Group names.
+
+ReportTZ will change how transactions will be clustered, if there are transactions over multiple timezones
+and/or used reportTZ is different from transactions timezone. This happens because without reportTZ transaction
+timestamps will be used as-is, e.g. two transactions on different timezones will create two balance groups, even
+if they would be on "same day".
+
+* [x] If reportTZ is not activated, no changes in functionality
+** [x] Space between date and zone/offset
+* [x] When reportTZ is set:
+** [x] Balance group names (e.g. truncates ts) will not have time zone info
+** [x] Balance group names will be displayed on reportTZ
+** [x] Transactions will be converted to the reportTZ and grouped based on that
+
+
+==== Register report
+
+Register report's default output will be changed so that there is space between date and time zone.
+There will have configuration option which timestamp style to output with register report,
+and new reportTZ will be supported by register report.
+
+* [x] Change: separate zone name or offset from date
+* [x] New selector: `timestamp-style`, which will control how timestamp will be displayed on report
+* [x] If reportTZ is not activated, display timestamp with zone with styles:
+** [x] `date` (default)
+** [x] `seconds`
+** [x] `full`
+* [x] When reportTZ is set:
+** [x] Timestamps on register report rows will not have time zone info
+** [x] `date` (default)
+** [x] `seconds`
+** [x] `full`
+
+
+=== Exporting
+
+No changes to exports
+
+
+=== Documentation
+
+* [x] xref:../../todo/main.adoc[]: Update main todo file
+* [x] xref:./readme.adoc[]: Update TEP index
+* [x] link:../../CHANGELOG[]: add new item
+* [x] Does it warrant own T3DB file?
+** [x] update xref:../../tests/tests.adoc[]
+** [x] update xref:../../tests/check-tests.sh[]
+** [x] Add new T3DB file xref:../../tests/tests-XXXX.yml[]
+* [x] User docs
+** [x] user manual
+** [x] tackler.conf
+*** [x] `report-timezone`
+*** [x] `timestamp-style`
+** [ ] examples
+* [x] Developer docs
+** [x] API changes
+*** [x] Server API changes (no changes)
+*** [x] Client API changes (no changes)
+*** [x] JSON Examples
+
+
+=== Future plans and Postponed (PP) features
+
+How and where to go from here?
+
+==== Postponed (PP) features
+
+Anything which wasn't implemented?
+
+
+=== Tests
+
+Normal, ok-case tests to validate functionality:
+
+* [x] no reportTZ (old functionality)
+* [x] Metadata:
+** [x] reportTZ as zoneId
+** [x] reportTZ as offset
+** [x] with other metadata
+** [x] only report-timezone metadata item
+* [x] Reports with reportTZ
+** [x] Register report
+*** [x] txt
+** [x] BalanceGroup report
+*** [x] Formats
+**** [x] txt
+**** [x] json
+*** [x] Group-by
+**** [x] year
+**** [x] month
+**** [x] date
+**** [x] week
+**** [x] week-date
+* [x] Register report with `timestamp-style`
+** [x] reportTZ is not set
+*** [x] `date`
+*** [x] `seconds`
+*** [x] `full`
+** [x] active reportTZ
+*** [x] `date`
+*** [x] `seconds`
+*** [x] `full`
+*** [x] `timestamp-style` is not set
+* TxnTS API
+** [x] Basic tests
+*** [x] localSeconds
+*** [x] localFull
+*** [x] localDate
+*** [x] localMonth
+*** [x] localYear
+*** [x] localWeek
+*** [x] localWeekDate
+** [x] Roll under / over by timezone
+*** [x] localSeconds
+*** [x] localFull
+*** [x] localDate
+*** [x] localMonth
+*** [x] localYear
+*** [x] localWeek
+*** [x] localWeekDate
+
+
+==== Errors
+
+Various error cases:
+
+* [x] e: invalid reportTZ
+** [x] e: invalid zone name
+** [x] e: invalid offset
+* [x] e: RegisterReport:
+** [x] e: invalid `timestampStyles`
+
+
+==== Perf
+
+Is there need to run or create new perf tests?
+
+* [ ] perf test
+
+
+==== Feature and Test case tracking
+
+
+Feature-id::
+
+* name: Custom timestamps for reports
+* uuid: c085aec4-8e0f-4571-bf50-0dc16dba411e
+
+Feature-id::
+
+* name: Timezone for reports
+* parent: c085aec4-8e0f-4571-bf50-0dc16dba411e
+* uuid: 18e7e5a3-bef5-40a6-a633-31c6b4e41f62
+
+Feature-id::
+
+* name: Timestamp style selector for register report
+* parent: c085aec4-8e0f-4571-bf50-0dc16dba411e
+* uuid: d8d63ca4-9675-4287-ba4e-53b6a329e390
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1012.yml[TEP-1012 Test Coverage]
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

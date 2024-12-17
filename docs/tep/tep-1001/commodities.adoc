@@ -1,0 +1,40 @@
+= Commodities
+
+For user documentation see
+link:https://tackler.e257.fi/docs/commodities/[Commodities].
+
+
+== Special notes
+
+If using price database with certain commodities, then price should be used
+from latest value from history (based on transaction date),
+and not in future or current value.
+
+For example, this could be case with Helium, as gas price fluctuates
+and used price should be as it was when gas was used.
+Initially that could be manual operation.
+
+
+== Reports
+
+=== Identity and Equity report
+
+* [x] preserve unit
+** [x] test: two-step verification of multi-currency identity
+** [x] test: value pos two-step verification of multi-currency identity
+* [x] each commodity must have separate equity report
+** [x] test: two-step verification of multi-currency equity
+
+=== Register report
+
+* [x] preserve unit
+
+=== Balance & Co report
+
+* [x] preserve unit
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../../LICENSE[License].

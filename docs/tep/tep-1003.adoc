@@ -1,0 +1,74 @@
+= TEP-1003: Profit and Loss (PnL)
+
+Profit and loss (PnL) tracking with Tackler.
+
+== Reports
+
+How to query / list positions based on time or value?
+
+* [ ] based on time
+** [ ] how to find oldest / first position?
+** [ ] how to find newest / last position?
+* [ ] based on value
+** [ ] how to find lowest position?
+** [ ] how to find highest position?
+
+=== Equity report
+
+* [ ] track positions => print rows based on positions
+* [ ] how to report position time?
+
+=== Identity report
+
+* [ ] Make sure that all necessary information is preserved
+** [ ] time
+** [ ] opening position
+** [ ] closing position
+
+
+=== Register report
+
+* [ ] print positions with transactions
+
+=== Balance report
+
+* [ ] without positions
+* [ ] with positions
+
+== Positions
+
+=== Opening position
+
+....
+2014-05-01 opening / buy
+   inventory  1 USD {1.38 EUR}
+   a:cash    -1.38 EUR
+....
+
+=== Closing position
+
+* [ ] lot availability / count
+** [ ] neg amount: shorting
+** [ ] neg amount: constraint and error?
+* [ ] track positions => equity report
+
+....
+2017-01-01 close / sell at loss
+ ; o - c = 1.04 - 1.38 EUR => PnL  -0.34 EUR
+ inventory  -1 USD {1.38 EUR} @ 1.04 EUR ; loss 0.34
+ a:cash      1.04 EUR
+ PnL -0.34
+....
+
+== Tests
+
+ * [ ] opening and closing commodities are not same
+....
+ e   1 USD {1.00 NOK} @ 1.20 EUR
+....
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../LICENSE[License].

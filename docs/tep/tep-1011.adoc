@@ -1,0 +1,266 @@
+= TEP-1011: Transaction Tags
+
+Add support for Transaction Tags and Filters
+
+== Summary
+
+Transaction tags are valueless keywords or category names,
+which can be attached to the transaction's metadata.
+
+Summary of changes
+
+* Transaction tags
+* Transaction tag filters
+
+
+=== Transaction tags
+
+There could be multiple tags for single transaction
+and tags can have a hierarchy in similar way as accounts have.
+
+[IMPORTANT]
+.Amendment to this TEP-1011
+====
+Duplicate tags are not allowed in transaction tags set.
+====
+
+Transaction tags must be predefined if strict mode for tags is activated.
+
+
+=== Transaction tag filters
+
+Transaction Tag Filter selects transactions which any tag matches specified regular expression.
+
+
+== Journal file format
+
+Syntax support for Transaction Tags:
+
+* Same syntax as with accounts (tags and sub-tags)
+
+
+== Implementation
+
+=== CLI changes
+
+No Changes to command line interface in the first phase.
+Searching and filtering by tags will be supported by normal filter api.
+
+
+=== CONF changes
+
+Changes to conf-settings
+
+* [x] Strict settings for tags
+** [x] strict-mode selector
+** [x] Chart of tags
+
+=== Filtering changes
+
+Transaction Tag Filter selects transactions with any tag matches specified regular expression.
+
+----
+{
+  "TxnFilterTxnTags" : {
+    "regex" : "<regex>"
+  }
+}
+----
+
+If multiple tags should or must be matched then this should be done by using logical filter combinators
+and multiple txn tag filters.
+
+
+=== Machinery
+
+Changes to machinery
+
+* [x] Txn Tag Filters
+* [x] Parser
+
+
+==== API changes
+
+Api changes to server or client interfaces.
+
+
+===== Server API changes
+
+Changes to server API
+
+* [x] Transaction Tags Filter def
+
+
+===== Client API changes
+
+Changes to client API or JSON model
+
+===== JSON Model
+
+Changes to JSON model
+
+* [x] Metadata
+* [x] JSON Reports
+** [x] RegisterReport
+
+
+==== New dependencies
+
+No new deps
+
+
+=== Reporting
+
+Changes to reports or reporting
+
+
+==== Balance report
+
+No changes to balance report
+
+
+==== Balance Group report
+
+No changes to balance group report
+
+
+==== Register report
+
+Changes to register report
+
+* [x] Print txn tags
+
+
+=== Exporting
+
+Changes to exports or exporting
+
+==== Equity export
+
+No changes to equity export
+
+
+==== Identity export
+
+Changes to identity export
+
+* [x] Include Txn Tags to Identity Export
+
+
+=== Documentation
+
+* [ ] xref:./readme.adoc[]: Update TEP index
+* [ ] xref:../../README.adoc[]: is it a new noteworthy feature?
+* [ ] link:../../CHANGELOG[]: add new item
+* [x] Does it warrant own T3DB file?
+** [x] update xref:../../tests/tests.adoc[]
+** [x] update xref:../../tests/check-tests.sh[]
+** [x] Add new T3DB file xref:../../tests/tests-XXXX.yml[]
+* [x] User docs
+** [x] Journal
+** [x] User Manual
+*** [x] txn tag document
+*** [x] txn tag filter chapter in txn filter document
+** [x] tackler.conf: tags
+** [x] `tags.conf`
+*** [x] `tags.strict`
+*** [x] `tags.chart-of-tags`
+** [x] examples
+* [x] Developer docs
+** [x] API changes
+*** [x] Server API changes (no changes)
+*** [x] Client API changes (no changes)
+*** [x] JSON Examples
+
+
+=== Future plans and Postponed (PP) features
+
+How and where to go from here?
+
+* Support for multiline syntax?
+
+==== Postponed (PP) features
+
+Anything which wasn't implemented?
+
+
+=== Tests
+
+Normal, ok-case tests to validate functionality:
+
+* [x] pok: syntax
+** [x] single tag
+** [x] multiple tags
+** [x] comma
+*** [x] no space
+*** [x] space before
+*** [x] space after
+*** [x] space before and after
+
+* [x] pok: meta header
+** [x] multiple meta items
+
+
+* [x] Identity export
+** [x] Single tag
+** [x] Multiple tags
+** [x] Identity-to-identity
+** [x] Multiple metadata items (e.g. uuid + tags)
+
+* [x] Txn Tag Filter
+** [x] Matching
+*** [x] first tag matches
+*** [x] middle tag matches
+*** [x] last matches
+** [x] Encoding & Decoding (TxnFilterJsonTest)
+*** [x] Decoding JSON to Txn Filter
+*** [x] Encode Filter and it's metadata
+*** [x] encode filter to JSON
+*** [x] encode filter to TEXT
+*** [x] encode metadata as JSON
+*** [x] encode metadata as TEXT
+** [x] Complex Txn Tags Filter (include and exclude same txn)
+
+==== Errors
+
+Various error cases:
+
+* [x] Parse Errors (perr): syntax
+** [x] multiple tags
+*** [x] ',' at the end `a, b, c,`
+*** [x] missing tag `a, ,d`
+** [x] tag name syntax
+** [x] ':' at the beginning, missing root tag (`:a`)
+*** [x] ':' at the end missing leaf (`a:b:`)
+** [x] '::' -  missing sub-tag (`a::c`)
+* [x] perr: meta header (b88d6733-2acf-4021-a3d7-deaf58b518a6)
+** [x] duplicate tag sections
+
+
+==== Perf
+
+Is there need to run or create new perf tests?
+
+* [ ] perf test
+
+==== Feature and Test case tracking
+
+Feature-id::
+
+* name: Transaction Tags
+* uuid: 22eba439-e94d-4f68-a002-e1549a7bab76
+
+
+Feature-id::
+
+* name: Txn Tag Filters
+* parent: 22eba439-e94d-4f68-a002-e1549a7bab76
+* uuid: ec0a6249-1ae1-406e-babb-f4db8891f7bf
+
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1011.yml[TEP-1011 Test Coverage]
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

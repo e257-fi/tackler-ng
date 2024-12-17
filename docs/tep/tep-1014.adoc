@@ -1,0 +1,231 @@
+= TEP-1014: Equity Export Features and Enhancements
+
+New features and enhancements for Equity export
+
+
+== Summary
+
+Summary of changes
+
+* Cfg key to set equity transaction's target account
+* Print out actual value for equity posting - don't use implicit (last posting's empty) value for it
+* Print out warning, if equity transaction zeros out without equity posting
+* Indent equity transaction same amount as identity export (3 spaces)
+
+
+=== CFG key to set Equity transaction's target account
+
+Add new configuration key (`exports.equity.equity-account`) to the tackler.conf. Value of this key will be used as-is for equity transaction's target account, if it's set in configuration.
+
+If equity target account is provided by configuration and strict mode is enabled, then it is validated with Chart of Accounts.
+
+When there is no configuration setting for equity target account, then current default (`Equity:Balance`) is used for target account and it is *NOT* validated with Chart of Accounts. It is not validated regardless if strict mode is activated or not. This is default behaviour of pre TEP-1014 tackler.
+
+
+=== Explicit value for equity posting
+
+Change Equity target account posting from implicit value to explicit value, e.g. print actual amount to balance transaction. This posting amount, as all other Equity transaction's postings are with full available scale (e.g. scale settings do not have any effect for equity exports).
+
+
+=== Warning in case of zero sum equity transaction
+
+Insert warning into generated equity transaction in case that sum of postings is zero. This is an error probably in most cases.
+
+
+=== Indent same as Identity export
+
+Indent equity transaction with three spaces, this is same amount as with identity export.
+
+
+== Journal file format
+
+There are no changes in journal file format. New information in generated Equity transaction is compatible with existing syntax.
+
+
+== Implementation
+
+=== CLI changes
+
+No changes to command line interface
+
+
+=== CONF changes
+
+Changes to conf-settings
+
+* [x] new cfg key: `exports.equity.equity-account`
+
+
+=== Filtering changes
+
+No changes.
+
+=== Machinery
+
+Changes to machinery
+
+* [x] Equity account support
+** [x] EquitySettings
+
+
+==== API changes
+
+Api changes to server or client interfaces.
+
+
+===== Server API changes
+
+Changes to server API
+
+* [x] new: EquitySettings
+
+
+===== Client API changes
+
+No changes to Client API, equity export is not delivered over the wire
+
+===== JSON Model
+
+No changes to JSON model
+
+
+==== New dependencies
+
+No new dependencies
+
+
+=== Reporting
+
+Changes to reports or reporting
+
+==== Balance report
+
+No changes to balance report
+
+
+==== Balance Group report
+
+No changes to balance group report
+
+
+==== Register report
+
+Changes to register report
+
+* [x] when equity transaction is processed, the warning of zero equity transaction could be displayed on reqister report
+
+
+=== Exporting
+
+Changes to exports or exporting
+
+==== Equity export
+
+Changes to equity export
+
+* [x] Use cfg equity-account
+* [x] Warning in case of zero-sum equity transaction
+* [x] Explicit value for equity posting
+* [x] Indent equity transaction same amount as txns in identity export (3 spaces)
+
+
+==== Identity export
+
+No changes to identity export
+
+
+=== Documentation
+
+* [ ] xref:./readme.adoc[]: Update TEP index
+* [x] link:../../CHANGELOG[]: add new item
+* [x] Does it warrant own T3DB file?
+** [x] update xref:../../tests/tests.adoc[]
+** [x] update xref:../../tests/check-tests.sh[]
+** [x] Add new T3DB file xref:../../tests/tests-XXXX.yml[]
+* [ ] User docs
+** [ ] tackler.conf
+*** [ ] `exports.equity.equity-account`
+** [ ] examples
+* [ ] Developer docs
+** [ ] API changes
+*** [ ] Server API changes
+
+
+=== Future plans and Postponed (PP) features
+
+Implement configuration mechanism or cli options for all reports and Equity export.
+
+
+==== Postponed (PP) features
+
+Anything which wasn't implemented?
+
+
+=== Tests
+
+Normal, ok-case tests to validate functionality:
+
+* [x] Zero sum equity transaction
+* [x] Equity transaction with value, no commodity
+* [x] Equity transaction with value and commodity
+* [x] Equity transaction with Big and small values
+
+* [x] Check validity of Equity target account
+** [x] Invalid Equity account, non-strict
+*** [x] Equity export is selected
+*** [x] Equity export is not selected
+** [x] Equity account is not set in cfg, strict mode activated and the account is not in CoA
+
+* [x] equity export as input
+** [x] plain equity transaction
+** [x] eq txn with warning
+** [x] eq txn with commodity
+
+
+==== Errors
+
+Various error cases:
+
+* [x] err: Invalid Equity account, strict
+** [x] err: Equity export is selected
+** [x] err: Equity export is not selected
+
+
+==== Perf
+
+No performance related changes.
+
+
+==== Feature and Test case tracking
+
+Feature-id::
+
+* name: Equity Enhancements
+* uuid: e5434121-1112-4379-8729-3504912f56a8
+
+Feature-id::
+
+* name: Configuration setting for equity target account
+* parent: e5434121-1112-4379-8729-3504912f56a8
+* uuid: a3e74b65-8a05-45ff-857a-43d843e145e1
+
+Feature-id::
+
+* name: Explicit value for equity posting
+* parent: e5434121-1112-4379-8729-3504912f56a8
+* uuid: 347c6faf-e3c4-465d-8980-c44435c12039
+
+Feature-id::
+
+* name: Warning when equity transaction is zero without equity posting
+* parent: e5434121-1112-4379-8729-3504912f56a8
+* uuid: bd2adc2c-0a34-4f12-a3fa-52142520ccbd
+
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1014.yml[TEP-1014 Test Coverage]
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

@@ -1,0 +1,210 @@
+= TEP-1005: TXN Filter
+
+Transaction filters are used to filter txn stream based on transaction's attributes.
+
+Transaction filters can be used to define which transactions will be fed to the accounting engine.
+If transaction is filtered out, it will be disappear from transaction stream and vanish from
+engine's perspective. So it would not be part of any calculations or reports.
+
+The main usage for this feature is server interface at the moment.
+
+
+== Journal file format
+
+No journal file changes.
+
+== CLI changes
+
+There will be command line option to feed filter definition to the engine for testing purposes.
+
+* [x] `--api-filter-def` Filter definition as json
+** [x] Filter definition can be ascii armored as base64 string on command line
+
+
+== CONF changes
+
+No configuration settings for filters.
+
+
+== Machinery
+
+There will be changes to the machine.
+
+* [x] Translate filter definition to actual filter
+* [x] Apply filter to the txn-stream
+
+
+=== API changes
+
+Server and client API will be changed to support filters.
+
+
+==== Server API changes
+
+Changes to server API. Items in italics will be implemented later.
+
+* [x] filter json def
+* [x] report metadata with filters
+** [x] text
+** [x] json
+* [x] filter-tree
+** [x] nodes
+*** [x] `AND`
+*** [x] `OR`
+*** [x] `NOT`
+** [x] leaves
+*** [x] Transcation header
+**** [x] *`timestamp`*, ZonedDateTime
+**** [x] *`code`*, String
+**** [x] *`description`*, String
+**** [x] *`uuid`*, String
+**** [x] *`comments`*, String
+*** [x] Postings
+**** [x] *`account`*, String
+**** [x] `amount`, (account, amount: String + BigDecimal)
+***** [x] `amount:exact`, BigDecimal
+***** [x] `amount:less`, BigDecimal
+***** [x] `amount:greater`, BigDecimal
+**** [x] *`commodity`*, String
+**** [x] *`comment`*, String
+
+
+==== Client API changes
+
+Changes to client API's JSON model
+
+* [x] filter json def
+** [x] Client API model objects for filters
+* [x] report metadata with filters
+** [x] text
+** [x] json
+
+
+=== New dependencies
+
+None
+
+== Reporting
+
+Filter definitions will be available with reports metadata.
+
+=== Balance report
+
+Changes to balance report
+
+* [x] Include filter def into report's metadata
+
+
+=== Balance Group report
+
+Changes to balance group report
+
+* [x] Include filter def into report's metadata
+
+
+=== Register report
+
+Changes to register report
+
+* [x] Include filter def into report's metadata
+
+
+== Exporting
+
+Initial implementation of filters does not support Exports.
+
+=== Equity export
+
+No changes to equity export
+
+=== Identity export
+
+No changes to identity export
+
+== Documentation
+
+* [x] xref:../../CHANGELOG[]: add new item
+* [x] User docs
+** [x] user manual
+*** [x] cli-arguments
+**** [x] `--api-filter-def`
+* [x] Developer docs
+** [x] API changes
+*** [x] Server API changes
+*** [x] Client API changes
+** [x] Add metadata example to JSON doc (git-and-filter-01)
+
+
+== Future plans and Postponed (PP) features
+
+* Support filtering with exports.
+* Support XOR-filter trees
+* API objects for JS
+
+=== Postponed (PP) features
+
+* [x] Client API model objects for filters
+* [x] Better JSON representation in metadata
+* [x] perf: Performance test with filtering enabled
+* [x] perf: Run all tests with filtering engine (while no active filters)
+
+
+== Tests
+
+Normal, ok-case tests to validate functionality:
+
+* [x] filter json def
+* [x] report metadata with filters
+** [x] text
+** [x] json
+* [x] reports
+** [x] balance report's metadata
+** [x] balance-group report's metadata
+** [x] register report's metadata
+* [x] filter tree
+** [x] logical nodes
+*** [x] *`AND`*
+*** [x] *`OR`*
+*** [x] *`NOT`*
+** [x] leaves
+*** [x] Transcation header
+**** [x] *`timestamp`*, ZonedDateTime
+***** [x] *`begin`*, ZonedDateTime
+***** [x] *`end`*, ZonedDateTime
+**** [x] *`code`*, String
+**** [x] *`description`*, String
+**** [x] *`uuid`*, String
+**** [x] *`comments`*, String
+*** [x] Postings
+**** [x] *`account`*, String
+**** [x] `amount`, (account, amount: String + BigDecimal)
+***** [x] `amount:exact`, BigDecimal
+***** [x] `amount:less`, BigDecimal
+***** [x] `amount:greater`, BigDecimal
+**** [x] *`commodity`*, String
+**** [x] *`comment`*, String
+
+
+=== Errors
+
+Tests for error cases:
+
+* [x] e: Invalid filter definition
+* [x] e: Result set after filtering is empty
+
+
+=== Perf
+
+* [x] perf: Performance test with filtering enabled
+* [x] perf: Run all tests with filtering engine (while no active filters)
+
+
+=== Test coverage tracking
+
+xref:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1005.yml[TEP-1005 Test Coverage]
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../LICENSE[License].

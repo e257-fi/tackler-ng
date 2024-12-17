@@ -1,0 +1,35 @@
+= TEP-1001: Units and Commodities
+
+== User documentation
+
+* link:https://tackler.e257.fi/docs/commodities/[Commodities]
+* link:https://tackler.e257.fi/docs/currencies/[Currencies]
+
+
+== TEP docs
+
+* xref:tep-1001/readme.adoc[Index]
+
+Profit and loss is tracked on own
+xref:tep-1003.adoc[TEP-1003: Profit and Loss].
+
+== Use cases
+
+* Tracking non-monetary commodity (e.g. time)
+* Transactions with commodity without monetary opening position
+* Multiple different commodities on same account (stocks, currencies)
+* Converting commodity to another commodity or monetary value
+
+== Phase2
+
+* default commodity per account?
+
+== Feature and test coverage tracking
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tep-1001.yml[TEP-1001 test cases]
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../LICENSE[License].

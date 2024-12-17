@@ -1,0 +1,41 @@
+= Units
+
+Units are something, which have fixed exchange rate to other units.
+
+Examples of commodities are: second, hour, litre, gallon, km, miles.
+
+It is possible to convert units to values by providing monetary
+exchange rate. For example:
+
+* [ ] Time to money(with billing rate EUR/h)
+* [ ] Commodity to money (with price per unit)
+
+== Reports
+
+=== Identity and Equity report
+
+* [ ] preserve original unit
+
+=== Register report
+
+* [ ] set output conversion (e.g. seconds to hours, liters to cubic meters)
+
+=== Balance & Co report
+
+* [ ] set output conversion (e.g. seconds to hours, liters to cubic meters)
+
+
+== Examples
+
+....
+2017-05-01 tracking unit based commodity (time)
+   Time:Start  1493629200 s ; 2017-05-01T12:00:00+03:00
+   Time:End   -1493636400 s ; 2017-05-01T14:00:00+03:00
+   Accumulator  ; 7200 s
+....
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../../LICENSE[License].

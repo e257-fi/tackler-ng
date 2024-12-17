@@ -1,0 +1,191 @@
+= TEP-1004: JSON report output
+
+Provide internal API to have report output in JSON.
+
+JSON is treated as Human-Machine Interface, e.g. values etc.
+are truncated the same way as with text-output.
+
+This means JSON data should be ready to be displayed to user by UI as it is without
+further processing.
+
+
+== Journal file format
+
+No Journal file changes are needed.
+
+
+== Machinery
+
+Changes to machinery
+
+* [x] Integrate JSON library (Circe)
+* [x] JSON ReportType
+
+
+=== CLI changes
+
+Changes to command line interface
+
+* [x] `reporting.formats` switch
+
+
+=== CONF changes
+
+Changes to conf-settings
+
+* [x] `reporting { formats }` switch
+
+
+=== New dependencies
+
+* [x] io.circe: https://github.com/circe/circe
+** [x] Add and check licenses:
+*** [x] Circe: APL-2.0: https://github.com/circe/circe/blob/master/LICENSE
+*** [x] Argonaut: BSD-3: https://github.com/circe/circe/blob/master/LICENSE.argonaut
+*** [x] Ephox: BSD-3: https://github.com/circe/circe/blob/master/LICENSE.ephox
+** [x] Is there NOTICE file(s)?: https://github.com/circe/circe/blob/master/NOTICE
+** [x] Add license under xref:../licenses[doc/licenses]
+*** [x] Add NOTICES under xref:../licenses[doc/licenses]
+** [x] Add link of license to xref:../readme.adoc[index]
+** [x] Add link to xref:../../THANKS.adoc[THANKS]
+** [x] Add license material to binary distribution
+
+
+=== Future plans
+
+ * [x] API to have json reports (as part of backend).
+ * [x] Per report formatting switches (far-far-away)
+
+
+== Reporting
+
+Changes to general reporting
+
+* [x] JSON
+** [x] Metadata
+** [x] Global `formats` -switch
+
+=== Balance report
+
+Changes to balance report
+
+* [x] JSON output
+** [x] Metadata
+** [x] balance rows with commodity?
+** [x] footer
+*** [x] commodity as own entity
+* [x] tests/reporting/group-by
+
+==== Examples
+
+* xref:../../tests/commodity/ok/basic-03.ref.bal.json[Balance with commodities]
+* xref:../../tests/core/ok/git-tag-01.ref.bal.json[Balance with Metadata]
+
+
+=== Balance Group report
+
+Changes to balance group report
+
+* [x] JSON
+** [x] Metadata
+** [x] Time period
+*** [x] tests/reporting/group-by
+**** [x] record to tests.yaml
+** [x] See balance as applicable
+
+==== Examples
+
+* xref:../../tests/commodity/ok/basic-03.ref.balgrp.json[Balance-group with Commodities]
+* xref:../../tests/core/ok/git-tag-01.ref.balgrp.json[Balange-group with Metata]
+
+=== Register report
+
+Changes to register report
+
+* [x] JSON
+** [x] Metadata
+
+* [x] tests
+** [x] tests/parser/ok/out.par-03.reg.txt
+** [x] multiple posts for reg entry
+
+==== Examples
+
+* xref:../../tests/commodity/ok/basic-03.ref.reg.json[Register report with Commodities]
+* xref:../../tests/core/ok/git-tag-01.ref.reg.json[Register report with Commodities]
+
+=== Equity report
+
+No JSON support with Equity (because it is export).
+
+=== Identity report
+
+No JSON support with Identity (because it is export).
+
+
+== Documentation
+
+* [x] xref:../../README.adoc[]: is it a new noteworthy feature?
+* [x] xref:../../CHANGELOG[]: add new item
+* [x] User docs
+** [x] user manual
+*** [x] cli-arguments
+**** [x] `--reporting.formats`
+** [x] tackler.conf
+*** [x] `reporting { formats }`
+** [x] examples
+
+== Tests
+
+Normal, ok-case tests to validate functionality:
+
+* [x] "normal" and not-normal data
+** [x] UTF-8 data
+** [x] Non-valid JSON characters with description etc.
+* [x] timestamps
+* [x] code
+** [x] code with (json) special chars
+* [x] account names, with UTF-8
+* [x] amounts
+* [x] commodities
+* [x] Value positions
+* [x] PnL: Opening positions (this is not visible in reports at the moment)
+* [x] Comments
+** [x] Transaction Comments
+** [x] Posting Comments
+* [x] Transaction metadata
+** [x] uuid
+* [x] Report Metadata
+** [x] data from git
+*** [x] based on ref
+*** [x] based on commitid
+*** [x] check xref:./tep-1002.adoc[TEP-1002] for additional test cases
+* [x] check xref:../journal.adoc[journal format] for additional test cases
+
+* [x] tests/commodity/ok/basic-04.exec
+* [x] tests/commodity/ok/basic-06.exec
+
+=== Errors
+
+No special error cases with this new format.
+
+=== Perf
+
+Test performance with new output format, especially streaming case.
+
+* [x] text vs. json output tests
+** [x] balance
+** [x] registry
+* [x] text *and* json output tests
+** [x] balance
+** [x] registry
+
+
+=== Metadata for test coverage tracking
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tep-1004.yml[TEP-1004 Test Coverage]
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../LICENSE[License].

@@ -1,0 +1,309 @@
+== TEP-1009: Transaction Header Syntax
+
+Change Transaction header format so that it is more robust, regular
+and less error prone for humans to manipulate.
+
+== Summary
+
+Currently Tackler's format tries to mimic Ledger's format, and be as much
+compatible with it as possible. However, ledger's journal format is somewhat fuzzy,
+and makes it unnecessarily difficult to detect some error cases.
+
+For example, currently following invalid ISO-8601 offset (one extra space)
+is recognized as start of txn description, not as an offset.
+
+....
+2019-03-01T12:00:00 -04:00 Description
+....
+
+Technically it's invalid ISO-8601 timestamp, but it would be nice if this
+very probable human error could be spotted by tackler.
+
+Same goes on with various not-so-obvious format errors with code field.
+These are easy to handle with automatically generated transactions, but
+for humans these are really confusing and error prone.
+
+It doesn't help, that tackler won't notice these as an error.
+
+Trying to fix  these with ledger-compatible way leads to overly
+complicated grammar rules and some of the resulting rules are ambiguous.
+
+
+=== Solution
+
+Break compatibility with Ledger as needed, and change the grammar
+to be more regular and less error prone.
+
+This will cause that there will be following changes to journal format,
+which are breaking changes with old journal format and data.
+
+
+Transaction description::
+
+Transaction description must start with `'` -prefix.
+This is breaking change to journal format.
+
+
+Transaction code::
+
+Transaction code can not contain characters: +
+`'` `(` `)` `[` `]` `{` `}` `<` `>` +
+This is breaking change to journal format, if these characters are used in code field.
+
+
+Transaction metadata::
+
+Transaction metadata must start with `#` + space -prefix, instead of `;:`.
+This is breaking change to journal format.
+
+
+=== Execution
+
+
+==== Phase 1
+
+Release version of Tackler  which accepts old version and new version,
+but emits only new syntax (equity, identity exports).  Mark old syntax to deprecated
+on all documentation etc.
+
+
+=== Phase 2
+
+Drop support for old syntax.
+
+
+== Journal file format
+
+
+
+Transaction description::
+
+Transaction description must start with `'` -prefix.
+
+
+Transaction code::
+
+Transaction code can not contain characters: +
+`'` `(` `)` `[` `]` `{` `}` `<` `>`
+
+
+Transaction metadata::
+
+Transaction medadata (uuid) must start with ``#`` + space -prefix
+
+
+== Implementation
+
+=== CLI changes
+
+None
+
+
+=== CONF changes
+
+None
+
+
+=== Machinery
+
+Changes to machinery
+
+* [x] Transition
+** [x] In phase 1, it must accept old and new format
+** [x] After phase 2, only new format will be accepted
+* [x] Changes to Grammar and CTX-handlers
+* [x] All test and reference vectors have to be updated (also those inside GIT repositories)
+
+
+==== API changes
+
+None
+
+
+===== Server API changes
+
+None
+
+
+===== Client API changes
+
+None
+
+
+==== New dependencies
+
+None
+
+
+=== Reporting
+
+This change causes modifications to Register report.
+
+
+==== Balance report
+
+None
+
+
+==== Balance Group report
+
+None
+
+
+==== Register report
+
+Register report has to be changed due this change.
+
+Without change to register report it would  be impossible to identify following two
+transactions correctly from register-report.
+
+The first one has code '#123', and the second one has txn with description '(#123)'.
+
+....
+2019-03-01 (#123)
+ a 1
+ b
+
+2019-03-01 '(#123)
+ a 1
+ b
+....
+
+With current register report, both will look exactly same,
+and it would impossible e.g. to select correct filters.
+
+=> Change register report so that it prefix description with `'`
+
+Register report also prints transaction UUID. For overall consistency,
+it would be good to have same syntax for uuid in register report,
+as there is with journal.
+
+=> Change register report so that will prefix metadata with `#`
+
+
+=== Exporting
+
+Equity and Identity exports must be valid input to tackler, hence both must be changed.
+
+==== Equity export
+
+Change equity export so that it will use `'` for description.
+
+
+==== Identity export
+
+Change identity export so that it will use `'` for description, and `#` for metadata.
+
+
+=== Documentation
+
+* [x] xref:./readme.adoc[]: Update TEP index
+* [x] link:../../CHANGELOG[]: add new item
+* [x] Does it warrant own T3DB file?
+** [x] update xref:../../tests/tests.adoc[]
+** [x] update link:../../tests/check-tests.sh[]
+** [x] Add new T3DB file link:../../tests/tests-1009.yml[]
+* [x] User docs
+** [x] Journal format
+** [x] All examples
+
+
+=== Future plans and Postponed (PP) features
+
+Following characters are reserved for future use in header's first line: `[` `]` `{` `}` `<` `>`
+
+Extending current metadata data (uuid) to actual metadata header block (e.g. several lines).
+
+
+==== Postponed (PP) features
+
+Nothing
+
+
+=== Tests
+
+Normal, ok-case tests to validate functionality:
+
+===== Phase 1
+
+* [x] Accepts old syntax
+** [x] Txn header without `'`-prefix
+** [x] code field with reserved characters
+** [x] Txn metadata with `;:`
+** [x] All output is on new syntax
+
+* [x] Accepts new syntax
+** [x] Txn header with `'`-prefix
+** [x] Txn metadata with `#` + space
+***  [x] Test Txn metadata with `#` + multiple space
+
+* [x] Test vector to validate that old format is still accepted
+** [x] description without `'`
+** [x] code with special characters
+** [x] old `;:` metadata format
+
+
+
+===== Phase 2
+
+* [x] Rejects old syntax
+** [x] Txn header without `'`-prefix
+** [x] code field with reserved characters
+** [x] Txn metadata with `;:`
+
+* [x] Accepts new syntax
+** [x] Txn header with `'`-prefix
+** [x] Txn metadata with `#`
+
+* [x] Enable all tests ("todo: perr:" and ignored suites)
+
+
+==== Errors
+
+Error case tests for Phase-1 and Phase-2.
+
+===== Phase 1
+
+* [x] e: incorrect metadata syntax
+
+
+===== Phase 2
+
+* [ ] Rejects old syntax
+** [ ] e: Txn header without `'`-prefix
+** [ ] e: code field with reserved characters
+** [ ] e: Txn metadata with `;:`
+
+
+
+==== Perf
+
+No need for new perf tests - change is covered by normal perf suite.
+
+
+==== Feature and Test case tracking
+
+Feature-id::
+* name: Txn Header Syntax
+* id:   f61ad04a-34fd-44f2-a721-8d541fb45180
+
+Feature-id::
+* name: code field syntax
+* id:   bbecb600-37d1-418e-b825-fd8d36634643
+
+Feature-id::
+* name: Txn description syntax
+* id:   67bf0fd9-b7d9-4138-8a8f-be524ca3cbc5
+
+Feature-id::
+* name: metadata syntax
+* id:   be31bd6b-9ece-4f5d-9179-3ca66f057339
+
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1009.yml[TEP-1009 Test Coverage]
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*,
+either express or implied. +
+See the link:../../LICENSE[License] for the specific language governing permissions
+and limitations under the link:../../LICENSE[License].

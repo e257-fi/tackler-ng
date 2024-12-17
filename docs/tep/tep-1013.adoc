@@ -1,0 +1,73 @@
+= TEP-1013: Configuration key change of Accounts CoA
+
+Change Accounts configuration key `coa` to `chart-of-accounts`.
+
+== Summary
+
+Change configuration key of Chart of Accounts  to `chart-of-accounts`, but also support the old key.
+
+If both new and old one are defined at the same time,  then that is hard error.
+
+
+== Implementation
+
+=== CONF changes
+
+Changes to conf-settings
+
+* [x] Add `chart-of-accounts`
+** [x] Remove cfg based empty defaults,  so that new-and-old present at the same time case can be detected.
+
+
+=== Documentation
+
+* [x] xref:./readme.adoc[]: Update TEP index
+* [x] link:../../CHANGELOG[]: add new item
+* [x] Does it warrant own T3DB file?
+** [x] update xref:../../tests/tests.adoc[]
+** [x] update xref:../../tests/check-tests.sh[]
+** [x] Add new T3DB file xref:../../tests/tests-XXXX.yml[]
+* [x] User docs
+** [x] accounts.conf
+*** [x] `chart-of-accounts`
+** [x] examples
+*** [x] `chart-of-accounts`
+
+
+=== Future plans and Postponed (PP) features
+
+At some point, move commodities outside of accounts. Provide global main switch for strict mode.
+
+
+=== Tests
+
+Normal, ok-case tests to validate functionality:
+
+* [x] New and old setting for CoA
+** [x] old is defined
+** [x] new is defined
+** [x] none is defined
+
+
+==== Errors
+
+Various error cases:
+
+* [x] e: old and new are defined at the same time
+
+
+==== Feature and Test case tracking
+
+Feature-id::
+
+* name: Configuration key change of Accounts CoA
+* uuid: 5de84172-6eb7-4d70-acab-ba7c7f5b2114
+
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1013.yml[TEP-1013 Test Coverage]
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

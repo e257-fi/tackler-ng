@@ -1,0 +1,48 @@
+= Equity
+
+Equity report
+
+== Format
+
+* TS: ts of last included txn
+** code, description or txn comment uuid of last Txn, if available
+* include only non-zero accounts
+* Default account `Equity:Balance`
+
+== Machinery
+
+* [x] Accounts filtering? (Account filtering with reports)
+** [x] Per report accouns filtering
+* [x] Title => desc? No
+* [ ] conf: equity-input => first in stream
+* [ ] txn:type: equity => sorting first 
+
+
+== Documentation
+
+* [x] User docs
+** [x] Filtering assets accounts
+** [x] document last transaction recording with equity
+* [x] CHANGELOG
+
+== Tests
+
+* [x] test feature: 7e8e9aaf-4bd7-4d74-86b0-ddb6d7c54381 / subject: Account filtering with reports
+* [x] TS (sort & test last Txn)
+* [x] Description by last txn
+** [x] last txn with uuid
+** [x] last txn without uuid
+* [x] gaps and non-root accounts
+* [x] empty eq-balance (e.g. all accounts are zero)
+* [x] feed equity report back to Tackler (txns => Eq => Identity)
+* [x] Account filtering
+
+=== Equity input tests
+
+* [x] txns => Eq => conf:input + step-2:txns => Identity + balance
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../LICENSE[License].

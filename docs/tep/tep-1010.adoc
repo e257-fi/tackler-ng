@@ -1,0 +1,316 @@
+= TEP-1010: Transaction Geo Location
+
+Add support for Geo Location of Transaction as Txn metadata,
+and add support for selecting Transactions based on Geo Location information.
+
+
+== Summary
+
+link:https://tools.ietf.org/html/rfc5870[RFC 5870: A Uniform Resource Identifier for Geographic Locations]
+
+Only supported Coordinate Reference System is WGS84 (EPSG:4326).
+
+Only point is supported (not area)
+
+
+=== Geo Filter (Bounding Box - BBox)
+
+Used Bounding Box (BBox) definition is Y, X (lat, lon) based, instead of X, Y (lon, lat).
+This is compatible with OpenStreetMap's link:https://wiki.openstreetmap.org/wiki/Overpass_API[Overpass API]
+
+First coordinate pair is lower-left, and second is top-right.
+
+==== 2D BBox (Latitude, Longitude)
+
+[horizontal]
+BBoxLatLon:: south, west; north, east;
+South::  min latitude
+West::   min longitude
+
+Nort::   max latitude
+East::   max longitude
+
+`BBoxLatLon` will ignore altitude, e.g. it will select 3D transaction if it fits 2D BBox.
+If transaction doesn't have location information, it will not be selected.
+
+
+==== 3D BBox (Latitude, Longitude, Altitude)
+
+[horizontal]
+BBoxLatLonAlt:: south, west, depth; north, east, height;
+South::  min latitude
+West::   min longitude
+Depth::  min altitude
+
+Nort::   max latitude
+East::   max longitude
+Height:: max altitude
+
+`BBoxLatLonAlt` will select only transactions with altitude, e.g. it will *not* select any 2D transaction,
+even if it fits 2D BBox.
+
+If transaction doesn't have location information, it will not be selected.
+
+
+== Journal file format
+
+Add support for optional location field.  Location field is subset of
+geo URI definition link:https://tools.ietf.org/html/rfc5870[RFC 5870].
+
+Currently only coordinates (lat, lon and alt) are accepted. Used CRS is WGS 84.
+
+Parameters (`p`) part of
+link:https://tools.ietf.org/html/rfc5870#section-3.3[geo URI scheme]
+is not accepted at all, and MUST NOT be present with location field's value.
+
+[horizontal]
+location:: `#` `location` `:` <geo-uri>
+
+geo-uri:: `geo` `:` <lat> `,` <lon>  [`,` <alt>]
+
+lat:: latitude
+
+lon:: longitude
+
+alt:: altitude
+
+latitude:: `[ '-' ] DIGIT [DIGIT] [ '.' DIGIT+ ]` (value: -90 - 90)
+
+longitude:: `[ '-' ] DIGIT [DIGIT [DIGIT]] [ '.' DIGIT+ ]` (value: -180 - 180)
+
+altitude:: `[ '-' ] DIGIT+ [ '.' DIGIT+ ]` (in meteres)
+
+
+== Future plans and Postponed (PP) features
+
+Support for complex geometries (WKT).
+
+
+== Implementation
+
+=== CLI changes
+
+This has no changes to CLI with initial implementation.
+
+
+=== CONF changes
+
+This has no changes to configuration values nor configuration setup
+with initial implementation.
+
+
+=== Machinery
+
+Changes to machinery
+
+* [x] Grammar (parser and lexer)
+* [x] Filters
+** [x] New GEO filter (Bounding Box)
+
+
+
+==== API changes
+
+Api changes to server or client interfaces.
+
+
+===== Server API changes
+
+Changes to server API
+
+* [x] Filters
+** [x] API: New GEO filter (Bounding Box) definition
+** [x] Server: GEO filter Bounding Box filter code
+
+
+===== Client API changes
+
+Changes to client API or JSON model
+
+* [x] TxnHeader has new optional field `location`
+** [x] New type: `GeoPoint`
+*** [x] fields: Latitude (lat), Longitude (lon), optional Altitude (alt)
+
+
+=== Reporting
+
+Changes to reports or reporting
+
+
+==== Balance report
+
+No changes to balance report.
+
+
+==== Balance Group report
+
+No changes to balance group report.
+
+
+==== Register report
+
+Changes to register report
+
+* [x] Report geo-field with Txn
+
+
+=== Exporting
+
+Changes to exports or exporting
+
+==== Equity export
+
+No changes to equity export.
+
+
+==== Identity export
+
+Changes to identity export
+
+* [x] Output geo-field with Txn Header
+
+
+=== Documentation
+
+* [x] xref:./readme.adoc[]: Update TEP index
+* [x] xref:../../README.adoc[]: is it a new noteworthy feature?
+* [x] link:../../CHANGELOG[]: add new item
+* [x] Does it warrant own T3DB file?
+** [x] update xref:../../tests/tests.adoc[]
+** [x] update xref:../../tests/check-tests.sh[]
+** [x] Add new T3DB file xref:../../tests/tests-XXXX.yml[]
+* [x] User docs
+** [x] user manual
+** [x] examples
+* [x] Developer docs
+** [x] API changes
+*** [x] Server API changes
+*** [x] Client API changes
+
+
+==== Postponed (PP) features
+
+Anything which wasn't implemented?
+
+
+=== Tests
+
+
+* [x] Changes to journal
+** [x] identity to input test
+* [x] API test
+** [x] Server API (to JSON)
+** [x] Client API (from JSON)
+
+==== Geo URI
+
+Normal, ok-case tests to validate functionality:
+
+* [x] Parse tests
+** [x] lat, lon
+** [x] lat, lon, alt
+*** [x] lat.deg, lon.deg, alt.deg
+** [x] -lat, -lon, -alt
+** [x] -lat.deg, -lon.deg, -alt.deg
+
+Various special values
+* [x] Poles
+** [x] lat: -90 or lat:90, lon:0
+** [x] lat: -90 or lat:90, lon:-180 - 0
+** [x] lat: -90 or lat:90, lon:180 - 0
+* [x] lat:0, lon:0
+* [x] lat:Y, lon:X, alt:-120
+
+Metadata tests
+
+* [x] both `uuid` and `location`
+** [x] different order
+*** [x] `uuid`, `location`
+*** [x] `location`, `uuid`
+
+
+===== Errors
+
+Various error cases:
+
+* [x] e: missing geo-uri
+* [x] e: missing geo
+* [x] e: comma (`,`) as decimal separator (especially for altitude (internally using NUMBER at the moment))
+* [x] e: missing lat/lon
+* [x] e: Values outside of specification
+** [x] e: lat < -90 || lat > 90
+** [x] e: lon < -180 || lon > 180
+** [x] e: altitude < -6378137 m (WGS 84: Semi-major axis 6 378 137 m)
+
+Metadata tests
+
+* [x] multiple `location`
+* [x] multiple `uuid`
+* [x] both `uuid` and `location`
+** [x] multiple `location`
+** [x] multiple `uuid`
+
+
+==== Geo Filter
+
+Normal, ok-case tests to validate functionality:
+
+* [x] Normal filter
+** [x] Northern hemisphere
+** [x] Southern hemisphere
+
+Various special values
+* [x] BBox around poles
+** [x] North pole
+** [x] South pole
+* [x] BBox over 180th meridian
+
+* [x] BBox whole Earth (-180,-90 to 180,90)
+* [x] BBox is point
+* [x] Missing Z
+
+
+===== Errors
+
+Various error cases:
+
+* [x] e: Not correctly minX, minY, minZ; maxX,maxY,maxZ
+** [x] e: south vs. north
+** [x] e: west vs. east
+** [x] e: depth vs. height
+
+
+==== Perf
+
+Is there need to run or create new perf tests?
+
+* [ ] perf test
+
+
+==== Feature and Test case tracking
+
+Feature-id::
+
+* name: Transaction Geo Location
+* uuid: 415d0acb-8441-4dce-aa81-e99e5b2f2e49
+
+Feature-id::
+
+* name: Geo URI support
+* parent: 415d0acb-8441-4dce-aa81-e99e5b2f2e49
+* uuid: c7e45a7b-5295-4dbb-bcda-bdc0990b9e14
+
+Feature-id::
+
+* name: Geo Filter
+* parent: 415d0acb-8441-4dce-aa81-e99e5b2f2e49
+* uuid: cfa92a0d-a8af-4fb5-a3c6-723029febc5a
+
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1010.yml[TEP-1010 Test Coverage]
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the link:../../LICENSE[License] for the specific language governing permissions and limitations under
+the link:../../LICENSE[License].

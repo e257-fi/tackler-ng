@@ -1,0 +1,206 @@
+= TEP-1002: Git Storage Backend
+
+Add git as backend for transaction data storage.
+
+
+== Journal file format
+
+No changes needed to directly to support this feature,
+but from reporting perspective some changes are useful later on.
+
+=== Equity report
+
+Record with Equity txn commit id of used revision.
+
+This probably needs parser level changes to format 
+to support `meta: commit` or similar.
+
+
+== Machinery
+
+Changes to machinery
+
+* [x] git backend
+** [ ] high level Tackler specific java interface?
+* [x] bifurcation point for Filesyste (FS) and GIT backend and data feeding for parser
+** [x] way to re-feed git streams to ANTLR lexer streams?
+
+
+=== New dependecies
+
+* [x] link:http://www.eclipse.org/jgit/[jgit]
+** [x] Add and check licenses: link:http://git.eclipse.org/c/jgit/jgit.git/plain/LICENSE[EDL]
+** [x] Is there NOTICE files? No
+** [x] Add license under xref:../licenses[doc/licenses]
+** [x] Add link of license to xref:../readme.adoc[index]
+** [x] Add xref:../../THANKS.adoc[THANKS]
+
+=== Examples
+
+* [x] link:https://github.com/centic9/jgit-cookbook[jgit-cookbook]
+** [x] Add and check licenses: link:https://github.com/centic9/jgit-cookbook/blob/master/LICENSE.md[Apache License 2.0]
+** [x] Is there NOTICE files? No
+** [x] Add license under xref:../licenses[doc/licenses]
+** [x] Add link of license to xref:../readme.adoc[index]
+** [x] Add xref:../../THANKS.adoc[THANKS]
+
+
+=== Future plans
+
+* [ ] support for PGP tags
+** [ ] report signature
+** [ ] verify signature
+
+* [ ] Integration with link:https://github.com/gitblit/gitblit[Gitblit]?
+** [ ] License: link:https://github.com/gitblit/gitblit/blob/master/LICENSE[Apache License 2.0]
+*** [ ] link:https://github.com/gitblit/gitblit/blob/master/NOTICE[NOTICE]
+
+
+=== CLI changes
+
+Changes to command line interface
+
+* [x] git:
+** [x] set branch/ref
+*** [x] single file as git input (inside repo) is not supported (workaround path+suffix)
+** [x] set commit
+
+
+=== CONF changes
+
+Changes to conf-settings
+
+* [x] input: set backend type (FS or GIT)
+* [x] git-specific conf-settings
+** [x] set default branch/refs to be used
+*** [x] (fixed commit is not supported by conf)
+** [x] git input data
+*** [x] set path inside repo
+*** [x] set glob / suffix
+
+== Reporting
+
+Changes to general reporting
+
+* [x] Reports should produce meta information about txns and report
+** [x] human readable output (text-format)
+** [x] machine readable: JSON?
+
+* [x] Git backend specific information
+** [x] commit
+
+
+=== Balance report
+
+Changes to balance report
+
+* [x] Output meta-info
+** [x] Git backend: commit
+
+
+=== Balance Group report
+
+Changes to balance group report
+
+* [x] Output meta-info
+** [x] Git backend: commit
+
+
+=== Register report
+
+Changes to register report
+
+* [x] Output meta-info
+** [x] Git backend: commit
+
+
+=== Equity report
+
+Changes to equity report. See Journal changes.
+
+* [ ] record used tree (commit id)
+
+
+=== Identity report
+
+None at the moment (journal sidecar file?)
+
+== Documentation
+
+* [x] CHANGELOG item
+* [x] User docs
+** [x] user manual
+*** [x] cli-arguments
+**** [x] `--input.git.ref`
+**** [x] `--input.git.commit`
+** [x] tackler.conf
+** [x] accounts.conf
+** [x] examples
+* [x] Developer docs
+
+
+== Tests
+
+* [x] UTF-8 data from git backend
+* [x] data shard
+** [x] shard: check effective dir
+** [x] shard: check not-to-included case
+*** [x] not by dir
+*** [x] not by suffix
+* [x] conf-settings
+** [x] `--input.git.repository`
+** [x] `--input.git.ref`
+** [x] `--input.git.dir`
+** [x] `--input.git.suffix`
+* [x] cli-arguments
+** [x] `--input.git.ref`
+** [x] `--input.git.commit`
+*** [x] effective commit id (e.g. not latest commit)
+*** [x] abbreviated commit id
+
+=== Errors
+
+* [x] e: unknown storage type
+* [x] e: repository not found
+* [x] e: simple parse error with shard
+* [x] e: commit
+** [x] e: commit not found
+** [x] e: format of commit is not valid
+* [x] e: ref
+** [x] e: ref not found
+** [x] e: format of ref is not valid?
+* [x] e: empty txns set with commit + path
+* [ ] e: non-bare git directory (test postponed: this needs external support /bc not possible to include non-bare git inside git)
+* [x] e: txns/foo.txn as directory
+* [x] e: txns/foo.txn as link
+* [x] e: cli: conflicting options
+** [x] e: git with non-git storage
+** [x] e: cli: --input.git.commit + --input.git.ref
+** [x] e: cli: --input.file + --input.git.ref
+** [x] e: cli: --input.file + --input.git.commit
+** [x] e: cli: --input.fs.dir + --input.git.ref
+** [x] e: cli: --input.fs.dir + --input.git.commit
+** [x] e: cli: --input.fs.glob + --input.git.ref
+** [x] e: cli: --input.fs.glob + --input.git.commit
+
+=== Perf
+
+* [x] git backend perf tests
+
+=== Metadata for test coverage tracking
+
+link:https://github.com/e257-fi/tackler-t3db/blob/main/tep-1002.yml[TEP-1002 test cases]
+
+....
+features:
+  - feature:
+      id: 06b4a9b1-f48c-4b33-8811-1f32cdc44d7b
+      subject: "git backend"
+
+....
+
+
+'''
+Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
+See the xref:../../LICENSE[License] for the specific language governing permissions and limitations under
+the xref:../../LICENSE[License].
