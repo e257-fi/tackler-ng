@@ -38,7 +38,8 @@ New features:
 
 Fixes in this release:
 
-* ...
+* Git Backend: When opening the repo, use exact location, 
+  don't search it upwards on the directory tree
 
 
 ==== Development
