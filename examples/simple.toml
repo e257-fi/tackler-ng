@@ -23,7 +23,7 @@ tags        = { path = "none" }
 ### Report Configuration
 [report]
 report-timezone = "UTC"
-scale = { min = 2, max = 4 }
+scale = { min = 2, max = 2 }
 accounts = [ "^Expenses:" ]
 targets = [ "balance", "balance-group", "register" ]
 

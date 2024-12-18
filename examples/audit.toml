@@ -23,13 +23,13 @@ tags        = { path = "none" }
 ### Report Configuration
 [report]
 report-timezone = "UTC"
-scale = { min = 2, max = 4 }
+scale = { min = 2, max = 2 }
 accounts = [ "^a:.*" ]
 targets = [ "balance" ]
 
-balance       = { title = "BALANCE REPORT" }
-balance-group = { title = "BALANCE GROUP REPORT", group-by = "month" }
-register      = { title = "REGISTER REPORT", accounts = [ "^e:", "^a:" ]}
+balance       = { title = "Balance Report" }
+balance-group = { title = "Balance Group Report", group-by = "month" }
+register      = { title = "Register Report", accounts = [ "^e:", "^a:" ]}
 
 
 ### Export Configuration
