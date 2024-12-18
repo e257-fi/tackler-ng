@@ -66,7 +66,7 @@ pub fn git_to_txns(
     // perf: let mut ts_par_total: u128 = 0;
     // perf: let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
 
-    let repo = git::discover(repo_path)?;
+    let repo = git::open(repo_path)?;
 
     let (object, reference) = match input_selector {
         GitInputSelector::CommitId(id) => {
