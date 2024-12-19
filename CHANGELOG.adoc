@@ -47,7 +47,7 @@ Fixes in this release:
 Updated dependencies and tools:
 
 * Dependencies
-** ...
+** serde: 1.0.216
 
 
 ===== Rust toolchain
