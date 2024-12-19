@@ -280,3 +280,70 @@ cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
 
+#
+# audit-1E2-09
+#
+# test: 82fe2414-9e20-45da-8f7f-6f21ae8c71f2
+rm -f $OUTPUT_DIR/*
+test_name=audit-1E2-09
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/audit/audit.toml \
+    --reports balance \
+    --accounts "^a:.*" \
+    --input.git.repository $SUITE_PATH/audit/audit-repo.git \
+    --input.git.dir "txns" \
+    --input.git.ref "txns-1E2^^"
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+echo ": ok"
+
+#
+# audit-1E2-10
+#
+# test: 248707bc-7c58-4bab-a4a6-4cc1471fd936
+rm -f $OUTPUT_DIR/*
+test_name=audit-1E2-10
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/audit/audit.toml \
+    --reports balance \
+    --accounts "^a:.*" \
+    --input.git.repository $SUITE_PATH/audit/audit-repo.git \
+    --input.git.dir "txns" \
+    --input.git.ref "2da8c6a30fed6e65c06070d6c12e7dcaff84b599"
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+echo ": ok"
+
+#
+# audit-1E2-11, use abbreviated commit id, this is same
+#               (with the same reference) as audit-1E2-10
+#
+# test: 0ae6dfb6-0975-49bc-8744-f7a4143a6ead
+rm -f $OUTPUT_DIR/*
+test_name=audit-1E2-10
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/audit/audit.toml \
+    --reports balance \
+    --accounts "^a:.*" \
+    --input.git.repository $SUITE_PATH/audit/audit-repo.git \
+    --input.git.dir "txns" \
+    --input.git.ref "2da8c6a3"
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+echo ": ok"
+

@@ -85,15 +85,19 @@ pub fn git_to_txns(
                 Some(Err(())) => return Err(format!("Ambiguous abbreviated commit id {id}").into()),
                 None => return Err(format!("Unknown commit id '{id}'").into()),
             };
+            // This is originally commit, so no need to peel it
             (repo.find_object(object_id)?.try_into_commit()?, None)
         }
         GitInputSelector::Reference(ref_str) => {
-            let git_ref = repo.find_reference(&ref_str)?;
-            let id = git_ref.into_fully_peeled_id()?;
-            (
-                repo.find_object(id)?.try_into_commit()?,
-                Some(ref_str.clone()),
-            )
+            let id = repo.rev_parse_single(ref_str.as_bytes())?;
+            let reference = if id.to_string().starts_with(ref_str.as_str()) {
+                // This is tackler specific logic: don't show ref if it's plain commit id
+                None
+            } else {
+                Some(ref_str.clone())
+            };
+            // Peel it so that tags are ok
+            (repo.find_object(id)?.peel_to_commit()?, reference)
         }
     };
 
@@ -165,22 +169,4 @@ pub fn git_to_txns(
         txns?,
         &settings.get_hash(),
     )
-}
-
-#[cfg(test)]
-mod tests {
-    /*
-    it("create git commitId by string") {
-      assert(TacklerTxns.gitCommitId("1234567890") === Right[String, String]("1234567890"))
-    }
-
-    it("create git ref by settings") {
-      val settings = Settings()
-      assert(TacklerTxns.gitReference(settings) === Left[String, String]("master"))
-    }
-
-    it("create git ref by string") {
-      assert(TacklerTxns.gitReference("unit-test-ref") === Left[String, String]("unit-test-ref"))
-    }
-    */
 }
