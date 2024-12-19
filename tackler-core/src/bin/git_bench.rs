@@ -102,18 +102,13 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
         all_txns_per_s += txn_per_s;
     }
     let txn_per_s_ave = all_txns_per_s / 10.0;
-    // yes, these are correct
-    let scala_txn_per_s_ref = 40000.0;
-    let rust_txn_per_s_ref = 25000.0;
+
+    let txn_per_s_scala = 40000.0;
 
     eprintln!("\nOn average {txn_per_s_ave:.0} txn/s");
     eprintln!(
-        "Reference system (laptop): {rust_txn_per_s_ref:.0} txn/s ({:+>6.0} txn/s)",
-        txn_per_s_ave - rust_txn_per_s_ref
-    );
-    eprintln!(
-        "Reference implementation:  {scala_txn_per_s_ref:.0} txn/s ({:+>6.0} txn/s)",
-        txn_per_s_ave - scala_txn_per_s_ref
+        "Reference implementation:  {txn_per_s_scala:.0} txn/s ({:>+6.0} txn/s)",
+        txn_per_s_ave - txn_per_s_scala
     );
 }
 

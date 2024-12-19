@@ -31,7 +31,7 @@ tackler-core = "0.6.0"
 
 New features:
 
-* ...
+* Git Backend: Add support for `revspecs` with `--input.git.ref`
 
 
 ==== Fixes
@@ -39,7 +39,7 @@ New features:
 Fixes in this release:
 
 * Git Backend: When opening the repo, use exact location, 
-  don't search it upwards on the directory tree
+  and don't search upwards on the directory tree
 
 
 ==== Development
