@@ -18,7 +18,7 @@
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
 use crate::model::balance_tree_node::ord_by_btn;
-use crate::model::{BalanceTreeNode, Commodity, TxnAccount, TxnRefs, TxnSet};
+use crate::model::{BalanceTreeNode, Commodity, Transaction, TxnAccount, TxnSet};
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::{HashMap, HashSet};
@@ -152,16 +152,15 @@ impl Balance {
     ///
     /// * `txns` sequence of transactions
     /// * `returns` unfiltered sequence of BalanceTreeNodes
-    fn balance(
-        txns: &TxnRefs,
-        settings: &Settings,
-    ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>> {
+    fn balance<'a, I>(txns: I, settings: &Settings) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>>
+    where
+        I: Iterator<Item = &'a &'a Transaction>,
+    {
         // Calculate sum of postings for each account.
         //
         // Input size: is "big",    ~ all transactions
         // Output size: is "small", ~ size of CoA
         let account_sums: Vec<_> = txns
-            .iter()
             .flat_map(|txn| &txn.posts)
             .sorted_by_key(|p| &p.acctn)
             .chunk_by(|p| &p.acctn)
@@ -198,9 +197,8 @@ impl Balance {
                     Ok::<Vec<Vec<(TxnAccount, Decimal)>>, Box<dyn Error>>(trees)
                 },
             )?
-            .iter()
+            .into_iter()
             .flatten()
-            .cloned()
             .collect::<HashSet<_>>() // make it distinct
             .into_iter()
             .collect::<Vec<(TxnAccount, Decimal)>>();
@@ -234,9 +232,22 @@ impl Balance {
     where
         T: BalanceSelector + ?Sized,
     {
-        let bal = Balance::balance(&txn_set.txns, settings)?;
+        Self::from_iter(title, &txn_set.txns, accounts, settings)
+    }
 
-        let filt_bal: Vec<_> = bal.iter().filter(|b| accounts.eval(b)).cloned().collect();
+    pub(crate) fn from_iter<'a, I, T>(
+        title: &str,
+        txns: I,
+        accounts: &T,
+        settings: &Settings,
+    ) -> Result<Balance, Box<dyn Error>>
+    where
+        T: BalanceSelector + ?Sized,
+        I: IntoIterator<Item = &'a &'a Transaction>,
+    {
+        let bal = Balance::balance(txns.into_iter(), settings)?;
+
+        let filt_bal: Vec<_> = bal.into_iter().filter(|b| accounts.eval(b)).collect();
 
         if filt_bal.is_empty() {
             Ok(Balance {

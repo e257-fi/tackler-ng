@@ -18,7 +18,7 @@
 use crate::kernel::balance::Balance;
 use crate::kernel::report_item_selector::{BalanceSelector, RegisterSelector};
 use crate::kernel::Settings;
-use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs, TxnSet};
+use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs};
 use crate::report::RegisterSettings;
 use itertools::Itertools;
 use rust_decimal::Decimal;
@@ -48,19 +48,12 @@ where
     T: BalanceSelector + ?Sized,
 {
     txns.iter()
-        .cloned() // this is originally &&Transaction
         .chunk_by(|txn| group_by_op(txn))
         .into_iter()
         // .par // todo: par-map
         .map(|(group_by_key, bal_grp_txns)| {
-            // todo: could this be an iterator?
-            let txns = bal_grp_txns.collect();
-            // This is a single balance inside balance group,
-            // so there shouldn't be any audit or txn-set-checksum for this subgroup (bal) of txns
-            let metadata = None;
-            let txn_set = TxnSet { metadata, txns };
-
-            Balance::from(&group_by_key, &txn_set, ras, settings).unwrap() // todo: fix this unwrap
+            Balance::from_iter(&group_by_key, bal_grp_txns, ras, settings)
+                .expect("Logic error with Balance Group: inner balance failed")
         })
         .filter(|bal| !bal.is_empty())
         .sorted_by_key(|bal| bal.title.clone())
@@ -102,9 +95,8 @@ where
             .collect();
 
         let mut filt_postings: Vec<_> = register_postings
-            .iter()
+            .into_iter()
             .filter(|p| ras.eval(p))
-            .cloned()
             .collect();
 
         filt_postings.sort();
