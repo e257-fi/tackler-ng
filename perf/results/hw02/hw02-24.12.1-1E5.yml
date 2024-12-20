@@ -20,39 +20,93 @@ runs:
           real:
             unit: "s"
             values:
-              - 3.47
-              - 3.55
-              - 3.60
-              - 3.50
-              - 3.53
+              - 3.39
+              - 3.40
+              - 3.42
+              - 3.42
+              - 3.39
           user:
             unit: "s"
             values:
+              - 2.63
+              - 2.62
+              - 2.59
               - 2.66
-              - 2.72
-              - 2.79
-              - 2.70
-              - 2.73
+              - 2.60
           sys:
             unit: "s"
             values:
-              - 0.79
+              - 0.74
+              - 0.76
               - 0.81
-              - 0.78
+              - 0.74
               - 0.77
-              - 0.78
         mem:
           unit: "k (max)"
           values:
+             - 115404
+             - 115732
              - 115720
-             - 115704
-             - 115596
-             - 115388
-             - 115628
+             - 115728
+             - 115648
         cpu:
           unit: "%"
           values:
              - 99
+             - 99
+             - 99
+             - 99
+             - 99
+  - run:
+      storage: "fs"
+      report: "balance_register"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 3.78
+              - 3.89
+              - 3.77
+              - 3.76
+              - 3.77
+          user:
+            unit: "s"
+            values:
+              - 2.97
+              - 3.07
+              - 3.00
+              - 2.98
+              - 2.94
+          sys:
+            unit: "s"
+            values:
+              - 0.75
+              - 0.80
+              - 0.75
+              - 0.75
+              - 0.81
+        mem:
+          unit: "k (max)"
+          values:
+             - 115544
+             - 115700
+             - 115492
+             - 115680
+             - 115416
+        cpu:
+          unit: "%"
+          values:
+             - 98
              - 99
              - 99
              - 99
@@ -74,35 +128,35 @@ runs:
           real:
             unit: "s"
             values:
-              - 3.53
-              - 3.47
-              - 3.40
+              - 3.39
               - 3.42
-              - 3.44
+              - 3.42
+              - 3.45
+              - 3.40
           user:
             unit: "s"
             values:
-              - 2.71
-              - 2.69
-              - 2.67
-              - 2.64
+              - 2.57
+              - 2.65
+              - 2.61
+              - 2.68
               - 2.65
           sys:
             unit: "s"
             values:
+              - 0.80
+              - 0.75
               - 0.79
-              - 0.76
-              - 0.71
-              - 0.76
-              - 0.78
+              - 0.74
+              - 0.73
         mem:
           unit: "k (max)"
           values:
-             - 115300
-             - 115384
-             - 116156
-             - 115272
-             - 115684
+             - 115568
+             - 115488
+             - 115752
+             - 115660
+             - 115676
         cpu:
           unit: "%"
           values:
@@ -128,35 +182,35 @@ runs:
           real:
             unit: "s"
             values:
-              - 3.78
-              - 3.83
-              - 3.89
-              - 3.81
-              - 3.81
+              - 3.71
+              - 3.80
+              - 3.73
+              - 3.75
+              - 3.94
           user:
             unit: "s"
             values:
-              - 2.96
-              - 2.99
-              - 3.05
-              - 2.98
+              - 2.89
               - 2.95
+              - 2.92
+              - 2.91
+              - 3.08
           sys:
             unit: "s"
             values:
               - 0.80
-              - 0.82
-              - 0.82
+              - 0.83
+              - 0.78
               - 0.81
-              - 0.84
+              - 0.81
         mem:
           unit: "k (max)"
           values:
-             - 115700
-             - 115772
-             - 115736
+             - 115440
+             - 115776
+             - 115492
+             - 115740
              - 115752
-             - 115840
         cpu:
           unit: "%"
           values:
@@ -164,7 +218,7 @@ runs:
              - 99
              - 99
              - 99
-             - 99
+             - 98
   - run:
       storage: "git"
       report: "balance"
@@ -182,35 +236,35 @@ runs:
           real:
             unit: "s"
             values:
-              - 2.94
-              - 2.91
-              - 2.92
-              - 3.01
-              - 3.08
+              - 2.79
+              - 2.77
+              - 2.79
+              - 2.78
+              - 2.80
           user:
             unit: "s"
             values:
-              - 2.87
-              - 2.84
-              - 2.86
-              - 2.92
-              - 2.97
+              - 2.72
+              - 2.70
+              - 2.72
+              - 2.71
+              - 2.73
           sys:
             unit: "s"
             values:
-              - 0.05
+              - 0.06
+              - 0.06
               - 0.06
               - 0.05
-              - 0.07
-              - 0.08
+              - 0.05
         mem:
           unit: "k (max)"
           values:
-             - 135396
-             - 135244
-             - 135456
-             - 135508
-             - 134912
+             - 135460
+             - 135084
+             - 135536
+             - 135052
+             - 135528
         cpu:
           unit: "%"
           values:
@@ -236,35 +290,89 @@ runs:
           real:
             unit: "s"
             values:
-              - 3.49
-              - 3.49
-              - 3.53
-              - 3.60
-              - 3.47
+              - 3.51
+              - 3.42
+              - 3.38
+              - 3.42
+              - 3.55
           user:
             unit: "s"
             values:
-              - 2.73
-              - 2.67
-              - 2.74
-              - 2.77
-              - 2.66
+              - 2.70
+              - 2.70
+              - 2.63
+              - 2.69
+              - 2.72
           sys:
             unit: "s"
             values:
-              - 0.73
-              - 0.80
-              - 0.76
-              - 0.80
               - 0.79
+              - 0.70
+              - 0.73
+              - 0.71
+              - 0.81
         mem:
           unit: "k (max)"
           values:
-             - 115736
-             - 115720
-             - 115676
-             - 115452
-             - 115540
+             - 115596
+             - 115396
+             - 115872
+             - 115944
+             - 115700
+        cpu:
+          unit: "%"
+          values:
+             - 99
+             - 99
+             - 99
+             - 99
+             - 99
+  - run:
+      storage: "fs"
+      report: "balance_register"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 3.93
+              - 3.80
+              - 3.81
+              - 3.81
+              - 3.94
+          user:
+            unit: "s"
+            values:
+              - 3.12
+              - 2.97
+              - 2.98
+              - 3.01
+              - 3.14
+          sys:
+            unit: "s"
+            values:
+              - 0.79
+              - 0.81
+              - 0.80
+              - 0.77
+              - 0.78
+        mem:
+          unit: "k (max)"
+          values:
+             - 115748
+             - 115920
+             - 115568
+             - 115872
+             - 115692
         cpu:
           unit: "%"
           values:
@@ -290,35 +398,35 @@ runs:
           real:
             unit: "s"
             values:
+              - 3.81
+              - 3.44
+              - 3.43
+              - 3.46
               - 3.52
-              - 3.48
-              - 3.49
-              - 3.47
-              - 3.92
           user:
             unit: "s"
             values:
-              - 2.75
-              - 2.69
-              - 2.73
+              - 2.96
+              - 2.68
               - 2.65
-              - 3.09
+              - 2.68
+              - 2.71
           sys:
             unit: "s"
             values:
+              - 0.83
+              - 0.74
               - 0.76
-              - 0.78
-              - 0.75
-              - 0.80
-              - 0.81
+              - 0.76
+              - 0.79
         mem:
           unit: "k (max)"
           values:
-             - 115568
-             - 115664
-             - 115880
-             - 115668
-             - 115532
+             - 115320
+             - 115696
+             - 115424
+             - 115544
+             - 115712
         cpu:
           unit: "%"
           values:
@@ -344,35 +452,35 @@ runs:
           real:
             unit: "s"
             values:
-              - 3.88
-              - 3.78
+              - 3.72
               - 3.81
-              - 3.80
-              - 3.88
+              - 3.70
+              - 3.75
+              - 3.72
           user:
             unit: "s"
             values:
-              - 3.05
+              - 2.94
               - 2.97
-              - 3.00
-              - 3.00
-              - 3.05
+              - 2.86
+              - 2.95
+              - 2.92
           sys:
             unit: "s"
             values:
+              - 0.76
+              - 0.81
               - 0.81
               - 0.78
               - 0.78
-              - 0.77
-              - 0.81
         mem:
           unit: "k (max)"
           values:
-             - 115772
-             - 115812
-             - 115520
-             - 115720
-             - 115936
+             - 115688
+             - 115916
+             - 115628
+             - 115636
+             - 115664
         cpu:
           unit: "%"
           values:

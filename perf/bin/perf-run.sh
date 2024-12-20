@@ -51,7 +51,7 @@ else
 fi
 
 
-report_file=results/hwXX/$version-perf-$flt-$storage-$trg-$report-"$(echo $formats | tr ' ' '_')".txt
+report_file=results/hwXX/$version-perf-$flt-$storage-$trg-"$(echo $report | tr ' ' '_')"-"$(echo $formats | tr ' ' '_')".txt
 
 (
 echo "exe: $exe_path"

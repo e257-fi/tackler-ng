@@ -27,6 +27,7 @@ reports="balance balance-group register"
 #sets="1E1 1E2 1E3 1E4 1E5 1E6"
 sets="1E3 1E4 1E5 1E6"
 #sets="1E3"
+#sets="1E6"
 
 versions="24.12.1"
 
@@ -38,7 +39,7 @@ EOF
 for s in $sets; do
 	(cd $data_dir; git checkout txns-$s)
 for v in $versions; do
-for r in $reports; do
+for r in $reports "balance register"; do
 
 #for frmt in txt json; do
 for frmt in txt; do
@@ -53,8 +54,8 @@ else
 fi
 
 
-echo "run: $v fs $s $r $frmt $flt"
-$exe_dir/perf-run.sh dist/tackler-$v fs $s $r "$frmt" "$filter"
+echo "$(date "+%H:%M:%S") run: $v fs $s $r $frmt $flt"
+$exe_dir/perf-run.sh dist/tackler-$v fs "$s" "$r" "$frmt" "$filter"
 
 done
 done
@@ -70,7 +71,7 @@ for frmt in txt; do
 
 filter=""
 
-echo "run: $v git $s $r $frmt all"
+echo "$(date "+%H:%M:%S") run: $v git $s $r $frmt all"
 $exe_dir/perf-run.sh dist/tackler-$v git $s $r "$frmt" "$filter"
 
 done

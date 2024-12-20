@@ -18,6 +18,7 @@
 #############################################################################
 
 versions = ["24.12.1"]
+#versions = ["24.12.1", "devel"]
 
 #
 # Plot perf data with Gnuplot
@@ -75,9 +76,11 @@ def plot_line_def():
     '-' using 2:xtic(1) t "balance (txt, all)"         with linespoints pt 9 lc rgbcolor "0x00FF00" lw 2 dt 1, \
     '-' using 2:xtic(1) t "balance-group (txt, all)"   with linespoints pt 9 lc rgbcolor "0x0000FF" lw 2 dt 1, \
     '-' using 2:xtic(1) t "register (txt, all)"        with linespoints pt 9 lc rgbcolor "0xFF0000" lw 2 dt 1, \
-    '-' using 2:xtic(1) t "balance (txt, flt)"         with linespoints pt 9 lc rgbcolor "0x008800" lw 2 dt 4, \
-    '-' using 2:xtic(1) t "balance-group (txt, flt)"   with linespoints pt 9 lc rgbcolor "0x000088" lw 2 dt 4, \
-    '-' using 2:xtic(1) t "register (txt, flt)"        with linespoints pt 9 lc rgbcolor "0x880000" lw 2 dt 4, \
+    '-' using 2:xtic(1) t "bal+reg  (txt, flt)"        with linespoints pt 9 lc rgbcolor "0xFF00FF" lw 2 dt 1, \
+    '-' using 2:xtic(1) t "balance (txt, flt)"         with linespoints pt 9 lc rgbcolor "0x00CC00" lw 2 dt 4, \
+    '-' using 2:xtic(1) t "balance-group (txt, flt)"   with linespoints pt 9 lc rgbcolor "0x0000CC" lw 2 dt 4, \
+    '-' using 2:xtic(1) t "register (txt, flt)"        with linespoints pt 9 lc rgbcolor "0xCC0000" lw 2 dt 4, \
+    '-' using 2:xtic(1) t "bal+reg  (txt, flt)"        with linespoints pt 9 lc rgbcolor "0xCC00CC" lw 2 dt 4
     """
 
 def storage_plot_line_def():
@@ -230,7 +233,7 @@ def values_to_plot(data, key, value_getter, v_func):
     for flt in [False, True]:
         #for frmt in ["txt", "json"]:
         for frmt in ["txt"]:
-            for rpt in ["balance", "balance-group", "register"]:
+            for rpt in ["balance", "balance-group", "register", "balance_register"]:
                 for v in versions:
                     version_data = data.get(v)
                     if version_data:

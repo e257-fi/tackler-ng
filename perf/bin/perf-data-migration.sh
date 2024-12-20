@@ -61,7 +61,7 @@ handle_file() {
 cat <<EOF
   - run:
       storage: "$(echo $f | sed -E 's/.*perf-((all)|(flt))-(.*)-'$ds'.*/\4/')"
-      report: "$(echo $f | sed -E "s/.*-((balance)|(balance-group)|(register))-((json)|(txt)|(txt_json))\.txt$/\1/")"
+      report: "$(echo $f | sed -E "s/.*-((balance)|(balance-group)|(register)|(balance_register))-((json)|(txt)|(txt_json))\.txt$/\1/")"
       formats: "$(echo $f | sed -E 's/.*-((json)|(txt)|(txt_json))\.txt$/\1/')"
       filter: |
           $(get_value $f "filter")

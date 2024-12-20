@@ -4,6 +4,8 @@
 /refs/
 /results/hwXX/
 /results/*/*.png
+/results/*/*-devel-*
+/results/*/*-next-*
 /*.svg
 /bin/*.svg
 /*.png
