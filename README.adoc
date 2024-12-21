@@ -7,14 +7,15 @@ image:https://tackler.e257.fi/img/badge-matrix.svg["matrix: tackler", link="http
 
 = Tackler-NG
 
-Tackler is fast, reliable bookkeeping engine with native
-GIT SCM support for plain text accounting written in rust.
-Tackler-NG is rusty version of link:https://tackler.e257.fi/[Tackler].
+link:https://tackler.e257.fi/[Tackler] is fast, reliable bookkeeping engine
+with native GIT SCM support for plain text accounting, written in Rust.
+
 
 == Project Status
 
-The rusty Tackler-NG is in link:https://tackler.e257.fi/features/[feature] parity with the old scala based Tackler CLI,
-and this will be the basis of all future Tackler development.
+Tackler-NG is in link:https://tackler.e257.fi/features/[feature] parity with the old scala 
+based Tackler CLI, and Tackler-NG will be the basis of all future Tackler development.
+
 
 [NOTE]
 ====

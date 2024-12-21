@@ -8,15 +8,13 @@
 [![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 
 
-Tackler is fast, reliable bookkeeping tool with native GIT SCM 
-support for plain text accounting written in rust. 
-Tackler-NG is rusty version of [Tackler](https://tackler.e257.fi/).
+[Tackler](https://tackler.e257.fi/) is fast, reliable bookkeeping tool
+with native GIT SCM  support for plain text accounting, written in Rust. 
 
 ## Project Status
 
-The rusty Tackler-NG is in [feature](https://tackler.e257.fi/features/)
-parity with old scala based Tackler CLI, and it is 
-the basis of all future Tackler development.
+Tackler-NG is in [feature](https://tackler.e257.fi/features/) parity with the old scala 
+based Tackler CLI, and Tackler-NG will be the basis of all future Tackler development.
 
 **NOTE: Tackler-NG is tested with 284 of tackler's test vectors at the moment**
 

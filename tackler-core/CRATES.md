@@ -1,6 +1,9 @@
 # Tackler-NG: Server API
 
-This is rusty version of [Tackler](https://tackler.e257.fi/) Server API.
+[Tackler](https://tackler.e257.fi/) is fast, reliable bookkeeping tool
+with native GIT SCM support for plain text accounting, written in Rust.
+
+This crate is [Tackler](https://tackler.e257.fi/) Server API.
 
 
 ## Tackler components on Crates.io

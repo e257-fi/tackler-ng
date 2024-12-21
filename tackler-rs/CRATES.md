@@ -1,9 +1,12 @@
 # Tackler-NG: Rusty Services
 
-These are rusty services for [Tackler](https://tackler.e257.fi/).
+[Tackler](https://tackler.e257.fi/) is fast, reliable bookkeeping tool 
+with native GIT SCM support for plain text accounting, written in Rust.
 
-The rusty services are assorted bits and pieces which are needed for 
-rusty Tackler, but won't fit into the domain of plain text accounting.
+These are Rusty Services for [Tackler CLI](https://crates.io/crates/tackler).
+
+The Rusty Services are assorted bits and pieces which are needed for 
+Tackler, but won't fit into the domain of plain text accounting.
 
 
 ## Tackler components on Crates.io
