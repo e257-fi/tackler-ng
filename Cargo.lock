@@ -1969,6 +1969,9 @@ version = "0.7.0-dev"
 dependencies = [
  "indoc",
  "log",
+ "regex",
+ "serde",
+ "serde_json",
  "walkdir",
 ]
 
