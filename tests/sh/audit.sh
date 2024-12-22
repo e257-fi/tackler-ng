@@ -64,6 +64,27 @@ cmp_result $module $test_name txn equity
 echo ": ok"
 
 #
+# audit-1E1-03
+#
+# test: 5c34d752-8d17-40df-be91-5dc1b107478e
+rm -f $OUTPUT_DIR/*
+test_name=audit-1E1-03
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/audit/audit.toml \
+    --accounts "e" "a"
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+echo ": ok"
+
+
+#
 # audit-1E2-01
 #
 # test: 4e8e1d79-bbb5-4e6f-9072-d7e3c5b8c7ea
@@ -270,7 +291,7 @@ $TACKLER_SH \
     --input.git.repository $SUITE_PATH/audit/audit-repo.git \
     --input.git.dir "txns" \
     --input.git.ref "txns-1E2" \
-    --accounts "^e:.*" \
+    --accounts "e:.*" \
     --api-filter-def "$filter_def"
 
 echo -n "check:"

@@ -21,6 +21,7 @@ use crate::model::{BalanceTreeNode, RegisterPosting};
 use regex::RegexSet;
 use std::error::Error;
 use tackler_api::metadata::Checksum;
+use tackler_rs::regex::{new_full_haystack_regex_set, peeled_patterns};
 
 pub trait ReportItemSelector {
     fn checksum(&self, _: Hash) -> Result<Checksum, Box<dyn Error>>;
@@ -91,7 +92,7 @@ impl Predicate<BalanceTreeNode> for BalanceNonZeroByAccountSelector {
 impl BalanceNonZeroByAccountSelector {
     pub fn from(patterns: &[&str]) -> Result<BalanceNonZeroByAccountSelector, Box<dyn Error>> {
         let bfa = BalanceByAccountSelector {
-            regexs: RegexSet::new(patterns)?,
+            regexs: new_full_haystack_regex_set(patterns)?,
         };
         let bnza = BalanceNonZeroByAccountSelector { acc_sel: bfa };
         Ok(bnza)
@@ -105,7 +106,7 @@ pub struct BalanceByAccountSelector {
 impl BalanceByAccountSelector {
     pub fn from(patterns: &[&str]) -> Result<BalanceByAccountSelector, Box<dyn Error>> {
         let bfa = BalanceByAccountSelector {
-            regexs: RegexSet::new(patterns)?,
+            regexs: new_full_haystack_regex_set(patterns)?,
         };
         Ok(bfa)
     }
@@ -122,7 +123,7 @@ impl Predicate<BalanceTreeNode> for BalanceByAccountSelector {
 
 impl ReportItemSelector for BalanceByAccountSelector {
     fn checksum(&self, hash: Hash) -> Result<Checksum, Box<dyn Error>> {
-        let mut accsel = self.regexs.patterns().to_vec();
+        let mut accsel = peeled_patterns(&self.regexs);
         accsel.sort();
         let h = hash.checksum(&accsel, "\n".as_bytes())?;
         Ok(h)
@@ -139,7 +140,7 @@ pub struct RegisterByAccountSelector {
 impl RegisterByAccountSelector {
     pub fn from(patterns: &[&str]) -> Result<RegisterByAccountSelector, Box<dyn Error>> {
         let ras = RegisterByAccountSelector {
-            regexs: RegexSet::new(patterns)?,
+            regexs: new_full_haystack_regex_set(patterns)?,
         };
         Ok(ras)
     }
@@ -156,7 +157,7 @@ impl Predicate<RegisterPosting<'_>> for RegisterByAccountSelector {
 
 impl ReportItemSelector for RegisterByAccountSelector {
     fn checksum(&self, hash: Hash) -> Result<Checksum, Box<dyn Error>> {
-        let mut accsel = self.regexs.patterns().to_vec();
+        let mut accsel = peeled_patterns(&self.regexs);
         accsel.sort();
         let h = hash.checksum(&accsel, "\n".as_bytes())?;
         Ok(h)

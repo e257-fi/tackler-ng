@@ -30,6 +30,9 @@ use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
+/// Regex helpers to have full haystack matcher (JDK matches())
+pub mod regex;
+
 ///
 /// Get full path based on
 /// directory, filename prefix, filename and extension

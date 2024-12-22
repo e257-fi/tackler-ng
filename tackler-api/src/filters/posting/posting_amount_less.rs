@@ -19,6 +19,8 @@ use regex::Regex;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
+use tackler_rs::regex::peeled_pattern;
+use tackler_rs::regex::serde::full_haystack_matcher;
 
 use crate::filters::{posting_filter_indent_fmt, IndentDisplay};
 
@@ -38,7 +40,7 @@ use crate::filters::{posting_filter_indent_fmt, IndentDisplay};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterPostingAmountLess {
     #[doc(hidden)]
-    #[serde(with = "serde_regex")]
+    #[serde(with = "full_haystack_matcher")]
     pub regex: Regex,
     #[doc(hidden)]
     #[serde(with = "rust_decimal::serde::arbitrary_precision")]
@@ -50,7 +52,7 @@ impl IndentDisplay for TxnFilterPostingAmountLess {
         posting_filter_indent_fmt(
             indent,
             "Posting Amount",
-            self.regex.as_str(),
+            peeled_pattern(&self.regex),
             "<",
             &self.amount,
             f,
@@ -63,8 +65,32 @@ mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
-    use regex::Regex;
+
+    use tackler_rs::regex::new_full_haystack_regex;
     use tackler_rs::IndocUtils;
+
+    #[test]
+    // test: 2d01669b-b051-4550-9436-ac31e84dd892
+    // desc: PostingAmountLess, full haystack match
+    fn posting_amount_less_full_haystack() {
+        let filter_json_str =
+            r#"{"txnFilter":{"TxnFilterPostingAmountLess":{"regex":"o.a","amount":1}}}"#;
+
+        let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
+        assert!(tf_res.is_ok());
+        let tf = tf_res.unwrap(/*:test:*/);
+
+        match &tf.txn_filter {
+            TxnFilter::TxnFilterPostingAmountLess(f) => {
+                assert!(!f.regex.is_match("foobar"));
+                assert!(!f.regex.is_match("obar"));
+                assert!(!f.regex.is_match("ooba"));
+
+                assert!(f.regex.is_match("oba"));
+            }
+            _ => panic!(/*:test:*/),
+        }
+    }
 
     #[test]
     // test: 3dbd4103-66ee-4747-8eae-75d6b13bdb29
@@ -118,13 +144,13 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterPostingAmountLess(TxnFilterPostingAmountLess {
-                        regex: Regex::new("(abc.*)|(def.*)").unwrap(/*:test:*/),
+                        regex: new_full_haystack_regex("(abc.*)|(def.*)").unwrap(/*:test:*/),
                         amount: Decimal::from(1),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterPostingAmountLess(TxnFilterPostingAmountLess {
-                                regex: Regex::new("xyz").unwrap(/*:test:*/),
+                                regex: new_full_haystack_regex("xyz").unwrap(/*:test:*/),
                                 amount: Decimal::from(2),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
