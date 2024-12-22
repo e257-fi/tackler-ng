@@ -40,15 +40,18 @@ Fixes in this release:
 
 * Git Backend: When opening the repo, use exact location, 
   and don't search upwards on the directory tree
-
+* Implement Tackler-Mk1 and JDK compatible full haystack regex matcher.
+  This change is affecting Account Selectors which use regex.
 
 ==== Development
 
 Updated dependencies and tools:
 
 * Dependencies
+** gix: 0.69.0
 ** serde: 1.0.216
-
+** serde_json: 1.0.134
+** serde_regex: removed
 
 ===== Rust toolchain
 
