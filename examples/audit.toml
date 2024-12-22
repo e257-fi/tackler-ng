@@ -24,15 +24,15 @@ tags        = { path = "none" }
 [report]
 report-timezone = "UTC"
 scale = { min = 2, max = 2 }
-accounts = [ "^a:.*" ]
+accounts = [ "a:.*" ]
 targets = [ "balance" ]
 
 balance       = { title = "Balance Report" }
 balance-group = { title = "Balance Group Report", group-by = "month" }
-register      = { title = "Register Report", accounts = [ "^e:", "^a:" ]}
+register      = { title = "Register Report", accounts = [ "e:.*", "a:.*" ]}
 
 
 ### Export Configuration
 [export]
 targets = [ ]
-equity = { accounts = [ "^a:", ], equity-account = "Equity:Balance" }
+equity = { accounts = [ "a:.*", ], equity-account = "Equity:Balance" }

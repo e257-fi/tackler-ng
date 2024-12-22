@@ -40,7 +40,7 @@ Fixes in this release:
 
 * Git Backend: When opening the repo, use exact location, 
   and don't search upwards on the directory tree
-* Implement Tackler-Mk1 and JDK compatible full haystack regex matcher.
+* Implement Tackler-Mk1 and JDK compatible full string (haystack) regex matcher.
   This change is affecting Account Selectors which use regex.
 
 ==== Development

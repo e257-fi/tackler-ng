@@ -10,7 +10,35 @@ image:https://tackler.e257.fi/img/badge-matrix.svg["matrix: tackler", link="http
 link:https://tackler.e257.fi/[Tackler] is fast, reliable bookkeeping engine
 with native GIT SCM support for plain text accounting, written in Rust.
 
+```bash
+~/tackler-ng $ cat example/simle/journal.txn
 
+2024-12-01 'Sweet'n Sour Candies
+   Expenses:Sweets:Candy  2.50
+   Assets:Cash
+
+2024-12-22 'Hot dogs
+   Expenses:Food:FastFood  12
+   Assets:Visa:4012_8888_8888_1881
+
+2024-12-22 'Strawberry ice cream
+   Expenses:Sweets:Ice·Cream  3
+   Assets:Cash
+
+
+~/tackler-ng $ tackler --config examples/simple.toml
+
+Balance Report
+--------------
+                 0.00    17.50  Expenses
+                 0.00    12.00  Expenses:Food
+                12.00    12.00  Expenses:Food:FastFood
+                 0.00     5.50  Expenses:Sweets
+                 2.50     2.50  Expenses:Sweets:Candy
+                 3.00     3.00  Expenses:Sweets:Ice·Cream
+=====================
+                17.50
+```
 == Project Status
 
 Tackler-NG is in link:https://tackler.e257.fi/features/[feature] parity with the old scala 
@@ -19,7 +47,7 @@ based Tackler CLI, and Tackler-NG will be the basis of all future Tackler develo
 
 [NOTE]
 ====
-*Tackler-NG is tested with 284 of tackler's test vectors at the moment*
+*Tackler-NG is tested with 298 of tackler's test vectors at the moment*
 ====
 
 All Tackler CLI functionality is supported, including
@@ -47,14 +75,14 @@ See `tackler --help`, link:https://tackler.e257.fi/docs/[Documentation] and  lin
 
 To build rusty Tackler, you will need git and Rust installed on your environment.
 
-If you don't have Rust, install it, e.g. by running:
+If you don't have Rust, link:https://www.rust-lang.org/tools/install[install it] e.g. by running:
 
 ----
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ----
 
 
-Then get the source code and test vectors:
+Then get the source code and test cases:
 
 ----
 git clone --recurse-submodules https://github.com/e257-fi/tackler-ng

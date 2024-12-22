@@ -11,6 +11,19 @@
 [Tackler](https://tackler.e257.fi/) is fast, reliable bookkeeping tool
 with native GIT SCM  support for plain text accounting, written in Rust. 
 
+````
+Balance Report
+--------------
+                 0.00    17.50  Expenses
+                 0.00    12.00  Expenses:Food
+                12.00    12.00  Expenses:Food:FastFood
+                 0.00     5.50  Expenses:Sweets
+                 2.50     2.50  Expenses:Sweets:Candy
+                 3.00     3.00  Expenses:Sweets:Ice·Cream
+=====================
+                17.50
+````
+
 ## Project Status
 
 Tackler-NG is in [feature](https://tackler.e257.fi/features/) parity with the old scala 
@@ -66,29 +79,42 @@ cargo build --release --locked --bin tackler
 
 This setup doesn't have any checks enabled and it uses plain filesystem as transaction storage.
 
+#### Journal
+
+````
+2024-12-01 'Sweet'n Sour Candies
+   Expenses:Sweets:Candy  2.50
+   Assets:Cash
+
+2024-12-22 'Hot dogs
+   Expenses:Food:FastFood  12
+   Assets:Visa:4012_8888_8888_1881
+
+2024-12-22 'Strawberry ice cream
+   Expenses:Sweets:Ice·Cream  3
+   Assets:Cash
+````
+
+
 #### Command
+
 ````bash
 target/release/tackler --config examples/simple.toml
 ````
+
 #### Output
 
 ````
-**********************************************************************************
-
 Balance Report
 --------------
-                 0.00   12.00  Expenses:Food
-                12.00   12.00  Expenses:Food:Groceries
-                 0.00    3.32  Expenses:Sweets
-                 2.12    2.12  Expenses:Sweets:Ice·cream
-                 1.20    1.20  Expenses:Sweets:Salmiakki
+                 0.00    17.50  Expenses
+                 0.00    12.00  Expenses:Food
+                12.00    12.00  Expenses:Food:FastFood
+                 0.00     5.50  Expenses:Sweets
+                 2.50     2.50  Expenses:Sweets:Candy
+                 3.00     3.00  Expenses:Sweets:Ice·Cream
 =====================
-                15.32
-##################################################################################
-**********************************************************************************
-...
-...
-...
+                17.50
 ````
 
 ## Let's play for real
@@ -127,21 +153,22 @@ Txn Set Checksum
 Account Selector Checksum
         SHA-256 : 19d31a48bf9a8604a1128ccfd281511f961c5469748a97897a21fc0fa2a5f519
 
+
 Balance Report
 --------------
-                 0.00   -161.0000  a:ay2016
-              -6.0000     -6.0000  a:ay2016:am02
-             -14.0000    -14.0000  a:ay2016:am03
-             -19.0000    -19.0000  a:ay2016:am04
-             -26.0000    -26.0000  a:ay2016:am05
-              -1.0000     -1.0000  a:ay2016:am07
-              -7.0000     -7.0000  a:ay2016:am08
-             -13.0000    -13.0000  a:ay2016:am09
-             -19.0000    -19.0000  a:ay2016:am10
-             -25.0000    -25.0000  a:ay2016:am11
-             -31.0000    -31.0000  a:ay2016:am12
+                 0.00   -161.00  a:ay2016
+                -6.00     -6.00  a:ay2016:am02
+               -14.00    -14.00  a:ay2016:am03
+               -19.00    -19.00  a:ay2016:am04
+               -26.00    -26.00  a:ay2016:am05
+                -1.00     -1.00  a:ay2016:am07
+                -7.00     -7.00  a:ay2016:am08
+               -13.00    -13.00  a:ay2016:am09
+               -19.00    -19.00  a:ay2016:am10
+               -25.00    -25.00  a:ay2016:am11
+               -31.00    -31.00  a:ay2016:am12
 =====================
-            -161.0000
+              -161.00
 ##################################################################################
 ````
 
@@ -175,21 +202,21 @@ Account Selector Checksum
 
 Balance Report
 --------------
-                     0.00   -1574609.0100  a:ay2016
-             -135600.0008    -135600.0008  a:ay2016:am01
-             -118950.0008    -118950.0008  a:ay2016:am02
-             -135631.0008    -135631.0008  a:ay2016:am03
-             -127137.0008    -127137.0008  a:ay2016:am04
-             -135616.0008    -135616.0008  a:ay2016:am05
-             -127154.0008    -127154.0008  a:ay2016:am06
-             -135600.0008    -135600.0008  a:ay2016:am07
-             -135603.0008    -135603.0008  a:ay2016:am08
-             -127140.0008    -127140.0008  a:ay2016:am09
-             -135619.0008    -135619.0008  a:ay2016:am10
-             -127126.0008    -127126.0008  a:ay2016:am11
-             -133433.0008    -133433.0008  a:ay2016:am12
+                     0.00   -1574609.01  a:ay2016
+               -135600.00    -135600.00  a:ay2016:am01
+               -118950.00    -118950.00  a:ay2016:am02
+               -135631.00    -135631.00  a:ay2016:am03
+               -127137.00    -127137.00  a:ay2016:am04
+               -135616.00    -135616.00  a:ay2016:am05
+               -127154.00    -127154.00  a:ay2016:am06
+               -135600.00    -135600.00  a:ay2016:am07
+               -135603.00    -135603.00  a:ay2016:am08
+               -127140.00    -127140.00  a:ay2016:am09
+               -135619.00    -135619.00  a:ay2016:am10
+               -127126.00    -127126.00  a:ay2016:am11
+               -133433.00    -133433.00  a:ay2016:am12
 =========================
-            -1574609.0100
+              -1574609.01
 ##################################################################################
 ````
 
@@ -236,10 +263,10 @@ Account Selector Checksum
 
 Balance Report
 --------------
-                    0.00   -133433.0008  a:ay2016
-            -133433.0008   -133433.0008  a:ay2016:am12
+                    0.00   -133433.00  a:ay2016
+              -133433.00   -133433.00  a:ay2016:am12
 ========================
-            -133433.0008
+              -133433.00
 ##################################################################################
 ````
 

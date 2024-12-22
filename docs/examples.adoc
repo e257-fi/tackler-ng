@@ -22,7 +22,7 @@ target/release/tackler \
     --input.git.dir txns \
     --input.git.ref txns-1E1 \
     --reports balance \
-    --accounts '^a:.*' \
+    --accounts 'a:.*' \
     --audit.mode true
 ----
 
@@ -45,10 +45,10 @@ target/release/tackler \
     --input.git.dir txns \
     --input.git.ref txns-1E2 \
     --reports register \
-    --accounts '^a:.*' \
+    --accounts 'a:.*' \
     --audit.mode true \
     --api-filter-def \
-      '{ "txnFilter": { "TxnFilterTxnDescription": { "regex": "^1E2 txn-(1|17|100)$" }}}'
+      '{ "txnFilter": { "TxnFilterTxnDescription": { "regex": "1E2 txn-(1|17|100)" }}}'
 ----
 
 ----
@@ -57,7 +57,7 @@ target/release/tackler \
     --input.git.dir txns \
     --input.git.ref txns-1E2 \
     --reports register \
-    --accounts '^a:.*' \
+    --accounts 'a:.*' \
     --audit.mode true \
     --api-filter-def \
       base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyVHhuRGVzY3JpcHRpb24iOiB7ICJyZWdleCI6ICJeMUUyIHR4bi0oMXwxN3wxMDApJCIgfX19Cg==

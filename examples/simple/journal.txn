@@ -1,19 +1,15 @@
-2024-04-01 'Lucky Day!
+2024-03-20 'Lucky Day!
    Assets:Bank:Acme_Inc  420
    Income:Lottery
 
-2024-04-30 (#123) 'Txn with comments
-   ; so sad, no ice cream
-   Expenses:Food:Groceries 12.00
-   Assets:Checking
-
-2024-06-21 'Txn with tags
-   # tags: cranberry, caramel
-   Expenses:Sweets:Ice·cream 2.12
+2024-06-20 'Sweet'n Sour Candies
+   Expenses:Sweets:Candy  2.50
    Assets:Cash
 
-2024-06-24 'Txn with Location
-   # location: geo:60.167,24.955,5
-   Expenses:Sweets:Salmiakki 1.20 
-   Assets:Cash
+2024-09-22 'Hot dogs
+   Expenses:Food:FastFood  12
+   Assets:Visa:4012_8888_8888_1881
 
+2024-12-21 'Strawberry ice cream
+   Expenses:Sweets:Ice·Cream  3
+   Assets:Cash
