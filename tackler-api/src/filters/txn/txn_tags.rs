@@ -18,6 +18,8 @@
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
+use tackler_rs::regex::peeled_pattern;
+use tackler_rs::regex::serde::full_haystack_matcher;
 
 use crate::filters::IndentDisplay;
 
@@ -27,13 +29,13 @@ use crate::filters::IndentDisplay;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterTxnTags {
     #[doc(hidden)]
-    #[serde(with = "serde_regex")]
+    #[serde(with = "full_haystack_matcher")]
     pub regex: Regex,
 }
 
 impl IndentDisplay for TxnFilterTxnTags {
     fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{indent}Txn Tags: \"{}\"", self.regex.as_str())
+        writeln!(f, "{indent}Txn Tags: \"{}\"", peeled_pattern(&self.regex))
     }
 }
 
@@ -42,8 +44,31 @@ mod tests {
     use super::*;
     use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
     use indoc::indoc;
-    use regex::Regex;
+
+    use tackler_rs::regex::new_full_haystack_regex;
     use tackler_rs::IndocUtils;
+
+    #[test]
+    // test: d2aa8d62-97cb-49e1-ac7b-f81a1a511b6b
+    // desc: TxnTags, full haystack match
+    fn txn_tags_full_haystack() {
+        let filter_json_str = r#"{"txnFilter":{"TxnFilterTxnTags":{"regex":"o.a"}}}"#;
+
+        let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
+        assert!(tf_res.is_ok());
+        let tf = tf_res.unwrap(/*:test:*/);
+
+        match &tf.txn_filter {
+            TxnFilter::TxnFilterTxnTags(f) => {
+                assert!(!f.regex.is_match("foobar"));
+                assert!(!f.regex.is_match("obar"));
+                assert!(!f.regex.is_match("ooba"));
+
+                assert!(f.regex.is_match("oba"));
+            }
+            _ => panic!(/*:test:*/),
+        }
+    }
 
     #[test]
     // test: 38c85ae0-8c60-4533-946d-c80b788dc262
@@ -91,12 +116,12 @@ mod tests {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterTxnTags(TxnFilterTxnTags {
-                        regex: Regex::new("(abc.*)|(def.*)").unwrap(/*:test:*/),
+                        regex: new_full_haystack_regex("(abc.*)|(def.*)").unwrap(/*:test:*/),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterTxnTags(TxnFilterTxnTags {
-                                regex: Regex::new("xyz").unwrap(/*:test:*/),
+                                regex: new_full_haystack_regex("xyz").unwrap(/*:test:*/),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
                         ],
