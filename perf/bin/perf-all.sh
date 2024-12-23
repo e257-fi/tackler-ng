@@ -79,3 +79,4 @@ done
 done
 done
 
+(cd $data_dir; git checkout txns-1E3)

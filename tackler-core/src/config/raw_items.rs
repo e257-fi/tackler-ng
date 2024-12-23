@@ -64,6 +64,8 @@ pub(super) struct InputRaw {
 
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct FsRaw {
+    // new key
+    pub(super) path: Option<String>,
     pub(super) dir: String,
     pub(super) suffix: String,
 }
@@ -71,8 +73,10 @@ pub(super) struct FsRaw {
 #[allow(dead_code)]
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct GitRaw {
-    #[serde(rename = "repository")]
-    pub(super) repo: String,
+    // old key
+    pub(super) repository: Option<String>,
+    // new key
+    pub(super) repo: Option<String>,
     #[serde(rename = "ref")]
     pub(super) git_ref: String,
     pub(super) dir: String,

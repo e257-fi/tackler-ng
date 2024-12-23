@@ -82,15 +82,19 @@ This setup doesn't have any checks enabled and it uses plain filesystem as trans
 #### Journal
 
 ````
-2024-12-01 'Sweet'n Sour Candies
+2024-03-20 'Lucky Day!
+   Assets:Bank:Acme_Inc  420
+   Income:Lottery
+
+2024-06-20 'Sweet'n Sour Candies
    Expenses:Sweets:Candy  2.50
    Assets:Cash
 
-2024-12-22 'Hot dogs
+2024-09-22 'Hot dogs
    Expenses:Food:FastFood  12
    Assets:Visa:4012_8888_8888_1881
 
-2024-12-22 'Strawberry ice cream
+2024-12-21 'Strawberry ice cream
    Expenses:Sweets:Ice·Cream  3
    Assets:Cash
 ````

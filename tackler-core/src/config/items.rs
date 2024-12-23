@@ -258,8 +258,12 @@ pub struct FS {
 }
 impl FS {
     fn from(fs_raw: &FsRaw) -> Result<FS, Box<dyn Error>> {
+        let dir = match &fs_raw.path {
+            Some(path) => format!("{}/{}", path, fs_raw.dir),
+            None => fs_raw.dir.clone(),
+        };
         Ok(FS {
-            dir: fs_raw.dir.clone(),
+            dir,
             suffix: fs_raw.suffix.clone(),
         })
     }
@@ -274,8 +278,18 @@ pub struct Git {
 }
 impl Git {
     fn from(git_raw: &GitRaw) -> Result<Git, Box<dyn Error>> {
+        let repo = match &git_raw.repo {
+            Some(repo) => repo.clone(),
+            None => match &git_raw.repository {
+                Some(repo) => repo.clone(),
+                None => {
+                    let msg = "Git is missing 'repo' key";
+                    return Err(msg.into());
+                }
+            },
+        };
         Ok(Git {
-            repo: git_raw.repo.clone(),
+            repo,
             git_ref: git_raw.git_ref.clone(),
             dir: git_raw.dir.clone(),
             suffix: git_raw.suffix.clone(),
