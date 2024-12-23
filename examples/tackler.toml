@@ -80,16 +80,16 @@ storage = "fs"
 
 ### Filesystem based input storage
 [kernel.input.fs]
-### Top-level directory of storage tree
-###
-### This is the top level location of txn shard structure,
-### the scanning is started from here.
+### Path to the FS-storage
 ###
 ### If the directory path is relative, then it's based on this file.
-### In case of CLI option, it's relative to the current working directory.
+### When CLI --input.fs.dir is supplied, this option is ignored.
+path = "tackler"
 ###
+### This is root directory of txn shard structure,
+### the scanning starts from here.
 ### CLI: --input.fs.dir
-dir = "tackler/txns"
+dir = "txns"
 ### Filename suffix
 ###
 ### This is transaction file extension, e.g. all files with
@@ -116,7 +116,7 @@ suffix = "txn"
 ### selected by 'kernel.input.storage'
 ###
 ### CLI: --input.git.repo
-repository = "tackler-data.git"
+repo = "tackler-data.git"
 ### Git reference name
 ###
 ### This is git reference name (ref or symbolic ref). It is used

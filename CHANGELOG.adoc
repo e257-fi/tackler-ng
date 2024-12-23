@@ -32,7 +32,9 @@ tackler-core = "0.6.0"
 New features:
 
 * Git Backend: Add support for `revspecs` with `--input.git.ref`
-
+* Add support for new storage keys
+   ** `input.fs.path`, path to top level fs-storage location
+   ** `input.git.repo`, alias for `input.git.repository` 
 
 ==== Fixes
 

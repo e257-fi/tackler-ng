@@ -11,7 +11,7 @@ link:https://tackler.e257.fi/[Tackler] is fast, reliable bookkeeping engine
 with native GIT SCM support for plain text accounting, written in Rust.
 
 ```bash
-~/tackler-ng $ cat example/simle/journal.txn
+~/tackler-ng $ cat examples/simple/txns/journal.txn
 
 2024-12-01 'Sweet'n Sour Candies
    Expenses:Sweets:Candy  2.50
