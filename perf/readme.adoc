@@ -67,9 +67,7 @@ Content of `perf-test` directory, next to the `tackler`'s toplevel directory:
 ----
 bin 		   	-> ../tackler-ng/perf/bin/
 perf.toml 	   	-> ../tackler-ng/perf/perf.toml
-perf-accounts.toml 	-> ../tackler-ng/perf/perf-accounts.toml
-perf-commodities.toml 	-> ../tackler-ng/perf/perf-commodities.toml
-results 	   	-> ../tackler-ng/perf/results
+results 	   	-> ../tackler-ng/perf/results/
 data 			== perf data
 ----
 
