@@ -95,6 +95,99 @@ echo ": ok"
 
 #####################################################################
 #
+# bal-acc-01
+#
+# test: 53f67fea-6307-44ca-9834-7a2f9b71a15a
+rm -f $OUTPUT_DIR/*
+test_name=bal-acc-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.bal-acc.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}
+
+echo -n "check:"
+cmp_result $module ${test_name} txt balgrp
+cmp_result $module ${test_name} txt reg
+cmp_result $module ${test_name} txn equity
+cmp_result $module ${test_name} txn identity
+echo ": ok"
+
+# https://github.com/paupino/rust-decimal/issues/695
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.bal-acc.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}-ng \
+    --reports balance
+
+echo -n "check:"
+cmp_result $module ${test_name}-ng txt bal
+echo ": ok"
+
+
+#####################################################################
+#
+# balgrp-acc-01
+#
+# test: 3ec3e091-dc23-455b-963a-4ba66db7223f
+rm -f $OUTPUT_DIR/*
+test_name=balgrp-acc-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.balgrp-acc.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name} \
+
+echo -n "check:"
+cmp_result $module ${test_name} txt bal
+cmp_result $module ${test_name} txt reg
+cmp_result $module ${test_name} txn equity
+cmp_result $module ${test_name} txn identity
+echo ": ok"
+
+# https://github.com/paupino/rust-decimal/issues/695
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.balgrp-acc.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name}-ng \
+    --reports balance-group
+
+echo -n "check:"
+cmp_result $module ${test_name}-ng txt balgrp
+echo ": ok"
+
+
+#####################################################################
+#
+# register-acc-01
+#
+# test: 7d95bef8-6aaa-4706-a276-d206752d017b
+rm -f $OUTPUT_DIR/*
+test_name=register-acc-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.register-acc.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name} \
+
+echo -n "check:"
+cmp_result $module ${test_name} txt bal
+cmp_result $module ${test_name} txt balgrp
+cmp_result $module ${test_name} txt reg
+cmp_result $module ${test_name} txn equity
+cmp_result $module ${test_name} txn identity
+echo ": ok"
+
+#####################################################################
+#
 # rep-01
 #
 # test: c6da0aef-125f-4d33-9780-ffaa9e724499
