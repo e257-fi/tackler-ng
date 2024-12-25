@@ -92,3 +92,27 @@ cmp_result $module ${test_name} txt reg
 cmp_result $module ${test_name} txn equity
 cmp_result $module ${test_name} txn identity
 echo ": ok"
+
+#####################################################################
+#
+# rep-01
+#
+# test: c6da0aef-125f-4d33-9780-ffaa9e724499
+rm -f $OUTPUT_DIR/*
+test_name=rep-01
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name} \
+
+echo -n "check:"
+cmp_result $module ${test_name} txt bal
+cmp_result $module ${test_name} txt balgrp
+cmp_result $module ${test_name} txt reg
+cmp_result $module ${test_name} txn equity
+cmp_result $module ${test_name} txn identity
+echo ": ok"
+

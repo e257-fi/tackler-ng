@@ -136,6 +136,8 @@ echo ": ok"
 # audit-1E2-03
 #
 # test: b2ea4102-40a2-46e5-aca3-398cf4849058
+# plain filter definition
+# test: 515ba0be-b571-4a7f-a2a3-28dc1e545228
 rm -f $OUTPUT_DIR/*
 test_name=audit-1E2-03
 echo "test: $module/$test_name: "
@@ -276,6 +278,8 @@ echo ": ok"
 # audit-1E2-08
 #
 # test: 85d16b5a-cde9-40d3-9a37-3b7ba7ee7049
+# base64 filter definition
+# test: 8bbe1d2a-8548-49cf-9d8b-942242b882bd 
 rm -f $OUTPUT_DIR/*
 test_name=audit-1E2-08
 echo "test: $module/$test_name: "
