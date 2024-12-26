@@ -520,9 +520,9 @@ dependencies = [
 
 [[package]]
 name = "gix"
-version = "0.69.0"
+version = "0.69.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46db6f5931c1607c9f71b950d0abfe067113526ceaf7d10b2285c07d5b2cef29"
+checksum = "8d0eebdaecdcf405d5433a36f85e4f058cf4de48ee2604388be0dbccbaad353e"
 dependencies = [
  "gix-actor",
  "gix-commitgraph",
@@ -1991,7 +1991,7 @@ dependencies = [
 
 [[package]]
 name = "tackler"
-version = "24.12.2-dev"
+version = "25.1.1-dev"
 dependencies = [
  "clap",
  "log",
@@ -2004,7 +2004,7 @@ dependencies = [
 
 [[package]]
 name = "tackler-api"
-version = "0.7.0-dev"
+version = "0.8.0-dev"
 dependencies = [
  "base64",
  "indoc",
@@ -2021,7 +2021,7 @@ dependencies = [
 
 [[package]]
 name = "tackler-core"
-version = "0.7.0-dev"
+version = "0.8.0-dev"
 dependencies = [
  "antlr-rust",
  "digest",
@@ -2046,7 +2046,7 @@ dependencies = [
 
 [[package]]
 name = "tackler-rs"
-version = "0.7.0-dev"
+version = "0.8.0-dev"
 dependencies = [
  "indoc",
  "log",

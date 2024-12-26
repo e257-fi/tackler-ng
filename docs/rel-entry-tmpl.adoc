@@ -3,7 +3,7 @@
 
 [cols="1,2",width=50%]
 |===
-|Component | Version
+|Component    | Version
 
 |Tackler CLI  | TODO: XX.YY.Z
 |tackler-core | TODO: No changes
@@ -36,10 +36,11 @@ Updated deps and tools:
 
 * Dependencies
   ** ...
-* Build
-  ** ...
-* Tests
-  ** ...
+
+===== Rust toolchain
+
+MSRV: X.YY.Z
+
 
 '''
 
