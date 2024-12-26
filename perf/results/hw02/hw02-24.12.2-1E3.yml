@@ -1,0 +1,977 @@
+exe: "dist/tackler-24.12.2"
+build: "24.12.2 (v24.12.2 - 9d617ff4f95a94a)"
+version: "24.12.2"
+set: "1E3"
+runs:
+  - run:
+      storage: "fs"
+      report: "balance-group"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 11980
+             - 12008
+             - 12056
+             - 11940
+             - 11964
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 98
+             - 100
+             - 96
+             - 98
+  - run:
+      storage: "fs"
+      report: "balance_register"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.03
+              - 0.04
+              - 0.04
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.00
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12032
+             - 12104
+             - 11988
+             - 12100
+             - 12064
+        cpu:
+          unit: "%"
+          values:
+             - 96
+             - 98
+             - 100
+             - 96
+             - 100
+  - run:
+      storage: "fs"
+      report: "balance"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.03
+              - 0.03
+              - 0.04
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.00
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12132
+             - 12036
+             - 12036
+             - 12024
+             - 11960
+        cpu:
+          unit: "%"
+          values:
+             - 96
+             - 98
+             - 98
+             - 96
+             - 98
+  - run:
+      storage: "fs"
+      report: "register"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12056
+             - 12180
+             - 11984
+             - 12132
+             - 12204
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 98
+             - 96
+             - 96
+             - 98
+  - run:
+      storage: "git"
+      report: "balance"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.04
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.03
+              - 0.04
+              - 0.03
+              - 0.04
+          sys:
+            unit: "s"
+            values:
+              - 0.00
+              - 0.00
+              - 0.00
+              - 0.00
+              - 0.00
+        mem:
+          unit: "k (max)"
+          values:
+             - 39408
+             - 39368
+             - 39100
+             - 39252
+             - 39108
+        cpu:
+          unit: "%"
+          values:
+             - 97
+             - 97
+             - 100
+             - 95
+             - 95
+  - run:
+      storage: "fs"
+      report: "balance-group"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.04
+              - 0.05
+              - 0.04
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.04
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 13044
+             - 13200
+             - 13008
+             - 12896
+             - 13156
+        cpu:
+          unit: "%"
+          values:
+             - 94
+             - 95
+             - 96
+             - 97
+             - 98
+  - run:
+      storage: "fs"
+      report: "balance_register"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.04
+              - 0.04
+              - 0.04
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12860
+             - 12872
+             - 13040
+             - 12936
+             - 12984
+        cpu:
+          unit: "%"
+          values:
+             - 96
+             - 98
+             - 97
+             - 95
+             - 100
+  - run:
+      storage: "fs"
+      report: "balance"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.05
+              - 0.04
+              - 0.04
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.04
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12960
+             - 12908
+             - 13000
+             - 12844
+             - 13052
+        cpu:
+          unit: "%"
+          values:
+             - 97
+             - 98
+             - 100
+             - 95
+             - 96
+  - run:
+      storage: "fs"
+      report: "register"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.05
+              - 0.05
+              - 0.04
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 13028
+             - 13000
+             - 12840
+             - 12920
+             - 13160
+        cpu:
+          unit: "%"
+          values:
+             - 97
+             - 97
+             - 100
+             - 96
+             - 97
+  - run:
+      storage: "fs"
+      report: "balance-group"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 11956
+             - 11952
+             - 11980
+             - 12156
+             - 11988
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 98
+             - 89
+             - 100
+             - 90
+  - run:
+      storage: "fs"
+      report: "balance_register"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.03
+              - 0.04
+          sys:
+            unit: "s"
+            values:
+              - 0.00
+              - 0.01
+              - 0.00
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 11996
+             - 12068
+             - 12104
+             - 12104
+             - 12132
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 96
+             - 100
+             - 98
+             - 98
+  - run:
+      storage: "fs"
+      report: "balance"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 11932
+             - 11960
+             - 12068
+             - 12072
+             - 12092
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 98
+             - 98
+             - 96
+             - 96
+  - run:
+      storage: "fs"
+      report: "register"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.03
+              - 0.03
+              - 0.04
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12036
+             - 12004
+             - 12004
+             - 12036
+             - 12012
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 98
+             - 96
+             - 98
+             - 96
+  - run:
+      storage: "git"
+      report: "balance"
+      formats: "txt"
+      filter: |
+          
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.04
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.03
+              - 0.03
+              - 0.04
+          sys:
+            unit: "s"
+            values:
+              - 0.00
+              - 0.00
+              - 0.00
+              - 0.00
+              - 0.00
+        mem:
+          unit: "k (max)"
+          values:
+             - 39308
+             - 39408
+             - 39560
+             - 39324
+             - 39364
+        cpu:
+          unit: "%"
+          values:
+             - 100
+             - 95
+             - 95
+             - 97
+             - 100
+  - run:
+      storage: "fs"
+      report: "balance-group"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.04
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 13092
+             - 13060
+             - 12872
+             - 12872
+             - 13004
+        cpu:
+          unit: "%"
+          values:
+             - 95
+             - 100
+             - 97
+             - 97
+             - 95
+  - run:
+      storage: "fs"
+      report: "balance_register"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.05
+              - 0.05
+              - 0.04
+              - 0.04
+          user:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.04
+          sys:
+            unit: "s"
+            values:
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.00
+        mem:
+          unit: "k (max)"
+          values:
+             - 13028
+             - 12876
+             - 12852
+             - 12828
+             - 13020
+        cpu:
+          unit: "%"
+          values:
+             - 90
+             - 96
+             - 96
+             - 100
+             - 95
+  - run:
+      storage: "fs"
+      report: "balance"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.04
+              - 0.04
+              - 0.04
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.02
+              - 0.03
+              - 0.03
+              - 0.03
+          sys:
+            unit: "s"
+            values:
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 12972
+             - 13068
+             - 12992
+             - 13092
+             - 12920
+        cpu:
+          unit: "%"
+          values:
+             - 97
+             - 95
+             - 97
+             - 92
+             - 90
+  - run:
+      storage: "fs"
+      report: "register"
+      formats: "txt"
+      filter: |
+          base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyQU5EIiA6IHsgInR4bkZpbHRlcnMiIDogWyB7ICJUeG5GaWx0ZXJUeG5Db2RlIjogeyAicmVnZXgiOiAiIy4qIiB9fSwgIHsgIlR4bkZpbHRlclR4bkRlc2NyaXB0aW9uIjogeyAicmVnZXgiOiAidHhuLS4qIiB9IH0gXSB9IH0gfQo=
+      result:
+        size:
+          logs:
+
+        prosessing:
+          logs:
+
+        times:
+          real:
+            unit: "s"
+            values:
+              - 0.05
+              - 0.04
+              - 0.05
+              - 0.05
+              - 0.05
+          user:
+            unit: "s"
+            values:
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.03
+              - 0.04
+          sys:
+            unit: "s"
+            values:
+              - 0.01
+              - 0.00
+              - 0.01
+              - 0.01
+              - 0.01
+        mem:
+          unit: "k (max)"
+          values:
+             - 13016
+             - 13016
+             - 12948
+             - 13060
+             - 13140
+        cpu:
+          unit: "%"
+          values:
+             - 98
+             - 100
+             - 100
+             - 96
+             - 100
