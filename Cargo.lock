@@ -520,9 +520,9 @@ dependencies = [
 
 [[package]]
 name = "gix"
-version = "0.69.0"
+version = "0.69.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46db6f5931c1607c9f71b950d0abfe067113526ceaf7d10b2285c07d5b2cef29"
+checksum = "8d0eebdaecdcf405d5433a36f85e4f058cf4de48ee2604388be0dbccbaad353e"
 dependencies = [
  "gix-actor",
  "gix-commitgraph",

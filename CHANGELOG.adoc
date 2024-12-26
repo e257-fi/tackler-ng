@@ -50,7 +50,7 @@ Fixes in this release:
 Updated dependencies and tools:
 
 * Dependencies
-** gix: 0.69.0
+** gix: 0.69.1
 ** serde: 1.0.216
 ** serde_json: 1.0.134
 ** serde_regex: removed
