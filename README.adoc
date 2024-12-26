@@ -47,7 +47,7 @@ based Tackler CLI, and Tackler-NG will be the basis of all future Tackler develo
 
 [NOTE]
 ====
-*Tackler-NG is tested with 298 of tackler's test vectors at the moment*
+*Tackler-NG is tested with 306 of tackler's test vectors at the moment*
 ====
 
 All Tackler CLI functionality is supported, including
