@@ -15,7 +15,7 @@
 #
 [package]
 name = "tackler-core"
-version = "0.7.0"
+version = "0.8.0-dev"
 description = "Core components for Tackler accounting engine with native GIT SCM support"
 edition.workspace = true
 license.workspace = true
@@ -32,8 +32,8 @@ name = "tackler_core"
 path = "src/lib.rs"
 
 [dependencies]
-tackler-api =  { path = "../tackler-api",  version = "0.7.0" }
-tackler-rs =   { path = "../tackler-rs",   version = "0.7.0" }
+tackler-api =  { path = "../tackler-api",  version = "0.8.0-dev" }
+tackler-rs =   { path = "../tackler-rs",   version = "0.8.0-dev" }
 antlr-rust = "0.3.0-beta"
 log = { workspace = true }
 rust_decimal = { workspace = true }

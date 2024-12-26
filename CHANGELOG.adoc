@@ -14,11 +14,56 @@ tackler-core = "0.7.0"
 
 == Releases
 
+=== Tackler release XX.YY.Z
+
+[cols="1,2",width=50%]
+|===
+|Component    | Version
+
+|Tackler CLI  | TODO: XX.YY.Z
+|tackler-core | TODO: No changes
+|tackler-api  | TODO: No changes
+|tackler-rs   | TODO: No changes
+|===
+
+
+==== New features and changes
+
+New features:
+
+* ...
+** ...
+
+Changed functionality:
+
+* ...
+** ...
+
+
+==== Fixes
+
+Fixes in this release ...
+
+
+==== Development
+
+Updated deps and tools:
+
+* Dependencies
+** ...
+
+===== Rust toolchain
+
+MSRV: 1.81.0
+
+'''
+
+
 === Tackler release 24.12.2
 
 [cols="1,2",width=50%]
 |===
-|Component | Version
+|Component    | Version
 
 |Tackler CLI  | 24.12.2
 |tackler-core | 0.7.0
@@ -40,7 +85,7 @@ New features:
 
 Fixes in this release:
 
-* Git Backend: When opening the repo, use exact location, 
+* Git Backend: When opening the repo, use exact location,
   and don't search upwards on the directory tree
 * Implement Tackler-Mk1 and JDK compatible full string (haystack) regex matcher.
   This change is affecting Account Selectors which use regex.
@@ -57,7 +102,7 @@ Updated dependencies and tools:
 
 ===== Rust toolchain
 
-MSRV: 1.77.2
+MSRV: 1.81.0
 
 '''
 

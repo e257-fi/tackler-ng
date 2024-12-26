@@ -29,7 +29,7 @@ Balance Report
 Tackler-NG is in [feature](https://tackler.e257.fi/features/) parity with the old scala 
 based Tackler CLI, and Tackler-NG will be the basis of all future Tackler development.
 
-**NOTE: Tackler-NG is tested with 284 of tackler's test vectors at the moment**
+**NOTE: Tackler-NG is tested with 306 of tackler's test vectors at the moment**
 
 All Tackler CLI functionality is supported, including 
 [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
