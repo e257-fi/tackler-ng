@@ -65,8 +65,8 @@ cd tackler-ng
 # To build a release, check relased versions:
 git tag -l
 
-# Get the release, e.g. v24.12.1
-git checkout v24.12.1
+# Get the release, e.g. v24.12.2
+git checkout v24.12.2
 
 # Build tackler
 cargo build --release --locked --bin tackler

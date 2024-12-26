@@ -5,25 +5,25 @@
 Currently published crates are:
 
 ....
-tackler      = "24.12.1"
-tackler-rs   = "0.6.0"
-tackler-api  = "0.6.0"
-tackler-core = "0.6.0"
+tackler      = "24.12.2"
+tackler-rs   = "0.7.0"
+tackler-api  = "0.7.0"
+tackler-core = "0.7.0"
 ....
 
 
 == Releases
 
-=== Tackler release XX.YY.Z
+=== Tackler release 24.12.2
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 24.12.2-dev
-|tackler-core | 0.7.0-dev
-|tackler-api  | 0.7.0-dev
-|tackler-rs   | 0.7.0-dev
+|Tackler CLI  | 24.12.2
+|tackler-core | 0.7.0
+|tackler-api  | 0.7.0
+|tackler-rs   | 0.7.0
 |===
 
 
