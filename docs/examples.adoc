@@ -10,16 +10,14 @@ target/release/tackler \
 
 ----
 target/release/tackler \
-    --input.git.repo suite/audit/audit-repo.git \
-    --input.git.dir txns \
+    --config examples/audit.toml \
     --input.git.ref txns-1E1 \
     --reports balance
 ----
 
 ----
 target/release/tackler \
-    --input.git.repo suite/audit/audit-repo.git \
-    --input.git.dir txns \
+    --config examples/audit.toml \
     --input.git.ref txns-1E1 \
     --reports balance \
     --accounts 'a:.*' \
@@ -28,21 +26,7 @@ target/release/tackler \
 
 ----
 target/release/tackler \
-    --input.fs.dir suite/core/ok/txns-id2id/ \
-    --input.fs.ext txn \
-    --reports register
-----
-
-----
-target/release/tackler \
-    --input.file suite/reporting/ok/reporting.txn \
-    --reports balance register
-----
-
-----
-target/release/tackler \
-    --input.git.repo suite/audit/audit-repo.git \
-    --input.git.dir txns \
+    --config examples/audit.toml \
     --input.git.ref txns-1E2 \
     --reports register \
     --accounts 'a:.*' \
@@ -53,8 +37,7 @@ target/release/tackler \
 
 ----
 target/release/tackler \
-    --input.git.repo suite/audit/audit-repo.git \
-    --input.git.dir txns \
+    --config examples/audit.toml \
     --input.git.ref txns-1E2 \
     --reports register \
     --accounts 'a:.*' \
@@ -62,3 +45,4 @@ target/release/tackler \
     --api-filter-def \
       base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyVHhuRGVzY3JpcHRpb24iOiB7ICJyZWdleCI6ICJeMUUyIHR4bi0oMXwxN3wxMDApJCIgfX19Cg==
 ----
+
