@@ -81,8 +81,14 @@ If you don't have Rust, link:https://www.rust-lang.org/tools/install[install it]
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ----
 
+If you don't need source code and test cases, you can just run:
 
-Then get the source code and test cases:
+----
+cargo install tackler
+----
+
+
+To play around and for building `main`, get the source code and test cases:
 
 ----
 git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
@@ -168,6 +174,14 @@ is one of the key components which made Tackler-NG possible - Thank you!
 
 See link:CREDITS.adoc[CREDITS] for full details.
 
+== Contributing
+
+All contributions are valued and none is too small or insignificant.
+
+See link:CONTRIBUTING.adoc[CONTRIBUTING] for details how you could participate
+with Tackler-NG development.
+
+
 
 == Security
 
@@ -177,18 +191,4 @@ the link:./SECURITY.md[Security Policy].
 
 == License
 
-....
-Copyright 2016-2024 E257.FI Contributors
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-....
+Tackler-NG is licensed under the link:./LICENSE[Apache License, version 2.0].
