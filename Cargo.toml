@@ -32,6 +32,10 @@ keywords = [ "accounting", "finance" ]
 include = [ "src/**/*", "CRATES.md", "README.adoc", "build.rs" ]
 rust-version = "1.81.0"
 
+[profile.release]
+lto = true
+codegen-units = 1
+
 [profile.test]
 # tackler-core tests would be too slow without this
 opt-level = 3

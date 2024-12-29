@@ -23,7 +23,13 @@ export TEST_DIR
 TACKLER_ROOT=$(realpath "$TEST_DIR/../..")
 export TACKLER_ROOT
 
-TACKLER_SH=$TACKLER_ROOT/target/release/tackler
+target="unknown"
+if [ "$1" == "--debug" ]; then
+	target="debug"
+else
+	target="release"
+fi
+TACKLER_SH=$TACKLER_ROOT/target/$target/tackler
 export TACKLER_SH
 
 SUITE_PATH=$TACKLER_ROOT/suite
@@ -50,7 +56,7 @@ $TEST_DIR/reporting-time_zones.sh
 $TEST_DIR/tags.sh
 
 echo
-echo "All good"
+echo "target: $target - All good"
 
 rm -rf $OUTPUT_DIR
 exit 0
