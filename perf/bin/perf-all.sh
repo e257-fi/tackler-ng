@@ -27,9 +27,11 @@ reports="balance balance-group register"
 #sets="1E1 1E2 1E3 1E4 1E5 1E6"
 sets="1E3 1E4 1E5 1E6"
 #sets="1E3"
+#sets="1E5"
 #sets="1E6"
 
-versions="24.12.1"
+versions="24.12.2"
+#versions="devel"
 
 fltStr="base64:"$(cat << EOF | base64 --wrap=0
 { "txnFilter": { "TxnFilterAND" : { "txnFilters" : [ { "TxnFilterTxnCode": { "regex": "#.*" }},  { "TxnFilterTxnDescription": { "regex": "txn-.*" } } ] } } }

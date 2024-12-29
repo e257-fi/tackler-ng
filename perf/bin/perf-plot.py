@@ -17,8 +17,8 @@
 #
 #############################################################################
 
-versions = [ "24.12.1", "24.12.2" ]
-#versions = ["24.12.1", "devel"]
+#versions = [ "24.12.1", "24.12.2" ]
+versions = ["24.12.1", "24.12.2", "devel"]
 
 #
 # Plot perf data with Gnuplot
@@ -40,10 +40,11 @@ def make_xtics(versions):
     result_str += '"' + versions[0] + '" 1'
     i = 2
     for v in versions[1:]:
+        if v == "devel":
+            v = "XX.YY.Z"
+
         result_str += ', "' + v + '" ' + "{:d}".format(i)
         i = i + 1
-
-    result_str += ", \"XX.YY.Z\" " + "{:d}".format(i)
 
     result_str += ")"
     return (result_str, i)
@@ -101,9 +102,9 @@ def plot_time(testset):
     set title "Reporting - Set: %s"
     set key top left
     set ylabel "Time (s)"
-    set xrange  [0:1]
+    set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset)
+    """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + plot_line_def()
 
@@ -118,9 +119,9 @@ def plot_mem(testset):
     set title "Reporting - Set: %s"
     set key top left
     set ylabel "Memory (M)"
-    set xrange  [0:1]
+    set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset)
+    """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + plot_line_def()
 
@@ -135,9 +136,9 @@ def plot_cpu(testset):
     set title "Reporting - Set: %s"
     set key top left
     set ylabel "CPU %%"
-    set xrange  [0:1]
+    set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset)
+    """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + plot_line_def()
 
@@ -154,9 +155,9 @@ def storage_plot_time(testset):
     set title "Storage - Set: %s"
     set key top left
     set ylabel "Time (s)"
-    set xrange  [0:1]
+    set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset)
+    """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + storage_plot_line_def()
 
@@ -171,9 +172,9 @@ def storage_plot_mem(testset):
     set title "Storage - Set: %s"
     set key top left
     set ylabel "Memory (M)"
-    set xrange  [0:1]
+    set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset)
+    """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + storage_plot_line_def()
 
@@ -188,9 +189,9 @@ def storage_plot_cpu(testset):
     set title "Storage - Set: %s"
     set key top left
     set ylabel "CPU %%"
-    set xrange  [0:1]
+    set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset)
+    """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + storage_plot_line_def()
 
@@ -204,7 +205,7 @@ def values_average(values):
 
 
 def gnuplot_version(version, dev=False):
-    if dev:
+    if dev or version == "devel":
         return "XX.YY.Z"
     else:
         return version
@@ -240,11 +241,6 @@ def values_to_plot(data, key, value_getter, v_func):
                         runs = data.get(v).get("runs")
                         result_str += value_to_plot(False)
 
-                # duplicate last data point, so resulting plot with straight line will be easier to read
-                # than single dot at the right most end of plot.
-                # There could be some option / different plot style with gnuplot, but let's go with that now
-                runs = data.get(versions[-1]).get("runs")
-                result_str += value_to_plot(True)
                 result_str += "e\n"
 
     return result_str
@@ -281,11 +277,6 @@ def storage_values_to_plot(data, key, value_getter, v_func):
                             runs = data.get(v).get("runs")
                             result_str += value_to_plot(False)
 
-                    # duplicate last data point, so resulting plot with straight line will be easier to read
-                    # than single dot at the right most end of plot.
-                    # There could be some option / different plot style with gnuplot, but let's go with that now
-                    runs = data.get(versions[-1]).get("runs")
-                    result_str += value_to_plot(True)
                     result_str += "e\n"
 
     return result_str
