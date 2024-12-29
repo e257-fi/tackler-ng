@@ -39,11 +39,15 @@ Changed functionality:
 * ...
 ** ...
 
-
 ==== Fixes
 
-Fixes in this release ...
+Fixes in this release:
 
+* Use better optimization for release builds
+
+==== Contributions
+
+* Thanks to @zamazan4ik for pointing out missing LTO settings
 
 ==== Development
 
@@ -87,8 +91,14 @@ Fixes in this release:
 
 * Git Backend: When opening the repo, use exact location,
   and don't search upwards on the directory tree
+
 * Implement Tackler-Mk1 and JDK compatible full string (haystack) regex matcher.
   This change is affecting Account Selectors which use regex.
+
+==== Contributions
+
+* Thanks to @Byron for pointing out the Git Backend fix
+  and suggesting the use of `revspecs` API
 
 ==== Development
 
