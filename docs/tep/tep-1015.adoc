@@ -1,10 +1,12 @@
 = TEP-1015: Price data support
 
-See
-link:https://github.com/e257-fi/tackler-ng/tree/tep/tep-1015-price-data/docs/tep/tep-1015.adoc[/tep/tep-1015-price-data]
-branch for actual TEP-1015 content.
-
 Add price data support for currencies, shares and commodities.
+
+Implementation branch:
+link:https://github.com/e257-fi/tackler-ng/tree/tep/tep-1015-price-data[/tep/tep-1015-price-data]
+
+Github issue: https://github.com/e257-fi/tackler-ng/issues/36
+
 
 == Summary
 
