@@ -1,0 +1,5 @@
+
+- bench: parser
+  commit: 911d60af9e23859
+  result: "parser                  time:   [94.095 µs 94.260 µs 94.430 µs]"
+
