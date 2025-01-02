@@ -222,7 +222,10 @@ impl Cli {
         }
     }
 
-    pub(crate) fn get_input_type(&self, settings: &Settings) -> Result<InputSettings, Box<dyn Error>> {
+    pub(crate) fn get_input_type(
+        &self,
+        settings: &Settings,
+    ) -> Result<InputSettings, Box<dyn Error>> {
         let git_selector = self.get_git_selector();
 
         if let Some(filename) = &self.input_filename {
