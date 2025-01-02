@@ -45,6 +45,10 @@ codegen-units = 1
 # tackler-core tests would be too slow without this
 opt-level = 3
 
+[profile.bench]
+lto = true
+codegen-units = 1
+
 [workspace.dependencies]
 base64 = { version = "0.22.1" }
 time = { version = "0.3.37", default-features = false }
@@ -55,7 +59,7 @@ rust_decimal_macros = { version = "1.36" }
 uuid = { version = "1.11.0", default-features = false, features = [ "serde" ] }
 log = "0.4.22"
 regex =  { version = "1.11.1" }
-serde = { version = "1.0.216", default-features = false }
+serde = { version = "1.0.217", default-features = false }
 serde_json = { version = "1.0.134" , default-features = false, features = [ "std", "arbitrary_precision" ] }
 itertools = "0.13.0"
 tikv-jemallocator = "0.6.0"

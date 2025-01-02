@@ -57,7 +57,7 @@ Fixes in this release:
 Updated deps and tools:
 
 * Dependencies
-** ...
+** serde: 1.0.217
 
 ===== Rust toolchain
 
