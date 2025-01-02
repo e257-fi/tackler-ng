@@ -1,3 +1,8 @@
+# Latest on top
+#
+- bench: parser
+  commit: e32735b68010e03
+  result: "parser                  time:   [94.569 µs 94.721 µs 94.897 µs]"
 
 - bench: parser
   commit: 911d60af9e23859
