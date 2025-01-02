@@ -1,3 +1,0 @@
-name: antlr-rust
-url: https://github.com/rrevenantt/antlr4rust
-SPDX-License-Identifier: BSD-3-Clause

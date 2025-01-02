@@ -346,6 +346,14 @@ fn handle_raw_posting(
         .opt_comment()
         .map(|c| c.comment().unwrap(/*:test:*/).text().unwrap(/*:ok: parser */).get_text());
 
+    Ok((
+        post_amount,
+        txn_amount.0,
+        txn_amount.1,
+        post_commodity,
+        txn_commodity,
+    ))
+
     Posting::from(atn, val_pos.0, val_pos.1, val_pos.2, val_pos.4, comment)
 }
 
