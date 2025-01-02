@@ -74,7 +74,7 @@ impl<'de> Deserialize<'de> for Serde<Regex> {
     where
         D: Deserializer<'de>,
     {
-        let s = <Cow<str>>::deserialize(d)?;
+        let s = <Cow<'_, str>>::deserialize(d)?;
 
         match new_full_haystack_regex(s.as_ref()) {
             Ok(regex) => Ok(Serde(regex)),

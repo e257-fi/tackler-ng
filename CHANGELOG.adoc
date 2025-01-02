@@ -48,8 +48,11 @@ Fixes in this release:
 ==== Contributions
 
 * Thanks to @zamazan4ik for pointing out missing LTO settings
+* Thanks to @epage for pointing the `rust-2018-idioms` lint
 
 ==== Development
+
+* Enable `rust-2018-idioms` and some other lints
 
 Updated deps and tools:
 

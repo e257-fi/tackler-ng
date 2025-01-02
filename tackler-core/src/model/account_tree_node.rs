@@ -47,7 +47,7 @@ impl Commodity {
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Eq)]
-pub struct AccountTreeNode {
+pub(crate) struct AccountTreeNode {
     pub(crate) depth: usize,
     root: String,
     /// parent account (path)
@@ -134,7 +134,7 @@ impl AccountTreeNode {
 }
 
 impl AccountTreeNode {
-    pub fn from(account: &str) -> Result<AccountTreeNode, Box<dyn Error>> {
+    pub(crate) fn from(account: &str) -> Result<AccountTreeNode, Box<dyn Error>> {
         {
             let acc = account.trim();
 

@@ -68,7 +68,7 @@ pub(crate) struct RegisterEntry<'a> {
 }
 
 impl RegisterEntry<'_> {
-    pub fn fmt_with_tz(
+    pub(crate) fn fmt_with_tz(
         &self,
         ts_fmtr: fn(OffsetDateTime, &'static Tz) -> String,
         tz: &'static Tz,

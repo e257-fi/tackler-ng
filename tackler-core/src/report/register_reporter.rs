@@ -59,7 +59,7 @@ pub struct RegisterReporter {
 }
 
 impl RegisterReporter {
-    fn get_acc_selector(&self) -> Result<Box<dyn RegisterSelector>, Box<dyn Error>> {
+    fn get_acc_selector(&self) -> Result<Box<dyn RegisterSelector<'_>>, Box<dyn Error>> {
         let ras = &self.report_settings.ras;
         if ras.is_empty() {
             Ok(Box::<RegisterAllSelector>::default())
@@ -74,7 +74,7 @@ impl RegisterReporter {
 
 fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     f: &mut W,
-    re: &RegisterEntry,
+    re: &RegisterEntry<'_>,
     ts_style: TimestampStyle,
     report_tz: &'static Tz,
     register_settings: &RegisterSettings,
@@ -100,7 +100,7 @@ impl Report for RegisterReporter {
         &self,
         cfg: &Settings,
         writer: &mut W,
-        txns: &TxnSet,
+        txns: &TxnSet<'_>,
     ) -> Result<(), Box<dyn Error>> {
         let acc_sel = self.get_acc_selector()?;
 

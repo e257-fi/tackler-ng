@@ -94,7 +94,7 @@ impl ExportType {
 ///
 /// Timezone type, either named zone or offset
 ///
-pub enum TimezoneType {
+pub(crate) enum TimezoneType {
     /// Timezone by Offset e.g. -07:00
     Offset(UtcOffset),
     /// Timezone by name e.g. Europe/Helsinki
@@ -117,7 +117,7 @@ impl Debug for TimezoneType {
     }
 }
 
-pub type AccountSelectors = Vec<String>;
+pub(crate) type AccountSelectors = Vec<String>;
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -143,7 +143,7 @@ impl Config {
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
-pub struct Kernel {
+pub(crate) struct Kernel {
     pub(crate) strict: bool,
     pub(crate) timestamp: Timestamp,
     pub(crate) audit: Audit,
@@ -162,7 +162,7 @@ impl Kernel {
 }
 
 #[derive(Debug, Clone)]
-pub struct Timestamp {
+pub(crate) struct Timestamp {
     pub(crate) default_time: Time,
     pub(crate) timezone: TimezoneType,
 }
@@ -212,7 +212,7 @@ impl TimezoneType {
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
-pub struct Audit {
+pub(crate) struct Audit {
     pub(crate) hash: Hash,
     pub(crate) mode: bool,
 }
@@ -298,7 +298,7 @@ impl Git {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Transaction {
+pub(crate) struct Transaction {
     pub(crate) accounts: Accounts,
     pub(crate) commodities: Commodities,
     pub(crate) tags: Tags,
@@ -318,7 +318,7 @@ impl Transaction {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Accounts {
+pub(crate) struct Accounts {
     pub names: Vec<String>,
 }
 impl Accounts {
@@ -347,7 +347,7 @@ impl Accounts {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Commodities {
+pub(crate) struct Commodities {
     pub(crate) permit_empty_commodity: Option<bool>,
 
     pub(crate) names: Vec<String>,
@@ -383,7 +383,7 @@ impl Commodities {
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
-pub struct Tags {
+pub(crate) struct Tags {
     pub(crate) names: Vec<String>,
 }
 
@@ -412,7 +412,7 @@ impl Tags {
 }
 
 #[derive(Debug, Clone)]
-pub struct Report {
+pub(crate) struct Report {
     pub report_tz: &'static Tz,
     pub targets: Vec<ReportType>,
     pub scale: Scale,
@@ -497,7 +497,7 @@ fn get_account_selector(
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Register {
+pub(crate) struct Register {
     pub title: String,
     pub timestamp_style: TimestampStyle,
     pub acc_sel: AccountSelectors,
@@ -517,7 +517,7 @@ impl Register {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct BalanceGroup {
+pub(crate) struct BalanceGroup {
     pub title: String,
     pub group_by: GroupBy,
     pub acc_sel: AccountSelectors,
@@ -537,7 +537,7 @@ impl BalanceGroup {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Balance {
+pub(crate) struct Balance {
     pub title: String,
     pub acc_sel: AccountSelectors,
 }
@@ -552,7 +552,7 @@ impl Balance {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Export {
+pub(crate) struct Export {
     pub targets: Vec<ExportType>,
     pub equity: Equity,
 }
@@ -567,7 +567,7 @@ impl Export {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct Equity {
+pub(crate) struct Equity {
     pub(crate) equity_account: String,
     pub(crate) acc_sel: AccountSelectors,
 }

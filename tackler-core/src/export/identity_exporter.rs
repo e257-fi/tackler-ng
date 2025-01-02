@@ -29,7 +29,7 @@ impl Export for IdentityExporter {
         &self,
         _cfg: &Settings,
         writer: &mut W,
-        txn_data: &TxnSet,
+        txn_data: &TxnSet<'_>,
     ) -> Result<(), Box<dyn Error>> {
         for txn in &txn_data.txns {
             writeln!(writer, "{}", txn)?;
