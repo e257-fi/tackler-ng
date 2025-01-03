@@ -8,7 +8,6 @@ Thank you for your help!
 
 Components (used direclty by Tackler-NG):
 
-* https://github.com/rrevenantt/antlr4rust[antlr-rust]
 * https://github.com/marshallpierce/rust-base64[base64]
 * https://github.com/clap-rs/clap[clap]
 * https://github.com/RustCrypto/traits[digest]
@@ -30,6 +29,7 @@ Components (used direclty by Tackler-NG):
 * https://github.com/toml-rs/toml/tree/main/crates/toml[toml]
 * https://github.com/uuid-rs/uuid[uuid]
 * https://github.com/BurntSushi/walkdir[walkdir]
+* https://github.com/winnow-rs/winnow[winnow]
 
 Build-tools (used to build Tackler):
 

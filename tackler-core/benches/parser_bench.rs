@@ -40,7 +40,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("parser", |b| {
         b.iter(|| {
-            let res = string_to_txns(input.as_ref(), &mut settings);
+            let res = string_to_txns(&mut input.as_str(), &mut settings);
             assert!(res.is_ok());
         })
     });

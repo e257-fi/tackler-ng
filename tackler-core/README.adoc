@@ -1,7 +1,3 @@
 = Tackler-NG: Server API
 
 
-== The ANTLR grammar for Tackler
-
-See link:./src/parser/txn_antlr/readme.adoc[Parser definition] for grammar and lexer and how to regenerate those.
-

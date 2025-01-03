@@ -53,9 +53,9 @@ None
 
 Changes to:
 
-* [x] link:../../core/src/main/antlr4/TxnLexer.g4[core -> antlr4 -> TxnLexer]
-* [x] link:../../core/src/main/antlr4/TxnParser.g4[core -> antlr4 -> TxnParser]
-* [x] link:../../core/src/main/scala/fi/e257/tackler/parser/CtxHandler.scala[core -> parser -> CtxHandler]
+* [x] link:../devel/antlr/TxnLexer.g4[ANTLR TxnLexer]
+* [x] link:../devel/antlr/TxnParser.g4[ANTLR TxnParser]
+* [x] link:../devel/antlr/ctc_handler.rs[ANTLR CtxHandler]
 
 
 ==== API changes

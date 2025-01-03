@@ -45,12 +45,20 @@ At the moment design and code structure follows Tackler's structure:
 * link:https://github.com/e257-fi/tackler/blob/main/docs/devel/design.adoc[Design]
 * link:https://github.com/e257-fi/tackler/blob/main/docs/tep/readme.adoc[TEP Index (Tackler Enhancement Proposals)]
 
-Currently the used parser is link:https://github.com/antlr/antlr4[ANTLR] and link:https://github.com/rrevenantt/antlr4rust[antlr4rust], but that will be replaced in the future.
 
-The grammar is defined in
-link:../../tackler-core/src/parser/txn_antlr/TxnParser.g4[TxnParser.g4]
-and lexer is in
-link:../../tackler-core/src/parser/txn_antlr/TxnLexer.g4[TxnLexer.g4].
+=== Parser definition
+
+Tackler-NG uses link:https://docs.rs/winnow/latest/winnow/index.html[winnow] parser combinator library for parsing.
+
+Parser functions are defined in the link:../../tackler-core/src/parser/parts[parser::parts] module.
+
+There is an old, ANTLR based grammar and lexer definition available.
+
+* Grammar: link:./antlr/TxnParser.g4[ANTLR TxnParser.g4]
+* Lexer: link:./antlr/TxnLexer.g4[ANTLR TxnLexer.g4].
+* Contex handlers: link:./antlr/ctx_handler.rs[ANTLR Context Handlers]
+
+These are only used as reference and preserved for historic reasons.
 
 
 == Running Tests
@@ -60,15 +68,23 @@ Run unit tests at the root of project's workspace:
 cargo test
 ....
 
+Tackler test suite:
+....
+cargo build --release --bin tackler && tests/sh/test-runner-ng.sh
+....
+
 Simple Performance test:
 ....
 cargo run --release -p tackler-core
 ....
 
-Tackler test suite:
-....
-cargo build --release --bin tackler && tests/sh/test-runner-ng.sh
-....
+Parser Benchmark test:
+````
+cargo bench
+parser                  time:   [3.1823 µs 3.2017 µs 3.2269 µs]
+                        change: [-0.1596% +0.5072% +1.1489%] (p = 0.13 > 0.05)
+                        No change in performance detected.
+````
 
 
 === Flamegraph for tackler
