@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 E257.FI
+ * Copyright 2023-2025 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,10 @@ pub enum GitInputSelector {
     Reference(String),
 }
 
-pub fn string_to_txns(input: &str, settings: &mut Settings) -> Result<TxnData, Box<dyn Error>> {
+pub fn string_to_txns(
+    input: &mut &str,
+    settings: &mut Settings,
+) -> Result<TxnData, Box<dyn Error>> {
     let txns = tackler_parser::txns_text(input, settings)?;
 
     // feature: a94d4a60-40dc-4ec0-97a3-eeb69399f01b
@@ -129,7 +132,7 @@ pub fn git_to_txns(
                         // perf: let ts_par_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
 
                         let par_res =
-                            tackler_parser::txns_text(str::from_utf8(&obj.data)?, settings);
+                            tackler_parser::txns_text(&mut str::from_utf8(&obj.data)?, settings);
 
                         // perf: let ts_par_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
                         // perf: ts_par_total = ts_par_total + (ts_par_end.as_millis() - ts_par_start.as_millis());

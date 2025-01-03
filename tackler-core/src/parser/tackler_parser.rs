@@ -1,5 +1,5 @@
 /*
- * Copyright 2023-2024 E257.FI
+ * Copyright 2023-2025 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  *
  */
 
+use crate::parser::parts::txns::parse_txns;
+use crate::parser::Stream;
+
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
@@ -22,30 +25,15 @@ use std::path::Path;
 
 use crate::kernel::Settings;
 use crate::model::Txns;
-use crate::parser::ctx_handler;
-use crate::parser::txn_antlr::txnlexer::TxnLexer;
-use crate::parser::txn_antlr::txnparser::TxnParser;
-use antlr_rust::common_token_stream::CommonTokenStream;
-use antlr_rust::token_factory::CommonTokenFactory;
-use antlr_rust::{BailErrorStrategy, InputStream};
 
-pub(crate) fn txns_text(input_text: &str, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
-    let tf = CommonTokenFactory;
+pub(crate) fn txns_text(input: &mut &str, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
+    let mut is = Stream {
+        input,
+        state: settings,
+    };
+    let txns = parse_txns(&mut is)?;
 
-    let mut _lexer = TxnLexer::new_with_token_factory(InputStream::new(input_text), &tf);
-
-    let token_source = CommonTokenStream::new(_lexer);
-    let mut parser = TxnParser::<'_, _, BailErrorStrategy<'_, _>>::new(token_source);
-
-    let result = parser.txns();
-
-    match result {
-        Ok(txns_ctx) => ctx_handler::handle_txns(txns_ctx, settings),
-        Err(err) => {
-            let msg = format!("ANTRL error: {err}");
-            Err(msg.into())
-        }
-    }
+    Ok(txns)
 }
 
 pub(crate) fn txns_file(path: &Path, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
@@ -64,5 +52,5 @@ pub(crate) fn txns_file(path: &Path, settings: &mut Settings) -> Result<Txns, Bo
     txn_file.read_to_string(&mut txns_str)?;
 
     // todo: error log
-    txns_text(txns_str.as_str(), settings)
+    txns_text(&mut txns_str.as_str(), settings)
 }

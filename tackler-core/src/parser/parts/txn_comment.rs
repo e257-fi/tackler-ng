@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 E257.FI
+ * Copyright 2024-2025 E257.FI
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,18 @@
  * limitations under the License.
  *
  */
-use antlr_rust::token_stream::TokenStream;
-use antlr_rust::BailErrorStrategy;
-use antlr_rust::TidAble;
 
-use txnlexer::LocalTokenFactory;
-use txnparser::TxnParser;
-use txnparser::TxnParserContextType;
+use crate::parser::parts::comment::p_comment;
+use crate::parser::Stream;
+use winnow::ascii::{line_ending, space1};
+use winnow::{seq, PResult, Parser};
 
-pub mod txnlexer;
-pub mod txnparser;
-pub mod txnparserlistener;
-
-impl<'input, I> TxnParser<'input, I, BailErrorStrategy<'input, TxnParserContextType>>
-where
-    I: TokenStream<'input, TF = LocalTokenFactory<'input>> + TidAble<'input>,
-{
-    pub fn new(input: I) -> Self {
-        Self::with_strategy(input, BailErrorStrategy::new())
-    }
+pub(crate) fn parse_txn_comment<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
+    let m = seq!(
+        _: space1,
+        p_comment,
+        _: line_ending
+    )
+    .parse_next(is)?;
+    Ok(m.0)
 }

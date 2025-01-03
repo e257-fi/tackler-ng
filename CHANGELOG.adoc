@@ -48,17 +48,20 @@ Fixes in this release:
 ==== Contributions
 
 * Thanks to @zamazan4ik for pointing out missing LTO settings
+* Thanks to @epage for pointing the `rust-2018-idioms` lint
 
 ==== Development
+
+* Enable `rust-2018-idioms` and some other lints
 
 Updated deps and tools:
 
 * Dependencies
-** ...
+** serde: 1.0.217
 
 ===== Rust toolchain
 
-MSRV: 1.81.0
+MSRV: 1.82.0
 
 '''
 

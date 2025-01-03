@@ -34,7 +34,7 @@ pub trait Export {
         &self,
         cfg: &Settings,
         w: &mut W,
-        txns: &TxnSet,
+        txns: &TxnSet<'_>,
     ) -> Result<(), Box<dyn Error>>;
 }
 
@@ -42,7 +42,7 @@ pub fn write_exports<ProgW: io::Write + ?Sized>(
     output_dir: &Path,
     output_name: &str,
     exports: &Vec<ExportType>,
-    txn_set: &TxnSet,
+    txn_set: &TxnSet<'_>,
     settings: &mut Settings,
     prog_writer: &mut Option<Box<ProgW>>,
 ) -> Result<(), Box<dyn Error>> {

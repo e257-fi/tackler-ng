@@ -30,7 +30,7 @@ use time_tz::Tz;
 
 pub(crate) type RegisterReporterFn<W> = fn(
     writer: &mut W,
-    &RegisterEntry,
+    &RegisterEntry<'_>,
     TimestampStyle,
     &'static Tz,
     &RegisterSettings,
@@ -39,8 +39,8 @@ pub(crate) type RegisterReporterFn<W> = fn(
 pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
 pub(crate) fn balance_groups<T>(
-    txns: &TxnRefs,
-    group_by_op: TxnGroupByOp,
+    txns: &TxnRefs<'_>,
+    group_by_op: TxnGroupByOp<'_>,
     ras: &T,
     settings: &Settings,
 ) -> Vec<Balance>
@@ -61,7 +61,7 @@ where
 }
 
 pub(crate) fn register_engine<'a, W, T>(
-    txns: &'a TxnRefs,
+    txns: &'a TxnRefs<'_>,
     ras: &T,
     ts_style: TimestampStyle,
     report_tz: &'static Tz,

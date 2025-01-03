@@ -67,7 +67,7 @@ impl TxnData {
         })
     }
 
-    fn make_metadata(&self, txns: &TxnRefs) -> Result<Metadata, Box<dyn Error>> {
+    fn make_metadata(&self, txns: &TxnRefs<'_>) -> Result<Metadata, Box<dyn Error>> {
         let mut metadata = match &self.metadata {
             Some(md) => Metadata::from_metadata(md),
             None => Metadata::new(),
@@ -86,7 +86,7 @@ impl TxnData {
     }
 
     pub fn filter<'a>(&'a self, tf: &FilterDefinition) -> Result<TxnSet<'a>, Box<dyn Error>> {
-        let refvec: TxnRefs = self.txns.iter().filter(|txn| tf.eval(txn)).collect();
+        let refvec: TxnRefs<'_> = self.txns.iter().filter(|txn| tf.eval(txn)).collect();
 
         let mut metadata = self.make_metadata(&refvec)?;
         let filter_mdi = MetadataItem::TxnFilterDescription(TxnFilterDescription::from(tf.clone()));
@@ -100,7 +100,7 @@ impl TxnData {
     }
 
     pub fn get_all(&self) -> Result<TxnSet<'_>, Box<dyn Error>> {
-        let txns: TxnRefs = self.txns.iter().collect();
+        let txns: TxnRefs<'_> = self.txns.iter().collect();
 
         let metadata = if self.hash.is_some() || self.metadata.is_some() {
             Some(self.make_metadata(&txns)?)
@@ -112,7 +112,7 @@ impl TxnData {
     }
 }
 
-fn calc_txn_checksum(txns: &TxnRefs, hasher: &Hash) -> Result<Checksum, Box<dyn Error>> {
+fn calc_txn_checksum(txns: &TxnRefs<'_>, hasher: &Hash) -> Result<Checksum, Box<dyn Error>> {
     let uuids: Result<Vec<String>, Box<dyn Error>> = txns
         .iter()
         .map(|txn| match txn.header.uuid {

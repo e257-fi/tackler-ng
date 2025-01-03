@@ -42,7 +42,7 @@ pub trait Report {
         &self,
         cfg: &Settings,
         w: &mut W,
-        txns: &TxnSet,
+        txns: &TxnSet<'_>,
     ) -> Result<(), Box<dyn Error>>;
 }
 
@@ -80,7 +80,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     output_dir: Option<&PathBuf>,
     output_prefix: &Option<String>,
     reports: &Vec<ReportType>,
-    txn_set: &TxnSet,
+    txn_set: &TxnSet<'_>,
     group_by: Option<GroupBy>,
     settings: &Settings,
     prog_writer: &mut Option<Box<W>>,

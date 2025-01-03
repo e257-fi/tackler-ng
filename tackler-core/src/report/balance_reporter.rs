@@ -217,7 +217,7 @@ impl Report for BalanceReporter {
         &self,
         cfg: &Settings,
         writer: &mut W,
-        txn_data: &TxnSet,
+        txn_data: &TxnSet<'_>,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 

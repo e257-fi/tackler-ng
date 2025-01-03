@@ -225,7 +225,7 @@ impl Balance {
 
     pub fn from<T>(
         title: &str,
-        txn_set: &TxnSet,
+        txn_set: &TxnSet<'_>,
         accounts: &T,
         settings: &Settings,
     ) -> Result<Balance, Box<dyn Error>>

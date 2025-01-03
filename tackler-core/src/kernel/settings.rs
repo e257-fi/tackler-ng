@@ -158,6 +158,7 @@ impl AccountTrees {
     }
 }
 
+#[derive(Debug)]
 pub struct Settings {
     pub(crate) audit_mode: bool,
     pub(crate) report: Report,

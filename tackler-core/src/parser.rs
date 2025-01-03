@@ -20,11 +20,15 @@ pub use crate::parser::tackler_txns::paths_to_txns;
 pub use crate::parser::tackler_txns::string_to_txns;
 pub use crate::parser::tackler_txns::GitInputSelector;
 
-mod ctx_handler;
 mod tackler_parser;
 mod tackler_txns;
-mod txn_antlr;
 
+use crate::kernel::settings::Settings;
+use winnow::Stateful;
+
+pub(crate) mod parts;
+
+pub(crate) type Stream<'is> = Stateful<&'is str, &'is mut Settings>;
 /*
  * TODO: This logic should be 1:1 with TxnLexer.g4
  *       (ID, SUBID and NameChar + NameStartChar)

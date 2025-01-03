@@ -26,7 +26,7 @@ use tackler_core::parser::GitInputSelector;
 
 #[derive(Debug, clap::Args)]
 #[group(multiple = false)]
-pub struct GitInputGroup {
+pub(crate) struct GitInputGroup {
     /// Git reference name
     #[arg(
         long = "input.git.ref",
@@ -222,7 +222,10 @@ impl Cli {
         }
     }
 
-    pub fn get_input_type(&self, settings: &Settings) -> Result<InputSettings, Box<dyn Error>> {
+    pub(crate) fn get_input_type(
+        &self,
+        settings: &Settings,
+    ) -> Result<InputSettings, Box<dyn Error>> {
         let git_selector = self.get_git_selector();
 
         if let Some(filename) = &self.input_filename {

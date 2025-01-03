@@ -150,7 +150,7 @@ impl RegisterSelector<'_> for RegisterByAccountSelector {}
 impl RegisterItemSelector<'_> for RegisterByAccountSelector {}
 
 impl Predicate<RegisterPosting<'_>> for RegisterByAccountSelector {
-    fn eval(&self, rep: &RegisterPosting) -> bool {
+    fn eval(&self, rep: &RegisterPosting<'_>) -> bool {
         self.regexs.is_match(&rep.post.acctn.atn.account)
     }
 }
@@ -168,7 +168,7 @@ impl ReportItemSelector for RegisterByAccountSelector {
 pub struct RegisterAllSelector {}
 
 impl Predicate<RegisterPosting<'_>> for RegisterAllSelector {
-    fn eval(&self, _: &RegisterPosting) -> bool {
+    fn eval(&self, _: &RegisterPosting<'_>) -> bool {
         true
     }
 }

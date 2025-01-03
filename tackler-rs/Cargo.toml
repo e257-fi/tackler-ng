@@ -27,6 +27,9 @@ include.workspace = true
 rust-version.workspace = true
 readme = "CRATES.md"
 
+[lints]
+workspace = true
+
 [lib]
 name = "tackler_rs"
 path = "src/lib.rs"
