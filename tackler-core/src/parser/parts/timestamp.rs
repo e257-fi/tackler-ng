@@ -17,22 +17,33 @@
 use std::error::Error;
 use winnow::{seq, PResult, Parser};
 
+use crate::parser::Stream;
 use std::str::FromStr;
 use time::{Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
-use winnow::combinator::{alt, fail, opt, preceded};
+use winnow::combinator::{alt, cut_err, fail, opt};
 use winnow::error::{StrContext, StrContextValue};
 use winnow::stream::AsChar;
 use winnow::token::take_while;
 
-use crate::parser::Stream;
+const CTX_LABEL: &str = "ISO 8601 timestamp";
 
 fn p_date(is: &mut Stream<'_>) -> PResult<Date> {
     let (y, m_u8, d) = seq!(
-        take_while(4, AsChar::is_dec_digit).try_map(i32::from_str),
-        _: "-",
-        take_while(2, AsChar::is_dec_digit).try_map(u8::from_str),
-        _: "-",
-        take_while(2, AsChar::is_dec_digit).try_map(u8::from_str)
+        take_while(4, AsChar::is_dec_digit).try_map(i32::from_str)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("year should be 'YYYY'"))),
+        _: cut_err("-")
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("separator should be '-'"))),
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("month should be 'MM'"))),
+        _: cut_err("-")
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("separator should be '-'"))),
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("day should be 'DD'"))),
     )
     .parse_next(is)?;
 
@@ -89,18 +100,30 @@ fn p_datetime(is: &mut Stream<'_>) -> PResult<PrimitiveDateTime> {
     let (date, h, m, s, ns_opt) = seq!(
         p_date,
         _: "T",
-        take_while(2, AsChar::is_dec_digit).try_map(u8::from_str),
-        _: ":",
-        take_while(2, AsChar::is_dec_digit).try_map(u8::from_str),
-        _: ":",
-        take_while(2, AsChar::is_dec_digit).try_map(u8::from_str),
-        opt(preceded('.',
-            take_while(1..=9, AsChar::is_dec_digit),
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("hours format is 'HH'"))),
+        _: cut_err(":")
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("hours-minutes separator is ':'"))),
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("minutes format is 'MM'"))),
+        _: cut_err(":")
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("minutes-seconds separator is ':'"))),
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("seconds format is 'SS'"))),
+        opt((
+            ('.',cut_err(take_while(1..=9, AsChar::is_dec_digit)))
+                .context(StrContext::Label(CTX_LABEL))
+                .context(StrContext::Expected(StrContextValue::Description("nanoseconds format is '.SSS' (max 9 decimals)"))),
         ))
     )
     .parse_next(is)?;
 
-    let time = match handle_time(h, m, s, ns_opt) {
+    let time = match handle_time(h, m, s, ns_opt.map(|x| x.0 .1)) {
         Ok(t) => t,
         Err(_err) => return fail(is),
     };
@@ -145,9 +168,25 @@ fn parse_datetime_tz(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
 
 pub(crate) fn parse_timestamp(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
     let ts = alt((
-        parse_datetime_tz.context(StrContext::Expected(StrContextValue::Description("ts_tz"))),
-        parse_datetime.context(StrContext::Expected(StrContextValue::Description("ts"))),
-        parse_date.context(StrContext::Expected(StrContextValue::Description("date"))),
+        parse_datetime_tz,
+        parse_datetime,
+        parse_date,
+        fail.context(StrContext::Label("ISO 8601 timestamp"))
+            .context(StrContext::Expected(StrContextValue::StringLiteral(
+                "ISO-8601 timestamp at the beginning of the line",
+            )))
+            .context(StrContext::Expected(StrContextValue::StringLiteral(
+                "YYYY-mm-ddTHH:MM:SS[.SSSSSSSSS][+-]HH:MM",
+            )))
+            .context(StrContext::Expected(StrContextValue::StringLiteral(
+                "YYYY-mm-ddTHH:MM:SS[.SSSSSSSSS]Z",
+            )))
+            .context(StrContext::Expected(StrContextValue::StringLiteral(
+                "YYYY-mm-ddTHH:MM:SS[.SSSSSSSSS]",
+            )))
+            .context(StrContext::Expected(StrContextValue::StringLiteral(
+                "YYYY-mm-dd",
+            ))),
     ))
     .parse_next(is)?;
     Ok(ts)

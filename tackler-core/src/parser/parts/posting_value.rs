@@ -16,7 +16,7 @@
  */
 use crate::kernel::Settings;
 use crate::model::Commodity;
-use crate::parser::parts::identifier::{p_identifier, p_multi_part_id};
+use crate::parser::parts::identifier::p_identifier;
 use crate::parser::parts::number::p_number;
 use crate::parser::Stream;
 use rust_decimal::Decimal;
@@ -128,7 +128,7 @@ fn p_unit<'s>(is: &mut Stream<'s>) -> PResult<(&'s str, Option<Positions<'s>>)> 
     #[rustfmt::skip]
     let m = (
         space1,
-        p_multi_part_id,
+        p_identifier,
         opt(p_position)
     ).parse_next(is)?;
 

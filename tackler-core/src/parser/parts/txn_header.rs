@@ -28,7 +28,7 @@ use crate::parser::Stream;
 use tackler_api::txn_header::TxnHeader;
 use tackler_api::txn_ts;
 use winnow::ascii::{line_ending, space1};
-use winnow::combinator::{fail, opt, preceded, repeat};
+use winnow::combinator::{cut_err, fail, opt, preceded, repeat};
 use winnow::error::{StrContext, StrContextValue};
 
 #[allow(clippy::type_complexity)]
@@ -40,14 +40,14 @@ pub(crate) fn parse_txn_header(is: &mut Stream<'_>) -> PResult<TxnHeader> {
         Option<TxnMeta>,
         Option<Vec<&str>>,
     ) = seq!(
-        parse_timestamp
-            .context(StrContext::Expected(StrContextValue::Description("timestamp"))),
-        opt(preceded(space1, parse_txn_code)
-            .context(StrContext::Expected(StrContextValue::Description("code")))),
-        opt(preceded(space1, parse_txn_description)
-            .context(StrContext::Expected(StrContextValue::Description("desc")))),
-        _: preceded(opt(space1), line_ending)
-            .context(StrContext::Expected(StrContextValue::Description("end"))),
+        parse_timestamp,
+        opt(preceded(space1, parse_txn_code)),
+        opt(preceded(space1, parse_txn_description)),
+        _: preceded(opt(space1),
+            cut_err(line_ending)
+                .context(StrContext::Label("Txn Header"))
+                .context(StrContext::Expected(StrContextValue::Description("format: timestamp [(code)] ['description]"))),
+        ),
         opt(parse_txn_meta),
         opt(repeat(1.., parse_txn_comment))
     )

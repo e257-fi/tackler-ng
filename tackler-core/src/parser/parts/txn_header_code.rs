@@ -15,10 +15,11 @@
  *
  */
 
-use winnow::{seq, PResult, Parser};
-
 use crate::parser::Stream;
+use winnow::combinator::cut_err;
+use winnow::error::StrContext;
 use winnow::token::take_while;
+use winnow::{seq, PResult, Parser};
 
 fn valid_code_char(c: char) -> bool {
     !matches!(
@@ -31,7 +32,8 @@ pub(crate) fn parse_txn_code<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
     let code = seq!(
         _: '(',
         take_while(0..,valid_code_char),
-        _: ')'
+        _: cut_err(')')
+            .context(StrContext::Label("code")),
     )
     .parse_next(is)?;
 

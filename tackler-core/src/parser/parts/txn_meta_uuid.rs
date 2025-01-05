@@ -17,16 +17,70 @@
 
 use crate::parser::Stream;
 use uuid::Uuid;
-use winnow::ascii::{line_ending, space1, till_line_ending};
-use winnow::combinator::fail;
+use winnow::ascii::{line_ending, space0, space1};
+use winnow::combinator::{cut_err, fail};
+use winnow::error::{StrContext, StrContextValue};
+use winnow::stream::AsChar;
+use winnow::token::take_while;
 use winnow::Parser;
 use winnow::{seq, PResult};
 
-fn p_uuid(is: &mut Stream<'_>) -> PResult<Uuid> {
-    // todo: fix this and check uuid from bytes
-    let uuid_str = till_line_ending.parse_next(is)?;
+const CTX_LABEL: &str = "txn metadata uuid";
+const UUID_HELP: &str = " # uuid: d77b6b92-42f1-419d-834c-66d69f155ad6";
 
-    match Uuid::parse_str(uuid_str.trim()) {
+fn p_uuid(is: &mut Stream<'_>) -> PResult<Uuid> {
+    // todo: check uuid from bytes
+    let uuid_str = seq!(
+        cut_err(take_while(8, AsChar::is_hex_digit))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "1st group (8 hex digits)"
+            ))),
+        cut_err('-')
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "'-' separator"
+            ))),
+        cut_err(take_while(4, AsChar::is_hex_digit))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "2nd group (4 hex digits)"
+            ))),
+        cut_err('-')
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "'-' separator"
+            ))),
+        cut_err(take_while(4, AsChar::is_hex_digit))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "3th group (4 hex digits)"
+            ))),
+        cut_err('-')
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "'-' separator"
+            ))),
+        cut_err(take_while(4, AsChar::is_hex_digit))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "4th group (4 hex digits)"
+            ))),
+        cut_err('-')
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "'-' separator"
+            ))),
+        cut_err(take_while(12, AsChar::is_hex_digit))
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "5th group (12 hex digits)"
+            ))),
+    )
+    .take()
+    .parse_next(is)?;
+
+    match Uuid::parse_str(uuid_str) {
         Ok(uuid) => Ok(uuid),
         Err(_err) => fail(is),
     }
@@ -36,11 +90,18 @@ pub(crate) fn parse_meta_uuid(is: &mut Stream<'_>) -> PResult<Uuid> {
     let uuid = seq!(
         _: space1,
         _: '#',
-        _: space1,
+        _: cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("'uuid:'")))
+            .context(StrContext::Expected(StrContextValue::Description(UUID_HELP))),
         _: "uuid:",
-        _: space1,
-        p_uuid,
-        _: line_ending
+        _: cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("space after 'uuid:'"))),
+        cut_err(p_uuid)
+            .context(StrContext::Expected(StrContextValue::Description(UUID_HELP))),
+        _: space0,
+        _: cut_err(line_ending)
     )
     .parse_next(is)?;
 

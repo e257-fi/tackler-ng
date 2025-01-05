@@ -21,8 +21,11 @@ use itertools::Itertools;
 use std::error::Error;
 use tackler_api::txn_header::Tags;
 use winnow::ascii::{line_ending, space0, space1};
-use winnow::combinator::{fail, repeat};
+use winnow::combinator::{cut_err, fail, repeat};
+use winnow::error::{StrContext, StrContextValue};
 use winnow::{seq, PResult, Parser};
+
+const CTX_LABEL: &str = "txn metadata tags";
 
 fn handle_tags(v: Vec<&str>, settings: &mut Settings) -> Result<Tags, Box<dyn Error>> {
     let mut tags = Vec::with_capacity(v.len());
@@ -49,14 +52,20 @@ fn handle_tags(v: Vec<&str>, settings: &mut Settings) -> Result<Tags, Box<dyn Er
 
 fn p_tags(is: &mut Stream<'_>) -> PResult<Tags> {
     let mut tags = (
-        p_multi_part_id,
+        cut_err(p_multi_part_id)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "tag value after 'tags:'",
+            ))),
         repeat(
             0..,
             seq!(
              _: space0,
                 _: ',',
                 _: space0,
-                p_multi_part_id,
+                cut_err(p_multi_part_id)
+                    .context(StrContext::Label(CTX_LABEL))
+                    .context(StrContext::Expected(StrContextValue::Description("tag after ','"))),
             ),
         )
         .fold(Vec::new, |mut acc, x| {
@@ -80,12 +89,21 @@ pub(crate) fn parse_meta_tags(is: &mut Stream<'_>) -> PResult<Tags> {
     let tags = seq!(
         _: space1,
         _: '#',
-        _: space1,
+        _: cut_err(space1)
+            .context(StrContext::Label("txn metadata"))
+            .context(StrContext::Expected(StrContextValue::Description("space after '#'"))),
         _: "tags:",
-        _: space1,
-        p_tags,
+        _: cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("space after 'tags:'"))),
+        cut_err(p_tags)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("valid tags"))),
         _: space0,
-        _: line_ending
+        _: cut_err(line_ending)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("line ending"))),
+
     )
     .parse_next(is)?;
 

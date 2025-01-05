@@ -15,6 +15,7 @@
  *
  */
 
+use std::fmt::Write;
 use winnow::{seq, PResult, Parser};
 
 use crate::model::{Transaction, Txns};
@@ -23,10 +24,11 @@ use crate::parser::parts::txn_postings::parse_txn_postings;
 use crate::parser::Stream;
 use std::error::Error;
 use winnow::ascii::{line_ending, multispace0, space0};
-use winnow::combinator::{alt, eof, fail, opt, preceded, repeat, terminated};
+use winnow::combinator::{cut_err, eof, fail, opt, preceded, repeat, repeat_till};
+use winnow::error::StrContext;
 
 fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
-    // space0 can't be multispace0 as it's greedy and eat's line endings
+    // space0 can't be multispace0 as it's greedy and eats away the last line ending
     repeat(1.., (space0, line_ending))
         .map(|()| ())
         .parse_next(is)?;
@@ -35,12 +37,13 @@ fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
 
 fn parse_txn(is: &mut Stream<'_>) -> PResult<Transaction> {
     let txn = seq!(
-        parse_txn_header,
-        parse_txn_postings,
-        _: alt((
-            multispace0,
-            eof))
+        cut_err(parse_txn_header)
+            .context(StrContext::Label("Txn Header")),
+        cut_err(parse_txn_postings)
+            .context(StrContext::Label("Txn Postings")),
+        _: multispace0,
     )
+    .context(StrContext::Label("Transaction"))
     .parse_next(is)?;
 
     match Transaction::from(txn.0, txn.1) {
@@ -50,21 +53,39 @@ fn parse_txn(is: &mut Stream<'_>) -> PResult<Transaction> {
 }
 
 pub(crate) fn parse_txns(input: &mut Stream<'_>) -> Result<Txns, Box<dyn Error>> {
-    let txns = preceded(
+    let txns: PResult<(Vec<Transaction>, &str)> = preceded(
         opt(multispace0_line_ending),
-        terminated(
-            repeat(1.., parse_txn).fold(Vec::new, |mut acc: Vec<_>, item| {
-                acc.push(item);
-                acc
-            }),
-            eof,
-        ),
+        repeat_till(1.., parse_txn, eof),
     )
     .parse_next(input);
 
     match txns {
-        Ok(txns) => Ok(txns),
-        Err(err) => Err(format!("Failed to parse txns: {}, input: {}", err, input).into()),
+        Ok(txns) => Ok(txns.0),
+        Err(err) => {
+            let mut msg = "Failed to parse transaction\n".to_string();
+            //let _ = writeln!(msg, "Error: {}", err);
+            let i = input.input.lines().next().unwrap_or(input.input);
+            let i_err = if i.chars().count() < 1024 {
+                i.to_string()
+            } else {
+                i.chars().take(1024).collect::<String>()
+            };
+
+            let _ = write!(msg, "Failed input:\n{}\n\n", i_err);
+            match err.into_inner() {
+                Some(ce) => {
+                    let _ = writeln!(msg, "Detailed error:");
+                    for c in ce.context() {
+                        let _ = writeln!(msg, "   {}", c);
+                    }
+                }
+                None => {
+                    let _ = write!(msg, "No detailed error information available");
+                }
+            }
+
+            Err(msg.into())
+        }
     }
 }
 
