@@ -15,10 +15,10 @@
  *
  */
 
-use crate::parser::Stream;
+use crate::parser::{make_semantic_error, Stream};
 use uuid::Uuid;
 use winnow::ascii::{line_ending, space0, space1};
-use winnow::combinator::{cut_err, fail};
+use winnow::combinator::cut_err;
 use winnow::error::{StrContext, StrContextValue};
 use winnow::stream::AsChar;
 use winnow::token::take_while;
@@ -82,7 +82,7 @@ fn p_uuid(is: &mut Stream<'_>) -> PResult<Uuid> {
 
     match Uuid::parse_str(uuid_str) {
         Ok(uuid) => Ok(uuid),
-        Err(_err) => fail(is),
+        Err(err) => Err(make_semantic_error(is, err.to_string().as_str())),
     }
 }
 

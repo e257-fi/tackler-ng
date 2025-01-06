@@ -16,12 +16,12 @@
  */
 use crate::kernel::Settings;
 use crate::parser::parts::identifier::p_multi_part_id;
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use itertools::Itertools;
 use std::error::Error;
 use tackler_api::txn_header::Tags;
 use winnow::ascii::{line_ending, space0, space1};
-use winnow::combinator::{cut_err, fail, repeat};
+use winnow::combinator::{cut_err, repeat};
 use winnow::error::{StrContext, StrContextValue};
 use winnow::{seq, PResult, Parser};
 
@@ -81,7 +81,7 @@ fn p_tags(is: &mut Stream<'_>) -> PResult<Tags> {
 
     match handle_tags(v, is.state) {
         Ok(tags) => Ok(tags),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 

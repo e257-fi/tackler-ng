@@ -16,10 +16,10 @@
  */
 
 use crate::parser::parts::number::p_number;
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use tackler_api::location::GeoPoint;
 use winnow::ascii::{line_ending, space0, space1};
-use winnow::combinator::{cut_err, fail, opt, preceded};
+use winnow::combinator::{cut_err, opt, preceded};
 use winnow::error::{StrContext, StrContextValue};
 use winnow::{seq, PResult, Parser};
 
@@ -57,7 +57,7 @@ fn p_geo_uri(is: &mut Stream<'_>) -> PResult<GeoPoint> {
 
     match GeoPoint::from(lat, lon, alt) {
         Ok(point) => Ok(point),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 

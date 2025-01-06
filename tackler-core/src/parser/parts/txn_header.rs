@@ -24,11 +24,11 @@ use crate::parser::parts::txn_comment::parse_txn_comment;
 use crate::parser::parts::txn_header_code::parse_txn_code;
 use crate::parser::parts::txn_header_desc::parse_txn_description;
 use crate::parser::parts::txn_metadata::{parse_txn_meta, TxnMeta};
-use crate::parser::Stream;
+use crate::parser::{make_semantic_error, Stream};
 use tackler_api::txn_header::TxnHeader;
 use tackler_api::txn_ts;
 use winnow::ascii::{line_ending, space1};
-use winnow::combinator::{cut_err, fail, opt, preceded, repeat};
+use winnow::combinator::{cut_err, opt, preceded, repeat};
 use winnow::error::{StrContext, StrContextValue};
 
 #[allow(clippy::type_complexity)]
@@ -62,7 +62,7 @@ pub(crate) fn parse_txn_header(is: &mut Stream<'_>) -> PResult<TxnHeader> {
             code.map(|c| format!("\n   txn code: {c}"))
                 .unwrap_or_default()
         );
-        return fail(is);
+        return Err(make_semantic_error(is, msg.as_str()));
     }
 
     Ok(TxnHeader {

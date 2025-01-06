@@ -17,7 +17,7 @@
 use std::error::Error;
 use winnow::{seq, PResult, Parser};
 
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use std::str::FromStr;
 use time::{Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
 use winnow::combinator::{alt, cut_err, fail, opt};
@@ -49,11 +49,11 @@ fn p_date(is: &mut Stream<'_>) -> PResult<Date> {
 
     let m = match time::Month::try_from(m_u8) {
         Ok(m) => m,
-        Err(_err) => return fail(is),
+        Err(err) => return Err(from_error(is, &err)),
     };
     match Date::from_calendar_date(y, m, d) {
         Ok(d) => Ok(d),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, &err)),
     }
 }
 
@@ -62,7 +62,7 @@ fn parse_date(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
 
     match is.state.get_offset_date(date) {
         Ok(date) => Ok(date),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 
@@ -87,7 +87,7 @@ fn handle_time(h: u8, m: u8, s: u8, ns_opt: Option<&str>) -> Result<Time, Box<dy
                     Time::from_hms_nano(h, m, s, ns)?
                 }
                 _ => {
-                    unreachable!()
+                    unreachable!("IE: parser is preventing this match arm")
                 }
             }
         }
@@ -125,7 +125,7 @@ fn p_datetime(is: &mut Stream<'_>) -> PResult<PrimitiveDateTime> {
 
     let time = match handle_time(h, m, s, ns_opt.map(|x| x.0 .1)) {
         Ok(t) => t,
-        Err(_err) => return fail(is),
+        Err(err) => return Err(from_error(is, err.as_ref())),
     };
 
     Ok(PrimitiveDateTime::new(date, time))
@@ -136,7 +136,7 @@ fn parse_datetime(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
 
     match is.state.get_offset_datetime(dt) {
         Ok(dt) => Ok(dt),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 
@@ -154,7 +154,7 @@ fn p_datetime_tz(is: &mut Stream<'_>) -> PResult<UtcOffset> {
 
     match UtcOffset::from_hms(sign * h, sign * m, 0) {
         Ok(offset) => Ok(offset),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, &err)),
     }
 }
 

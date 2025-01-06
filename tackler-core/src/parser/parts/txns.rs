@@ -14,17 +14,15 @@
  * limitations under the License.
  *
  */
-
-use std::fmt::Write;
+use itertools::Itertools;
 use winnow::{seq, PResult, Parser};
 
 use crate::model::{Transaction, Txns};
 use crate::parser::parts::txn_header::parse_txn_header;
 use crate::parser::parts::txn_postings::parse_txn_postings;
-use crate::parser::Stream;
-use std::error::Error;
+use crate::parser::{from_error, make_semantic_error, Stream};
 use winnow::ascii::{line_ending, multispace0, space0};
-use winnow::combinator::{cut_err, eof, fail, opt, preceded, repeat, repeat_till};
+use winnow::combinator::{cut_err, eof, opt, preceded, repeat, repeat_till};
 use winnow::error::StrContext;
 
 fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
@@ -46,47 +44,27 @@ fn parse_txn(is: &mut Stream<'_>) -> PResult<Transaction> {
     .context(StrContext::Label("Transaction"))
     .parse_next(is)?;
 
+    if txn.1.iter().map(|p| &p.txn_commodity.name).unique().count() > 1 {
+        let msg = format!(
+            "Different commodities without value positions are not allowed inside single transaction.{}",
+            txn.0.uuid.map(|u| format!("\n   txn uuid: {u}")).unwrap_or_default());
+        return Err(make_semantic_error(is, msg.as_str()));
+    }
+
     match Transaction::from(txn.0, txn.1) {
         Ok(txn) => Ok(txn),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 
-pub(crate) fn parse_txns(input: &mut Stream<'_>) -> Result<Txns, Box<dyn Error>> {
-    let txns: PResult<(Vec<Transaction>, &str)> = preceded(
+pub(crate) fn parse_txns(input: &mut Stream<'_>) -> PResult<Txns> {
+    let txns: (Vec<Transaction>, &str) = preceded(
         opt(multispace0_line_ending),
         repeat_till(1.., parse_txn, eof),
     )
-    .parse_next(input);
+    .parse_next(input)?;
 
-    match txns {
-        Ok(txns) => Ok(txns.0),
-        Err(err) => {
-            let mut msg = "Failed to parse transaction\n".to_string();
-            //let _ = writeln!(msg, "Error: {}", err);
-            let i = input.input.lines().next().unwrap_or(input.input);
-            let i_err = if i.chars().count() < 1024 {
-                i.to_string()
-            } else {
-                i.chars().take(1024).collect::<String>()
-            };
-
-            let _ = write!(msg, "Failed input:\n{}\n\n", i_err);
-            match err.into_inner() {
-                Some(ce) => {
-                    let _ = writeln!(msg, "Detailed error:");
-                    for c in ce.context() {
-                        let _ = writeln!(msg, "   {}", c);
-                    }
-                }
-                None => {
-                    let _ = write!(msg, "No detailed error information available");
-                }
-            }
-
-            Err(msg.into())
-        }
-    }
+    Ok(txns.0)
 }
 
 #[cfg(test)]

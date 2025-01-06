@@ -15,9 +15,9 @@
  *
  */
 
-use crate::parser::Stream;
+use crate::parser::{make_semantic_error, Stream};
 use rust_decimal::Decimal;
-use winnow::combinator::{fail, opt, preceded};
+use winnow::combinator::{opt, preceded};
 use winnow::stream::AsChar;
 use winnow::token::take_while;
 use winnow::{PResult, Parser};
@@ -33,7 +33,7 @@ pub(crate) fn p_number(is: &mut Stream<'_>) -> PResult<Decimal> {
 
     match Decimal::from_str_exact(dec_str) {
         Ok(d) => Ok(d),
-        Err(_err) => fail(is),
+        Err(err) => Err(make_semantic_error(is, err.to_string().as_str())),
     }
 }
 
