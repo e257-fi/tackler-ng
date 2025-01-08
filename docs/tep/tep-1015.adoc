@@ -6,69 +6,64 @@ Implementation branch:
 link:https://github.com/e257-fi/tackler-ng/tree/tep/tep-1015-price-data[/tep/tep-1015-price-data]
 
 Github issue: https://github.com/e257-fi/tackler-ng/issues/36
-
+Github PR: https://github.com/e257-fi/tackler-ng/pull/39
 
 == Summary
 
-Summary of changes
+Add a representation of historical price data.
 
-* Sub-change 1
-* Sub-change 2
+* Define `pricedb` format
+* Describe which entry of price data applies to which set of transactions
 
-Longer description with high level explanation of this change
+=== Price data application policy
 
+1. If a posting has rate or equivalence noted, it gets applied.
+2. Otherwise, price conversion only takes account of data noted in the nearest earlier entry price DB, disregarding not any rate or equivalent noted in any transaction taht is later than the price DB entry.
+  * This is to ensure that filtering out any transaction does not change a report for a given PriceDB.
 
-=== Sub-change 1
-
-Lorem ipsum ...
-
-
-=== Sub-change 2
-
-Lorem ipsum ...
-
+This TEP does not propose any method for calculating the conversion.
 
 == Journal File Format
 
-Journal file format changes, if any
+No change would be made to the journal file format. A new file type would be added with a format similar to the default format of Ledger CLI as described https://ledger-cli.org/doc/ledger3.html[here].
 
+```
+'P' TIMESTAMP AMOUNT COMMODITY '=' AMOUNT COMMODITY OPTIONAL_COMMENT
+```
 
 == Implementation
 
 === CLI Changes
 
-Changes to command line interface
-
-* [ ] item
-
+None
 
 === CONF Changes
 
-Changes to conf-settings
-
-* [ ] item
+None
 
 === Filtering Changes
 
+None
 
 === Machinery
 
 Changes to machinery
 
-* [ ] item
-
+* [ ] Add a new model _PriceEntry_ with fields
+  - timestamp in UTC
+  - commodity 1 with optional amount (assumed 1 if missing)
+  - commodity 2 with amount
+  - optional comment
 
 ==== API Changes
 
 Api changes to server or client interfaces.
-
 
 ===== Server API Changes
 
 Changes to server API
 
 * [ ] item
-
 
 ===== Client API Changes
 
