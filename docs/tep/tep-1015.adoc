@@ -18,28 +18,62 @@ Add a representation of historical price data.
 === Price data application policy
 
 1. If a posting has rate or equivalence noted, it gets applied.
-2. Otherwise, price conversion only takes account of data noted in the nearest earlier entry price DB, disregarding not any rate or equivalent noted in any transaction taht is later than the price DB entry.
+2. Otherwise, price conversion only takes account of data noted in the nearest earlier entry price DB, disregarding any rate or equivalent noted in any transaction that is later than the price DB entry.
   * This is to ensure that filtering out any transaction does not change a report for a given PriceDB.
 
-This TEP does not propose any method for calculating the conversion.
+This TEP does not propose any method for calculating the fixed conversions (e.g. oz to g, gallons to litres, etc).
 
 == Journal File Format
 
 No change would be made to the journal file format. A new file type would be added with a format similar to the default format of Ledger CLI as described https://ledger-cli.org/doc/ledger3.html[here].
 
-```
+----
 'P' TIMESTAMP AMOUNT COMMODITY '=' AMOUNT COMMODITY OPTIONAL_COMMENT
-```
+----
+
+COMMENT: This should/could be just simplified ledger format?
+----
+'P' TIMESTAMP COMMODITY AMOUNT COMMODITY OPT_COMMENT
+----
+
+Where OPT_COMMENT is prefixed with `';' space+`, this is similar as Txn comments.
+
+For example:
+----
+P 2025-01-07 EUR 1.0393 USD ; as reported by Central Bank of Europe
+----
+
+There are some existing usage for this format:
+
+* link:https://github.com/kantord/pricedb[pricedb -project]
+* link:https://hledger.org/1.41/hledger.html#p-directive[hledger P-directive]
+
+=== Timestamp handling
+
+The `timestamp` will use the same logic as transaction timestamps:
+
+* RFC3339 timestamp with offset information
+* Timestamp without zone or offset, then the `kernel.timestamp.timezone` value is used as zone/offset.
+* Date, then `kernel.timestamp.default-time` is used with `kernel.timestamp.timezone`.
+
+The resulting timestamp is always with zone/offset.
+
 
 == Implementation
 
 === CLI Changes
 
-None
+New command line switch to activate price data, this could be implemented later.
+
 
 === CONF Changes
 
-None
+New configuration key for pricedb, this is similar as `accounts`, `commodidities` and `tags`
+
+----
+[transaction.pricedb]
+path = "path/to/pricedb"
+----
 
 === Filtering Changes
 
@@ -50,10 +84,16 @@ None
 Changes to machinery
 
 * [ ] Add a new model _PriceEntry_ with fields
-  - timestamp in UTC
-  - commodity 1 with optional amount (assumed 1 if missing)
+  - timestamp with offset or timezone (1)
+  - commodity 1 with optional amount (assumed 1 if missing) (2)
   - commodity 2 with amount
   - optional comment
+
+1) The value time (price point) could be reported (in reports), so it would be nice to have timestamp with zone/offset for user experience, if needed.  There is also `report.report-timezone` which should be used to present the price timestamp in defined timezone.
+
+2) I would recommend that it's always 1, as that will simplify the logic and commodity 2 could be adjusted against that.
+
+The counter-argument is if there are exchange rates with full units e.g. 2 apples for 3 oranges, but that's special case, and would need own special logic in any case.
 
 ==== API Changes
 
@@ -98,6 +138,30 @@ Changes to JSON model
 
 Changes to reports or reporting
 
+The used prices could be reported as part of the Metadata section of the report. This probably should be behind a switch, so that it can be turned off, if there are many commodities / prices to be reported.
+
+Reporting format could be something like this
+----
+Git Storage
+         commit : 4aa4e9797501c1aefc92f32dff30ab462dae5545
+      reference : txns-1E1
+      directory : txns
+         suffix : .txn
+        message : txns-1E1: 2016/12
+
+Txn Set Checksum
+        SHA-256 : 9b29071e1bf228cfbd31ca2b8e7263212e4b86e51cfee1e8002c9b795ab03f76
+       Set size : 10
+
+Price Data
+           time : 2025-01-08 12:13:14
+      commodity : EUR
+          value : 1.234 USD
+                -
+           time : 2024-12-31 08:00:00
+      commodity : He·bar_50L·tank
+          value : 3.45 EUR
+----
 
 ==== Balance Report
 
