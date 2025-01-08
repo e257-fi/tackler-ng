@@ -113,6 +113,31 @@ mod tests {
     }
 
     #[test]
+    // test: 98df4e3a-2ca4-4b55-b4a8-358a46331e65
+    // desc: TxnTSEnd, JSON with nanoseconds
+    fn txn_ts_end_json_with_nano() {
+        let filter_json_str =
+            r#"{"txnFilter":{"TxnFilterTxnTSEnd":{"end":"2023-02-25T10:11:22.123456789-05:00"}}}"#;
+
+        let filter_text_str = indoc! {
+        "|Filter
+         |  Txn TS: end   2023-02-25T10:11:22.123456789-05:00
+         |"}
+        .strip_margin();
+
+        let tf_res = serde_json::from_str::<FilterDefinition>(filter_json_str);
+        assert!(tf_res.is_ok());
+        let tf = tf_res.unwrap(/*:test:*/);
+
+        match tf.txn_filter {
+            TxnFilter::TxnFilterTxnTSEnd(_) => (),
+            _ => panic!(/*:test:*/),
+        }
+
+        assert_eq!(format!("{tf}"), filter_text_str);
+    }
+
+    #[test]
     // test: ef2348e6-3684-4a13-85e9-5aec89a9e3bb
     // desc: TxnTSEnd, Text
     fn txn_ts_end_text() {
