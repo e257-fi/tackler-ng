@@ -17,9 +17,9 @@
 use std::error::Error;
 use winnow::{seq, PResult, Parser};
 
+use crate::kernel::Settings;
 use crate::parser::{from_error, Stream};
 use std::str::FromStr;
-use time::{Date, OffsetDateTime, PrimitiveDateTime, Time, UtcOffset};
 use winnow::combinator::{alt, cut_err, fail, opt};
 use winnow::error::{StrContext, StrContextValue};
 use winnow::stream::AsChar;
@@ -27,37 +27,33 @@ use winnow::token::take_while;
 
 const CTX_LABEL: &str = "ISO 8601 timestamp";
 
-fn p_date(is: &mut Stream<'_>) -> PResult<Date> {
-    let (y, m_u8, d) = seq!(
-        take_while(4, AsChar::is_dec_digit).try_map(i32::from_str)
+fn p_date(is: &mut Stream<'_>) -> PResult<jiff::civil::Date> {
+    let (y, m, d) = seq!(
+        take_while(4, AsChar::is_dec_digit).try_map(i16::from_str)
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("year should be 'YYYY'"))),
         _: cut_err("-")
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("separator should be '-'"))),
-        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(i8::from_str))
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("month should be 'MM'"))),
         _: cut_err("-")
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("separator should be '-'"))),
-        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(i8::from_str))
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("day should be 'DD'"))),
     )
     .parse_next(is)?;
 
-    let m = match time::Month::try_from(m_u8) {
-        Ok(m) => m,
-        Err(err) => return Err(from_error(is, &err)),
-    };
-    match Date::from_calendar_date(y, m, d) {
+    match jiff::civil::Date::new(y, m, d) {
         Ok(d) => Ok(d),
         Err(err) => Err(from_error(is, &err)),
     }
 }
 
-fn parse_date(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
+fn parse_date(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
     let date = p_date(is)?;
 
     match is.state.get_offset_date(date) {
@@ -66,53 +62,43 @@ fn parse_date(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
     }
 }
 
-fn handle_time(h: u8, m: u8, s: u8, ns_opt: Option<&str>) -> Result<Time, Box<dyn Error>> {
+fn handle_time(
+    h: i8,
+    m: i8,
+    s: i8,
+    ns_opt: Option<&str>,
+) -> Result<jiff::civil::Time, Box<dyn Error>> {
     let t = match ns_opt {
         Some(ns_str) => {
-            let left_ns = u32::from_str(ns_str)?;
+            let left_ns = i32::from_str(ns_str)?;
             let ns_len = ns_str.chars().count();
             assert!(ns_len <= 9);
 
-            match ns_len {
-                0..=3 => {
-                    let ms = left_ns * 10u32.pow(3 - ns_len as u32);
-                    Time::from_hms_milli(h, m, s, ms as u16)?
-                }
-                4..=6 => {
-                    let micro_s = left_ns * 10u32.pow(6 - ns_len as u32);
-                    Time::from_hms_micro(h, m, s, micro_s)?
-                }
-                7..=9 => {
-                    let ns = left_ns * 10u32.pow(9 - ns_len as u32);
-                    Time::from_hms_nano(h, m, s, ns)?
-                }
-                _ => {
-                    unreachable!("IE: parser is preventing this match arm")
-                }
-            }
+            let ns = left_ns * 10i32.pow(9 - ns_len as u32);
+            jiff::civil::Time::new(h, m, s, ns)?
         }
-        None => Time::from_hms(h, m, s)?,
+        None => jiff::civil::Time::new(h, m, s, 0)?,
     };
     Ok(t)
 }
 
-fn p_datetime(is: &mut Stream<'_>) -> PResult<PrimitiveDateTime> {
+fn p_datetime(is: &mut Stream<'_>) -> PResult<jiff::civil::DateTime> {
     let (date, h, m, s, ns_opt) = seq!(
         p_date,
         _: "T",
-        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(i8::from_str))
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("hours format is 'HH'"))),
         _: cut_err(":")
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("hours-minutes separator is ':'"))),
-        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(i8::from_str))
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("minutes format is 'MM'"))),
         _: cut_err(":")
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("minutes-seconds separator is ':'"))),
-        cut_err(take_while(2, AsChar::is_dec_digit).try_map(u8::from_str))
+        cut_err(take_while(2, AsChar::is_dec_digit).try_map(i8::from_str))
             .context(StrContext::Label(CTX_LABEL))
             .context(StrContext::Expected(StrContextValue::Description("seconds format is 'SS'"))),
         opt((
@@ -128,45 +114,72 @@ fn p_datetime(is: &mut Stream<'_>) -> PResult<PrimitiveDateTime> {
         Err(err) => return Err(from_error(is, err.as_ref())),
     };
 
-    Ok(PrimitiveDateTime::new(date, time))
+    Ok(date.to_datetime(time))
 }
 
-fn parse_datetime(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
-    let dt = p_datetime(is)?;
+fn parse_datetime(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
+    let dt_jiff: jiff::civil::DateTime = p_datetime(is)?;
 
-    match is.state.get_offset_datetime(dt) {
-        Ok(dt) => Ok(dt),
+    match is.state.get_offset_datetime(dt_jiff) {
+        Ok(ts) => Ok(ts),
         Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 
-fn p_datetime_tz(is: &mut Stream<'_>) -> PResult<UtcOffset> {
-    let (sign, h, m) = alt((
-        'Z'.map(|_| (1i8, 0i8, 0i8)),
+fn p_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
+    #[rustfmt::skip]
+    let (sign, h, m) =
         seq!(
-            alt(('+'.value(1i8), '-'.value(-1i8))),
-            take_while(2, AsChar::is_dec_digit).try_map(i8::from_str),
+            alt(('+'.value(1i32), '-'.value(-1i32))),
+            take_while(2, AsChar::is_dec_digit).try_map(i32::from_str),
             _: ":",
-            take_while(2, AsChar::is_dec_digit).try_map(i8::from_str),
-        ),
-    ))
-    .parse_next(is)?;
+            take_while(2, AsChar::is_dec_digit).try_map(i32::from_str),
+        )
+        .parse_next(is)?;
 
-    match UtcOffset::from_hms(sign * h, sign * m, 0) {
+    match jiff::tz::Offset::from_seconds(sign * (h * 60 * 60 + m * 60)) {
         Ok(offset) => Ok(offset),
         Err(err) => Err(from_error(is, &err)),
     }
 }
 
-fn parse_datetime_tz(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
-    let (ts, tz) = seq!(p_datetime, p_datetime_tz,).parse_next(is)?;
+pub(crate) fn parse_offset(input: &mut &str) -> Result<jiff::tz::Offset, Box<dyn Error>> {
+    let mut is = Stream {
+        input,
+        state: &mut Settings::default(),
+    };
 
-    let ts_tz = ts.assume_offset(tz);
+    match p_offset(&mut is) {
+        Ok(offset) => Ok(offset),
+        Err(err) => {
+            let msg = format!("Cannot parse offset: {}", err);
+            Err(msg.into())
+        }
+    }
+}
+
+fn p_zulu_or_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
+    #[rustfmt::skip]
+    let res = alt((
+        'Z'.map(|_| jiff::tz::Offset::UTC),
+        p_offset
+    )).parse_next(is)?;
+
+    Ok(res)
+}
+
+fn parse_datetime_tz(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
+    let (ts, tz) = seq!(p_datetime, p_zulu_or_offset,).parse_next(is)?;
+
+    let ts_tz = match ts.to_zoned(tz.to_time_zone()) {
+        Ok(offset) => offset,
+        Err(err) => return Err(from_error(is, &err)),
+    };
 
     Ok(ts_tz)
 }
 
-pub(crate) fn parse_timestamp(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
+pub(crate) fn parse_timestamp(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
     let ts = alt((
         parse_datetime_tz,
         parse_datetime,
@@ -189,6 +202,7 @@ pub(crate) fn parse_timestamp(is: &mut Stream<'_>) -> PResult<OffsetDateTime> {
             ))),
     ))
     .parse_next(is)?;
+
     Ok(ts)
 }
 

@@ -14,6 +14,7 @@ Components (used direclty by Tackler-NG):
 * https://github.com/Byron/gitoxide[gix]
 * https://github.com/Byron/gitoxide[gix-hash]
 * https://github.com/dtolnay/indoc[indoc]
+* https://github.com/BurntSushi/jiff[jiff]
 * https://github.com/rust-itertools/itertools[itertools]
 * https://github.com/tikv/jemallocator[tikv-jemallocator]
 * https://github.com/rust-lang/log[log]
