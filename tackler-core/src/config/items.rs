@@ -22,6 +22,7 @@ use crate::config::raw_items::{
 };
 use crate::config::{to_export_targets, to_report_targets};
 use crate::kernel::hash::Hash;
+use crate::parser;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::Debug;
@@ -30,7 +31,6 @@ use std::{cmp, fs};
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::{GroupBy, TimestampStyle};
 use tackler_rs::get_abs_path;
-use time::{format_description, Time, UtcOffset};
 use time_tz::{timezones, Tz};
 
 /// UI/CFG key value for none
@@ -91,31 +91,7 @@ impl ExportType {
     }
 }
 
-///
-/// Timezone type, either named zone or offset
-///
-pub(crate) enum TimezoneType {
-    /// Timezone by Offset e.g. -07:00
-    Offset(UtcOffset),
-    /// Timezone by name e.g. Europe/Helsinki
-    Name(&'static Tz),
-}
-impl Clone for TimezoneType {
-    fn clone(&self) -> Self {
-        match self {
-            TimezoneType::Offset(offset) => TimezoneType::Offset(*offset),
-            TimezoneType::Name(tz) => TimezoneType::Name(tz),
-        }
-    }
-}
-impl Debug for TimezoneType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        match self {
-            TimezoneType::Offset(offset) => write!(f, "Offset: {:?}", offset),
-            TimezoneType::Name(tz) => write!(f, "Timezone: {:?}", tz),
-        }
-    }
-}
+enum Timezone {}
 
 pub(crate) type AccountSelectors = Vec<String>;
 
@@ -163,15 +139,15 @@ impl Kernel {
 
 #[derive(Debug, Clone)]
 pub(crate) struct Timestamp {
-    pub(crate) default_time: Time,
-    pub(crate) timezone: TimezoneType,
+    pub(crate) default_time: jiff::civil::Time,
+    pub(crate) timezone: jiff::tz::TimeZone,
 }
 
 impl Default for Timestamp {
     fn default() -> Self {
         Timestamp {
-            default_time: Time::MIDNIGHT,
-            timezone: TimezoneType::Offset(UtcOffset::UTC),
+            default_time: jiff::civil::Time::midnight(),
+            timezone: jiff::tz::Offset::UTC.to_time_zone(),
         }
     }
 }
@@ -181,30 +157,31 @@ impl Timestamp {
         let ts = Timestamp {
             default_time: {
                 let t = ts_raw.default_time;
-                Time::from_hms_nano(t.hour, t.minute, t.second, t.nanosecond)?
+                jiff::civil::Time::new(
+                    t.hour as i8,
+                    t.minute as i8,
+                    t.second as i8,
+                    t.nanosecond as i32,
+                )?
             },
-            timezone: { TimezoneType::from(&ts_raw.timezone)? },
+            timezone: { Timezone::from(&ts_raw.timezone)? },
         };
         Ok(ts)
     }
 }
 
-impl TimezoneType {
-    fn from(tz_raw: &TimezoneRaw) -> Result<TimezoneType, Box<dyn Error>> {
+impl Timezone {
+    fn from(tz_raw: &TimezoneRaw) -> Result<jiff::tz::TimeZone, Box<dyn Error>> {
         let tz = match (&tz_raw.name, &tz_raw.offset) {
             (Some(_), Some(_)) => {
                 let msg = "timezone: 'name' and 'offset' are both defined".to_string();
                 return Err(msg.into());
             }
-            (Some(tz_name), None) => TimezoneType::Name(
-                timezones::get_by_name(tz_name).ok_or(format!("Unknown timezone '{tz_name}'"))?,
-            ),
+            (Some(tz_name), None) => jiff::tz::TimeZone::get(tz_name)?,
             (None, Some(offset)) => {
-                let offset_format = format_description::parse("[offset_hour]:[offset_minute]")?;
-                let offset = UtcOffset::parse(offset, &offset_format)?;
-                TimezoneType::Offset(offset)
+                parser::parts::timestamp::parse_offset(&mut offset.as_str())?.to_time_zone()
             }
-            (None, None) => TimezoneType::Offset(UtcOffset::UTC),
+            (None, None) => jiff::tz::Offset::UTC.to_time_zone(),
         };
         Ok(tz)
     }

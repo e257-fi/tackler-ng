@@ -16,14 +16,14 @@
  */
 use crate::kernel::Settings;
 use crate::model::Commodity;
-use crate::parser::parts::identifier::{p_identifier, p_multi_part_id};
+use crate::parser::parts::identifier::p_identifier;
 use crate::parser::parts::number::p_number;
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::sync::Arc;
 use winnow::ascii::{space0, space1};
-use winnow::combinator::{alt, fail, opt};
+use winnow::combinator::{alt, opt};
 use winnow::{seq, PResult, Parser};
 /*
 // The old ANTLR Grammar
@@ -128,7 +128,7 @@ fn p_unit<'s>(is: &mut Stream<'s>) -> PResult<(&'s str, Option<Positions<'s>>)> 
     #[rustfmt::skip]
     let m = (
         space1,
-        p_multi_part_id,
+        p_identifier,
         opt(p_position)
     ).parse_next(is)?;
 
@@ -267,7 +267,7 @@ pub(crate) fn parse_posting_value(is: &mut Stream<'_>) -> PResult<ValuePosition>
 
     match handle_posting_value(m.0, m.1, is.state) {
         Ok(v) => Ok(v),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 

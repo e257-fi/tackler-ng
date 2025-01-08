@@ -19,10 +19,10 @@ use crate::model::Posting;
 use crate::parser::parts::comment::p_comment;
 use crate::parser::parts::identifier::p_multi_part_id;
 use crate::parser::parts::posting_value::{parse_posting_value, ValuePosition};
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use std::error::Error;
 use winnow::ascii::{line_ending, space0, space1};
-use winnow::combinator::{fail, opt};
+use winnow::combinator::opt;
 use winnow::{seq, PResult, Parser};
 /*
 // The old ANTLR Grammar
@@ -101,7 +101,7 @@ pub(crate) fn parse_txn_posting(is: &mut Stream<'_>) -> PResult<Posting> {
 
     match handle_posting(m.0, m.1, m.2, is.state) {
         Ok(posting) => Ok(posting),
-        Err(_e) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 

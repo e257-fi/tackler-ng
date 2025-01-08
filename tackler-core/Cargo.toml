@@ -37,6 +37,7 @@ path = "src/lib.rs"
 [dependencies]
 tackler-api =  { path = "../tackler-api",  version = "0.8.0-dev" }
 tackler-rs =   { path = "../tackler-rs",   version = "0.8.0-dev" }
+jiff = { workspace = true }
 log = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true }

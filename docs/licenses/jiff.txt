@@ -1,0 +1,4 @@
+name: jiff
+url: https://github.com/BurntSushi/jiff
+license-url: https://raw.githubusercontent.com/BurntSushi/jiff/refs/heads/master/LICENSE-MIT
+SPDX-License-Identifier: Unlicense OR MIT

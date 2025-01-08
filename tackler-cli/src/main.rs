@@ -80,7 +80,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
     let txn_data = match result {
         Ok(txn_data) => txn_data,
         Err(err) => {
-            let msg = format!("Invalid transaction input: {err}");
+            let msg = format!("Txn Data: {err}");
             error!("{}", msg);
             return Err(msg.into());
         }

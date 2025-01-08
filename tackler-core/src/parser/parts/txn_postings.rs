@@ -17,9 +17,9 @@
 use crate::model::posting::txn_sum;
 use crate::model::{Posting, Posts};
 use crate::parser::parts::txn_posting::{parse_txn_last_posting, parse_txn_posting};
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use std::ops::Neg;
-use winnow::combinator::{fail, opt, repeat};
+use winnow::combinator::{opt, repeat};
 use winnow::{seq, PResult, Parser};
 
 pub(crate) fn parse_txn_postings(is: &mut Stream<'_>) -> PResult<Posts> {
@@ -38,7 +38,7 @@ pub(crate) fn parse_txn_postings(is: &mut Stream<'_>) -> PResult<Posts> {
 
         let acctn = match is.state.get_or_create_txn_account(p.0, comm.clone()) {
             Ok(acctn) => acctn,
-            Err(_e) => return fail(is),
+            Err(err) => return Err(from_error(is, err.as_ref())),
         };
         let lp = Posting {
             acctn,

@@ -15,9 +15,7 @@
  *
  */
 use crate::config;
-use crate::config::{
-    AccountSelectors, Config, Export, ExportType, Kernel, Report, ReportType, TimezoneType,
-};
+use crate::config::{AccountSelectors, Config, Export, ExportType, Kernel, Report, ReportType};
 use crate::kernel::hash::Hash;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
@@ -27,8 +25,6 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tackler_api::txn_header::Tag;
-use time::{Date, OffsetDateTime, PrimitiveDateTime};
-use time_tz::{OffsetResult, PrimitiveDateTimeExt};
 
 pub struct GitInput {
     pub repo: PathBuf,
@@ -460,27 +456,25 @@ impl Settings {
 impl Settings {
     pub fn get_offset_datetime(
         &self,
-        dt: PrimitiveDateTime,
-    ) -> Result<OffsetDateTime, Box<dyn Error>> {
-        let ts_tz = match self.kernel.timestamp.timezone {
-            TimezoneType::Name(tz) => match dt.assume_timezone(tz) {
-                OffsetResult::Some(ts) => ts,
-                OffsetResult::Ambiguous(_, _) => {
-                    let msg = format!("time conversion is ambiguous '{dt:?}'");
-                    return Err(msg.into());
-                }
-                OffsetResult::None => {
-                    let msg = format!("time is invalid '{dt:?}'");
-                    return Err(msg.into());
-                }
-            },
-            TimezoneType::Offset(tz) => dt.assume_offset(tz),
-        };
-        Ok(ts_tz)
+        dt: jiff::civil::DateTime,
+    ) -> Result<jiff::Zoned, Box<dyn Error>> {
+        match dt.to_zoned(self.kernel.timestamp.timezone.clone()) {
+            Ok(ts) => Ok(ts),
+            Err(err) => {
+                let msg = format!("time is invalid '{:?}'", err);
+                Err(msg.into())
+            }
+        }
     }
-    pub fn get_offset_date(&self, date: Date) -> Result<OffsetDateTime, Box<dyn Error>> {
-        let ts = PrimitiveDateTime::new(date, self.kernel.timestamp.default_time);
-        self.get_offset_datetime(ts)
+    pub fn get_offset_date(&self, date: jiff::civil::Date) -> Result<jiff::Zoned, Box<dyn Error>> {
+        let ts = date.to_datetime(self.kernel.timestamp.default_time);
+        match ts.to_zoned(self.kernel.timestamp.timezone.clone()) {
+            Ok(ts) => Ok(ts),
+            Err(err) => {
+                let msg = format!("time is invalid '{:?}'", err);
+                Err(msg.into())
+            }
+        }
     }
 
     pub fn get_report_targets(

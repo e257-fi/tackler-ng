@@ -213,6 +213,12 @@ mod tests {
         let ts = OffsetDateTime::parse("2023-02-04T14:03:05.047974+02:00", &Rfc3339)
             .unwrap(/*:test:*/);
 
+        let ts_second = OffsetDateTime::parse("2025-01-08T14:15:16-05:00", &Rfc3339)
+            .unwrap(/*:test:*/);
+
+        let ts_nano = OffsetDateTime::parse("2025-01-08T14:15:16.123456789-05:00", &Rfc3339)
+            .unwrap(/*:test:*/);
+
         let uuid_str = "ed6d4110-f3c0-4770-87fc-b99e46572244";
         let uuid = Uuid::parse_str(uuid_str).unwrap(/*:test:*/);
 
@@ -243,6 +249,38 @@ mod tests {
                 },
                 indoc!(
                     "|2023-02-04T14:03:05.047974+02:00
+                     |"
+                )
+                .strip_margin(),
+            ),
+            (
+                TxnHeader {
+                    timestamp: ts_second,
+                    code: None,
+                    description: None,
+                    uuid: None,
+                    location: None,
+                    tags: None,
+                    comments: None,
+                },
+                indoc!(
+                    "|2025-01-08T14:15:16-05:00
+                     |"
+                )
+                .strip_margin(),
+            ),
+            (
+                TxnHeader {
+                    timestamp: ts_nano,
+                    code: None,
+                    description: None,
+                    uuid: None,
+                    location: None,
+                    tags: None,
+                    comments: None,
+                },
+                indoc!(
+                    "|2025-01-08T14:15:16.123456789-05:00
                      |"
                 )
                 .strip_margin(),

@@ -16,33 +16,48 @@
  */
 
 use crate::parser::parts::number::p_number;
-use crate::parser::Stream;
+use crate::parser::{from_error, Stream};
 use tackler_api::location::GeoPoint;
 use winnow::ascii::{line_ending, space0, space1};
-use winnow::combinator::{fail, opt, preceded};
+use winnow::combinator::{cut_err, opt, preceded};
+use winnow::error::{StrContext, StrContextValue};
 use winnow::{seq, PResult, Parser};
+
+const CTX_LABEL: &str = "txn metadata location";
 
 fn p_geo_uri(is: &mut Stream<'_>) -> PResult<GeoPoint> {
     let (lat, lon, alt) = seq!(
-        _: "geo:",
+        _: cut_err("geo:")
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("'geo:' uri specifier'")))
+            .context(StrContext::Expected(StrContextValue::Description(" # location: geo: lat, lon [,alt]"))),
         _: space0,
-        p_number,
+        cut_err(p_number)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("valid latitude"))),
         _: space0,
-        _: ',',
+        _: cut_err(',')
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("',' after latitude"))),
         _: space0,
-        p_number,
+        cut_err(p_number)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("valid longitude"))),
         _: space0,
         opt(preceded(
             ',',
             preceded(
                 space0,
-                p_number)))
+                cut_err(p_number)
+                    .context(StrContext::Label(CTX_LABEL))
+                    .context(StrContext::Expected(StrContextValue::Description("valid altitude"))),
+            )))
     )
     .parse_next(is)?;
 
     match GeoPoint::from(lat, lon, alt) {
         Ok(point) => Ok(point),
-        Err(_err) => fail(is),
+        Err(err) => Err(from_error(is, err.as_ref())),
     }
 }
 
@@ -50,11 +65,20 @@ pub(crate) fn parse_meta_location(is: &mut Stream<'_>) -> PResult<GeoPoint> {
     let geo = seq!(
         _: space1,
         _: '#',
-        _: space1,
+        _: cut_err(space1)
+            .context(StrContext::Label("txn metadata"))
+            .context(StrContext::Expected(StrContextValue::Description("space after '#'"))),
         _: "location:",
-        _: space1,
-        p_geo_uri,
-        _: line_ending
+        _: cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("space after 'location:'"))),
+        cut_err(p_geo_uri)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("valid geo uri"))),
+        _: space0,
+        _: cut_err(line_ending)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("line ending"))),
     )
     .parse_next(is)?;
 

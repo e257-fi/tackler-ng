@@ -344,9 +344,9 @@ use tackler_rs::IndocUtils;
 
           let res = parser::string_to_txns(&mut txns_str.as_str(), &mut Settings::default());
           assert!(res.is_err());
-          // let msg = res.err().unwrap(/*:test:*/).to_string();
-          // todo: assert!(msg.contains("Unit price"));
-          // todo: assert!(msg.contains("is negative"));
+          let msg = res.err().unwrap(/*:test:*/).to_string();
+          assert!(msg.contains("Unit price"));
+          assert!(msg.contains("is negative"));
       }
 
       #[test]
@@ -381,8 +381,8 @@ use tackler_rs::IndocUtils;
 
           let res = parser::string_to_txns(&mut txns_str.as_str(), &mut Settings::default());
           assert!(res.is_err());
-          // let msg = res.err().unwrap(/*:test:*/).to_string();
-          // todo: assert!(msg.contains("Different commodities without"));
+          let msg = res.err().unwrap(/*:test:*/).to_string();
+          assert!(msg.contains("Different commodities without"));
       }
 
       #[test]
@@ -399,9 +399,9 @@ use tackler_rs::IndocUtils;
 
           let res = parser::string_to_txns(&mut txns_str.as_str(), &mut Settings::default());
           assert!(res.is_err());
-          // let msg = res.err().unwrap(/*:test:*/).to_string();
-          // todo: assert!(msg.contains("Total cost"));
-          // todo: assert!(msg.contains("different sign"));
+          let msg = res.err().unwrap(/*:test:*/).to_string();
+          assert!(msg.contains("Total cost"));
+          assert!(msg.contains("different sign"));
       }
 
       #[test]
@@ -418,9 +418,9 @@ use tackler_rs::IndocUtils;
 
           let res = parser::string_to_txns(&mut txns_str.as_str(), &mut Settings::default());
           assert!(res.is_err());
-          // let msg = res.err().unwrap(/*:test:*/).to_string();
-          // todo: assert!(msg.contains("Total cost"));
-          // todo: assert!(msg.contains("different sign"));
+          let msg = res.err().unwrap(/*:test:*/).to_string();
+          assert!(msg.contains("Total cost"));
+          assert!(msg.contains("different sign"));
       }
 
 
@@ -438,7 +438,7 @@ use tackler_rs::IndocUtils;
 
           let res = parser::string_to_txns(&mut txns_str.as_str(), &mut Settings::default());
           assert!(res.is_err());
-          // todo: assert!(res.err().unwrap(/*:test:*/).to_string().contains("Both commodities are same for value position [€]"));
+          assert!(res.err().unwrap(/*:test:*/).to_string().contains("Both commodities are same for value position [€]"));
       }
 
       #[test]
@@ -455,7 +455,7 @@ use tackler_rs::IndocUtils;
 
           let res = parser::string_to_txns(&mut txns_str.as_str(), &mut Settings::default());
           assert!(res.is_err());
-          // todo: assert!(res.err().unwrap(/*:test:*/).to_string().contains("Different commodities without"));
+          assert!(res.err().unwrap(/*:test:*/).to_string().contains("Different commodities without"));
       }
 
     #[test]

@@ -48,11 +48,8 @@ use tackler_rs::IndocUtils;
         let res = parser::string_to_txns(&mut t.0.as_ref(), &mut Settings::default());
         assert!(res.is_err(),
                 "Testing Error: Offending test vector item: {}", count);
-        /*
-        // todo: parser error messages, error position
         assert!(res.err().unwrap(/*:test:*/).to_string().contains(t.1),
                 "Testing Line: Offending test vector item: {}", count);
-         */
         count += 1;
       }
       assert_eq!(count, should_be_count);
