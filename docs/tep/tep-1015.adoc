@@ -28,11 +28,6 @@ This TEP does not propose any method for calculating the fixed conversions (e.g.
 No change would be made to the journal file format. A new file type would be added with a format similar to the default format of Ledger CLI as described https://ledger-cli.org/doc/ledger3.html[here].
 
 ----
-'P' TIMESTAMP AMOUNT COMMODITY '=' AMOUNT COMMODITY OPTIONAL_COMMENT
-----
-
-COMMENT: This should/could be just simplified ledger format?
-----
 'P' TIMESTAMP COMMODITY AMOUNT COMMODITY OPT_COMMENT
 ----
 
