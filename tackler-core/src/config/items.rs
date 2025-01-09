@@ -22,7 +22,7 @@ use crate::config::raw_items::{
 };
 use crate::config::{to_export_targets, to_report_targets};
 use crate::kernel::hash::Hash;
-use crate::parser;
+use jiff::fmt::strtime::BrokenDownTime;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::Debug;
@@ -178,9 +178,13 @@ impl Timezone {
                 return Err(msg.into());
             }
             (Some(tz_name), None) => jiff::tz::TimeZone::get(tz_name)?,
-            (None, Some(offset)) => {
-                parser::parts::timestamp::parse_offset(&mut offset.as_str())?.to_time_zone()
-            }
+            (None, Some(offset)) => match BrokenDownTime::parse("%:z", offset)?.offset() {
+                Some(tm) => tm.to_time_zone(),
+                None => {
+                    let msg = format!("can't parse offset '{offset}' as valid offset");
+                    return Err(msg.into());
+                }
+            },
             (None, None) => jiff::tz::Offset::UTC.to_time_zone(),
         };
         Ok(tz)

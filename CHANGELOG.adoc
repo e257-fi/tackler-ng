@@ -49,6 +49,7 @@ Fixes in this release:
 
 * Thanks to @zamazan4ik for pointing out missing LTO settings
 * Thanks to @epage for pointing the `rust-2018-idioms` lint
+* Thanks to @BurntSushi for helping with offset parsing
 
 ==== Development
 

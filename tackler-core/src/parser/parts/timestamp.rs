@@ -17,7 +17,6 @@
 use std::error::Error;
 use winnow::{seq, PResult, Parser};
 
-use crate::kernel::Settings;
 use crate::parser::{from_error, Stream};
 use std::str::FromStr;
 use winnow::combinator::{alt, cut_err, fail, opt};
@@ -140,21 +139,6 @@ fn p_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
     match jiff::tz::Offset::from_seconds(sign * (h * 60 * 60 + m * 60)) {
         Ok(offset) => Ok(offset),
         Err(err) => Err(from_error(is, &err)),
-    }
-}
-
-pub(crate) fn parse_offset(input: &mut &str) -> Result<jiff::tz::Offset, Box<dyn Error>> {
-    let mut is = Stream {
-        input,
-        state: &mut Settings::default(),
-    };
-
-    match p_offset(&mut is) {
-        Ok(offset) => Ok(offset),
-        Err(err) => {
-            let msg = format!("Cannot parse offset: {}", err);
-            Err(msg.into())
-        }
     }
 }
 
