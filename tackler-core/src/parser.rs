@@ -21,6 +21,7 @@ pub use crate::parser::tackler_txns::GitInputSelector;
 use winnow::error::{ErrMode, FromExternalError};
 
 mod error;
+mod pricedb_parser;
 mod tackler_parser;
 mod tackler_txns;
 
