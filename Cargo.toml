@@ -48,7 +48,7 @@ jiff = { version = "0.1.21" }
 rust_decimal = { version = "1.36.0", features= ["serde-with-arbitrary-precision" ]}
 rust_decimal_macros = { version = "1.36" }
 uuid = { version = "1.11.0", default-features = false, features = [ "serde" ] }
-log = "0.4.22"
+log = "0.4.24"
 regex =  { version = "1.11.1" }
 serde = { version = "1.0.217", default-features = false }
 serde_json = { version = "1.0.134" , default-features = false, features = [ "std", "arbitrary_precision" ] }
