@@ -181,7 +181,14 @@ All contributions are valued and none is too small or insignificant.
 See link:CONTRIBUTING.adoc[CONTRIBUTING] for details how you could participate
 with Tackler-NG development.
 
+Following people have helped or contributed to the development of Tackler-NG:
 
+link:https://github.com/byron[Byron],
+link:https://github.com/zamazan4ik[zamazan4ik]
+link:https://github.com/epage/[epage],
+link:https://github.com/BurntSushi[BurntSushi],
+
+Thank you!
 
 == Security
 
