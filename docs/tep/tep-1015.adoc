@@ -20,8 +20,63 @@ Add a representation of historical price data.
 1. If a posting has rate or equivalence noted, it gets applied.
 2. Otherwise, price conversion only takes account of data noted in the nearest earlier entry price DB, disregarding any rate or equivalent noted in any transaction that is later than the price DB entry.
   * This is to ensure that filtering out any transaction does not change a report for a given PriceDB.
+  * This is also to ensure that reported values won't change over the time (see  <<historic-with-filters>>).
 
 This TEP does not propose any method for calculating the fixed conversions (e.g. oz to g, gallons to litres, etc).
+
+[#historic-with-filters]
+==== Historic price data with filters
+
+Let's assume there are following price data entries (three entries per year, distributed evenly):
+
+----
+P 2024-01-01 ACME 2401.01 USD
+P 2024-05-01 ACME 2405.01 USD
+P 2024-09-01 ACME 2409.01 USD
+P 2025-01-01 ACME 2501.01 USD
+----
+
+Today is 2025-01-01 and we run filtering query which will include txns from range `2024-01-01 .. 2024-04-01` into our reports.
+
+The used price data for reporting is 2401.01 USD, (the `P 2024-01-01 ACME 2401.01 USD` entry), as it is the nearest earlier recorded price in the Price DB.  This will ensure that reported values are same, regardless if the report is run on 2024-04-01 or 2025-01-01.
+
+
+==== Inverted prices
+
+At the moment inverted prices are not supported.
+
+With following PriceDB, conversion from `USD` to `EUR` is not supported.
+
+.PriceDB
+----
+P 2025-01-07 EUR 1.3 USD
+----
+
+For `USD` to `EUR` conversion, there must be an own entry in the price db:
+
+.PriceDB
+----
+P 2025-01-07 EUR 1.3 USD
+P 2025-01-07 USD 0.77 EUR ; 1/1.3 ~ 0.7692307692307692307, in real life this is official rate
+----
+
+==== Price conversion chains
+
+Price conversions chains are not supported with the initial implementation.
+
+For example, with following rates
+
+.PriceDB
+----
+P 2025-01-07 EUR 11.50 SEK
+P 2025-01-07 SEK  1.02 NOK
+P 2025-01-07 NOK  0.09 USD ; EUR->SEK-NOK->USD = 1.055700. The real rate is 1.02
+----
+
+The conversion from `EUR` to `USD` via `SEK` and `NOK` is not supported.
+
+Reason is that this substantially complicates reporting logic, and also could produce surprising results, especially when mixed with direct conversion rates.
+
 
 == Journal File Format
 
@@ -51,7 +106,7 @@ The `timestamp` will use the same logic as transaction timestamps:
 * Timestamp without zone or offset, then the `kernel.timestamp.timezone` value is used as zone/offset.
 * Date, then `kernel.timestamp.default-time` is used with `kernel.timestamp.timezone`.
 
-The resulting timestamp is always with zone/offset.
+The resulting timestamp is always with offset.
 
 
 == Implementation
@@ -79,16 +134,12 @@ None
 Changes to machinery
 
 * [ ] Add a new model _PriceEntry_ with fields
-  - timestamp with offset or timezone (1)
-  - commodity 1 with optional amount (assumed 1 if missing) (2)
-  - commodity 2 with amount
+  - timestamp with offset
+  - commodity 1 with amount 1
+  - commodity 2 with rate
   - optional comment
 
-1) The value time (price point) could be reported (in reports), so it would be nice to have timestamp with zone/offset for user experience, if needed.  There is also `report.report-timezone` which should be used to present the price timestamp in defined timezone.
-
-2) I would recommend that it's always 1, as that will simplify the logic and commodity 2 could be adjusted against that.
-
-The counter-argument is if there are exchange rates with full units e.g. 2 apples for 3 oranges, but that's special case, and would need own special logic in any case.
+The `report.report-timezone` is used to convert price data to displayed zone in the reports.
 
 ==== API Changes
 
@@ -228,6 +279,21 @@ Changes to identity export
 === Future Plans and Postponed (PP) Features
 
 How and where to go from here?
+
+* Maybe support for price conversion chains? (`EUR` -> `SEK` -> `NOK` -> `USD`)
+
+[#future-price-date]
+==== Used Price date
+
+In the future there could be a CLI/CONF option to define which price data will be used with reports when using filtering and restricting reporting to past dates.
+
+Possible idea-level options could be:
+
+* Latest recorded value in PriceDB
+* Latest available price before given date (e.g. `--price.date=2024-05-01`)
+* Next, nearest future price
+* Linear fitting between nearest past and nearest future prices
+
 
 ==== Postponed (PP) Features
 
