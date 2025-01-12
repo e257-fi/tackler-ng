@@ -11,6 +11,7 @@ pub mod items;
 use items::MetadataItem;
 use items::MetadataItems;
 use items::Text;
+use jiff::tz::TimeZone;
 
 /// Metadata of Inputs, Txn Set, Reporting parameters, etc.
 ///
@@ -59,12 +60,12 @@ impl Metadata {
 
     /// Get textual representation of Metadata
     #[must_use]
-    pub fn text(&self) -> String {
+    pub fn text(&self, tz: TimeZone) -> String {
         let ts = self
             .items
             .iter()
             .flat_map(|item| {
-                let mut vs = item.text();
+                let mut vs = item.text(tz.clone());
                 // put a newline between metadata items
                 vs.push(String::default());
                 vs

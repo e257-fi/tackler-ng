@@ -14,7 +14,7 @@ impl Predicate<Transaction> for TxnFilterTxnUUID {
         txn.header
             .uuid
             .as_ref()
-            .map_or(false, |uuid| uuid == &self.uuid)
+            .is_some_and(|uuid| uuid == &self.uuid)
     }
 }
 

@@ -11,7 +11,7 @@ use crate::kernel::Predicate;
 
 impl Predicate<Transaction> for TxnFilterBBoxLatLonAlt {
     fn eval(&self, txn: &Transaction) -> bool {
-        txn.header.location.as_ref().map_or(false, |point| {
+        txn.header.location.as_ref().is_some_and(|point| {
             let res2d = if self.west < self.east {
                 self.south <= point.lat
                     && point.lat <= self.north

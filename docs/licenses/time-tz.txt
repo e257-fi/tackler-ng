@@ -1,4 +1,0 @@
-name: time-tz
-url: https://github.com/Yuri6037/time-tz
-license-url: https://raw.githubusercontent.com/Yuri6037/time-tz/master/LICENSE.txt
-SPDX-License-Identifier: BSD-3-Clause

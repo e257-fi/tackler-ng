@@ -275,7 +275,7 @@ test_name=audit-1E2-08
 echo "test: $module/$test_name: "
 
 # base64 armored filter definition
-filter_def=$(make_filter_with_time_span "account_flt_body" '^e:.*' "2016-01-01T00:00:00Z" "2016-02-01T00:00:00Z")
+filter_def=$(make_filter_with_time_span "account_flt_body" '^e:.*' "2016-01-01T00:00:00Z[UTC]" "2016-02-01T00:00:00Z[UTC]")
 #echo "filter: $fltdef"
 
 $TACKLER_SH \

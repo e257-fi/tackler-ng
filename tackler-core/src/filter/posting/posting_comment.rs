@@ -13,7 +13,7 @@ impl Predicate<Transaction> for TxnFilterPostingComment {
     fn eval(&self, txn: &Transaction) -> bool {
         txn.posts
             .iter()
-            .any(|p| p.comment.as_ref().map_or(false, |c| self.regex.is_match(c)))
+            .any(|p| p.comment.as_ref().is_some_and(|c| self.regex.is_match(c)))
     }
 }
 
