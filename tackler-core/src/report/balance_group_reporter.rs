@@ -23,19 +23,19 @@ use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
 use crate::report::{get_report_tz, write_acc_sel_checksum, Report};
 use crate::report::{BalanceReporter, BalanceSettings};
+use jiff::tz::TimeZone;
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::Text;
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::GroupBy;
-use time_tz::Tz;
 
 #[derive(Debug, Clone)]
 pub struct BalanceGroupSettings {
     pub title: String,
     pub ras: Vec<String>,
     pub group_by: GroupBy,
-    pub report_tz: &'static Tz,
+    pub report_tz: TimeZone,
     pub scale: Scale,
 }
 
@@ -51,7 +51,7 @@ impl BalanceGroupSettings {
                 Some(group_by) => group_by,
                 None => settings.report.balance_group.group_by,
             },
-            report_tz: settings.report.report_tz,
+            report_tz: settings.report.report_tz.clone(),
             scale: settings.report.scale.clone(),
         };
         Ok(bgs)
@@ -69,23 +69,23 @@ impl BalanceGroupReporter {
     }
 
     fn get_group_by_op(&self) -> TxnGroupByOp<'_> {
-        let tz: &'static Tz = self.report_settings.report_tz;
+        let tz: TimeZone = self.report_settings.report_tz.clone();
         match self.report_settings.group_by {
             GroupBy::IsoWeekDate => Box::new(move |txn: &Transaction| {
-                txn_ts::as_tz_iso_week_date(txn.header.timestamp, tz)
+                txn_ts::as_tz_iso_week_date(&txn.header.timestamp, tz.clone())
             }),
-            GroupBy::IsoWeek => {
-                Box::new(|txn: &Transaction| txn_ts::as_tz_iso_week(txn.header.timestamp, tz))
-            }
-            GroupBy::Date => {
-                Box::new(|txn: &Transaction| txn_ts::as_tz_date(txn.header.timestamp, tz))
-            }
-            GroupBy::Month => {
-                Box::new(|txn: &Transaction| txn_ts::as_tz_month(txn.header.timestamp, tz))
-            }
-            GroupBy::Year => {
-                Box::new(|txn: &Transaction| txn_ts::as_tz_year(txn.header.timestamp, tz))
-            }
+            GroupBy::IsoWeek => Box::new(move |txn: &Transaction| {
+                txn_ts::as_tz_iso_week(&txn.header.timestamp, tz.clone())
+            }),
+            GroupBy::Date => Box::new(move |txn: &Transaction| {
+                txn_ts::as_tz_date(&txn.header.timestamp, tz.clone())
+            }),
+            GroupBy::Month => Box::new(move |txn: &Transaction| {
+                txn_ts::as_tz_month(&txn.header.timestamp, tz.clone())
+            }),
+            GroupBy::Year => Box::new(move |txn: &Transaction| {
+                txn_ts::as_tz_year(&txn.header.timestamp, tz.clone())
+            }),
         }
     }
 }
@@ -105,7 +105,10 @@ impl Report for BalanceGroupReporter {
 
         write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
 
-        for v in get_report_tz(cfg, self.report_settings.report_tz)?.text() {
+        // todo: fix this silliness
+        for v in get_report_tz(cfg, self.report_settings.report_tz.clone())?
+            .text(self.report_settings.report_tz.clone())
+        {
             writeln!(writer, "{}", &v)?;
         }
         writeln!(writer)?;

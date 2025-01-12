@@ -25,7 +25,7 @@ impl Predicate<Transaction> for TxnFilterTxnComments {
         txn.header
             .comments
             .as_ref()
-            .map_or(false, |tags| tags.iter().any(|t| self.regex.is_match(t)))
+            .is_some_and(|tags| tags.iter().any(|t| self.regex.is_match(t)))
     }
 }
 

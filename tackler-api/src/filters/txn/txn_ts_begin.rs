@@ -15,38 +15,35 @@
  *
  */
 
+use crate::filters::IndentDisplay;
+use crate::txn_ts::rfc_3339;
+use jiff::tz::TimeZone;
+use jiff::Timestamp;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
-use time::format_description::well_known::Rfc3339;
-use time::OffsetDateTime;
-
-use crate::filters::IndentDisplay;
 
 /// Txn TS Begin filter
 ///
 /// Select transaction if its timestamp is on or after
 /// specified `begin` time.
 ///
-/// `begin` is inclusive timestamp in ISO 8601 format with zone
+/// `begin` is inclusive timestamp in ISO 8601 format with offset
 ///
-/// Time is expressed as ISO 8601 format with zone,
+/// Time is expressed as ISO 8601 format with offset,
 /// e.g. 2018-01-01T10:11:22.345+02:00
 /// or 2018-01-01T08:11:22.345Z.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct TxnFilterTxnTSBegin {
     #[doc(hidden)]
-    #[serde(with = "time::serde::rfc3339")]
-    pub begin: OffsetDateTime,
+    pub begin: Timestamp,
 }
 
 impl IndentDisplay for TxnFilterTxnTSBegin {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(
             f,
             "{indent}Txn TS: begin {}",
-            self.begin
-                .format(&Rfc3339)
-                .unwrap_or_else(|_| { "IE: ts frmt error".to_string() })
+            rfc_3339(&self.begin.to_zoned(tz))
         )
     }
 }
@@ -54,8 +51,11 @@ impl IndentDisplay for TxnFilterTxnTSBegin {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
+    use crate::filters::{
+        logic::TxnFilterAND, FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter,
+    };
     use indoc::indoc;
+    use jiff::tz;
     use tackler_rs::IndocUtils;
 
     #[test]
@@ -64,6 +64,8 @@ mod tests {
     fn txn_ts_begin_json() {
         let filter_json_str =
             r#"{"txnFilter":{"TxnFilterTxnTSBegin":{"begin":"2023-02-25T10:11:22.345+02:00"}}}"#;
+        let filter_json_zulu_str =
+            r#"{"txnFilter":{"TxnFilterTxnTSBegin":{"begin":"2023-02-25T08:11:22.345Z"}}}"#;
 
         let filter_text_str = indoc! {
         "|Filter
@@ -80,10 +82,19 @@ mod tests {
             _ => panic!(/*:test:*/),
         }
 
-        assert_eq!(format!("{tf}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::get("Etc/GMT-2").unwrap(/*:test:*/)
+                }
+            ),
+            filter_text_str
+        );
         assert_eq!(
             serde_json::to_string(&tf).unwrap(/*:test:*/),
-            filter_json_str
+            filter_json_zulu_str
         );
     }
 
@@ -96,7 +107,7 @@ mod tests {
 
         let filter_text_str = indoc! {
         "|Filter
-         |  Txn TS: begin 2023-02-25T10:11:22.345Z
+         |  Txn TS: begin 2023-02-25T10:11:22.345+00:00
          |"}
         .strip_margin();
 
@@ -109,7 +120,16 @@ mod tests {
             _ => panic!(/*:test:*/),
         }
 
-        assert_eq!(format!("{tf}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
     }
 
     #[test]
@@ -133,7 +153,16 @@ mod tests {
             _ => panic!(/*:test:*/),
         }
 
-        assert_eq!(format!("{tf}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::get("Etc/GMT+5").unwrap(/*:test:*/)
+                }
+            ),
+            filter_text_str
+        );
     }
 
     #[test]
@@ -150,17 +179,17 @@ mod tests {
          |"}
         .strip_margin();
 
-        let tfd = FilterDefinition {
+        let tf = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterTxnTSBegin(TxnFilterTxnTSBegin {
-                        begin: OffsetDateTime::parse("2023-02-25T10:11:22.345+02:00", &Rfc3339)
+                        begin: "2023-02-25T10:11:22.345+02:00".parse()
                             .unwrap(/*:test:*/),
                     }),
                     TxnFilter::TxnFilterAND(TxnFilterAND {
                         txn_filters: vec![
                             TxnFilter::TxnFilterTxnTSBegin(TxnFilterTxnTSBegin {
-                                begin: OffsetDateTime::parse("2023-02-25T20:11:22.345+02:00", &Rfc3339)
+                                begin: "2023-02-25T20:11:22.345+02:00".parse()
                                     .unwrap(/*:test:*/),
                             }),
                             TxnFilter::NullaryTRUE(NullaryTRUE {}),
@@ -170,6 +199,15 @@ mod tests {
             }),
         };
 
-        assert_eq!(format!("{tfd}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::get("Etc/GMT-2").unwrap(/*:test:*/)
+                }
+            ),
+            filter_text_str
+        );
     }
 }

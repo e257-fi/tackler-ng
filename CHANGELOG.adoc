@@ -36,8 +36,9 @@ New features:
 
 Changed functionality:
 
-* ...
-** ...
+* Replaced time and time-tz with jiff
+** This have some user visible changes, e.g. 'Z' is replaced with '+00:00'
+** Txn Filters, Txn Timestamp: Begin and End are displayed with report timezone
 
 ==== Fixes
 

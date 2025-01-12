@@ -16,6 +16,7 @@
  */
 
 use crate::filters::IndentDisplay;
+use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
@@ -35,7 +36,7 @@ pub struct TxnFilterBBoxLatLon {
 }
 
 impl IndentDisplay for TxnFilterBBoxLatLon {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, _tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         let my_indent = format!("{indent}  ");
         writeln!(f, "{indent}Txn Bounding Box 2D")?;
         writeln!(
@@ -54,8 +55,11 @@ impl IndentDisplay for TxnFilterBBoxLatLon {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
+    use crate::filters::{
+        logic::TxnFilterAND, FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter,
+    };
     use indoc::indoc;
+    use jiff::tz;
     use rust_decimal_macros::dec;
     use tackler_rs::IndocUtils;
 
@@ -82,7 +86,16 @@ mod tests {
             _ => panic!(/*:test:*/),
         }
 
-        assert_eq!(format!("{tf}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
         assert_eq!(
             serde_json::to_string(&tf).unwrap(/*:test:*/),
             filter_json_str
@@ -107,7 +120,7 @@ mod tests {
          |"}
         .strip_margin();
 
-        let tfd = FilterDefinition {
+        let tf = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterBBoxLatLon(TxnFilterBBoxLatLon {
@@ -131,6 +144,15 @@ mod tests {
             }),
         };
 
-        assert_eq!(format!("{tfd}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
     }
 }

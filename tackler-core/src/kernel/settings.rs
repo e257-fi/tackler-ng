@@ -100,7 +100,7 @@ impl AccountTrees {
         other_account_tree: Option<&HashMap<String, Arc<AccountTreeNode>>>,
     ) -> Result<(), Box<dyn Error>> {
         let parent = atn.parent.as_str();
-        let has_parent = other_account_tree.map_or(false, |a| a.contains_key(parent))
+        let has_parent = other_account_tree.is_some_and(|a| a.contains_key(parent))
             || target_account_tree.contains_key(parent);
 
         if has_parent || atn.is_root() {

@@ -21,18 +21,18 @@ use crate::kernel::Settings;
 use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs};
 use crate::report::RegisterSettings;
 use itertools::Itertools;
+use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use std::collections::HashMap;
 use std::error::Error;
 use std::io;
 use tackler_api::txn_ts::TimestampStyle;
-use time_tz::Tz;
 
 pub(crate) type RegisterReporterFn<W> = fn(
     writer: &mut W,
     &RegisterEntry<'_>,
     TimestampStyle,
-    &'static Tz,
+    TimeZone,
     &RegisterSettings,
 ) -> Result<(), Box<dyn Error>>;
 
@@ -64,7 +64,7 @@ pub(crate) fn register_engine<'a, W, T>(
     txns: &'a TxnRefs<'_>,
     ras: &T,
     ts_style: TimestampStyle,
-    report_tz: &'static Tz,
+    report_tz: TimeZone,
     w: &mut W,
     reporter: RegisterReporterFn<W>,
     register_settings: &RegisterSettings,
@@ -105,7 +105,13 @@ where
             txn,
             posts: filt_postings,
         };
-        reporter(w, &register_entry, ts_style, report_tz, register_settings)?;
+        reporter(
+            w,
+            &register_entry,
+            ts_style,
+            report_tz.clone(),
+            register_settings,
+        )?;
     }
     Ok(())
 }

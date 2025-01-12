@@ -41,8 +41,6 @@ jiff = { workspace = true }
 log = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true }
-time = { workspace = true }
-time-tz = { workspace = true }
 uuid = { workspace = true }
 itertools = { workspace = true }
 regex = { workspace = true }

@@ -27,7 +27,7 @@ use rust_decimal::Decimal;
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::{AccountSelectorChecksum, Text};
-use time::format_description::well_known::Rfc3339;
+use tackler_api::txn_ts::rfc_3339;
 use uuid::Uuid;
 
 #[derive(Debug, Clone)]
@@ -102,7 +102,7 @@ impl Export for EquityExporter {
                 Some(txn) => {
                     format!(
                         "{} 'Equity{}{}",
-                        txn.header.timestamp.format(&Rfc3339).unwrap(/*:ok: predefined frmt string*/),
+                        rfc_3339(&txn.header.timestamp),
                         comm_str(),
                         txn_uuid_str(txn.header.uuid)
                     )
@@ -167,14 +167,14 @@ impl Export for EquityExporter {
                 eq_txn.push(hdr_str(last_txn, c));
                 if let Some(md) = &txn_data.metadata {
                         for mdi in md.items.clone() {
-                            eq_txn.extend(mdi.text().iter().map(|v| {
+                            eq_txn.extend(mdi.text(cfg.report.report_tz.clone()).iter().map(|v| {
                                 format!("{}; {}", eq_txn_indent, v)
                             }).collect::<Vec<_>>());
                             eq_txn.push(format!("{}; ", eq_txn_indent));
                         }
 
                         if let Some(asc) = &acc_sel_checksum {
-                            for v in asc.text() {
+                            for v in asc.text(cfg.report.report_tz.clone()) {
                                 eq_txn.push(format!("{}; {}", eq_txn_indent, &v));
                             }
                             eq_txn.push(format!("{}; ", eq_txn_indent));

@@ -25,7 +25,7 @@ impl Predicate<Transaction> for TxnFilterTxnDescription {
         txn.header
             .description
             .as_ref()
-            .map_or(false, |desc| self.regex.is_match(desc))
+            .is_some_and(|desc| self.regex.is_match(desc))
     }
 }
 
