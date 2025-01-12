@@ -285,7 +285,7 @@ use tackler_rs::IndocUtils;
             | e -1
             |
             |").strip_margin(),
-          "2017-06-24T00:00:00Z"
+          "2017-06-24T00:00:00+00:00"
         ),
         (indoc!(
             "|
@@ -294,7 +294,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T00:00:00Z"
+          "2017-06-24T00:00:00+00:00"
         ),
         (indoc!(
           "|
@@ -303,7 +303,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T00:00:00Z"
+          "2017-06-24T00:00:00+00:00"
         ),
         (indoc!(
            "|
@@ -312,7 +312,7 @@ use tackler_rs::IndocUtils;
             | e -1
             |
             |").strip_margin(),
-          "2017-06-24T14:01:02Z"
+          "2017-06-24T14:01:02+00:00"
         ),
         (indoc!(
             "|
@@ -321,7 +321,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02Z"
+          "2017-06-24T14:01:02+00:00"
         ),
         (indoc!(
             "|
@@ -330,7 +330,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02Z"
+          "2017-06-24T14:01:02+00:00"
         ),
         (indoc!(
            "|
@@ -339,7 +339,7 @@ use tackler_rs::IndocUtils;
             | e -1
             |
             |").strip_margin(),
-          "2017-06-24T14:01:02Z"
+          "2017-06-24T14:01:02+00:00"
         ),
         (indoc!(
             "|
@@ -348,7 +348,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02Z"
+          "2017-06-24T14:01:02+00:00"
         ),
         (indoc!(
             "|
@@ -357,7 +357,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02Z"
+          "2017-06-24T14:01:02+00:00"
         ),
             // 10
         (indoc!(
@@ -426,7 +426,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-           "2017-06-24T14:01:02.123456789Z"
+           "2017-06-24T14:01:02.123456789+00:00"
          ),
          (indoc!(
              "|
@@ -435,7 +435,7 @@ use tackler_rs::IndocUtils;
               | e -1
               |
               |").strip_margin(),
-           "2017-06-24T14:01:02.123456789Z"
+           "2017-06-24T14:01:02.123456789+00:00"
          ),
         (indoc!(
             "|
@@ -444,7 +444,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02.123456789Z"
+          "2017-06-24T14:01:02.123456789+00:00"
         ),
         (indoc!(
            "|
@@ -453,7 +453,7 @@ use tackler_rs::IndocUtils;
             | e -1
             |
             |").strip_margin(),
-          "2017-06-24T14:01:02.123456789Z"
+          "2017-06-24T14:01:02.123456789+00:00"
         ),
         (indoc!(
             "|
@@ -462,7 +462,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02.123456789Z"
+          "2017-06-24T14:01:02.123456789+00:00"
         ),
         (indoc!(
             "|
@@ -471,7 +471,7 @@ use tackler_rs::IndocUtils;
              | e -1
              |
              |").strip_margin(),
-          "2017-06-24T14:01:02.123456789Z"
+          "2017-06-24T14:01:02.123456789+00:00"
         ),
         (indoc!(
            "|

@@ -6,11 +6,11 @@
 
 //! Transaction header
 //!
+use jiff::tz::TimeZone;
+use jiff::Zoned;
 use std::cmp::Ordering;
 use std::fmt::Write;
 use std::sync::Arc;
-use time::{Date, OffsetDateTime, PrimitiveDateTime, Time};
-use time_tz::Tz;
 use uuid::Uuid;
 
 /// Collection of Txn Tags
@@ -26,10 +26,10 @@ use crate::location::GeoPoint;
 
 /// Transaction Header Structure
 ///
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TxnHeader {
     /// Txn timestamp with Zone information
-    pub timestamp: OffsetDateTime,
+    pub timestamp: Zoned,
     /// Txn Code field, if any
     pub code: Option<String>,
     /// Txn Description, if any
@@ -42,20 +42,6 @@ pub struct TxnHeader {
     pub tags: Option<Tags>,
     /// Txn comments, if any
     pub comments: Option<Comments>,
-}
-
-impl Default for TxnHeader {
-    fn default() -> Self {
-        TxnHeader {
-            timestamp: PrimitiveDateTime::new(Date::MIN, Time::MIDNIGHT).assume_utc(),
-            code: None,
-            description: None,
-            uuid: None,
-            location: None,
-            tags: None,
-            comments: None,
-        }
-    }
 }
 
 impl TxnHeader {
@@ -148,13 +134,13 @@ impl TxnHeader {
     pub fn to_string_with_indent(
         &self,
         indent: &str,
-        ts_formatter: fn(OffsetDateTime, &'static Tz) -> String,
-        tz: &'static Tz,
+        ts_formatter: fn(&Zoned, TimeZone) -> String,
+        tz: TimeZone,
     ) -> String {
         format!(
             "{}{}{}\n{}{}{}{}",
             // txn header line: ts, code, desc
-            ts_formatter(self.timestamp, tz),
+            ts_formatter(&self.timestamp, tz),
             self.code
                 .as_ref()
                 .map_or_else(String::new, |c| format!(" ({c})")),
@@ -191,22 +177,34 @@ mod tests {
     use super::*;
     use indoc::formatdoc;
     use indoc::indoc;
+    use jiff::fmt::strtime;
     use rust_decimal_macros::dec;
     use tackler_rs::IndocUtils;
-    use time::format_description::well_known::Rfc3339;
 
     use crate::{txn_header::TxnHeader, txn_ts};
 
     #[test]
     fn txn_header_display() {
-        let ts = OffsetDateTime::parse("2023-02-04T14:03:05.047974+02:00", &Rfc3339)
-            .unwrap(/*:test:*/);
+        let ts = strtime::parse(
+            "%Y-%m-%dT%H:%M:%S%.f%:z",
+            "2023-02-04T14:03:05.047974+02:00",
+        )
+        .unwrap()
+        .to_zoned()
+        .unwrap();
 
-        let ts_second = OffsetDateTime::parse("2025-01-08T14:15:16-05:00", &Rfc3339)
-            .unwrap(/*:test:*/);
+        let ts_second = strtime::parse("%Y-%m-%dT%H:%M:%S%.f%:z", "2025-01-08T14:15:16-05:00")
+            .unwrap()
+            .to_zoned()
+            .unwrap();
 
-        let ts_nano = OffsetDateTime::parse("2025-01-08T14:15:16.123456789-05:00", &Rfc3339)
-            .unwrap(/*:test:*/);
+        let ts_nano = strtime::parse(
+            "%Y-%m-%dT%H:%M:%S%.f%:z",
+            "2025-01-08T14:15:16.123456789-05:00",
+        )
+        .unwrap()
+        .to_zoned()
+        .unwrap();
 
         let uuid_str = "ed6d4110-f3c0-4770-87fc-b99e46572244";
         let uuid = Uuid::parse_str(uuid_str).unwrap(/*:test:*/);
@@ -228,7 +226,7 @@ mod tests {
         let tests: Vec<(TxnHeader, String)> = vec![
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: None,
                     uuid: None,
@@ -244,7 +242,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts_second,
+                    timestamp: ts_second.clone(),
                     code: None,
                     description: None,
                     uuid: None,
@@ -260,7 +258,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts_nano,
+                    timestamp: ts_nano.clone(),
                     code: None,
                     description: None,
                     uuid: None,
@@ -276,7 +274,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: Some("#123".to_string()),
                     description: None,
                     uuid: None,
@@ -292,7 +290,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: Some("#123".to_string()),
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -308,7 +306,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -324,7 +322,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: Some(uuid),
@@ -341,7 +339,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -358,7 +356,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -375,7 +373,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: None,
@@ -394,7 +392,7 @@ mod tests {
             ),
             (
                 TxnHeader {
-                    timestamp: ts,
+                    timestamp: ts.clone(),
                     code: None,
                     description: Some("desc".to_string()),
                     uuid: Some(uuid),
@@ -419,8 +417,11 @@ mod tests {
         let mut count = 0;
         let should_be_count = tests.len();
         for t in tests {
-            let txn_hdr_str =
-                t.0.to_string_with_indent("   ", |ts, _tz| txn_ts::rfc_3339(ts), txn_ts::TZ_UTC);
+            let txn_hdr_str = t.0.to_string_with_indent(
+                "   ",
+                |ts, _tz| txn_ts::rfc_3339(ts),
+                jiff::tz::TimeZone::UTC,
+            );
             assert_eq!(txn_hdr_str, t.1);
             count += 1;
         }

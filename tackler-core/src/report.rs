@@ -11,6 +11,7 @@ pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
 pub use balance_reporter::BalanceSettings;
+use jiff::tz::TimeZone;
 pub use register_reporter::RegisterReporter;
 pub use register_reporter::RegisterSettings;
 use std::error::Error;
@@ -20,7 +21,6 @@ use std::path::PathBuf;
 use tackler_api::metadata::items::{AccountSelectorChecksum, ReportTimezone, Text};
 use tackler_api::txn_ts::GroupBy;
 use tackler_rs::create_output_file;
-use time_tz::{TimeZone, Tz};
 
 mod balance_group_reporter;
 mod balance_reporter;
@@ -35,12 +35,14 @@ pub trait Report {
     ) -> Result<(), Box<dyn Error>>;
 }
 
-fn get_report_tz(_cfg: &Settings, tz: &'static Tz) -> Result<ReportTimezone, Box<dyn Error>> {
+fn get_report_tz(_cfg: &Settings, tz: TimeZone) -> Result<ReportTimezone, Box<dyn Error>> {
     let rtz = ReportTimezone {
-        timezone: match tz.name() {
-            // todo: remove this if there is a way to get short name of tz with time-tz
-            "Etc/UTC" => "UTC".to_string(),
-            name => name.to_string(),
+        timezone: match tz.iana_name() {
+            Some(tz) => tz.to_string(),
+            None => {
+                let msg = "no name for tz!?!";
+                return Err(msg.into());
+            }
         },
     };
     Ok(rtz)
@@ -55,7 +57,7 @@ fn write_acc_sel_checksum<W: io::Write + ?Sized, R: ReportItemSelector + ?Sized>
         let asc = AccountSelectorChecksum {
             hash: acc_sel.checksum(hash)?,
         };
-        for v in asc.text() {
+        for v in asc.text(cfg.report.report_tz.clone()) {
             writeln!(writer, "{}", &v)?;
         }
         writeln!(writer)?;
@@ -84,7 +86,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
 
     let metadata = &txn_set
         .metadata()
-        .map(|md| format!("{}\n", md.text()))
+        .map(|md| format!("{}\n", md.text(settings.report.report_tz.clone())))
         .unwrap_or_default();
 
     if let Some(cw) = console_writer.as_mut() {

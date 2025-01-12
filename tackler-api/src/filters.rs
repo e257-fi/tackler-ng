@@ -14,11 +14,12 @@ pub mod logic;
 pub mod posting;
 pub mod txn;
 
+pub use crate::filters::filter_definition::FilterDefZoned;
+pub use crate::filters::filter_definition::FilterDefinition;
+use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Error, Formatter};
-
-pub use crate::filters::filter_definition::FilterDefinition;
+use std::fmt::{Error, Formatter};
 
 use logic::TxnFilterAND;
 use logic::TxnFilterNOT;
@@ -45,7 +46,7 @@ use posting::TxnFilterPostingCommodity;
 ///
 pub trait IndentDisplay {
     /// format with indent
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result;
+    fn i_fmt(&self, indent: &str, _tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result;
 }
 
 /// Enum of all Transaction filters.
@@ -103,42 +104,43 @@ pub enum TxnFilter {
     TxnFilterPostingCommodity(TxnFilterPostingCommodity),
 }
 
+/*
 impl Display for TxnFilter {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         self.i_fmt("", f)
     }
 }
-
+*/
 impl IndentDisplay for TxnFilter {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             // specials
-            TxnFilter::NullaryTRUE(tf) => tf.i_fmt(indent, f),
-            TxnFilter::NullaryFALSE(tf) => tf.i_fmt(indent, f),
+            TxnFilter::NullaryTRUE(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::NullaryFALSE(tf) => tf.i_fmt(indent, tz, f),
 
             // logic filters
-            TxnFilter::TxnFilterAND(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterOR(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterNOT(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterAND(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterOR(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterNOT(tf) => tf.i_fmt(indent, tz, f),
 
             // txn header filters
-            TxnFilter::TxnFilterTxnTSBegin(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterTxnTSEnd(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterTxnCode(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterTxnDescription(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterTxnUUID(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterBBoxLatLon(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterTxnTags(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterTxnComments(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterTxnTSBegin(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterTxnTSEnd(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterTxnCode(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterTxnDescription(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterTxnUUID(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterBBoxLatLon(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterBBoxLatLonAlt(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterTxnTags(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterTxnComments(tf) => tf.i_fmt(indent, tz, f),
 
             // posting filters
-            TxnFilter::TxnFilterPostingAccount(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterPostingComment(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterPostingAmountEqual(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterPostingAmountLess(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterPostingAmountGreater(tf) => tf.i_fmt(indent, f),
-            TxnFilter::TxnFilterPostingCommodity(tf) => tf.i_fmt(indent, f),
+            TxnFilter::TxnFilterPostingAccount(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterPostingComment(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterPostingAmountEqual(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterPostingAmountLess(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterPostingAmountGreater(tf) => tf.i_fmt(indent, tz, f),
+            TxnFilter::TxnFilterPostingCommodity(tf) => tf.i_fmt(indent, tz, f),
         }
     }
 }
@@ -148,7 +150,7 @@ impl IndentDisplay for TxnFilter {
 pub struct NullaryTRUE {}
 
 impl IndentDisplay for NullaryTRUE {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, _tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{indent}All pass")
     }
 }
@@ -158,7 +160,7 @@ impl IndentDisplay for NullaryTRUE {
 pub struct NullaryFALSE {}
 
 impl IndentDisplay for NullaryFALSE {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, _tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{indent}None pass")
     }
 }
@@ -166,13 +168,17 @@ impl IndentDisplay for NullaryFALSE {
 fn logic_filter_indent_fmt(
     op: &str,
     indent: &str,
+    tz: TimeZone,
     filters: &[TxnFilter],
     f: &mut Formatter<'_>,
 ) -> std::fmt::Result {
     let new_ident = format!("{indent}  ");
 
     writeln!(f, "{indent}{op}")?;
-    let result: Result<Vec<()>, Error> = filters.iter().map(|tf| tf.i_fmt(&new_ident, f)).collect();
+    let result: Result<Vec<()>, Error> = filters
+        .iter()
+        .map(|tf| tf.i_fmt(&new_ident, tz.clone(), f))
+        .collect();
 
     match result {
         Ok(_) => Ok(()),

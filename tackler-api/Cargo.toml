@@ -26,13 +26,12 @@ path = "src/lib.rs"
 
 [dependencies]
 base64 = { workspace = true }
+jiff = { workspace = true }
 regex = { workspace = true }
 rust_decimal = { workspace = true }
 serde = { workspace = true, features = [ "derive"] }
 serde_json = { workspace = true }
 tackler-rs = { path = "../tackler-rs", version = "0.8.0-dev" }
-time = { workspace = true, features = [ "serde-human-readable", "formatting", "parsing" ] }
-time-tz = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]

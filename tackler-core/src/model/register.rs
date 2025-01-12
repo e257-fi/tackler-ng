@@ -6,13 +6,13 @@
 
 use crate::config::Scale;
 use crate::model::{Posting, Transaction};
+use jiff::tz::TimeZone;
+use jiff::{tz, Zoned};
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::{max, Ordering};
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_ts;
-use time::OffsetDateTime;
-use time_tz::Tz;
 
 #[derive(Debug, Clone)]
 pub struct RegisterPosting<'a> {
@@ -59,8 +59,8 @@ pub(crate) struct RegisterEntry<'a> {
 impl RegisterEntry<'_> {
     pub(crate) fn fmt_with_tz(
         &self,
-        ts_fmtr: fn(OffsetDateTime, &'static Tz) -> String,
-        tz: &'static Tz,
+        ts_fmtr: fn(&Zoned, TimeZone) -> String,
+        tz: TimeZone,
         scale: &Scale,
     ) -> String {
         fn amount_to_string(amount: &Decimal, scale: &Scale, width: usize) -> String {
@@ -109,7 +109,7 @@ impl Display for RegisterEntry<'_> {
             "{}",
             self.fmt_with_tz(
                 |ts, _tz| { txn_ts::rfc_3339(ts) },
-                txn_ts::TZ_UTC,
+                tz::TimeZone::UTC,
                 &Scale::default()
             )
         )

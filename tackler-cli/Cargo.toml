@@ -26,7 +26,6 @@ tackler-api =  { path = "../tackler-api",  version = "0.8.0-dev" }
 tackler-core = { path = "../tackler-core", version = "0.8.0-dev" }
 log = { workspace = true }
 clap = { version = "4.5.26", features = [ "derive" ] }
-time-tz = { workspace = true }
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 tikv-jemallocator = { workspace = true }

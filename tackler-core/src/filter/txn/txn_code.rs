@@ -14,7 +14,7 @@ impl Predicate<Transaction> for TxnFilterTxnCode {
         txn.header
             .code
             .as_ref()
-            .map_or(false, |code| self.regex.is_match(code))
+            .is_some_and(|code| self.regex.is_match(code))
     }
 }
 

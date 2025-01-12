@@ -6,8 +6,10 @@
 
 //! This module contains various Metadata items
 //!
-use crate::filters::FilterDefinition;
+
+use crate::filters::{FilterDefZoned, FilterDefinition};
 use crate::metadata::Checksum;
+use jiff::tz::TimeZone;
 
 #[doc(hidden)]
 pub type MetadataItems = Vec<MetadataItem>;
@@ -16,7 +18,7 @@ pub type MetadataItems = Vec<MetadataItem>;
 pub trait Text: std::fmt::Debug {
     /// Get metadata item as text
     #[must_use]
-    fn text(&self) -> Vec<String>;
+    fn text(&self, tz: TimeZone) -> Vec<String>;
 }
 
 #[doc(hidden)]
@@ -37,12 +39,12 @@ impl MetadataItem {
 }
 
 impl Text for MetadataItem {
-    fn text(&self) -> Vec<String> {
+    fn text(&self, tz: TimeZone) -> Vec<String> {
         match self {
-            Self::GitInputReference(gif) => gif.text(),
-            Self::TxnSetChecksum(tscs) => tscs.text(),
-            Self::AccountSelectorChecksum(asc) => asc.text(),
-            Self::TxnFilterDescription(tfd) => tfd.text(),
+            Self::GitInputReference(gif) => gif.text(tz),
+            Self::TxnSetChecksum(tscs) => tscs.text(tz),
+            Self::AccountSelectorChecksum(asc) => asc.text(tz),
+            Self::TxnFilterDescription(tfd) => tfd.text(tz),
         }
     }
 }
@@ -56,7 +58,7 @@ pub struct TxnSetChecksum {
     pub hash: Checksum,
 }
 impl Text for TxnSetChecksum {
-    fn text(&self) -> Vec<String> {
+    fn text(&self, _tz: TimeZone) -> Vec<String> {
         // echo -n "SHA-512/256" | wc -c => 11
         let pad = MetadataItem::ITEM_PAD;
         vec![
@@ -74,7 +76,7 @@ pub struct AccountSelectorChecksum {
     pub hash: Checksum,
 }
 impl Text for AccountSelectorChecksum {
-    fn text(&self) -> Vec<String> {
+    fn text(&self, _tz: TimeZone) -> Vec<String> {
         // echo -n "SHA-512/256" | wc -c => 11
         let pad = MetadataItem::ITEM_PAD;
         vec![
@@ -91,7 +93,7 @@ pub struct ReportTimezone {
     pub timezone: String,
 }
 impl Text for ReportTimezone {
-    fn text(&self) -> Vec<String> {
+    fn text(&self, _tz: TimeZone) -> Vec<String> {
         let pad = MetadataItem::ITEM_PAD;
         vec![
             "Report Time Zone".to_string(),
@@ -116,14 +118,20 @@ impl TxnFilterDescription {
     }
 }
 impl Text for TxnFilterDescription {
-    fn text(&self) -> Vec<String> {
+    fn text(&self, tz: TimeZone) -> Vec<String> {
         // todo: TxnFilterDescription needs proper implementation for Text
         //       See equity_exporter::write_export
-        format!("{}", self.txn_filter_def)
-            .trim_end()
-            .split("\n")
-            .map(String::from)
-            .collect::<Vec<String>>()
+        format!(
+            "{}",
+            FilterDefZoned {
+                filt_def: &self.txn_filter_def,
+                tz
+            }
+        )
+        .trim_end()
+        .split("\n")
+        .map(String::from)
+        .collect::<Vec<String>>()
     }
 }
 
@@ -144,7 +152,7 @@ pub struct GitInputReference {
 }
 
 impl Text for GitInputReference {
-    fn text(&self) -> Vec<String> {
+    fn text(&self, _tz: TimeZone) -> Vec<String> {
         let pad = MetadataItem::ITEM_PAD;
         vec![
             format!("Git Storage"),

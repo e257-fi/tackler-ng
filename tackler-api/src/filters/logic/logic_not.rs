@@ -8,6 +8,7 @@ use crate::filters;
 use crate::filters::IndentDisplay;
 use filters::TxnFilter;
 
+use jiff::tz::TimeZone;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
@@ -27,19 +28,20 @@ pub struct TxnFilterNOT {
 }
 
 impl IndentDisplay for TxnFilterNOT {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         let new_ident = format!("{indent}  ");
 
         writeln!(f, "{indent}NOT")?;
-        self.txn_filter.i_fmt(&new_ident, f)
+        self.txn_filter.i_fmt(&new_ident, tz, f)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{FilterDefinition, NullaryTRUE};
+    use crate::filters::{FilterDefZoned, FilterDefinition, NullaryTRUE};
     use indoc::indoc;
+    use jiff::tz;
     use tackler_rs::IndocUtils;
 
     #[test]
@@ -64,7 +66,16 @@ mod tests {
             _ => panic!(/*:test:*/),
         }
 
-        assert_eq!(format!("{tf}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
         assert_eq!(
             serde_json::to_string(&tf).unwrap(/*:test:*/),
             filter_json_str
@@ -83,7 +94,7 @@ mod tests {
          |"}
         .strip_margin();
 
-        let tfd = FilterDefinition {
+        let tf = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterNOT(TxnFilterNOT {
                 txn_filter: Box::new(TxnFilter::TxnFilterNOT(TxnFilterNOT {
                     txn_filter: Box::new(TxnFilter::NullaryTRUE(NullaryTRUE {})),
@@ -91,6 +102,15 @@ mod tests {
             }),
         };
 
-        assert_eq!(format!("{tfd}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
     }
 }

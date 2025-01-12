@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use jiff::tz::TimeZone;
 use regex::Regex;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -37,7 +38,7 @@ pub struct TxnFilterPostingAmountLess {
 }
 
 impl IndentDisplay for TxnFilterPostingAmountLess {
-    fn i_fmt(&self, indent: &str, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn i_fmt(&self, indent: &str, _tz: TimeZone, f: &mut Formatter<'_>) -> std::fmt::Result {
         posting_filter_indent_fmt(
             indent,
             "Posting Amount",
@@ -52,9 +53,11 @@ impl IndentDisplay for TxnFilterPostingAmountLess {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filters::{logic::TxnFilterAND, FilterDefinition, NullaryTRUE, TxnFilter};
+    use crate::filters::{
+        logic::TxnFilterAND, FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter,
+    };
     use indoc::indoc;
-
+    use jiff::tz;
     use tackler_rs::regex::new_full_haystack_regex;
     use tackler_rs::IndocUtils;
 
@@ -104,7 +107,16 @@ mod tests {
             _ => panic!(/*:test:*/),
         }
 
-        assert_eq!(format!("{tf}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
         assert_eq!(
             serde_json::to_string(&tf).unwrap(/*:test:*/),
             filter_json_str
@@ -129,7 +141,7 @@ mod tests {
            |"#}
         .strip_margin();
 
-        let tfd = FilterDefinition {
+        let tf = FilterDefinition {
             txn_filter: TxnFilter::TxnFilterAND(TxnFilterAND {
                 txn_filters: vec![
                     TxnFilter::TxnFilterPostingAmountLess(TxnFilterPostingAmountLess {
@@ -149,6 +161,15 @@ mod tests {
             }),
         };
 
-        assert_eq!(format!("{tfd}"), filter_text_str);
+        assert_eq!(
+            format!(
+                "{}",
+                FilterDefZoned {
+                    filt_def: &tf,
+                    tz: tz::TimeZone::UTC
+                }
+            ),
+            filter_text_str
+        );
     }
 }

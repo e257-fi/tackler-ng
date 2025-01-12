@@ -8,7 +8,7 @@ use crate::model::transaction::Transaction;
 use tackler_api::txn_ts;
 
 fn txn_ts_to_string(txn: &Transaction) -> String {
-    txn_ts::rfc_3339(txn.header.timestamp)
+    txn_ts::rfc_3339(&txn.header.timestamp)
 }
 fn txn_code_to_string(txn: &Transaction) -> String {
     txn.header.code.as_ref().unwrap(/*:test:*/).to_string()

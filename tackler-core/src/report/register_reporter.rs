@@ -12,19 +12,19 @@ use crate::kernel::report_item_selector::{
 use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
 use crate::report::{get_report_tz, write_acc_sel_checksum, Report};
+use jiff::tz::TimeZone;
+use jiff::Zoned;
 use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::Text;
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::TimestampStyle;
-use time::OffsetDateTime;
-use time_tz::Tz;
 
 #[derive(Debug, Clone)]
 pub struct RegisterSettings {
     pub title: String,
     pub ras: Vec<String>,
-    pub report_tz: &'static Tz,
+    pub report_tz: TimeZone,
     pub timestamp_style: TimestampStyle,
     pub(crate) scale: Scale,
 }
@@ -34,7 +34,7 @@ impl RegisterSettings {
         let rs = RegisterSettings {
             title: settings.report.register.title.clone(),
             ras: settings.get_register_ras(),
-            report_tz: settings.report.report_tz,
+            report_tz: settings.report.report_tz.clone(),
             timestamp_style: settings.report.register.timestamp_style,
             scale: settings.report.scale.clone(),
         };
@@ -65,10 +65,10 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     f: &mut W,
     re: &RegisterEntry<'_>,
     ts_style: TimestampStyle,
-    report_tz: &'static Tz,
+    report_tz: TimeZone,
     register_settings: &RegisterSettings,
 ) -> Result<(), Box<dyn Error>> {
-    let fmt: fn(OffsetDateTime, &Tz) -> String = match ts_style {
+    let fmt: fn(&Zoned, TimeZone) -> String = match ts_style {
         TimestampStyle::Date => txn_ts::as_tz_date,
         TimestampStyle::Secodns => txn_ts::as_tz_seconds,
         TimestampStyle::Full => txn_ts::as_tz_full,
@@ -95,7 +95,10 @@ impl Report for RegisterReporter {
 
         write_acc_sel_checksum(cfg, writer, acc_sel.as_ref())?;
 
-        for v in get_report_tz(cfg, self.report_settings.report_tz)?.text() {
+        // todo: fix this silliness
+        for v in get_report_tz(cfg, self.report_settings.report_tz.clone())?
+            .text(self.report_settings.report_tz.clone())
+        {
             writeln!(writer, "{}", &v)?;
         }
         writeln!(writer)?;
@@ -111,7 +114,7 @@ impl Report for RegisterReporter {
             &txns.txns,
             ras.as_ref(),
             self.report_settings.timestamp_style,
-            self.report_settings.report_tz,
+            self.report_settings.report_tz.clone(),
             writer,
             reg_entry_txt_writer,
             &self.report_settings,

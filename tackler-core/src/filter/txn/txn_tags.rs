@@ -14,7 +14,7 @@ impl Predicate<Transaction> for TxnFilterTxnTags {
         txn.header
             .tags
             .as_ref()
-            .map_or(false, |tags| tags.iter().any(|t| self.regex.is_match(t)))
+            .is_some_and(|tags| tags.iter().any(|t| self.regex.is_match(t)))
     }
 }
 

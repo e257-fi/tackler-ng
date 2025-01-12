@@ -12,15 +12,14 @@ use crate::config::raw_items::{
 use crate::config::{to_export_targets, to_report_targets};
 use crate::kernel::hash::Hash;
 use jiff::fmt::strtime::BrokenDownTime;
+use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::Debug;
 use std::path::Path;
 use std::{cmp, fs};
-use tackler_api::txn_ts;
 use tackler_api::txn_ts::{GroupBy, TimestampStyle};
 use tackler_rs::get_abs_path;
-use time_tz::{timezones, Tz};
 
 /// UI/CFG key value for none
 const NONE_VALUE: &str = "none";
@@ -383,7 +382,7 @@ impl Tags {
 
 #[derive(Debug, Clone)]
 pub(crate) struct Report {
-    pub report_tz: &'static Tz,
+    pub report_tz: TimeZone,
     pub targets: Vec<ReportType>,
     pub scale: Scale,
     pub register: Register,
@@ -394,7 +393,7 @@ pub(crate) struct Report {
 impl Default for Report {
     fn default() -> Self {
         Report {
-            report_tz: txn_ts::TZ_UTC,
+            report_tz: jiff::tz::TimeZone::UTC,
             targets: Vec::new(),
             scale: Scale::default(),
             register: Register::default(),
@@ -408,8 +407,7 @@ impl Report {
     fn from(report_raw: &ReportRaw) -> Result<Report, Box<dyn Error>> {
         let trgs = to_report_targets(&report_raw.targets)?;
         Ok(Report {
-            report_tz: timezones::get_by_name(report_raw.report_tz.as_str())
-                .ok_or("Timezone err TODO")?,
+            report_tz: TimeZone::get(report_raw.report_tz.as_str())?,
             targets: trgs,
             scale: Scale::from(&report_raw.scale)?,
             register: Register::from(&report_raw.register, report_raw)?,

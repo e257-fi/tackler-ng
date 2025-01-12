@@ -5,6 +5,7 @@
  */
 
 use crate::model::{posting, Posts};
+use jiff::tz;
 use std::cmp::Ordering;
 use std::error::Error;
 use std::fmt::Write;
@@ -63,7 +64,7 @@ impl Display for Transaction {
             self.header.to_string_with_indent(
                 indent,
                 |ts, _tz| { txn_ts::rfc_3339(ts) },
-                txn_ts::TZ_UTC
+                tz::TimeZone::UTC
             ),
             self.posts
                 .iter()
@@ -82,11 +83,11 @@ mod tests {
     use rust_decimal::Decimal;
     use std::sync::Arc;
     use tackler_rs::IndocUtils;
-    use time::macros::datetime;
 
     use crate::model::TxnAccount;
     use crate::model::{AccountTreeNode, Commodity, Posting};
     use tackler_api::txn_header::TxnHeader;
+    use tackler_api::txn_ts::rfc3339_to_zoned;
 
     fn atn2txntn(atn: AccountTreeNode) -> TxnAccount {
         TxnAccount {
@@ -97,7 +98,7 @@ mod tests {
 
     #[test]
     fn txn_to_display() {
-        let ts = datetime!(2023-02-04 14:03:05.047974 +02:00);
+        let ts = rfc3339_to_zoned("2023-02-04T14:03:05.047974+02:00").unwrap(/*:test:*/);
 
         let tnx_hdr = TxnHeader {
             timestamp: ts,
