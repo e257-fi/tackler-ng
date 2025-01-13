@@ -11,12 +11,11 @@ use crate::kernel::report_item_selector::{
 };
 use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
-use crate::report::{get_report_tz, write_acc_sel_checksum, Report};
+use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
 use jiff::tz::TimeZone;
 use jiff::Zoned;
 use std::error::Error;
 use std::io;
-use tackler_api::metadata::items::Text;
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::TimestampStyle;
 
@@ -95,12 +94,8 @@ impl Report for RegisterReporter {
 
         write_acc_sel_checksum(cfg, writer, acc_sel.as_ref())?;
 
-        // todo: fix this silliness
-        for v in get_report_tz(cfg, self.report_settings.report_tz.clone())?
-            .text(self.report_settings.report_tz.clone())
-        {
-            writeln!(writer, "{}", &v)?;
-        }
+        write_report_timezone(cfg, writer)?;
+
         writeln!(writer)?;
         writeln!(writer)?;
 

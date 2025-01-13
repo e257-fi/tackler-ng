@@ -11,7 +11,6 @@ pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
 pub use balance_reporter::BalanceSettings;
-use jiff::tz::TimeZone;
 pub use register_reporter::RegisterReporter;
 pub use register_reporter::RegisterSettings;
 use std::error::Error;
@@ -35,9 +34,12 @@ pub trait Report {
     ) -> Result<(), Box<dyn Error>>;
 }
 
-fn get_report_tz(_cfg: &Settings, tz: TimeZone) -> Result<ReportTimezone, Box<dyn Error>> {
+fn write_report_timezone<W: io::Write + ?Sized>(
+    cfg: &Settings,
+    writer: &mut W,
+) -> Result<(), Box<dyn Error>> {
     let rtz = ReportTimezone {
-        timezone: match tz.iana_name() {
+        timezone: match cfg.report.report_tz.iana_name() {
             Some(tz) => tz.to_string(),
             None => {
                 let msg = "no name for tz!?!";
@@ -45,7 +47,10 @@ fn get_report_tz(_cfg: &Settings, tz: TimeZone) -> Result<ReportTimezone, Box<dy
             }
         },
     };
-    Ok(rtz)
+    for v in rtz.text(cfg.report.report_tz.clone()) {
+        writeln!(writer, "{}", &v)?;
+    }
+    Ok(())
 }
 
 fn write_acc_sel_checksum<W: io::Write + ?Sized, R: ReportItemSelector + ?Sized>(
