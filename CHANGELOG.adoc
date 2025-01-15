@@ -36,6 +36,9 @@ New features:
 
 Changed functionality:
 
+* Replaced ANTLR based Txn parser with winnow parser combinator
+** This is affecting how invalid journal syntax is reported
+** This has NO changes to journal syntax
 * Replaced time and time-tz with jiff
 ** This have some user visible changes, e.g. 'Z' is replaced with '+00:00'
 ** Txn Filters, Txn Timestamp: Begin and End are displayed with report timezone
@@ -60,6 +63,7 @@ Updated deps and tools:
 
 * Dependencies
 ** serde: 1.0.217
+** jiff: 0.1.23
 
 ===== Rust toolchain
 
