@@ -63,7 +63,14 @@ impl Export for EquityExporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
-        let bal = Balance::from(&String::default(), txn_data, bal_acc_sel.as_ref(), cfg)?;
+        let bal = Balance::from(
+            &String::default(),
+            None,
+            txn_data,
+            &Default::default(),
+            bal_acc_sel.as_ref(),
+            cfg,
+        )?;
 
         if bal.is_empty() {
             // todo: check if this is actually possible?

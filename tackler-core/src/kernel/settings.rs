@@ -177,17 +177,8 @@ impl Default for Settings {
 impl Settings {
     pub fn default_audit() -> Self {
         Settings {
-            strict_mode: false,
             audit_mode: true,
-            report: Report::default(),
-            export: Export::default(),
-
-            kernel: Kernel::default(),
-            global_acc_sel: None,
-            targets: Vec::new(),
-            accounts: AccountTrees::default(),
-            commodities: Commodities::default_empty_ok(),
-            tags: HashMap::new(),
+            ..Self::default()
         }
     }
 }
@@ -319,7 +310,7 @@ impl Settings {
         Ok(atn)
     }
 
-    pub(crate) fn get_commodity(&self, name: &str) -> Result<Arc<Commodity>, Box<dyn Error>> {
+    pub fn get_commodity(&self, name: &str) -> Result<Arc<Commodity>, Box<dyn Error>> {
         match self.commodities.names.get(name) {
             Some(comm) => Ok(comm.clone()),
             None => {

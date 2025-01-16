@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::config::Scale;
+use crate::{config::Scale, model::price_entry::PriceDb};
 use crate::kernel::balance::{BTNs, Balance, Deltas};
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
@@ -15,30 +15,46 @@ use crate::report::{write_acc_sel_checksum, Report};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};
-use std::cmp::max;
 use std::error::Error;
 use std::io;
+use std::{cmp::max, sync::Arc};
+
+use super::Commodity;
 
 #[derive(Debug, Clone)]
 pub struct BalanceSettings {
     pub(crate) title: String,
     pub(crate) ras: Vec<String>,
     pub(crate) scale: Scale,
+    pub(crate) commodity: Option<Arc<Commodity>>,
 }
 
-impl BalanceSettings {
-    pub fn from(settings: &Settings) -> Result<BalanceSettings, Box<dyn Error>> {
-        let bs = BalanceSettings {
+impl TryFrom<&Settings> for BalanceSettings {
+    type Error = Box<dyn Error>;
+
+    fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
+        Ok(BalanceSettings {
             title: settings.report.balance.title.clone(),
             ras: settings.get_balance_ras(),
             scale: settings.report.scale.clone(),
-        };
-        Ok(bs)
+            commodity: None,
+        })
     }
 }
+
 #[derive(Debug, Clone)]
 pub struct BalanceReporter {
     pub report_settings: BalanceSettings,
+}
+
+impl TryFrom<&Settings> for BalanceReporter {
+    type Error = Box<dyn Error>;
+
+    fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
+        Ok(BalanceReporter {
+            report_settings: BalanceSettings::try_from(settings)?,
+        })
+    }
 }
 
 impl BalanceReporter {
@@ -207,6 +223,7 @@ impl Report for BalanceReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
+        price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
@@ -215,7 +232,9 @@ impl Report for BalanceReporter {
 
         let bal_report = Balance::from(
             &self.report_settings.title,
+            self.report_settings.commodity.clone(),
             txn_data,
+            price_db,
             bal_acc_sel.as_ref(),
             cfg,
         )?;

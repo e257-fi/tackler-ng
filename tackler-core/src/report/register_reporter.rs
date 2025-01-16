@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::config::Scale;
 use crate::kernel::accumulator;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
@@ -12,28 +11,35 @@ use crate::kernel::report_item_selector::{
 use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
 use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
+use crate::{config::Scale, model::price_entry::PriceDb};
 use jiff::tz::TimeZone;
 use jiff::Zoned;
-use std::error::Error;
 use std::io;
+use std::{error::Error, sync::Arc};
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::TimestampStyle;
+
+use super::Commodity;
 
 #[derive(Debug, Clone)]
 pub struct RegisterSettings {
     pub title: String,
     pub ras: Vec<String>,
     pub report_tz: TimeZone,
+    pub report_commodity: Option<Arc<Commodity>>,
     pub timestamp_style: TimestampStyle,
     pub(crate) scale: Scale,
 }
 
-impl RegisterSettings {
-    pub fn from(settings: &Settings) -> Result<RegisterSettings, Box<dyn Error>> {
+impl TryFrom<&Settings> for RegisterSettings {
+    type Error = Box<dyn Error>;
+
+    fn try_from(settings: &Settings) -> Result<RegisterSettings, Box<dyn Error>> {
         let rs = RegisterSettings {
             title: settings.report.register.title.clone(),
             ras: settings.get_register_ras(),
             report_tz: settings.report.report_tz.clone(),
+            report_commodity: None,
             timestamp_style: settings.report.register.timestamp_style,
             scale: settings.report.scale.clone(),
         };
@@ -63,10 +69,11 @@ impl RegisterReporter {
 fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     f: &mut W,
     re: &RegisterEntry<'_>,
-    ts_style: TimestampStyle,
-    report_tz: TimeZone,
     register_settings: &RegisterSettings,
 ) -> Result<(), Box<dyn Error>> {
+    let ts_style = register_settings.timestamp_style;
+    let report_tz = register_settings.report_tz.clone();
+
     let fmt: fn(&Zoned, TimeZone) -> String = match ts_style {
         TimestampStyle::Date => txn_ts::as_tz_date,
         TimestampStyle::Secodns => txn_ts::as_tz_seconds,
@@ -89,6 +96,7 @@ impl Report for RegisterReporter {
         cfg: &Settings,
         writer: &mut W,
         txns: &TxnSet<'_>,
+        price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>> {
         let acc_sel = self.get_acc_selector()?;
 
@@ -107,9 +115,9 @@ impl Report for RegisterReporter {
 
         accumulator::register_engine(
             &txns.txns,
+            price_db,
+            self.report_settings.report_commodity.clone(),
             ras.as_ref(),
-            self.report_settings.timestamp_style,
-            self.report_settings.report_tz.clone(),
             writer,
             reg_entry_txt_writer,
             &self.report_settings,

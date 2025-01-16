@@ -4,26 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use rust_decimal::Decimal;
-use std::{fmt::Write, sync::Arc};
-use time::OffsetDateTime;
-use winnow::{seq, PResult, Parser};
+use std::sync::Arc;
 
-use crate::parser::parts::timestamp::parse_timestamp;
-// use crate::parser::parts::txn_comment::parse_txn_comment;
-// use crate::parser::parts::txn_header_code::parse_txn_code;
-// use crate::parser::parts::txn_header_desc::parse_txn_description;
-// use crate::parser::parts::txn_metadata::{parse_txn_meta, TxnMeta};
-use crate::parser::{from_error, make_semantic_error, Stream};
-use tackler_api::txn_header::{Comments, TxnHeader};
-use winnow::ascii::{line_ending, space1};
-use winnow::combinator::{cut_err, opt, preceded, repeat};
-use winnow::error::{StrContext, StrContextValue};
+use jiff::Zoned;
+use rust_decimal::Decimal;
 
 use super::Commodity;
 
 /// Entry in the price database
-#[derive(Debug)]
+#[derive(Debug, Eq)]
 pub struct PriceEntry {
     /// Timestamp with Zone information
     pub timestamp: jiff::Zoned,
@@ -35,4 +24,45 @@ pub struct PriceEntry {
     pub eq_commodity: Arc<Commodity>,
     /// Comments
     pub comments: Option<String>,
+}
+
+impl Ord for PriceEntry {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.timestamp
+            .cmp(&other.timestamp)
+            .then_with(|| self.base_commodity.cmp(&other.base_commodity))
+    }
+}
+
+impl PartialEq for PriceEntry {
+    fn eq(&self, other: &Self) -> bool {
+        self.timestamp == other.timestamp && self.base_commodity == other.base_commodity
+    }
+}
+
+impl PartialOrd for PriceEntry {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+pub type PriceDb = Vec<PriceEntry>;
+
+pub(crate) fn get_commodity_conversion(
+    price_db: &PriceDb,
+    from_commodity: Arc<Commodity>,
+    in_commodity: Arc<Commodity>,
+    timestamp: &Zoned,
+) -> Option<Decimal> {
+    let entry_index = match price_db.binary_search(&PriceEntry {
+        timestamp: timestamp.clone(),
+        base_commodity: from_commodity,
+        eq_amount: Decimal::ZERO,
+        eq_commodity: in_commodity,
+        comments: None,
+    }) {
+        Ok(i) => Some(i),
+        Err(i) => i.checked_sub(1),
+    };
+    entry_index.map(|i| price_db[i].eq_amount)
 }

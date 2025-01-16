@@ -124,7 +124,6 @@ pub(crate) struct Cli {
         requires("input_git_dir"),
         requires("git_input_group")
     )]
-    //requires("git_input_group"),
     pub(crate) input_git_repo: Option<PathBuf>,
 
     #[clap(flatten)]
@@ -161,6 +160,14 @@ pub(crate) struct Cli {
         ])
     )]
     pub(crate) reports: Option<Vec<String>>,
+
+    /// Path to single PriceDB file
+    #[arg(long = "pricedb", value_name = "path_to_pricedb-file")]
+    pub(crate) pricedb_filename: Option<PathBuf>,
+
+    /// Name of the commodity to do the reports in
+    #[arg(long = "report.commodity", value_name = "commodity", num_args(1))]
+    pub(crate) report_commodity: Option<String>,
 
     /// Group-by -selector for 'balance-group' report
     #[arg(long = "group-by", value_name = "group-by", num_args(1),

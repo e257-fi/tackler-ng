@@ -98,10 +98,19 @@ fn run() -> Result<i32, Box<dyn Error>> {
     };
 
     let reports = settings.get_report_targets(cli.reports)?;
-    let group_by: Option<GroupBy> = match cli.group_by {
-        Some(gp) => Some(GroupBy::from(gp.as_str())?),
-        None => None,
-    };
+    let report_commodity = cli
+        .report_commodity
+        .as_deref()
+        .map(|c| settings.get_commodity(c))
+        .transpose()?;
+    let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
+
+    let price_db = cli
+        .pricedb_filename
+        .as_deref()
+        .map(|path| parser::pricedb_from_file(path, &mut settings))
+        .transpose()?
+        .unwrap_or_else(Default::default);
 
     if !reports.is_empty() {
         write_txt_reports(
@@ -109,7 +118,9 @@ fn run() -> Result<i32, Box<dyn Error>> {
             cli.output_directory.as_ref(),
             &cli.output_name,
             &reports,
+            report_commodity,
             &txn_set,
+            &price_db,
             group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),

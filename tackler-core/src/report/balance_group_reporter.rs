@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::config::Scale;
 use crate::kernel::accumulator;
 use crate::kernel::accumulator::TxnGroupByOp;
 use crate::kernel::report_item_selector::BalanceSelector;
@@ -12,11 +11,14 @@ use crate::kernel::Settings;
 use crate::model::{Transaction, TxnSet};
 use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
 use crate::report::{BalanceReporter, BalanceSettings};
+use crate::{config::Scale, model::price_entry::PriceDb};
 use jiff::tz::TimeZone;
-use std::error::Error;
 use std::io;
+use std::{error::Error, sync::Arc};
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::GroupBy;
+
+use super::Commodity;
 
 #[derive(Debug, Clone)]
 pub struct BalanceGroupSettings {
@@ -24,6 +26,7 @@ pub struct BalanceGroupSettings {
     pub ras: Vec<String>,
     pub group_by: GroupBy,
     pub report_tz: TimeZone,
+    pub report_commodity: Option<Arc<Commodity>>,
     pub scale: Scale,
 }
 
@@ -31,15 +34,14 @@ impl BalanceGroupSettings {
     pub fn from(
         settings: &Settings,
         group_by: Option<GroupBy>,
+        report_commodity: Option<Arc<Commodity>>,
     ) -> Result<BalanceGroupSettings, Box<dyn Error>> {
         let bgs = BalanceGroupSettings {
             title: settings.report.balance_group.title.clone(),
             ras: settings.get_balance_group_ras(),
-            group_by: match group_by {
-                Some(group_by) => group_by,
-                None => settings.report.balance_group.group_by,
-            },
+            group_by: group_by.unwrap_or(settings.report.balance_group.group_by),
             report_tz: settings.report.report_tz.clone(),
+            report_commodity,
             scale: settings.report.scale.clone(),
         };
         Ok(bgs)
@@ -84,12 +86,19 @@ impl Report for BalanceGroupReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
+        price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         let group_by_op = self.get_group_by_op();
-        let bal_groups =
-            accumulator::balance_groups(&txn_data.txns, group_by_op, bal_acc_sel.as_ref(), cfg);
+        let bal_groups = accumulator::balance_groups(
+            &txn_data.txns,
+            group_by_op,
+            price_db,
+            self.report_settings.report_commodity.clone(),
+            bal_acc_sel.as_ref(),
+            cfg,
+        );
 
         write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
 
@@ -106,6 +115,7 @@ impl Report for BalanceGroupReporter {
             title: String::default(),
             ras: vec![],
             scale: self.report_settings.scale.clone(),
+            commodity: None,
         };
         for bal in &bal_groups {
             BalanceReporter::txt_report(writer, bal, &bal_settings)?
