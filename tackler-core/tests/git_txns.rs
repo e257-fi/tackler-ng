@@ -100,9 +100,9 @@ fn id_074f5549_346c_4780_90a1_07d60ae0e79d__normal_txns_1E5() {
 }
 
 #[test]
-//desc: "report reasonable details in case of audit error"
-#[allow(non_snake_case)]
-fn id_a6cfe3b6_feec_4422_afbf_faeca5baf752__error_reporting() {
+// test: a6cfe3b6-feec-4422-afbf-faeca5baf752
+// desc: "report reasonable details in case of audit error"
+fn test_git_error_reporting() {
     // """GIT: Error while processing git object
     //   |   commit id: 63014ea235b23aa7330511a25bcba0b62cd33c6f
     //   |   object id: d87737611e7a2bc551117c77fadd06dbc2c848d8
@@ -115,8 +115,8 @@ fn id_a6cfe3b6_feec_4422_afbf_faeca5baf752__error_reporting() {
                                      &mut Settings::default_audit());
 
     assert!(result.is_err());
-    // todo: let msg = result.err().unwrap(/*:test:*/).to_string();
-    // todo: assert!(msg.contains("63014ea235b23aa7330511a25bcba0b62cd33c6f"));
-    // todo: assert!(msg.contains("d87737611e7a2bc551117c77fadd06dbc2c848d8"));
-    // todo: assert!(msg.contains("without UUID"));
+    let msg = result.err().unwrap(/*:test:*/).to_string();
+    assert!(msg.contains("63014ea235b23aa7330511a25bcba0b62cd33c6f"));
+    assert!(msg.contains("d87737611e7a2bc551117c77fadd06dbc2c848d8"));
+    assert!(msg.contains("without UUID"));
 }
