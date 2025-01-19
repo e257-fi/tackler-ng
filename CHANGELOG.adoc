@@ -62,8 +62,10 @@ Fixes in this release:
 Updated deps and tools:
 
 * Dependencies
+** gix: 0.70.0
+** jiff: 0.1.24
 ** serde: 1.0.217
-** jiff: 0.1.23
+** serde_json: 1.0.136
 
 ===== Rust toolchain
 
