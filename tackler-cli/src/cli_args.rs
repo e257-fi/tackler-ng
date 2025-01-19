@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-use clap::builder::PossibleValue;
+use clap::builder::{PossibleValue, TypedValueParser};
 use clap::Parser;
 use std::error::Error;
 use std::path::PathBuf;
@@ -31,6 +31,60 @@ pub(crate) struct GitInputGroup {
         group = "git_input_group"
     )]
     pub(crate) input_git_commit: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum PriceLookup {
+    AtTheTimeOfTxn,
+    AtTheTimeOfLastTxn,
+    AtTheTimeOfTxnTsEndFilter,
+    LastPriceDbEntry,
+    GivenTime(String),
+}
+
+#[derive(Debug, Clone, Copy)]
+struct PriceLookupParser;
+
+impl TypedValueParser for PriceLookupParser {
+    type Value = PriceLookup;
+
+    fn parse_ref(
+        &self,
+        _: &clap::Command,
+        _: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, clap::Error> {
+        Ok(
+            match value
+                .to_str()
+                .ok_or_else(|| clap::Error::new(clap::error::ErrorKind::InvalidUtf8))?
+                .to_ascii_uppercase()
+                .as_str()
+            {
+                "AT-TXN" => PriceLookup::AtTheTimeOfTxn,
+                "AT-LAST-TXN" => PriceLookup::AtTheTimeOfLastTxn,
+                "AT-LAST-FILTER" => PriceLookup::AtTheTimeOfTxnTsEndFilter,
+                "LAST-PRICE-DB-ENTRY" => PriceLookup::LastPriceDbEntry,
+                maybe_given => PriceLookup::GivenTime(maybe_given.to_owned()),
+            },
+        )
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
+        Some(Box::new(
+            [
+                "at-txn",
+                "at-last-txn",
+                "at-last-filter",
+                "last-price-db-entry",
+                "<ISO-8066-timestamp>",
+            ]
+            .into_iter()
+            .map(clap::builder::PossibleValue::new),
+        ))
+    }
 }
 
 #[derive(Parser)]
@@ -166,8 +220,21 @@ pub(crate) struct Cli {
     pub(crate) pricedb_filename: Option<PathBuf>,
 
     /// Name of the commodity to do the reports in
-    #[arg(long = "report.commodity", value_name = "commodity", num_args(1))]
+    #[arg(
+        long = "report.commodity",
+        value_name = "commodity",
+        requires("pricedb_filename")
+    )]
     pub(crate) report_commodity: Option<String>,
+
+    /// Name of the commodity to do the reports in
+    #[arg(
+        long = "report.price-lookup",
+        value_name = "price-lookup",
+        value_parser = PriceLookupParser,
+        requires("report_commodity")
+    )]
+    pub(crate) report_price_lookup: Option<PriceLookup>,
 
     /// Group-by -selector for 'balance-group' report
     #[arg(long = "group-by", value_name = "group-by", num_args(1),

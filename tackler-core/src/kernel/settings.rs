@@ -9,6 +9,7 @@ use crate::kernel::hash::Hash;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
 use crate::parser::GitInputSelector;
+use jiff::Zoned;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::{Path, PathBuf};
@@ -434,6 +435,17 @@ impl Settings {
 }
 
 impl Settings {
+    pub fn parse_timestamp(&mut self, ts: &str) -> Result<Zoned, Box<dyn Error>> {
+        Ok(winnow::Parser::parse(
+            &mut crate::parser::parts::timestamp::parse_timestamp,
+            winnow::Stateful {
+                input: ts,
+                state: self,
+            },
+        )
+        .map_err(|e| e.to_string())?)
+    }
+
     pub fn get_offset_datetime(
         &self,
         dt: jiff::civil::DateTime,

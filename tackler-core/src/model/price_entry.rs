@@ -26,17 +26,30 @@ pub struct PriceEntry {
     pub comments: Option<String>,
 }
 
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub enum PriceLookup {
+    AtTheTimeOfTxn,
+    #[default]
+    AtTheTimeOfLastTxn,
+    AtTheTimeOfTxnTsEndFilter,
+    LastPriceDbEntry,
+    GivenTime(Zoned),
+}
+
 impl Ord for PriceEntry {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.timestamp
             .cmp(&other.timestamp)
             .then_with(|| self.base_commodity.cmp(&other.base_commodity))
+            .then_with(|| self.eq_commodity.cmp(&other.eq_commodity))
     }
 }
 
 impl PartialEq for PriceEntry {
     fn eq(&self, other: &Self) -> bool {
-        self.timestamp == other.timestamp && self.base_commodity == other.base_commodity
+        self.timestamp == other.timestamp
+            && self.base_commodity == other.base_commodity
+            && self.eq_commodity == other.eq_commodity
     }
 }
 
@@ -47,22 +60,3 @@ impl PartialOrd for PriceEntry {
 }
 
 pub type PriceDb = Vec<PriceEntry>;
-
-pub(crate) fn get_commodity_conversion(
-    price_db: &PriceDb,
-    from_commodity: Arc<Commodity>,
-    in_commodity: Arc<Commodity>,
-    timestamp: &Zoned,
-) -> Option<Decimal> {
-    let entry_index = match price_db.binary_search(&PriceEntry {
-        timestamp: timestamp.clone(),
-        base_commodity: from_commodity,
-        eq_amount: Decimal::ZERO,
-        eq_commodity: in_commodity,
-        comments: None,
-    }) {
-        Ok(i) => Some(i),
-        Err(i) => i.checked_sub(1),
-    };
-    entry_index.map(|i| price_db[i].eq_amount)
-}

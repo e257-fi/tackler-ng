@@ -13,6 +13,7 @@ pub use settings::Settings;
 pub(crate) mod accumulator;
 pub mod balance;
 pub mod hash;
+pub(crate) mod price_lookup;
 pub mod report_item_selector;
 pub mod settings;
 

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::{config::Scale, model::price_entry::PriceDb};
 use crate::kernel::balance::{BTNs, Balance, Deltas};
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
@@ -12,6 +11,10 @@ use crate::kernel::report_item_selector::{
 use crate::kernel::Settings;
 use crate::model::{BalanceTreeNode, TxnSet};
 use crate::report::{write_acc_sel_checksum, Report};
+use crate::{
+    config::Scale,
+    model::price_entry::{PriceDb, PriceLookup},
+};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};
@@ -27,6 +30,7 @@ pub struct BalanceSettings {
     pub(crate) ras: Vec<String>,
     pub(crate) scale: Scale,
     pub(crate) commodity: Option<Arc<Commodity>>,
+    pub(crate) price_lookup: PriceLookup,
 }
 
 impl TryFrom<&Settings> for BalanceSettings {
@@ -38,6 +42,7 @@ impl TryFrom<&Settings> for BalanceSettings {
             ras: settings.get_balance_ras(),
             scale: settings.report.scale.clone(),
             commodity: None,
+            price_lookup: Default::default(),
         })
     }
 }
@@ -233,6 +238,7 @@ impl Report for BalanceReporter {
         let bal_report = Balance::from(
             &self.report_settings.title,
             self.report_settings.commodity.clone(),
+            &self.report_settings.price_lookup,
             txn_data,
             price_db,
             bal_acc_sel.as_ref(),

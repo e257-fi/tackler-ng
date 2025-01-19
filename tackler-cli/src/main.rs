@@ -10,10 +10,10 @@ mod cli_args;
 use log::error;
 use std::error::Error;
 use std::io;
-use tackler_core::export::write_exports;
 use tackler_core::kernel::settings::Settings;
 use tackler_core::parser;
 use tackler_core::report::write_txt_reports;
+use tackler_core::{export::write_exports, model::price_entry::PriceLookup};
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
@@ -91,6 +91,13 @@ fn run() -> Result<i32, Box<dyn Error>> {
         None => txn_data.get_all()?,
     };
 
+    let price_db = cli
+        .pricedb_filename
+        .as_deref()
+        .map(|path| parser::pricedb_from_file(path, &mut settings))
+        .transpose()?
+        .unwrap_or_else(Default::default);
+
     let mut console_output = if cli.output_directory.is_none() {
         Some(Box::new(io::stdout()))
     } else {
@@ -98,19 +105,28 @@ fn run() -> Result<i32, Box<dyn Error>> {
     };
 
     let reports = settings.get_report_targets(cli.reports)?;
+
     let report_commodity = cli
         .report_commodity
         .as_deref()
         .map(|c| settings.get_commodity(c))
         .transpose()?;
-    let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
+    let report_price_lookup = cli
+        .report_price_lookup
+        .map(|c| match c {
+            cli_args::PriceLookup::AtTheTimeOfTxn => Ok(PriceLookup::AtTheTimeOfTxn),
+            cli_args::PriceLookup::AtTheTimeOfLastTxn => Ok(PriceLookup::AtTheTimeOfLastTxn),
+            cli_args::PriceLookup::AtTheTimeOfTxnTsEndFilter => {
+                Ok(PriceLookup::AtTheTimeOfTxnTsEndFilter)
+            }
+            cli_args::PriceLookup::LastPriceDbEntry => Ok(PriceLookup::LastPriceDbEntry),
+            cli_args::PriceLookup::GivenTime(t) => {
+                settings.parse_timestamp(&t).map(PriceLookup::GivenTime)
+            }
+        })
+        .transpose()?;
 
-    let price_db = cli
-        .pricedb_filename
-        .as_deref()
-        .map(|path| parser::pricedb_from_file(path, &mut settings))
-        .transpose()?
-        .unwrap_or_else(Default::default);
+    let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
 
     if !reports.is_empty() {
         write_txt_reports(
@@ -119,6 +135,7 @@ fn run() -> Result<i32, Box<dyn Error>> {
             &cli.output_name,
             &reports,
             report_commodity,
+            report_price_lookup,
             &txn_set,
             &price_db,
             group_by,

@@ -3,10 +3,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::kernel::Settings;
 use crate::model::TxnSet;
 use crate::{config::ReportType, model::Commodity};
 use crate::{kernel::report_item_selector::ReportItemSelector, model::price_entry::PriceDb};
+use crate::{kernel::Settings, model::price_entry::PriceLookup};
 pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
@@ -78,6 +78,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     output_prefix: &Option<String>,
     reports: &Vec<ReportType>,
     report_commodity: Option<Arc<Commodity>>,
+    report_price_lookup: Option<PriceLookup>,
     txn_set: &TxnSet<'_>,
     price_db: &PriceDb,
     group_by: Option<GroupBy>,
@@ -106,6 +107,8 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
             ReportType::Balance => {
                 let mut bal_reporter = BalanceReporter::try_from(settings)?;
                 bal_reporter.report_settings.commodity = report_commodity.clone();
+                bal_reporter.report_settings.price_lookup =
+                    report_price_lookup.clone().unwrap_or_default();
 
                 match (output_prefix, output_dir) {
                     (Some(output_name), Some(output_dir)) => {
@@ -137,15 +140,13 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                 }
             }
             ReportType::BalanceGroup => {
-                let group_by = match group_by {
-                    Some(gb) => gb,
-                    None => settings.report.balance_group.group_by,
-                };
+                let group_by = group_by.unwrap_or(settings.report.balance_group.group_by);
                 let bal_group_reporter = BalanceGroupReporter {
                     report_settings: BalanceGroupSettings::from(
                         settings,
                         Some(group_by),
                         report_commodity.clone(),
+                        report_price_lookup.clone().unwrap_or_default(),
                     )?,
                 };
                 match (output_prefix, output_dir) {
@@ -182,6 +183,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                 let reg_reporter = RegisterReporter {
                     report_settings: RegisterSettings {
                         report_commodity: report_commodity.clone(),
+                        price_lookup: report_price_lookup.clone().unwrap_or_default(),
                         ..RegisterSettings::try_from(settings)?
                     },
                 };

@@ -4,14 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs};
+use crate::kernel::Settings;
+use crate::model::{
+    price_entry::PriceLookup, RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs,
+};
 use crate::report::RegisterSettings;
 use crate::{kernel::balance::Balance, model::Commodity};
 use crate::{
     kernel::report_item_selector::{BalanceSelector, RegisterSelector},
     model::price_entry::PriceDb,
 };
-use crate::{kernel::Settings, model::price_entry::get_commodity_conversion};
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::error::Error;
@@ -28,6 +30,7 @@ pub(crate) fn balance_groups<T>(
     group_by_op: TxnGroupByOp<'_>,
     price_db: &PriceDb,
     report_commodity: Option<Arc<Commodity>>,
+    price_lookup: &PriceLookup,
     ras: &T,
     settings: &Settings,
 ) -> Vec<Balance>
@@ -35,6 +38,7 @@ where
     T: BalanceSelector + ?Sized,
 {
     txns.iter()
+        .copied()
         .chunk_by(|txn| group_by_op(txn))
         .into_iter()
         // .par // todo: par-map
@@ -42,6 +46,7 @@ where
             Balance::from_iter(
                 &group_by_key,
                 report_commodity.clone(),
+                price_lookup,
                 bal_grp_txns,
                 price_db,
                 ras,
@@ -57,7 +62,6 @@ where
 pub(crate) fn register_engine<'a, W, T>(
     txns: &'a TxnRefs<'_>,
     price_db: &PriceDb,
-    report_commodity: Option<Arc<Commodity>>,
     ras: &T,
     w: &mut W,
     reporter: RegisterReporterFn<W>,
@@ -67,27 +71,26 @@ where
     W: io::Write + ?Sized,
     T: RegisterSelector<'a> + ?Sized,
 {
+    let report_commodity = register_settings.report_commodity.clone();
+    let txn_commodities = txns
+        .iter()
+        .flat_map(|t| &t.posts)
+        .map(|p| p.txn_commodity.clone())
+        .collect();
+
+    let lookup_ctx = register_settings.price_lookup.make_ctx(
+        report_commodity,
+        txn_commodities,
+        price_db,
+        txns.last().map(|v| &**v),
+    );
+
     let mut register_engine: HashMap<TxnAccount, Decimal> = HashMap::new();
     for txn in txns {
-        let register_postings: Vec<_> = txn
-            .posts
-            .iter()
-            .map(|p| {
-                let mut account = p.acctn.clone();
-                let mut amount = p.amount;
-
-                if let Some(in_commodity) = report_commodity.clone() {
-                    if let Some(c) = get_commodity_conversion(
-                        price_db,
-                        p.acctn.comm.clone(),
-                        in_commodity.clone(),
-                        &txn.header.timestamp,
-                    ) {
-                        account.comm = in_commodity;
-                        amount *= c;
-                    }
-                }
-
+        let register_postings: Vec<_> = lookup_ctx
+            .convert_prices(txn)
+            .zip(&txn.posts)
+            .map(|((account, amount), p)| {
                 let running_total = *register_engine
                     .entry(account)
                     .and_modify(|v| {

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::kernel::accumulator;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
@@ -12,6 +11,7 @@ use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
 use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
 use crate::{config::Scale, model::price_entry::PriceDb};
+use crate::{kernel::accumulator, model::price_entry::PriceLookup};
 use jiff::tz::TimeZone;
 use jiff::Zoned;
 use std::io;
@@ -27,6 +27,7 @@ pub struct RegisterSettings {
     pub ras: Vec<String>,
     pub report_tz: TimeZone,
     pub report_commodity: Option<Arc<Commodity>>,
+    pub price_lookup: PriceLookup,
     pub timestamp_style: TimestampStyle,
     pub(crate) scale: Scale,
 }
@@ -40,6 +41,7 @@ impl TryFrom<&Settings> for RegisterSettings {
             ras: settings.get_register_ras(),
             report_tz: settings.report.report_tz.clone(),
             report_commodity: None,
+            price_lookup: Default::default(),
             timestamp_style: settings.report.register.timestamp_style,
             scale: settings.report.scale.clone(),
         };
@@ -116,7 +118,6 @@ impl Report for RegisterReporter {
         accumulator::register_engine(
             &txns.txns,
             price_db,
-            self.report_settings.report_commodity.clone(),
             ras.as_ref(),
             writer,
             reg_entry_txt_writer,

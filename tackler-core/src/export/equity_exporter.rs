@@ -66,6 +66,7 @@ impl Export for EquityExporter {
         let bal = Balance::from(
             &String::default(),
             None,
+            &Default::default(),
             txn_data,
             &Default::default(),
             bal_acc_sel.as_ref(),
