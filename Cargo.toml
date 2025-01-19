@@ -19,7 +19,7 @@ homepage = "https://tackler.e257.fi/"
 repository = "https://github.com/e257-fi/tackler-ng"
 categories = [ "finance", "parser-implementations" ]
 keywords = [ "accounting", "finance" ]
-include = [ "src/**/*", "CRATES.md", "README.adoc", "build.rs" ]
+include = [ "src/**/*.rs", "CRATES.md", "README.adoc", "build.rs" ]
 rust-version = "1.82.0"
 
 [workspace.lints.rust]
