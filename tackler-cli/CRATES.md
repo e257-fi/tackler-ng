@@ -8,28 +8,41 @@
 [![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 
 
-[Tackler](https://tackler.e257.fi/) is fast, reliable bookkeeping tool
+[Tackler](https://tackler.e257.fi/) is fast (1), reliable bookkeeping tool
 with native GIT SCM  support for plain text accounting, written in Rust. 
 
+````bash
+cargo install tackler
+tackler new demo
+tackler --config demo/conf/tackler.toml
 ````
+This will produce balance and register reports for the demo journal.
+
+````text
 Balance Report
 --------------
                  0.00    17.50  Expenses
                  0.00    12.00  Expenses:Food
-                12.00    12.00  Expenses:Food:FastFood
+                12.00    12.00  Expenses:Food:Fast-Food
                  0.00     5.50  Expenses:Sweets
                  2.50     2.50  Expenses:Sweets:Candy
                  3.00     3.00  Expenses:Sweets:Ice·Cream
 =====================
                 17.50
+
+Register Report
+---------------
+...
 ````
+
+1) Tackler can process 120_000 - 250_000 transactions per second on modern laptop. See [Tackler Performance](https://tackler.e257.fi/docs/performance/) for details.
+
 
 ## Project Status
 
-Tackler-NG is in [feature](https://tackler.e257.fi/features/) parity with the old scala 
-based Tackler CLI, and Tackler-NG will be the basis of all future Tackler development.
+Tackler-NG is the basis of all Tackler development, and it's in [feature](https://tackler.e257.fi/features/) parity and beyond of the old scala code base.
 
-**NOTE: Tackler-NG is tested with 306 of tackler's test vectors at the moment**
+**NOTE: Tackler-NG is tested with 310 tracked test vectors at the moment**
 
 All Tackler CLI functionality is supported, including 
 [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
@@ -52,26 +65,17 @@ Other notable features are:
 See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use tackler-ng.
 
 
-## Build and install tackler
+## How to build tackler and play with test vectors
 
+Get the source code of Tackler, the `main` branch should build and pass all tests.
 
 ````bash
-# Get the source code
 git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
 
 cd tackler-ng
 
-# The main branch should build and pass all tests.
-# To build a release, check relased versions:
-git tag -l
-
-# Get the release, e.g. v24.12.2
-git checkout v24.12.2
-
 # Build tackler
-cargo build --release --locked --bin tackler
-
-# the binary is located at 'target/release/tackler'
+cargo build --bin tackler
 ````
 
 ## Simple example

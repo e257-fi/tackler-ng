@@ -5,25 +5,25 @@
 Currently published crates are:
 
 ....
-tackler      = "24.12.2"
-tackler-rs   = "0.7.0"
-tackler-api  = "0.7.0"
-tackler-core = "0.7.0"
+tackler      = "25.1.1"
+tackler-rs   = "0.8.0"
+tackler-api  = "0.8.0"
+tackler-core = "0.8.0"
 ....
 
 
 == Releases
 
-=== Tackler release XX.YY.Z
+=== Tackler release 25.01.1
 
 [cols="1,2",width=50%]
 |===
 |Component    | Version
 
-|Tackler CLI  | TODO: XX.YY.Z
-|tackler-core | TODO: No changes
-|tackler-api  | TODO: No changes
-|tackler-rs   | TODO: No changes
+|Tackler CLI  | 25.01.1
+|tackler-core | 0.8.0
+|tackler-api  | 0.8.0
+|tackler-rs   | 0.8.0
 |===
 
 
@@ -38,11 +38,11 @@ New features:
 Changed functionality:
 
 * Replaced ANTLR based Txn parser with winnow parser combinator
-** This is affecting how invalid journal syntax is reported
-** This has NO changes to journal syntax
+  ** This is affecting how invalid journal syntax is reported
+  ** This has NO changes to journal syntax
 * Replaced time and time-tz with jiff
-** This have some user visible changes, e.g. 'Z' is replaced with '+00:00'
-** Txn Filters, Txn Timestamp: Begin and End are displayed with report timezone
+  ** This have some user visible changes, e.g. 'Z' is replaced with '+00:00'
+  ** Txn Filters, Txn Timestamp: Begin and End are displayed with report timezone
 
 ==== Fixes
 
@@ -67,6 +67,7 @@ Updated deps and tools:
 ** jiff: 0.1.24
 ** serde: 1.0.217
 ** serde_json: 1.0.136
+** winnow: 0.6.24
 
 ===== Rust toolchain
 
