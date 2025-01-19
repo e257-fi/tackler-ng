@@ -31,8 +31,9 @@ tackler-core = "0.7.0"
 
 New features:
 
-* ...
-** ...
+* New tackler commands `new` and `init`
+  ** Command `new <name>` will create a new bookkeeping setup `name` with default files
+  ** Command `init` will initialize a new bookkeeping setup at current location
 
 Changed functionality:
 

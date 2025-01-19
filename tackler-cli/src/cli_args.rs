@@ -1,10 +1,10 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 use clap::builder::PossibleValue;
-use clap::Parser;
+use clap::error::ErrorKind;
+use clap::{CommandFactory, Parser, Subcommand};
 use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
@@ -13,7 +13,47 @@ use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings
 use tackler_core::kernel::Settings;
 use tackler_core::parser::GitInputSelector;
 
-#[derive(Debug, clap::Args)]
+//
+// Default subcommand setup:
+// https://github.com/clap-rs/clap/issues/975
+//
+#[derive(Parser)]
+#[command(author, version=env!("VERSION"), about, long_about = None)]
+#[command(args_conflicts_with_subcommands = true)]
+pub(crate) struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+
+    #[clap(flatten)]
+    pub args: DefaultArgs,
+}
+
+impl Cli {
+    pub(crate) fn cmd(&self) -> Commands {
+        let command = self
+            .command
+            .clone()
+            .unwrap_or(Commands::Report(self.args.clone()));
+        match self.command {
+            Some(_) => command,
+            None => {
+                if self.args.conf_path.is_none() {
+                    let mut cmd = Cli::command();
+                    let msg = format!(
+                        "config file is not provided, use: \n\n{} --config <path/to/config-file>",
+                        cmd.get_name()
+                    );
+
+                    cmd.error(ErrorKind::MissingRequiredArgument, msg.as_str())
+                        .exit();
+                }
+                command
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, clap::Args)]
 #[group(multiple = false)]
 pub(crate) struct GitInputGroup {
     /// Git reference name
@@ -33,11 +73,21 @@ pub(crate) struct GitInputGroup {
     pub(crate) input_git_commit: Option<String>,
 }
 
-#[derive(Parser)]
-#[command(author, version=env!("VERSION"), about, long_about = None)]
-pub(crate) struct Cli {
+#[derive(Clone, Subcommand)]
+#[allow(clippy::large_enum_variant)]
+pub(crate) enum Commands {
+    /// create new bookkeeping setup
+    New { name: String },
+    /// Initialize existing bookkeeping setup
+    Init {},
+    /// This is the default action: run specified reports and exports
+    Report(DefaultArgs),
+}
+
+#[derive(Debug, Clone, clap::Args)]
+pub(crate) struct DefaultArgs {
     #[arg(long = "config", value_name = "path_to_config-file")]
-    pub(crate) conf_path: PathBuf,
+    pub(crate) conf_path: Option<PathBuf>,
 
     /// Strict txn data mode
     ///
@@ -196,7 +246,7 @@ pub(crate) struct Cli {
     pub(crate) api_filter_def: Option<String>,
 }
 
-impl Cli {
+impl DefaultArgs {
     fn get_git_selector(&self) -> Option<GitInputSelector> {
         match (
             &self.git_input_selector.input_git_commit,
@@ -248,7 +298,7 @@ impl Cli {
         } else if self.input_git_repo.is_none() && git_selector.is_some() {
             match settings.get_input_settings(
                 Some(&config::StorageType::STORAGE_GIT.to_string()),
-                Some(self.conf_path.as_path()),
+                Some(self.conf_path.as_ref().unwrap().as_path()),
             )? {
                 InputSettings::Git(git) => Ok(InputSettings::Git(GitInput {
                     git_ref: git_selector.unwrap(/*:ok: is_some */),
@@ -260,7 +310,10 @@ impl Cli {
                 }
             }
         } else {
-            settings.get_input_settings(self.input_storage.as_ref(), Some(self.conf_path.as_path()))
+            settings.get_input_settings(
+                self.input_storage.as_ref(),
+                Some(self.conf_path.as_ref().unwrap().as_path()),
+            )
         }
     }
 }
