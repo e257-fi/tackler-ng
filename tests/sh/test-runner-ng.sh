@@ -44,6 +44,7 @@ $TEST_DIR/reporting-group_by.sh
 $TEST_DIR/reporting-ok.sh
 $TEST_DIR/reporting-time_zones.sh
 $TEST_DIR/tags.sh
+$TEST_DIR/new-and-init.sh
 
 echo
 echo "target: $target - All good"
