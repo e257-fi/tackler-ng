@@ -19,7 +19,7 @@ sets="1E3 1E4 1E5 1E6"
 #sets="1E5"
 #sets="1E6"
 
-versions="24.12.2"
+versions="25.01.1"
 #versions="devel"
 
 fltStr="base64:"$(cat << EOF | base64 --wrap=0

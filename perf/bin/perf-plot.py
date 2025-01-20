@@ -7,7 +7,7 @@
 #############################################################################
 
 #versions = [ "24.12.1", "24.12.2" ]
-versions = ["24.12.1", "24.12.2", "devel"]
+versions = ["24.12.1", "24.12.2", "25.1.1"]
 
 #
 # Plot perf data with Gnuplot
@@ -126,7 +126,7 @@ def plot_cpu(testset):
     set key top left
     set ylabel "CPU %%"
     set xrange  [0:%d]
-    set yrange [*:*]
+    set yrange [90:100]
     """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + plot_line_def()
@@ -179,7 +179,7 @@ def storage_plot_cpu(testset):
     set key top left
     set ylabel "CPU %%"
     set xrange  [0:%d]
-    set yrange [*:*]
+    set yrange [90:100]
     """ % (testset, len(xtics))
 
     return p_hdr + xtics[0] + storage_plot_line_def()
