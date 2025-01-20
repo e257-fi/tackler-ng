@@ -67,9 +67,10 @@ fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksu
     }
 }
 
-// desc: "make 10 loops with txns-1E5"
+// test: 074f5549-346c-4780-90a1-07d60ae0e79d
+// test: 33d85471-a04c-49b9-b7a0-9d7f7f5762eb
 #[allow(non_snake_case)]
-fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
+fn test_10_loops_with_txns_1E5() {
     eprintln!("\n\nMake 10 loops with txns-1E5:");
     let mut settings = Settings::default_audit();
     let mut all_txns_per_s = 0.0;
@@ -101,9 +102,10 @@ fn id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x() {
     );
 }
 
-// desc: "make 10 loops with txns-1E5"
+// test: ce2e6523-ee83-46e7-a767-441c5b9f2802
+// test: fae31eb0-bd4a-483e-9eb7-9e4c36e7f785
 #[allow(non_snake_case)]
-fn id_fae31eb0_bd4a_483e_9eb7_9e4c36e7f785__loop_with_txns_1E1_10000() {
+fn test_10000_loops_with_txns_1E1() {
     let mut settings = Settings::default_audit();
     let loops = 10_000;
     eprintln!("\n\nMake 10_000 loops with txns-1E1:");
@@ -130,7 +132,7 @@ fn id_fae31eb0_bd4a_483e_9eb7_9e4c36e7f785__loop_with_txns_1E1_10000() {
 }
 
 fn main() {
-    id_fae31eb0_bd4a_483e_9eb7_9e4c36e7f785__loop_with_txns_1E1_10000();
+    test_10000_loops_with_txns_1E1();
 
-    id_33d85471_a04c_49b9_b7a0_9d7f7f5762eb__loop_with_txns_1E5_10x();
+    test_10_loops_with_txns_1E5();
 }

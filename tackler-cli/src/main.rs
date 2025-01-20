@@ -1,11 +1,11 @@
 /*
- * Tackler-NG 2022-2024
- *
+ * Tackler-NG 2022-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 #![forbid(unsafe_code)]
 
 mod cli_args;
+mod commands;
 
 use log::error;
 use std::error::Error;
@@ -19,6 +19,7 @@ use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_core::config::Config;
 
+use crate::cli_args::{Commands, DefaultArgs};
 use tackler_api::txn_ts::GroupBy;
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
@@ -28,14 +29,13 @@ use tikv_jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-fn run() -> Result<i32, Box<dyn Error>> {
-    let cli = cli_args::Cli::parse();
-    let cfg = match Config::from(&cli.conf_path) {
+fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
+    let cfg = match Config::from(cli.conf_path.as_ref().unwrap()) {
         Ok(cfg) => cfg,
         Err(err) => {
             let msg = format!(
                 "Configuration error with '{}': {err}",
-                cli.conf_path.display()
+                cli.conf_path.as_ref().unwrap().display()
             );
             error!("{}", msg);
             return Err(msg.into());
@@ -159,11 +159,21 @@ fn run() -> Result<i32, Box<dyn Error>> {
             &mut Some(Box::new(io::stdout())),
         )?;
     }
-    Ok(0)
+    Ok(())
 }
 
 fn main() {
-    match run() {
+    let cli = cli_args::Cli::parse();
+
+    let command = cli.cmd();
+
+    let res = match command {
+        Commands::New { name } => commands::new::exec(name.as_str()),
+        Commands::Init {} => commands::init::exec("."),
+        Commands::Report(args) => run(args),
+    };
+
+    match res {
         Ok(_) => std::process::exit(0),
         Err(err) => {
             let msg = format!("Tackler error: {err}");

@@ -19,7 +19,7 @@ homepage = "https://tackler.e257.fi/"
 repository = "https://github.com/e257-fi/tackler-ng"
 categories = [ "finance", "parser-implementations" ]
 keywords = [ "accounting", "finance" ]
-include = [ "src/**/*", "CRATES.md", "README.adoc", "build.rs" ]
+include = [ "src/**/*.rs", "CRATES.md", "README.adoc", "build.rs" ]
 rust-version = "1.82.0"
 
 [workspace.lints.rust]
@@ -42,13 +42,13 @@ codegen-units = 1
 [workspace.dependencies]
 base64 = { version = "0.22.1" }
 indoc = "2.0.5"
-jiff = { version = "0.1.21", features = [ "serde" ]}
+jiff = { version = "0.1.24", features = [ "serde" ]}
 rust_decimal = { version = "1.36.0", features= ["serde-with-arbitrary-precision" ]}
 rust_decimal_macros = { version = "1.36" }
 uuid = { version = "1.11.1", default-features = false, features = [ "serde" ] }
 log = "0.4.22"
 regex =  { version = "1.11.1" }
 serde = { version = "1.0.217", default-features = false }
-serde_json = { version = "1.0.135" , default-features = false, features = [ "std", "arbitrary_precision" ] }
+serde_json = { version = "1.0.136" , default-features = false, features = [ "std", "arbitrary_precision" ] }
 itertools = "0.13.0"
 tikv-jemallocator = "0.6.0"

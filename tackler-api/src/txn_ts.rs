@@ -203,7 +203,7 @@ fn fmt_year(ts: &Zoned) -> String {
 }
 
 fn fmt_week(ts: &Zoned) -> String {
-    let iso_date = ts.date().to_iso_week_date();
+    let iso_date = ts.date().iso_week_date();
     let y = iso_date.year();
     let w = iso_date.week();
 
@@ -211,7 +211,7 @@ fn fmt_week(ts: &Zoned) -> String {
 }
 
 fn fmt_week_date(ts: &Zoned) -> String {
-    let iso_date = ts.date().to_iso_week_date();
+    let iso_date = ts.date().iso_week_date();
     let y = iso_date.year();
     let w = iso_date.week();
     let wd = iso_date.weekday().to_monday_one_offset();
