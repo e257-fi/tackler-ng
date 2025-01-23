@@ -45,6 +45,7 @@ $TEST_DIR/reporting-ok.sh
 $TEST_DIR/reporting-time_zones.sh
 $TEST_DIR/tags.sh
 $TEST_DIR/new-and-init.sh
+$TEST_DIR/price.sh
 
 echo
 echo "target: $target - All good"

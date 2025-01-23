@@ -304,13 +304,61 @@ Anything which wasn't implemented?
 
 Normal, ok-case tests to validate functionality:
 
-* [ ] test
+* [ ] strict-mode
+    ** [x] On
+    ** [ ] Off (without commodities)
+
+* [ ] txn with empty commodities when price conv is activated
+
+* [ ] No conversion
+    ** [x] commodity but no conversion activated
+    ** [ ] Secondary account with non-conv commodity (val-pos notation)
+
+* [x] Selecting correct price by time
+    ** [x] at-txn
+        *** [x] too early price
+        *** [x] too late price
+    ** [x] last-value at pricedb
+        *** [x] too early price
+        *** [-] too late price
+    ** [x] Filter: Txn-TS-END
+        *** [x] too early price
+        *** [x] too late price
+        *** [ ] filter ts is after last filtered txn ts
+
+    ** [ ] CLI/CONF: Timestamp
+        *** [ ] too early price
+        *** [ ] too late price
+        *** [ ] timestamp is after last filtered txn ts
+
+* [ ] Multiple sources to same target
+    ** [ ] {aaa, bbb, ccc} -> TCKLR
+
+* [ ] Multiple target commodities from same base commodity
+    ** [ ] aaa -> {AAA, BBB, CCC, TCKLR}, all with matching timestamps
+
+* [ ] postings with value positions
+    ** [ ] value position for source posting
+    ** [ ] value position for target posting
+
+* [ ] Balance-Group
+    ** [ ] Commodities distributed so that each Balance-Group has different conversion
+        *** [ ] Conv: a -> TCKLR, b->TCKLR, etc.
+        *** [ ] Conv: a -> AAA, b->BBB, etc. - is this needed?
+    ** [ ] Each Balance-Group have different conversion value
+        *** [ ] filter: group-selector == txn-ts-end (Is this desired behaviour?)
+
 
 ==== Errors
 
 Various error cases:
 
-* [ ] e: error test
+* [ ] e: target commodity not found (at all) in pricedb
+* [ ] e: no source to target conversion in pricedb
+* [ ] e:
+* [ ] e:
+* [ ] e:
+
 
 ==== Perf
 
@@ -333,6 +381,7 @@ link:https://github.com/e257-fi/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
 
 ==== Metadata template for Feature and Test Coverage Tracking
 
+[source,yaml]
 ....
 features:
   - feature:
@@ -340,9 +389,9 @@ features:
       subject: "Price data support"
 
   - feature:
-      id: uuid
-      parent: uuid-of-parent
-      subject: "todo: one-line description of sub feature"
+      id:4d6f0dac-c202-45f4-9b95-7682d6c8df94
+      parent: 98c2b696-d250-4141-bd82-c4126ec11c1d
+      subject: "Price conversions"
       tests:
         errors:
           - error:
@@ -351,8 +400,85 @@ features:
               desc: "todo: description"
         operations:
           - test:
-              id: uuid
-              name: "todo: name of test class/method or test description file"
+              id: 7cbe3cb4-1b23-44bb-8e5e-ba2c8991e589
+              name: "price/ok/price.sh: price-00"
+              descriptions:
+                - desc: "No conversion"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id: 6ddcb0d4-7dc6-4909-a1b4-ecbb5a33a186
+              name: "price/ok/price.sh: price-01"
+              descriptions:
+                - desc: "conv: at-txn"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id: af19f8e7-a6f2-4f64-8c5a-b774dba4f58c
+              name: "price/ok/price.sh: price-02"
+              descriptions:
+                - desc: "conv: last-value at price-db"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id: 4075e741-605b-4e67-ab7d-0d13f38956ca
+              name: "price/ok/price.sh: price-03"
+              descriptions:
+                - desc: "conv: filter: txn-ts-end"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id: 0c600957-5c15-42d0-9bb9-b618ad7d597f
+              name: "price/ok/price.sh: price-04"
+              descriptions:
+                - desc: "conv: filter: txn-ts-end > last txn-ts"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id: 39c60c8b-b999-4305-8c57-5c06e99cc919
+              name: "price/ok/price.sh: price-05"
+              descriptions:
+                - desc: "conv: Timestamp"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id: f7211562-c69d-4bab-a768-65b15803efdf
+              name: "price/ok/price.sh: price-06"
+              descriptions:
+                - desc: "conv: timestamp > last txn-ts"
+              references:
+                - ref: balance
+                - ref: balance-group
+                - ref: register
+                - ref: identity
+                - ref: equity
+          - test:
+              id:
+              name: "price/ok/price.sh: price-"
               descriptions:
                 - desc: "todo: description"
               references:
