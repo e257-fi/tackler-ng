@@ -10,12 +10,14 @@ use crate::config::raw_items::{
 };
 use crate::config::{to_export_targets, to_report_targets};
 use crate::kernel::hash::Hash;
+use crate::model::Commodity;
 use jiff::fmt::strtime::BrokenDownTime;
 use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::{cmp, fs};
 use tackler_api::txn_ts::{GroupBy, TimestampStyle};
 use tackler_rs::get_abs_path;
@@ -30,7 +32,7 @@ pub enum StorageType {
     Git,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub enum PriceLookupType {
     #[default]
     None,
@@ -447,6 +449,7 @@ pub(crate) struct Report {
     pub report_tz: TimeZone,
     pub targets: Vec<ReportType>,
     pub scale: Scale,
+    pub commodity: Option<Arc<Commodity>>,
     pub register: Register,
     pub balance_group: BalanceGroup,
     pub balance: Balance,
@@ -458,6 +461,7 @@ impl Default for Report {
             report_tz: jiff::tz::TimeZone::UTC,
             targets: Vec::new(),
             scale: Scale::default(),
+            commodity: None,
             register: Register::default(),
             balance_group: BalanceGroup::default(),
             balance: Balance::default(),
@@ -472,6 +476,10 @@ impl Report {
             report_tz: TimeZone::get(report_raw.report_tz.as_str())?,
             targets: trgs,
             scale: Scale::from(&report_raw.scale)?,
+            commodity: match &report_raw.commodity {
+                Some(c) => Some(Arc::new(Commodity::from(c.clone())?)),
+                None => None,
+            },
             register: Register::from(&report_raw.register, report_raw)?,
             balance_group: BalanceGroup::from(&report_raw.balance_group, report_raw)?,
             balance: Balance::from(&report_raw.balance, report_raw)?,

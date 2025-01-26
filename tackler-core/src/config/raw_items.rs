@@ -130,6 +130,7 @@ pub(super) struct ReportRaw {
     pub(super) targets: Vec<String>,
     pub(super) accounts: Option<Vec<String>>,
     pub(super) scale: ScaleRaw,
+    pub(super) commodity: Option<String>,
     pub(super) register: RegisterRaw,
     #[serde(rename = "balance-group")]
     pub(super) balance_group: BalanceGroupRaw,

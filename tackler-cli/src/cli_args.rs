@@ -9,12 +9,13 @@ use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
 use tackler_core::config;
-use tackler_core::config::overlaps::PriceOverlap;
+use tackler_core::config::overlaps::{PriceOverlap, ReportOverlap};
 use tackler_core::config::PriceLookupType;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::kernel::Settings;
 use tackler_core::parser::GitInputSelector;
 
+pub(crate) const PRICE_BEFORE: &str = "price.before";
 //
 // Default subcommand setup:
 // https://github.com/clap-rs/clap/issues/975
@@ -281,7 +282,7 @@ pub(crate) struct DefaultModeArgs {
     pub(crate) price_lookup_type: Option<PriceLookupType>,
 
     /// Timestamp to use for price lookup "<ISO-8066-timestamp>",
-    #[arg(long = "price.before", value_name = "price-before")]
+    #[arg(long = PRICE_BEFORE, value_name = "price-before")]
     pub(crate) price_before_ts: Option<String>,
 
     /// Group-by -selector for 'balance-group' report
@@ -319,6 +320,17 @@ pub(crate) struct DefaultModeArgs {
 }
 
 impl DefaultModeArgs {
+    pub(crate) fn get_report_overlap(&self) -> Option<ReportOverlap> {
+        if self.report_commodity.is_some() || self.accounts.is_some() {
+            Some(ReportOverlap {
+                commodity: self.report_commodity.clone(),
+                account_overlap: self.accounts.clone(),
+            })
+        } else {
+            None
+        }
+    }
+
     pub(crate) fn get_price_overlap(&self) -> Option<PriceOverlap> {
         if self.pricedb_filename.is_some() || self.price_lookup_type.is_some() {
             Some(PriceOverlap {

@@ -2,7 +2,7 @@
  * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::config::overlaps::PriceOverlap;
+use crate::config::overlaps::{PriceOverlap, ReportOverlap};
 use crate::config::{
     AccountSelectors, Config, Export, ExportType, Kernel, PriceLookupType, Report, ReportType,
 };
@@ -147,6 +147,13 @@ impl AccountTrees {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct Price {
+    // todo: fix visibility
+    pub price_db: PriceDb,
+    pub lookup_type: PriceLookupType,
+}
+
 #[derive(Debug)]
 pub struct Settings {
     pub(crate) audit_mode: bool,
@@ -154,7 +161,7 @@ pub struct Settings {
     pub(crate) export: Export,
     strict_mode: bool,
     kernel: Kernel,
-    pub price_db: PriceDb, // todo: fix visibility
+    pub price: Price,
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
     accounts: AccountTrees,
@@ -170,7 +177,7 @@ impl Default for Settings {
             report: Report::default(),
             export: Export::default(),
             kernel: Kernel::default(),
-            price_db: PriceDb::default(),
+            price: Price::default(),
             global_acc_sel: None,
             targets: Vec::new(),
             accounts: AccountTrees::default(),
@@ -194,7 +201,7 @@ impl Settings {
         cfg: Config,
         strict_mode_opt: Option<bool>,
         audit_mode_opt: Option<bool>,
-        report_accounts: Option<Vec<String>>,
+        report_overlap: Option<ReportOverlap>,
         price_overlap: Option<PriceOverlap>,
     ) -> Result<Settings, Box<dyn Error>> {
         let strict_mode = match strict_mode_opt {
@@ -205,10 +212,20 @@ impl Settings {
             Some(a) => a,
             None => cfg.kernel.audit.mode,
         };
+        let lookup_type = price_overlap
+            .clone()
+            .map_or(cfg.price.lookup_type.clone(), |po| {
+                po.lookup_type
+                    .map_or(cfg.price.lookup_type.clone(), |lt| lt)
+            });
+
+        let db_path = price_overlap.map_or(cfg.price.db_path.clone(), |po| {
+            po.db_path.map_or(cfg.price.db_path.clone(), |lt| lt)
+        });
 
         let account_trees = AccountTrees::from(&cfg.transaction.accounts.names, strict_mode)?;
 
-        let commodities = Commodities::from(&cfg)?;
+        let mut commodities = Commodities::from(&cfg)?;
 
         let tags = cfg
             .transaction
@@ -221,39 +238,63 @@ impl Settings {
                 tags
             });
 
-        let mut settings = Settings {
+        let cfg_rpt_commodity = if let Some(c) = cfg.report.commodity {
+            Some(Self::inner_get_or_create_commodity(
+                &mut commodities,
+                strict_mode,
+                Some(c.name.as_str()),
+            )?)
+        } else {
+            None
+        };
+        let report_commodity = if let Some(ro) = report_overlap.clone() {
+            match ro.commodity {
+                Some(c) => Some(Self::inner_get_or_create_commodity(
+                    &mut commodities,
+                    strict_mode,
+                    Some(c.as_str()),
+                )?),
+                None => cfg_rpt_commodity,
+            }
+        } else {
+            cfg_rpt_commodity
+        };
+
+        if report_commodity.is_none() && lookup_type != PriceLookupType::None {
+            let msg =
+                "Price conversion is activated, but there is no `report.commodity`".to_string();
+            return Err(msg.into());
+        }
+
+        let mut tmp_settings = Settings {
             strict_mode,
             audit_mode,
             kernel: cfg.kernel,
-            price_db: PriceDb::default(),
-            global_acc_sel: report_accounts,
+            price: Price::default(), // this is not real, see next one
+            global_acc_sel: report_overlap.and_then(|ro| ro.account_overlap),
             targets: cfg.report.targets.clone(),
-            report: cfg.report,
+            report: Report {
+                commodity: report_commodity,
+                ..cfg.report
+            },
             export: cfg.export,
             accounts: account_trees,
             commodities,
             tags,
         };
 
-        let lookup_type = price_overlap
-            .clone()
-            .map_or(cfg.price.lookup_type.clone(), |po| {
-                po.lookup_type
-                    .map_or(cfg.price.lookup_type.clone(), |lt| lt)
-            });
-
-        let db_path = price_overlap.map_or(cfg.price.db_path.clone(), |po| {
-            po.db_path.map_or(cfg.price.db_path.clone(), |lt| lt)
-        });
-
-        let price_db = match lookup_type {
-            PriceLookupType::None => PriceDb::default(),
-            _ => parser::pricedb_from_file(&db_path, &mut settings)?,
+        let price = match &lookup_type {
+            PriceLookupType::None => Price::default(),
+            _ => Price {
+                // we need half-baked settings here bc commodity and timestamps
+                price_db: parser::pricedb_from_file(&db_path, &mut tmp_settings)?,
+                lookup_type,
+            },
         };
 
         Ok(Settings {
-            price_db,
-            ..settings
+            price,
+            ..tmp_settings
         })
     }
 }
@@ -348,20 +389,27 @@ impl Settings {
             }
         }
     }
-
     pub(crate) fn get_or_create_commodity(
         &mut self,
+        name: Option<&str>,
+    ) -> Result<Arc<Commodity>, Box<dyn Error>> {
+        Self::inner_get_or_create_commodity(&mut self.commodities, self.strict_mode, name)
+    }
+
+    fn inner_get_or_create_commodity(
+        commodities: &mut Commodities,
+        strict_mode: bool,
         name: Option<&str>,
     ) -> Result<Arc<Commodity>, Box<dyn Error>> {
         match name {
             Some(n) => {
                 if n.is_empty() {
-                    if self.commodities.permit_empty_commodity {
-                        return match self.commodities.names.get(n) {
+                    if commodities.permit_empty_commodity {
+                        return match commodities.names.get(n) {
                             Some(c) => Ok(c.clone()),
                             None => {
                                 let comm = Arc::new(Commodity::default());
-                                self.commodities.names.insert(n.into(), comm.clone());
+                                commodities.names.insert(n.into(), comm.clone());
 
                                 Ok(comm.clone())
                             }
@@ -372,15 +420,15 @@ impl Settings {
                         return Err(msg.into());
                     }
                 }
-                match self.commodities.names.get(n) {
+                match commodities.names.get(n) {
                     Some(comm) => Ok(comm.clone()),
                     None => {
-                        if self.strict_mode {
+                        if strict_mode {
                             let msg = format!("Unknown commodity: '{}'", n);
                             Err(msg.into())
                         } else {
                             let comm = Arc::new(Commodity::from(n.into())?);
-                            self.commodities.names.insert(n.into(), comm.clone());
+                            commodities.names.insert(n.into(), comm.clone());
                             Ok(comm)
                         }
                     }
@@ -495,6 +543,10 @@ impl Settings {
                 Err(msg.into())
             }
         }
+    }
+
+    pub fn get_report_commodity(&self) -> Option<Arc<Commodity>> {
+        self.report.commodity.as_ref().map(|c| c.clone())
     }
 
     pub fn get_report_targets(

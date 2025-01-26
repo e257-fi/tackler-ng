@@ -7,6 +7,7 @@
 mod cli_args;
 mod commands;
 
+use crate::cli_args::PRICE_BEFORE;
 use log::error;
 use std::error::Error;
 use std::io;
@@ -43,12 +44,13 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
     };
 
     let price_overlap = cli.get_price_overlap();
+    let report_overlap = cli.get_report_overlap();
 
     let mut settings = Settings::try_from(
         cfg,
         cli.strict_mode,
         cli.audit_mode,
-        cli.accounts.clone(),
+        report_overlap,
         price_overlap,
     )?;
 
@@ -107,30 +109,22 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
 
     let reports = settings.get_report_targets(cli.reports)?;
 
-    let report_commodity = cli
-        .report_commodity
-        .as_deref()
-        .map(|c| settings.get_commodity(c))
-        .transpose()?;
+    let report_commodity = settings.get_report_commodity();
 
-    let report_price_lookup: Option<PriceLookup> = if let Some(plt) = cli.price_lookup_type {
-        match plt {
-            config::PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
-            config::PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
-            config::PriceLookupType::GivenTime => Some(cli.price_before_ts.map_or_else(
-                || {
-                    Err(format!(
-                        "Price lookup type \"{}\" requires a timestamp",
-                        config::PriceLookupType::GIVEN_TIME
-                    )
-                    .into())
-                },
-                |ts| settings.parse_timestamp(&ts).map(PriceLookup::GivenTime),
-            )?),
-            config::PriceLookupType::None => None,
-        }
-    } else {
-        None
+    let report_price_lookup: Option<PriceLookup> = match settings.price.lookup_type {
+        config::PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
+        config::PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
+        config::PriceLookupType::GivenTime => Some(cli.price_before_ts.map_or_else(
+            || {
+                Err(format!(
+                    "Price lookup type is \"{}\" and there is no timestamp by --{PRICE_BEFORE}",
+                    config::PriceLookupType::GIVEN_TIME
+                )
+                .into())
+            },
+            |ts| settings.parse_timestamp(&ts).map(PriceLookup::GivenTime),
+        )?),
+        config::PriceLookupType::None => None,
     };
 
     let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
@@ -144,7 +138,7 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
             report_commodity,
             report_price_lookup,
             &txn_set,
-            &settings.price_db,
+            &settings.price.price_db,
             group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),

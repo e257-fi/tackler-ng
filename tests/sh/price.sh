@@ -28,6 +28,7 @@ $TACKLER_SH \
     --config $SUITE_PATH/$module/ok.toml \
     --accounts "e:conv" \
     --input.file $SUITE_PATH/$module/ok/price.txn \
+    --price.lookup-type "none"
 
 
 echo -n "check:"
