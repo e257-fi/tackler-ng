@@ -27,7 +27,6 @@ $TACKLER_SH \
     --output.prefix $test_name \
     --config $SUITE_PATH/$module/ok.toml \
     --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
     --input.file $SUITE_PATH/$module/ok/price.txn \
 
 
@@ -60,10 +59,9 @@ $TACKLER_SH \
     --output.prefix $test_name \
     --config $SUITE_PATH/$module/ok.toml \
     --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
     --input.file $SUITE_PATH/$module/ok/price.txn \
     --report.commodity TCKLR \
-    --report.price-lookup at-txn
+    --price.lookup-type txn-time
 
 echo -n "check:"
 cmp_result $module $test_name txt bal
@@ -86,10 +84,9 @@ $TACKLER_SH \
     --output.prefix $test_name \
     --config $SUITE_PATH/$module/ok.toml \
     --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
     --input.file $SUITE_PATH/$module/ok/price.txn \
     --report.commodity TCKLR \
-    --report.price-lookup last-price-db-entry
+    --price.lookup-type last-price
 
 echo -n "check:"
 cmp_result $module $test_name txt bal
@@ -99,62 +96,60 @@ cmp_result $module $test_name txn identity
 cmp_result $module $test_name txn equity
 echo ": ok"
 
+##
+## price-03
+##
+## test: 4075e741-605b-4e67-ab7d-0d13f38956ca
+#rm -f $OUTPUT_DIR/*
+#test_name=price-03
+#echo "test: $module/$test_name: "
 #
-# price-03
+#$TACKLER_SH \
+#    --output.dir $OUTPUT_DIR \
+#    --output.prefix $test_name \
+#    --config $SUITE_PATH/$module/ok.toml \
+#    --accounts "e:conv" \
+#    --input.file $SUITE_PATH/$module/ok/price.txn \
+#    --report.commodity TCKLR \
+#    --report.price-lookup at-last-filter \
+#    --api-filter-def \
+#    '{ "txnFilter": { "TxnFilterTxnTSEnd": { "end": "2024-04-01T00:00:00Z" }}}'
 #
-# test: 4075e741-605b-4e67-ab7d-0d13f38956ca
-rm -f $OUTPUT_DIR/*
-test_name=price-03
-echo "test: $module/$test_name: "
-
-$TACKLER_SH \
-    --output.dir $OUTPUT_DIR \
-    --output.prefix $test_name \
-    --config $SUITE_PATH/$module/ok.toml \
-    --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
-    --input.file $SUITE_PATH/$module/ok/price.txn \
-    --report.commodity TCKLR \
-    --report.price-lookup at-last-filter \
-    --api-filter-def \
-    '{ "txnFilter": { "TxnFilterTxnTSEnd": { "end": "2024-04-01T00:00:00Z" }}}'
-
-echo -n "check:"
-cmp_result $module $test_name txt bal
-cmp_result $module $test_name txt balgrp
-cmp_result $module $test_name txt reg
-cmp_result $module $test_name txn identity
-cmp_result $module $test_name txn equity
-echo ": ok"
-
-#
-# price-04
-#
-# test: 0c600957-5c15-42d0-9bb9-b618ad7d597f
-rm -f $OUTPUT_DIR/*
-test_name=price-04
-echo "test: $module/$test_name: "
-
-$TACKLER_SH \
-    --output.dir $OUTPUT_DIR \
-    --output.prefix $test_name \
-    --config $SUITE_PATH/$module/ok.toml \
-    --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
-    --input.file $SUITE_PATH/$module/ok/price.txn \
-    --report.commodity TCKLR \
-    --report.price-lookup at-last-filter \
-    --api-filter-def \
-    '{ "txnFilter": { "TxnFilterTxnTSEnd": { "end": "2024-03-31T00:00:00Z" }}}'
-
-echo -n "check:"
-# todo: enable, when at-last-filter is fixed
+#echo -n "check:"
 #cmp_result $module $test_name txt bal
 #cmp_result $module $test_name txt balgrp
 #cmp_result $module $test_name txt reg
 #cmp_result $module $test_name txn identity
 #cmp_result $module $test_name txn equity
-echo ": ok"
+#echo ": ok"
+
+##
+## price-04
+##
+## test: 0c600957-5c15-42d0-9bb9-b618ad7d597f
+#rm -f $OUTPUT_DIR/*
+#test_name=price-04
+#echo "test: $module/$test_name: "
+#
+#$TACKLER_SH \
+#    --output.dir $OUTPUT_DIR \
+#    --output.prefix $test_name \
+#    --config $SUITE_PATH/$module/ok.toml \
+#    --accounts "e:conv" \
+#    --input.file $SUITE_PATH/$module/ok/price.txn \
+#    --report.commodity TCKLR \
+#    --report.price-lookup at-last-filter \
+#    --api-filter-def \
+#    '{ "txnFilter": { "TxnFilterTxnTSEnd": { "end": "2024-03-31T00:00:00Z" }}}'
+#
+#echo -n "check:"
+## todo: enable, when at-last-filter is fixed
+#cmp_result $module $test_name txt bal
+#cmp_result $module $test_name txt balgrp
+#cmp_result $module $test_name txt reg
+#cmp_result $module $test_name txn identity
+#cmp_result $module $test_name txn equity
+#echo ": ok"
 
 #
 # price-05
@@ -169,10 +164,10 @@ $TACKLER_SH \
     --output.prefix $test_name \
     --config $SUITE_PATH/$module/ok.toml \
     --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
     --input.file $SUITE_PATH/$module/ok/price.txn \
     --report.commodity TCKLR \
-    --report.price-lookup "2024-04-01"
+    --price.lookup-type "given-time" \
+    --price.before "2024-03-31"
 
 echo -n "check:"
 #cmp_result $module $test_name txt bal
@@ -195,10 +190,10 @@ $TACKLER_SH \
     --output.prefix $test_name \
     --config $SUITE_PATH/$module/ok.toml \
     --accounts "e:conv" \
-    --pricedb $SUITE_PATH/$module/ok/price.db \
     --input.file $SUITE_PATH/$module/ok/price.txn \
     --report.commodity TCKLR \
-    --report.price-lookup "2024-03-31"
+    --price.lookup-type "given-time" \
+    --price.before "2024-03-31"
 
 echo -n "check:"
 # todo: enable, when at-last-filter is fixed

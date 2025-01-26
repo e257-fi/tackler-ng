@@ -1,11 +1,10 @@
 /*
- * Tackler-NG 2024
- *
+ * Tackler-NG 2024-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::config::raw_items::{
     AccountsPathRaw, AccountsRaw, AuditRaw, BalanceGroupRaw, BalanceRaw, CommoditiesPathRaw,
-    CommoditiesRaw, ConfigRaw, EquityRaw, ExportRaw, FsRaw, GitRaw, InputRaw, KernelRaw,
+    CommoditiesRaw, ConfigRaw, EquityRaw, ExportRaw, FsRaw, GitRaw, InputRaw, KernelRaw, PriceRaw,
     RegisterRaw, ReportRaw, ScaleRaw, TagsPathRaw, TagsRaw, TimestampRaw, TimezoneRaw,
     TransactionRaw,
 };
@@ -16,19 +15,49 @@ use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::fmt::Debug;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::{cmp, fs};
 use tackler_api::txn_ts::{GroupBy, TimestampStyle};
 use tackler_rs::get_abs_path;
 
 /// UI/CFG key value for none
-const NONE_VALUE: &str = "none";
+pub const NONE_VALUE: &str = "none";
 
 #[derive(Debug, Clone, Default)]
 pub enum StorageType {
     #[default]
     FS,
     Git,
+}
+
+#[derive(Debug, Clone, Default)]
+pub enum PriceLookupType {
+    #[default]
+    None,
+    LastPrice,
+    TxnTime,
+    GivenTime,
+}
+
+impl PriceLookupType {
+    pub const NONE: &'static str = NONE_VALUE;
+    pub const LAST_PRICE: &'static str = "last-price";
+    pub const TXN_TIME: &'static str = "txn-time";
+    pub const GIVEN_TIME: &'static str = "given-time";
+}
+
+impl TryFrom<&str> for PriceLookupType {
+    type Error = Box<dyn Error>;
+
+    fn try_from(lookup: &str) -> Result<PriceLookupType, Box<dyn Error>> {
+        match lookup {
+            PriceLookupType::NONE => Ok(PriceLookupType::None),
+            PriceLookupType::LAST_PRICE => Ok(PriceLookupType::LastPrice),
+            PriceLookupType::TXN_TIME => Ok(PriceLookupType::TxnTime),
+            PriceLookupType::GIVEN_TIME => Ok(PriceLookupType::GivenTime),
+            _ => Err(format!("Unknown price lookup type: {}", lookup).into()),
+        }
+    }
 }
 
 #[rustfmt::skip]
@@ -87,6 +116,7 @@ pub(crate) type AccountSelectors = Vec<String>;
 #[allow(dead_code)]
 pub struct Config {
     pub(crate) kernel: Kernel,
+    pub(crate) price: Price,
     pub(crate) transaction: Transaction,
     pub(crate) report: Report,
     pub(crate) export: Export,
@@ -98,6 +128,9 @@ impl Config {
 
         Ok(Config {
             kernel: Kernel::from(&cfg_raw.kernel)?,
+            price: cfg_raw.price.map_or(Ok(Price::default()), |raw_price| {
+                Price::try_from(&cfg_path, &raw_price)
+            })?,
             transaction: Transaction::from(cfg_path, &cfg_raw.transaction)?,
             report: Report::from(&cfg_raw.report)?,
             export: { Export::from(&cfg_raw.export, &cfg_raw.report)? },
@@ -263,6 +296,35 @@ impl Git {
             dir: git_raw.dir.clone(),
             suffix: git_raw.suffix.clone(),
         })
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub(crate) struct Price {
+    pub(crate) db_path: PathBuf,
+    pub(crate) lookup_type: PriceLookupType,
+}
+impl Price {
+    fn try_from<P: AsRef<Path>>(
+        base_path: P,
+        price_raw: &PriceRaw,
+    ) -> Result<Price, Box<dyn Error>> {
+        let db_path_str = price_raw.db_path.as_str();
+        let lookup_type = PriceLookupType::try_from(price_raw.lookup_type.as_str())?;
+
+        match db_path_str {
+            NONE_VALUE => match lookup_type {
+                PriceLookupType::None => Ok(Price::default()),
+                _ => {
+                    let msg = "Price database path is 'none' but lookup type is not 'none'";
+                    Err(msg.into())
+                }
+            },
+            _ => Ok(Price {
+                db_path: get_abs_path(base_path, db_path_str)?,
+                lookup_type,
+            }),
+        }
     }
 }
 

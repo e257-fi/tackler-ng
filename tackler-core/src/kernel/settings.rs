@@ -1,14 +1,17 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::config;
-use crate::config::{AccountSelectors, Config, Export, ExportType, Kernel, Report, ReportType};
+use crate::config::overlaps::PriceOverlap;
+use crate::config::{
+    AccountSelectors, Config, Export, ExportType, Kernel, PriceLookupType, Report, ReportType,
+};
 use crate::kernel::hash::Hash;
+use crate::model::price_entry::PriceDb;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
 use crate::parser::GitInputSelector;
+use crate::{config, parser};
 use jiff::Zoned;
 use std::collections::HashMap;
 use std::error::Error;
@@ -151,6 +154,7 @@ pub struct Settings {
     pub(crate) export: Export,
     strict_mode: bool,
     kernel: Kernel,
+    pub price_db: PriceDb, // todo: fix visibility
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
     accounts: AccountTrees,
@@ -166,6 +170,7 @@ impl Default for Settings {
             report: Report::default(),
             export: Export::default(),
             kernel: Kernel::default(),
+            price_db: PriceDb::default(),
             global_acc_sel: None,
             targets: Vec::new(),
             accounts: AccountTrees::default(),
@@ -185,11 +190,12 @@ impl Settings {
 }
 
 impl Settings {
-    pub fn from(
+    pub fn try_from(
         cfg: Config,
         strict_mode_opt: Option<bool>,
         audit_mode_opt: Option<bool>,
         report_accounts: Option<Vec<String>>,
+        price_overlap: Option<PriceOverlap>,
     ) -> Result<Settings, Box<dyn Error>> {
         let strict_mode = match strict_mode_opt {
             Some(s) => s,
@@ -215,10 +221,11 @@ impl Settings {
                 tags
             });
 
-        Ok(Settings {
+        let mut settings = Settings {
             strict_mode,
             audit_mode,
             kernel: cfg.kernel,
+            price_db: PriceDb::default(),
             global_acc_sel: report_accounts,
             targets: cfg.report.targets.clone(),
             report: cfg.report,
@@ -226,6 +233,27 @@ impl Settings {
             accounts: account_trees,
             commodities,
             tags,
+        };
+
+        let lookup_type = price_overlap
+            .clone()
+            .map_or(cfg.price.lookup_type.clone(), |po| {
+                po.lookup_type
+                    .map_or(cfg.price.lookup_type.clone(), |lt| lt)
+            });
+
+        let db_path = price_overlap.map_or(cfg.price.db_path.clone(), |po| {
+            po.db_path.map_or(cfg.price.db_path.clone(), |lt| lt)
+        });
+
+        let price_db = match lookup_type {
+            PriceLookupType::None => PriceDb::default(),
+            _ => parser::pricedb_from_file(&db_path, &mut settings)?,
+        };
+
+        Ok(Settings {
+            price_db,
+            ..settings
         })
     }
 }

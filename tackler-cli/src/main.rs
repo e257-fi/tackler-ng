@@ -11,15 +11,15 @@ use log::error;
 use std::error::Error;
 use std::io;
 use tackler_core::kernel::settings::Settings;
-use tackler_core::parser;
 use tackler_core::report::write_txt_reports;
+use tackler_core::{config, parser};
 use tackler_core::{export::write_exports, model::price_entry::PriceLookup};
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_core::config::Config;
 
-use crate::cli_args::{Commands, DefaultArgs};
+use crate::cli_args::{Commands, DefaultModeArgs};
 use tackler_api::txn_ts::GroupBy;
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
@@ -29,7 +29,7 @@ use tikv_jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
+fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
     let cfg = match Config::from(cli.conf_path.as_ref().unwrap()) {
         Ok(cfg) => cfg,
         Err(err) => {
@@ -42,7 +42,15 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let mut settings = Settings::from(cfg, cli.strict_mode, cli.audit_mode, cli.accounts.clone())?;
+    let price_overlap = cli.get_price_overlap();
+
+    let mut settings = Settings::try_from(
+        cfg,
+        cli.strict_mode,
+        cli.audit_mode,
+        cli.accounts.clone(),
+        price_overlap,
+    )?;
 
     let input_type = cli.get_input_type(&settings)?;
 
@@ -91,13 +99,6 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
         None => txn_data.get_all()?,
     };
 
-    let price_db = cli
-        .pricedb_filename
-        .as_deref()
-        .map(|path| parser::pricedb_from_file(path, &mut settings))
-        .transpose()?
-        .unwrap_or_else(Default::default);
-
     let mut console_output = if cli.output_directory.is_none() {
         Some(Box::new(io::stdout()))
     } else {
@@ -111,20 +112,26 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
         .as_deref()
         .map(|c| settings.get_commodity(c))
         .transpose()?;
-    let report_price_lookup = cli
-        .report_price_lookup
-        .map(|c| match c {
-            cli_args::PriceLookup::AtTheTimeOfTxn => Ok(PriceLookup::AtTheTimeOfTxn),
-            cli_args::PriceLookup::AtTheTimeOfLastTxn => Ok(PriceLookup::AtTheTimeOfLastTxn),
-            cli_args::PriceLookup::AtTheTimeOfTxnTsEndFilter => {
-                Ok(PriceLookup::AtTheTimeOfTxnTsEndFilter)
-            }
-            cli_args::PriceLookup::LastPriceDbEntry => Ok(PriceLookup::LastPriceDbEntry),
-            cli_args::PriceLookup::GivenTime(t) => {
-                settings.parse_timestamp(&t).map(PriceLookup::GivenTime)
-            }
-        })
-        .transpose()?;
+
+    let report_price_lookup: Option<PriceLookup> = if let Some(plt) = cli.price_lookup_type {
+        match plt {
+            config::PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
+            config::PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
+            config::PriceLookupType::GivenTime => Some(cli.price_before_ts.map_or_else(
+                || {
+                    Err(format!(
+                        "Price lookup type \"{}\" requires a timestamp",
+                        config::PriceLookupType::GIVEN_TIME
+                    )
+                    .into())
+                },
+                |ts| settings.parse_timestamp(&ts).map(PriceLookup::GivenTime),
+            )?),
+            config::PriceLookupType::None => None,
+        }
+    } else {
+        None
+    };
 
     let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
 
@@ -137,7 +144,7 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
             report_commodity,
             report_price_lookup,
             &txn_set,
-            &price_db,
+            &settings.price_db,
             group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),

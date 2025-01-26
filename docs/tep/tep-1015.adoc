@@ -342,13 +342,13 @@ No changes to Identity Export
 * [ ] User docs
 ** [ ] User Manual
 *** [ ] cli-arguments
-**** [ ] `--price.db-path`
-**** [ ] `--price.lookup-type`
-**** [ ] `--price.before`
+**** [x] `--price.db-path`
+**** [x] `--price.lookup-type`
+**** [x] `--price.before`
 **** [ ] `--report.commodity`
 ** [ ] tackler.toml
-*** [ ] `price.db-path`
-*** [ ] `price.lookup-type`
+*** [x] `price.db-path`
+*** [x] `price.lookup-type`
 *** [ ] `report.commodity`
 ** [ ] examples
 * [ ] Developer docs
