@@ -133,12 +133,12 @@ New command line switch to activate price data, this could be implemented later.
 
 `--price.lookup-type`:: Price lookup type, valid values are:
 * `none`
-* `last-value`
-* `at-txn-time`
+* `last-price`
+* `txn-time`
 * `given-time`
 
 `--price.before <ts>`:: Date or timestamp to be used in price lookup, see also xref:fppf[].
-* This is valid option only with `given-time` or `last-value` price lookup types.
+* This is valid option only with `last-price` or `given-time` price lookup types.
 * This is exclusive time, e.g. the first price db entry before this time is used.
 * If `ts` is date, then `kernel.timestamp.default-time`
 and `kernel.timestamp.timezone` is used for timestamp.
@@ -167,7 +167,7 @@ db-path = "path/to/price.db"
 ###
 ### Valid values are:
 ###   - "none"
-###   - "last-value"
+###   - "last-price"
 ###   - "txn-time"
 ###   - "given-time", with this CLI `--price.before` must be used
 ###
@@ -267,7 +267,7 @@ Changes to balance report
 [#balgrp-price-data]
 ===== Sub-Group price data
 
-This implementation uses the same logic as Balance Report, e.g. single price value is used for all sub-groups with `last-value` and `given-time` price lookup types. There could be an conf/cli option to change this in the future, so that each sub-group could have their own price data based on time to used to greate that group.
+This implementation uses the same logic as Balance Report, e.g. single price value is used for all sub-groups with `last-price` and `given-time` price lookup types. There could be an conf/cli option to change this in the future, so that each sub-group could have their own price data based on time to used to greate that group.
 
 
 ==== Register Report
@@ -412,7 +412,7 @@ Normal, ok-case tests to validate functionality:
     ** [x] at-txn
         *** [x] too early price
         *** [x] too late price
-    ** [x] last-value at pricedb
+    ** [x] last-price at pricedb
         *** [x] too early price
         *** [-] too late price
     ** [-X] Filter: Txn-TS-END
