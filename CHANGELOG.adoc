@@ -47,7 +47,10 @@ Fixes in this release ...
 Updated deps and tools:
 
 * Dependencies
-** ...
+** clap: v4.5.27
+** jiff: v0.1.28
+** serde_json: v1.0.138
+** uuid: v1.12.1
 
 ===== Rust toolchain
 
