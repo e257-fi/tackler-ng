@@ -1,6 +1,5 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -97,10 +96,16 @@ impl Report for RegisterReporter {
         &self,
         cfg: &Settings,
         writer: &mut W,
-        txns: &TxnSet<'_>,
+        txn_data: &TxnSet<'_>,
         price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>> {
         let acc_sel = self.get_acc_selector()?;
+
+        let report_commodity = self.report_settings.report_commodity.clone();
+        let price_lookup_ctx =
+            self.report_settings
+                .price_lookup
+                .make_ctx(&txn_data.txns, report_commodity, price_db);
 
         write_acc_sel_checksum(cfg, writer, acc_sel.as_ref())?;
 
@@ -116,8 +121,8 @@ impl Report for RegisterReporter {
         let ras = self.get_acc_selector()?;
 
         accumulator::register_engine(
-            &txns.txns,
-            price_db,
+            &txn_data.txns,
+            &price_lookup_ctx,
             ras.as_ref(),
             writer,
             reg_entry_txt_writer,

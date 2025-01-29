@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,8 +29,6 @@ pub struct PriceEntry {
 pub enum PriceLookup {
     AtTheTimeOfTxn,
     #[default]
-    AtTheTimeOfLastTxn,
-    AtTheTimeOfTxnTsEndFilter,
     LastPriceDbEntry,
     GivenTime(Zoned),
 }

@@ -1,16 +1,16 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::kernel::price_lookup::PriceLookupCtx;
+use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
-use crate::model::{balance_tree_node::ord_by_btn, price_entry::PriceLookup};
+use crate::model::balance_tree_node::ord_by_btn;
 use crate::model::{BalanceTreeNode, Commodity, Transaction, TxnAccount, TxnSet};
-use crate::{kernel::report_item_selector::BalanceSelector, model::price_entry::PriceDb};
 use itertools::Itertools;
 use rust_decimal::Decimal;
-use std::{collections::BTreeSet, error::Error};
+use std::error::Error;
 use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
@@ -146,33 +146,18 @@ impl Balance {
     /// * `returns` unfiltered sequence of BalanceTreeNodes
     fn balance<'a, I>(
         txns: I,
-        in_commodity: Option<Arc<Commodity>>,
-        price_lookup: &PriceLookup,
-        price_db: &PriceDb,
+        price_lookup_ctx: &PriceLookupCtx<'_>,
         settings: &Settings,
     ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>>
     where
         I: Iterator<Item = &'a Transaction>,
     {
-        let mut txn_commodities = BTreeSet::new();
-        let txns = txns
-            .inspect(|t| txn_commodities.extend(t.posts.iter().map(|p| p.txn_commodity.clone())))
-            .collect::<Vec<_>>();
-
-        let lookup_ctx = price_lookup.make_ctx(
-            in_commodity.clone(),
-            txn_commodities,
-            price_db,
-            txns.last().map(|v| &**v),
-        );
-
         // Calculate sum of postings for each account.
         //
         // Input size: is "big",    ~ all transactions
         // Output size: is "small", ~ size of CoA
         let account_sums: Vec<(TxnAccount, Decimal)> = txns
-            .iter()
-            .flat_map(|txn| lookup_ctx.convert_prices(txn))
+            .flat_map(|txn| price_lookup_ctx.convert_prices(txn))
             .sorted_by_key(|(acctn, _)| acctn.clone())
             .chunk_by(|(acctn, _)| acctn.clone())
             .into_iter()
@@ -236,10 +221,8 @@ impl Balance {
 
     pub fn from<T>(
         title: &str,
-        report_commodity: Option<Arc<Commodity>>,
-        price_lookup: &PriceLookup,
         txn_set: &TxnSet<'_>,
-        price_db: &PriceDb,
+        price_lookup_ctx: &PriceLookupCtx<'_>,
         accounts: &T,
         settings: &Settings,
     ) -> Result<Balance, Box<dyn Error>>
@@ -248,10 +231,8 @@ impl Balance {
     {
         Self::from_iter(
             title,
-            report_commodity,
-            price_lookup,
             txn_set.txns.iter().copied(),
-            price_db,
+            price_lookup_ctx,
             accounts,
             settings,
         )
@@ -259,10 +240,8 @@ impl Balance {
 
     pub(crate) fn from_iter<'a, I, T>(
         title: &str,
-        report_commodity: Option<Arc<Commodity>>,
-        price_lookup: &PriceLookup,
         txns: I,
-        price_db: &PriceDb,
+        price_lookup_ctx: &PriceLookupCtx<'_>,
         accounts: &T,
         settings: &Settings,
     ) -> Result<Balance, Box<dyn Error>>
@@ -270,13 +249,7 @@ impl Balance {
         T: BalanceSelector + ?Sized,
         I: IntoIterator<Item = &'a Transaction>,
     {
-        let bal = Balance::balance(
-            txns.into_iter(),
-            report_commodity,
-            price_lookup,
-            price_db,
-            settings,
-        )?;
+        let bal = Balance::balance(txns.into_iter(), price_lookup_ctx, settings)?;
 
         let filt_bal: Vec<_> = bal.into_iter().filter(|b| accounts.eval(b)).collect();
 

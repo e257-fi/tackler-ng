@@ -1,11 +1,11 @@
 /*
- * Tackler-NG 2024
- *
+ * Tackler-NG 2024-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::export::Export;
 use crate::kernel::balance::Balance;
+use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::{
     BalanceNonZeroByAccountSelector, BalanceNonZeroSelector, BalanceSelector,
 };
@@ -65,10 +65,8 @@ impl Export for EquityExporter {
 
         let bal = Balance::from(
             &String::default(),
-            None,
-            &Default::default(),
             txn_data,
-            &Default::default(),
+            &PriceLookupCtx::default(),
             bal_acc_sel.as_ref(),
             cfg,
         )?;

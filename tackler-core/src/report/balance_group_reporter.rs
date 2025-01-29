@@ -1,6 +1,5 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -93,13 +92,17 @@ impl Report for BalanceGroupReporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
+        let price_lookup_ctx = &self.report_settings.price_lookup.make_ctx(
+            &txn_data.txns,
+            self.report_settings.report_commodity.clone(),
+            price_db,
+        );
+
         let group_by_op = self.get_group_by_op();
         let bal_groups = accumulator::balance_groups(
             &txn_data.txns,
             group_by_op,
-            price_db,
-            self.report_settings.report_commodity.clone(),
-            &self.report_settings.price_lookup,
+            price_lookup_ctx,
             bal_acc_sel.as_ref(),
             cfg,
         );

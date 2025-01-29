@@ -1,27 +1,42 @@
+/*
+ * Tackler-NG 2025
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+use crate::model::{
+    price_entry::{PriceDb, PriceEntry, PriceLookup},
+    Commodity, Transaction, TxnAccount, TxnRefs,
+};
+use jiff::tz::TimeZone;
+use jiff::{Timestamp, Zoned};
+use rust_decimal::Decimal;
 use std::{
     collections::{BTreeSet, HashMap},
     sync::Arc,
 };
 
-use rust_decimal::Decimal;
-
-use crate::model::{
-    price_entry::{PriceDb, PriceEntry, PriceLookup},
-    Commodity, Transaction, TxnAccount,
-};
-
 #[derive(Debug)]
 enum Cache<'p> {
-    Untimed(HashMap<Arc<Commodity>, Decimal>),
+    Untimed(HashMap<Arc<Commodity>, (Zoned, Decimal)>),
     Timed(Vec<&'p PriceEntry>),
 }
 
-pub(crate) struct LookupCtx<'p> {
+#[derive(Debug)]
+pub struct PriceLookupCtx<'p> {
     cache: Cache<'p>,
     in_commodity: Option<Arc<Commodity>>,
 }
 
-impl<'p> LookupCtx<'p> {
+impl Default for PriceLookupCtx<'_> {
+    fn default() -> Self {
+        PriceLookupCtx {
+            cache: Cache::Untimed(HashMap::new()),
+            in_commodity: None,
+        }
+    }
+}
+
+impl<'p> PriceLookupCtx<'p> {
     pub(crate) fn convert_prices<'r, 's, 't>(
         &'s self,
         txn: &'t Transaction,
@@ -31,7 +46,7 @@ impl<'p> LookupCtx<'p> {
         's: 'r,
         't: 'r,
     {
-        txn.posts.iter().map(move |p| {
+        txn.posts.iter().map(|p| {
             let mut acctn = p.acctn.clone();
             let mut amount = p.amount;
             if let Some(in_commodity) = self.in_commodity.clone() {
@@ -39,7 +54,7 @@ impl<'p> LookupCtx<'p> {
                     Cache::Untimed(cache) => {
                         if let Some(c) = cache.get(&p.acctn.comm) {
                             acctn.comm = in_commodity;
-                            amount *= c;
+                            amount *= c.1;
                         }
                     }
                     Cache::Timed(cache) => {
@@ -65,28 +80,25 @@ impl<'p> LookupCtx<'p> {
 impl PriceLookup {
     pub(crate) fn make_ctx<'p>(
         &self,
+        txns: &TxnRefs<'_>,
         in_commodity: Option<Arc<Commodity>>,
-        used_commodities: BTreeSet<Arc<Commodity>>,
         price_db: &'p PriceDb,
-        last_txn: Option<&Transaction>,
-    ) -> LookupCtx<'p> {
+    ) -> PriceLookupCtx<'p> {
         let Some(in_commodity) = in_commodity else {
-            return LookupCtx {
-                cache: Cache::Timed(Vec::new()),
-                in_commodity: None,
-            };
+            // No commodity conversion, short-circuit out
+            return PriceLookupCtx::default();
         };
 
-        let last_price_db_time = price_db.last().map(|e| e.timestamp.clone());
+        let used_commodities = txns
+            .iter()
+            .flat_map(|t| &t.posts)
+            // This must be acctn.comm as txn_commodity is commodity for whole txn
+            .map(|p| p.acctn.comm.clone())
+            .collect::<BTreeSet<_>>();
+
         let lookup_timestamp = match self {
             PriceLookup::AtTheTimeOfTxn => None,
-            PriceLookup::AtTheTimeOfLastTxn => last_txn
-                .map(|t| t.header.timestamp.clone())
-                .or_else(|| last_price_db_time.clone()),
-            PriceLookup::AtTheTimeOfTxnTsEndFilter => last_txn
-                .map(|t| t.header.timestamp.clone())
-                .or_else(|| last_price_db_time.clone()),
-            PriceLookup::LastPriceDbEntry => last_price_db_time,
+            PriceLookup::LastPriceDbEntry => Some(Timestamp::MAX.to_zoned(TimeZone::UTC)),
             PriceLookup::GivenTime(t) => Some(t.clone()),
         };
 
@@ -97,9 +109,9 @@ impl PriceLookup {
                     .filter(|e| {
                         used_commodities.contains(&e.base_commodity)
                             && e.eq_commodity == in_commodity
-                            && e.timestamp <= lookup_timestamp
+                            && e.timestamp < lookup_timestamp
                     })
-                    .map(|e| (e.base_commodity.clone(), e.eq_amount))
+                    .map(|e| (e.base_commodity.clone(), (e.timestamp.clone(), e.eq_amount)))
                     .collect(),
             ),
             None if self != &PriceLookup::AtTheTimeOfTxn => Cache::Timed(Vec::new()),
@@ -114,7 +126,7 @@ impl PriceLookup {
             ),
         };
 
-        LookupCtx {
+        PriceLookupCtx {
             cache,
             in_commodity: Some(in_commodity),
         }

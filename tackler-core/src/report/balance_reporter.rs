@@ -1,9 +1,9 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use super::Commodity;
 use crate::kernel::balance::{BTNs, Balance, Deltas};
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
@@ -21,8 +21,6 @@ use rust_decimal::{Decimal, RoundingStrategy};
 use std::error::Error;
 use std::io;
 use std::{cmp::max, sync::Arc};
-
-use super::Commodity;
 
 #[derive(Debug, Clone)]
 pub struct BalanceSettings {
@@ -232,15 +230,19 @@ impl Report for BalanceReporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
+        let price_lookup_ctx = &self.report_settings.price_lookup.make_ctx(
+            &txn_data.txns,
+            self.report_settings.commodity.clone(),
+            price_db,
+        );
+
         write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
         writeln!(writer)?;
 
         let bal_report = Balance::from(
             &self.report_settings.title,
-            self.report_settings.commodity.clone(),
-            &self.report_settings.price_lookup,
             txn_data,
-            price_db,
+            price_lookup_ctx,
             bal_acc_sel.as_ref(),
             cfg,
         )?;
