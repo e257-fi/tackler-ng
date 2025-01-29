@@ -412,18 +412,17 @@ Normal, ok-case tests to validate functionality:
     ** [x] at-txn
         *** [x] too early price
         *** [x] too late price
-    ** [x] last-price at pricedb
+    ** [x] last-price
         *** [x] too early price
         *** [-] too late price
+    ** [x] CLI given-time
+        *** [x] too early price
+        *** [x] too late price
+        *** [x] timestamp is after last filtered txn ts and after last price
     ** [-X] Filter: Txn-TS-END
         *** [-X] too early price
         *** [-X] too late price
         *** [ ] filter ts is after last filtered txn ts
-
-    ** [ ] CLI/CONF: Timestamp
-        *** [ ] too early price
-        *** [ ] too late price
-        *** [ ] timestamp is after last filtered txn ts
 
 * [ ] Multiple sources to same target
     ** [ ] {aaa, bbb, ccc} -> TCKLR

@@ -31,7 +31,6 @@ export OUTPUT_DIR
 source $TEST_DIR/lib/utils.sh
 
 
-#echo > $OUTPUT_DIR/$test_name.bal.txt
 $TEST_DIR/accumulator.sh
 $TEST_DIR/audit.sh
 $TEST_DIR/commodity.sh
@@ -46,6 +45,7 @@ $TEST_DIR/reporting-time_zones.sh
 $TEST_DIR/tags.sh
 $TEST_DIR/new-and-init.sh
 $TEST_DIR/price.sh
+$TEST_DIR/price-strict.sh
 
 echo
 echo "target: $target - All good"
