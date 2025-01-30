@@ -7,7 +7,7 @@
 #############################################################################
 
 #versions = [ "24.12.1", "24.12.2" ]
-versions = ["24.12.1", "24.12.2", "25.1.1"]
+versions = ["24.12.1", "24.12.2", "25.1.1" ]
 
 #
 # Plot perf data with Gnuplot
@@ -25,18 +25,18 @@ import sys
 
 
 def make_xtics(versions):
+    i = 1
     result_str = "set xtics ("
-    result_str += '"' + versions[0] + '" 1'
-    i = 2
+    result_str += '"' + versions[0] + '" {:d}'.format(i)
     for v in versions[1:]:
+        i = i + 1
         if v == "devel":
             v = "XX.YY.Z"
 
         result_str += ', "' + v + '" ' + "{:d}".format(i)
-        i = i + 1
 
     result_str += ")"
-    return (result_str, i)
+    return (result_str, i-1)
 
 def plot_def(hw, testset):
     return """
@@ -93,7 +93,7 @@ def plot_time(testset):
     set ylabel "Time (s)"
     set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset, len(xtics))
+    """ % (testset, xtics[1])
 
     return p_hdr + xtics[0] + plot_line_def()
 
@@ -110,7 +110,7 @@ def plot_mem(testset):
     set ylabel "Memory (M)"
     set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset, len(xtics))
+    """ % (testset, xtics[1])
 
     return p_hdr + xtics[0] + plot_line_def()
 
@@ -127,7 +127,7 @@ def plot_cpu(testset):
     set ylabel "CPU %%"
     set xrange  [0:%d]
     set yrange [90:100]
-    """ % (testset, len(xtics))
+    """ % (testset, xtics[1])
 
     return p_hdr + xtics[0] + plot_line_def()
 
@@ -146,7 +146,7 @@ def storage_plot_time(testset):
     set ylabel "Time (s)"
     set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset, len(xtics))
+    """ % (testset, xtics[1])
 
     return p_hdr + xtics[0] + storage_plot_line_def()
 
@@ -163,7 +163,7 @@ def storage_plot_mem(testset):
     set ylabel "Memory (M)"
     set xrange  [0:%d]
     set yrange [*:*]
-    """ % (testset, len(xtics))
+    """ % (testset, xtics[1])
 
     return p_hdr + xtics[0] + storage_plot_line_def()
 
@@ -180,7 +180,7 @@ def storage_plot_cpu(testset):
     set ylabel "CPU %%"
     set xrange  [0:%d]
     set yrange [90:100]
-    """ % (testset, len(xtics))
+    """ % (testset, xtics[1])
 
     return p_hdr + xtics[0] + storage_plot_line_def()
 
