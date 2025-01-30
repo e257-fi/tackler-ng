@@ -90,7 +90,7 @@ impl RegisterEntry<'_> {
                 p.post.acctn.atn.account,
                 amount_to_string(&p.post.amount, scale, 18),
                 amount_to_string(&p.amount, scale, 18),
-                match &comm.is_some() {
+                match &comm.is_any() {
                     true => format!(" {}", comm.name),
                     false => String::new(),
                 },

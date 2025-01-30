@@ -16,10 +16,10 @@ pub struct Commodity {
     pub name: String,
 }
 impl Commodity {
-    pub fn is_some(&self) -> bool {
+    pub fn is_any(&self) -> bool {
         !self.name.is_empty()
     }
-    pub fn is_none(&self) -> bool {
+    pub fn is_void(&self) -> bool {
         self.name.is_empty()
     }
 }

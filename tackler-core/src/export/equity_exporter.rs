@@ -149,7 +149,7 @@ impl Export for EquityExporter {
                             eq_txn_indent,
                             b.acctn.atn.account,
                             b.account_sum,
-                            match comm.is_some() {
+                            match comm.is_any() {
                                 true => { format!(" {}", comm.name) },
                                 false => String::new(),
                             }

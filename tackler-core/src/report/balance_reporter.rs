@@ -142,7 +142,7 @@ impl BalanceReporter {
                 " ".repeat(2)
             } else {
                 let comm = &btn.acctn.comm;
-                match &comm.is_some() {
+                match &comm.is_any() {
                     true => {
                         format!(" {: <cl$}  ", comm.name, cl = comm_max_len)
                     }

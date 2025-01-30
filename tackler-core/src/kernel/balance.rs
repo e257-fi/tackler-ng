@@ -260,7 +260,7 @@ impl Balance {
                 .into_iter()
                 .map(|(c, bs)| {
                     let dsum = bs.map(|b| b.account_sum).sum();
-                    ((!c.name.is_empty()).then_some(c), dsum)
+                    (c.is_any().then_some(c), dsum)
                 })
                 .collect();
 
