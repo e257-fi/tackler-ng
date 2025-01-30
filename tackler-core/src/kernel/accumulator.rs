@@ -31,7 +31,6 @@ where
     T: BalanceSelector + ?Sized,
 {
     txns.iter()
-        .copied()
         .chunk_by(|txn| group_by_op(txn))
         .into_iter()
         // .par // todo: par-map

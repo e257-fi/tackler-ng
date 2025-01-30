@@ -150,7 +150,7 @@ impl Balance {
         settings: &Settings,
     ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>>
     where
-        I: Iterator<Item = &'a Transaction>,
+        I: Iterator<Item = &'a &'a Transaction>,
     {
         // Calculate sum of postings for each account.
         //
@@ -229,13 +229,7 @@ impl Balance {
     where
         T: BalanceSelector + ?Sized,
     {
-        Self::from_iter(
-            title,
-            txn_set.txns.iter().copied(),
-            price_lookup_ctx,
-            accounts,
-            settings,
-        )
+        Self::from_iter(title, &txn_set.txns, price_lookup_ctx, accounts, settings)
     }
 
     pub(crate) fn from_iter<'a, I, T>(
@@ -247,7 +241,7 @@ impl Balance {
     ) -> Result<Balance, Box<dyn Error>>
     where
         T: BalanceSelector + ?Sized,
-        I: IntoIterator<Item = &'a Transaction>,
+        I: IntoIterator<Item = &'a &'a Transaction>,
     {
         let bal = Balance::balance(txns.into_iter(), price_lookup_ctx, settings)?;
 
