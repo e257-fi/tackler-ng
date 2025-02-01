@@ -19,6 +19,7 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tackler_api::txn_header::Tag;
+use tackler_api::txn_ts::GroupBy;
 
 pub struct GitInput {
     pub repo: PathBuf,
@@ -215,6 +216,7 @@ impl Settings {
             Some(a) => a,
             None => cfg.kernel.audit.mode,
         };
+
         let lookup_type = price_overlap
             .clone()
             .map_or(cfg.price.lookup_type.clone(), |po| {
@@ -271,6 +273,15 @@ impl Settings {
             return Err(msg.into());
         }
 
+        let group_by = if let Some(ro) = report_overlap.clone() {
+            ro.group_by
+                .map_or(Ok(cfg.report.balance_group.group_by), |g| {
+                    GroupBy::from(g.as_str())
+                })?
+        } else {
+            cfg.report.balance_group.group_by
+        };
+
         let mut tmp_settings = Settings {
             strict_mode,
             audit_mode,
@@ -288,6 +299,8 @@ impl Settings {
             commodities,
             tags,
         };
+
+        tmp_settings.report.balance_group.group_by = group_by;
 
         let price_lookup = match lookup_type {
             PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),

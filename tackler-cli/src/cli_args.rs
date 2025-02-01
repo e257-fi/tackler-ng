@@ -321,10 +321,11 @@ pub(crate) struct DefaultModeArgs {
 
 impl DefaultModeArgs {
     pub(crate) fn get_report_overlap(&self) -> Option<ReportOverlap> {
-        if self.report_commodity.is_some() || self.accounts.is_some() {
+        if self.report_commodity.is_some() || self.accounts.is_some() || self.group_by.is_some() {
             Some(ReportOverlap {
                 commodity: self.report_commodity.clone(),
                 account_overlap: self.accounts.clone(),
+                group_by: self.group_by.clone(),
             })
         } else {
             None

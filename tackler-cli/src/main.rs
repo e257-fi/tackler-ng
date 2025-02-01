@@ -20,7 +20,6 @@ use tackler_api::filters::FilterDefinition;
 use tackler_core::config::Config;
 
 use crate::cli_args::{Commands, DefaultModeArgs};
-use tackler_api::txn_ts::GroupBy;
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -108,8 +107,6 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
 
     let reports = settings.get_report_targets(cli.reports)?;
 
-    let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
-
     if !reports.is_empty() {
         write_txt_reports(
             &mut console_output,
@@ -117,7 +114,6 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
             &cli.output_name,
             &reports,
             &txn_set,
-            group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),
         )?;

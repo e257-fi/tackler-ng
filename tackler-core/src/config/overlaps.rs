@@ -22,4 +22,5 @@ pub struct PriceOverlap {
 pub struct ReportOverlap {
     pub commodity: Option<String>,
     pub account_overlap: Option<Vec<String>>,
+    pub group_by: Option<String>,
 }

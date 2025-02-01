@@ -45,15 +45,14 @@ pub struct BalanceGroupSettings {
     pub scale: Scale,
 }
 
-impl BalanceGroupSettings {
-    pub fn from(
-        settings: &Settings,
-        group_by: Option<GroupBy>,
-    ) -> Result<BalanceGroupSettings, Box<dyn Error>> {
+impl TryFrom<&Settings> for BalanceGroupSettings {
+    type Error = Box<dyn Error>;
+
+    fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
         let bgs = BalanceGroupSettings {
             title: settings.report.balance_group.title.clone(),
             ras: settings.get_balance_group_ras(),
-            group_by: group_by.unwrap_or(settings.report.balance_group.group_by),
+            group_by: settings.report.balance_group.group_by,
             report_tz: settings.report.report_tz.clone(),
             report_commodity: settings.get_report_commodity(),
             price_lookup: settings.get_price_lookup(),

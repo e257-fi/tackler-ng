@@ -14,7 +14,6 @@ use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 use tackler_api::metadata::items::{AccountSelectorChecksum, ReportTimezone, Text};
-use tackler_api::txn_ts::GroupBy;
 use tackler_rs::create_output_file;
 
 mod balance_group_reporter;
@@ -73,7 +72,6 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     output_prefix: &Option<String>,
     reports: &Vec<ReportType>,
     txn_set: &TxnSet<'_>,
-    group_by: Option<GroupBy>,
     settings: &Settings,
     prog_writer: &mut Option<Box<W>>,
 ) -> Result<(), Box<dyn Error>> {
@@ -124,9 +122,8 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                 }
             }
             ReportType::BalanceGroup => {
-                let group_by = group_by.unwrap_or(settings.report.balance_group.group_by);
                 let bal_group_reporter = BalanceGroupReporter {
-                    report_settings: BalanceGroupSettings::from(settings, Some(group_by))?,
+                    report_settings: BalanceGroupSettings::try_from(settings)?,
                 };
                 match (output_prefix, output_dir) {
                     (Some(output_name), Some(output_dir)) => {
