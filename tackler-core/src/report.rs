@@ -2,21 +2,17 @@
  * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::kernel::price_lookup::PriceLookup;
-use crate::kernel::Settings;
+use crate::config::ReportType;
+use crate::kernel::report_item_selector::ReportItemSelector;
+use crate::kernel::{BalanceGroupSettings, RegisterSettings, Settings};
 use crate::model::TxnSet;
-use crate::{config::ReportType, model::Commodity};
-use crate::{kernel::report_item_selector::ReportItemSelector, model::price_entry::PriceDb};
 pub use balance_group_reporter::BalanceGroupReporter;
-pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
-pub use balance_reporter::BalanceSettings;
 pub use register_reporter::RegisterReporter;
-pub use register_reporter::RegisterSettings;
+use std::error::Error;
 use std::io;
 use std::io::Write;
 use std::path::PathBuf;
-use std::{error::Error, sync::Arc};
 use tackler_api::metadata::items::{AccountSelectorChecksum, ReportTimezone, Text};
 use tackler_api::txn_ts::GroupBy;
 use tackler_rs::create_output_file;
@@ -31,7 +27,6 @@ pub trait Report {
         cfg: &Settings,
         w: &mut W,
         txns: &TxnSet<'_>,
-        price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>>;
 }
 
@@ -77,10 +72,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     output_dir: Option<&PathBuf>,
     output_prefix: &Option<String>,
     reports: &Vec<ReportType>,
-    report_commodity: Option<Arc<Commodity>>,
-    report_price_lookup: Option<PriceLookup>,
     txn_set: &TxnSet<'_>,
-    price_db: &PriceDb,
     group_by: Option<GroupBy>,
     settings: &Settings,
     prog_writer: &mut Option<Box<W>>,
@@ -105,10 +97,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     for r in reports {
         match r {
             ReportType::Balance => {
-                let mut bal_reporter = BalanceReporter::try_from(settings)?;
-                bal_reporter.report_settings.commodity = report_commodity.clone();
-                bal_reporter.report_settings.price_lookup =
-                    report_price_lookup.clone().unwrap_or_default();
+                let bal_reporter = BalanceReporter::try_from(settings)?;
 
                 match (output_prefix, output_dir) {
                     (Some(output_name), Some(output_dir)) => {
@@ -117,12 +106,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
 
                         write!(out_writer, "{}", metadata)?;
 
-                        bal_reporter.write_txt_report(
-                            settings,
-                            &mut out_writer,
-                            txn_set,
-                            price_db,
-                        )?;
+                        bal_reporter.write_txt_report(settings, &mut out_writer, txn_set)?;
 
                         if let Some(p) = prog_writer.as_mut() {
                             writeln!(p, "{:>21} : {}", "Balance Report", path)?;
@@ -134,7 +118,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                             .expect("IE: logic error with output");
 
                         writeln!(cw, "{}", "*".repeat(report_separator_len))?;
-                        bal_reporter.write_txt_report(settings, &mut cw, txn_set, price_db)?;
+                        bal_reporter.write_txt_report(settings, &mut cw, txn_set)?;
                         writeln!(cw, "{}", "#".repeat(report_separator_len))?;
                     }
                 }
@@ -142,12 +126,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
             ReportType::BalanceGroup => {
                 let group_by = group_by.unwrap_or(settings.report.balance_group.group_by);
                 let bal_group_reporter = BalanceGroupReporter {
-                    report_settings: BalanceGroupSettings::from(
-                        settings,
-                        Some(group_by),
-                        report_commodity.clone(),
-                        report_price_lookup.clone().unwrap_or_default(),
-                    )?,
+                    report_settings: BalanceGroupSettings::from(settings, Some(group_by))?,
                 };
                 match (output_prefix, output_dir) {
                     (Some(output_name), Some(output_dir)) => {
@@ -156,12 +135,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
 
                         write!(out_writer, "{}", metadata)?;
 
-                        bal_group_reporter.write_txt_report(
-                            settings,
-                            &mut out_writer,
-                            txn_set,
-                            price_db,
-                        )?;
+                        bal_group_reporter.write_txt_report(settings, &mut out_writer, txn_set)?;
 
                         if let Some(p) = prog_writer.as_mut() {
                             writeln!(p, "{:>21} : {}", "Balance Group Report", path)?;
@@ -173,19 +147,14 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                             .expect("IE: logic error with output");
 
                         writeln!(cw, "{}", "*".repeat(report_separator_len))?;
-                        bal_group_reporter
-                            .write_txt_report(settings, &mut cw, txn_set, price_db)?;
+                        bal_group_reporter.write_txt_report(settings, &mut cw, txn_set)?;
                         writeln!(cw, "{}", "#".repeat(report_separator_len))?;
                     }
                 }
             }
             ReportType::Register => {
                 let reg_reporter = RegisterReporter {
-                    report_settings: RegisterSettings {
-                        report_commodity: report_commodity.clone(),
-                        price_lookup: report_price_lookup.clone().unwrap_or_default(),
-                        ..RegisterSettings::try_from(settings)?
-                    },
+                    report_settings: RegisterSettings::try_from(settings)?,
                 };
 
                 match (output_prefix, output_dir) {
@@ -193,12 +162,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                         let (mut out_writer, path) =
                             create_output_file(output_dir, output_name, "reg", "txt")?;
                         write!(out_writer, "{}", metadata)?;
-                        reg_reporter.write_txt_report(
-                            settings,
-                            &mut out_writer,
-                            txn_set,
-                            price_db,
-                        )?;
+                        reg_reporter.write_txt_report(settings, &mut out_writer, txn_set)?;
                         if let Some(p) = prog_writer.as_mut() {
                             writeln!(p, "{:>21} : {}", "Register Report", path)?;
                         }
@@ -209,7 +173,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                             .expect("IE: logic error with output");
 
                         writeln!(cw, "{}", "*".repeat(report_separator_len))?;
-                        reg_reporter.write_txt_report(settings, &mut cw, txn_set, price_db)?;
+                        reg_reporter.write_txt_report(settings, &mut cw, txn_set)?;
                         writeln!(cw, "{}", "#".repeat(report_separator_len))?;
                     }
                 }

@@ -336,7 +336,7 @@ impl DefaultModeArgs {
             Some(PriceOverlap {
                 db_path: self.pricedb_filename.clone(),
                 lookup_type: self.price_lookup_type.clone(),
-                before_time: None,
+                before_time: self.price_before_ts.clone(),
             })
         } else {
             None

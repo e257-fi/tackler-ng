@@ -4,48 +4,19 @@
  */
 
 use crate::kernel::accumulator;
-use crate::kernel::price_lookup::PriceLookup;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
+use crate::kernel::report_settings::RegisterSettings;
 use crate::kernel::Settings;
-use crate::model::{Commodity, RegisterEntry, TxnSet};
+use crate::model::{RegisterEntry, TxnSet};
 use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
-use crate::{config::Scale, model::price_entry::PriceDb};
 use jiff::tz::TimeZone;
 use jiff::Zoned;
+use std::error::Error;
 use std::io;
-use std::{error::Error, sync::Arc};
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::TimestampStyle;
-
-#[derive(Debug, Clone)]
-pub struct RegisterSettings {
-    pub title: String,
-    pub ras: Vec<String>,
-    pub report_tz: TimeZone,
-    pub report_commodity: Option<Arc<Commodity>>,
-    pub price_lookup: PriceLookup,
-    pub timestamp_style: TimestampStyle,
-    pub(crate) scale: Scale,
-}
-
-impl TryFrom<&Settings> for RegisterSettings {
-    type Error = Box<dyn Error>;
-
-    fn try_from(settings: &Settings) -> Result<RegisterSettings, Box<dyn Error>> {
-        let rs = RegisterSettings {
-            title: settings.report.register.title.clone(),
-            ras: settings.get_register_ras(),
-            report_tz: settings.report.report_tz.clone(),
-            report_commodity: None,
-            price_lookup: Default::default(),
-            timestamp_style: settings.report.register.timestamp_style,
-            scale: settings.report.scale.clone(),
-        };
-        Ok(rs)
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct RegisterReporter {
@@ -96,15 +67,15 @@ impl Report for RegisterReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
-        price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>> {
         let acc_sel = self.get_acc_selector()?;
 
         let report_commodity = self.report_settings.report_commodity.clone();
-        let price_lookup_ctx =
-            self.report_settings
-                .price_lookup
-                .make_ctx(&txn_data.txns, report_commodity, price_db);
+        let price_lookup_ctx = self.report_settings.price_lookup.make_ctx(
+            &txn_data.txns,
+            report_commodity,
+            &cfg.price.price_db,
+        );
 
         write_acc_sel_checksum(cfg, writer, acc_sel.as_ref())?;
 

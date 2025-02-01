@@ -7,6 +7,7 @@ use crate::config::{
     AccountSelectors, Config, Export, ExportType, Kernel, PriceLookupType, Report, ReportType,
 };
 use crate::kernel::hash::Hash;
+use crate::kernel::price_lookup::PriceLookup;
 use crate::model::price_entry::PriceDb;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
@@ -162,6 +163,7 @@ pub struct Settings {
     strict_mode: bool,
     kernel: Kernel,
     pub price: Price,
+    pub price_lookup: Option<PriceLookup>,
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
     accounts: AccountTrees,
@@ -178,6 +180,7 @@ impl Default for Settings {
             export: Export::default(),
             kernel: Kernel::default(),
             price: Price::default(),
+            price_lookup: None,
             global_acc_sel: None,
             targets: Vec::new(),
             accounts: AccountTrees::default(),
@@ -219,9 +222,11 @@ impl Settings {
                     .map_or(cfg.price.lookup_type.clone(), |lt| lt)
             });
 
-        let db_path = price_overlap.map_or(cfg.price.db_path.clone(), |po| {
-            po.db_path.map_or(cfg.price.db_path.clone(), |lt| lt)
-        });
+        let db_path = price_overlap
+            .clone()
+            .map_or(cfg.price.db_path.clone(), |po| {
+                po.db_path.map_or(cfg.price.db_path.clone(), |lt| lt)
+            });
 
         let account_trees = AccountTrees::from(&cfg.transaction.accounts.names, strict_mode)?;
 
@@ -271,6 +276,7 @@ impl Settings {
             audit_mode,
             kernel: cfg.kernel,
             price: Price::default(), // this is not real, see next one
+            price_lookup: None,
             global_acc_sel: report_overlap.and_then(|ro| ro.account_overlap),
             targets: cfg.report.targets.clone(),
             report: Report {
@@ -281,6 +287,30 @@ impl Settings {
             accounts: account_trees,
             commodities,
             tags,
+        };
+
+        let price_lookup = match lookup_type {
+            PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
+            PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
+            PriceLookupType::GivenTime => {
+                let msg = format!(
+                    "Price lookup type is \"{}\" and there is no timestamp given",
+                    PriceLookupType::GIVEN_TIME
+                );
+                let ts = match price_overlap {
+                    Some(po) => po.before_time.map_or_else(
+                        || Err(msg.into()),
+                        |ts| {
+                            tmp_settings
+                                .parse_timestamp(&ts)
+                                .map(PriceLookup::GivenTime)
+                        },
+                    ),
+                    None => Err(msg.into()),
+                }?;
+                Some(ts)
+            }
+            PriceLookupType::None => None,
         };
 
         let price = match &lookup_type {
@@ -294,6 +324,7 @@ impl Settings {
 
         Ok(Settings {
             price,
+            price_lookup,
             ..tmp_settings
         })
     }
@@ -459,6 +490,10 @@ impl Settings {
                 }
             }
         }
+    }
+
+    pub fn get_price_lookup(&self) -> PriceLookup {
+        self.price_lookup.clone().unwrap_or_default()
     }
 
     pub fn get_input_settings(

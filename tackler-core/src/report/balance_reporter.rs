@@ -4,43 +4,18 @@
  */
 
 use crate::kernel::balance::{BTNs, Balance, Deltas};
-use crate::kernel::price_lookup::PriceLookup;
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
 };
-use crate::kernel::Settings;
-use crate::model::{BalanceTreeNode, Commodity, TxnSet};
+use crate::kernel::{BalanceSettings, Settings};
+use crate::model::{BalanceTreeNode, TxnSet};
 use crate::report::{write_acc_sel_checksum, Report};
-use crate::{config::Scale, model::price_entry::PriceDb};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};
+use std::cmp::max;
 use std::error::Error;
 use std::io;
-use std::{cmp::max, sync::Arc};
-
-#[derive(Debug, Clone)]
-pub struct BalanceSettings {
-    pub(crate) title: String,
-    pub(crate) ras: Vec<String>,
-    pub(crate) scale: Scale,
-    pub(crate) commodity: Option<Arc<Commodity>>,
-    pub(crate) price_lookup: PriceLookup,
-}
-
-impl TryFrom<&Settings> for BalanceSettings {
-    type Error = Box<dyn Error>;
-
-    fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
-        Ok(BalanceSettings {
-            title: settings.report.balance.title.clone(),
-            ras: settings.get_balance_ras(),
-            scale: settings.report.scale.clone(),
-            commodity: None,
-            price_lookup: Default::default(),
-        })
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct BalanceReporter {
@@ -223,14 +198,13 @@ impl Report for BalanceReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
-        price_db: &PriceDb,
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         let price_lookup_ctx = &self.report_settings.price_lookup.make_ctx(
             &txn_data.txns,
-            self.report_settings.commodity.clone(),
-            price_db,
+            self.report_settings.report_commodity.clone(),
+            &cfg.price.price_db,
         );
 
         write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;

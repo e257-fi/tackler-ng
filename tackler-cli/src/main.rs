@@ -7,14 +7,13 @@
 mod cli_args;
 mod commands;
 
-use crate::cli_args::PRICE_BEFORE;
 use log::error;
 use std::error::Error;
 use std::io;
 use tackler_core::export::write_exports;
 use tackler_core::kernel::settings::Settings;
+use tackler_core::parser;
 use tackler_core::report::write_txt_reports;
-use tackler_core::{config, parser};
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
@@ -22,7 +21,6 @@ use tackler_core::config::Config;
 
 use crate::cli_args::{Commands, DefaultModeArgs};
 use tackler_api::txn_ts::GroupBy;
-use tackler_core::kernel::price_lookup::PriceLookup;
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -110,25 +108,6 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
 
     let reports = settings.get_report_targets(cli.reports)?;
 
-    let report_commodity = settings.get_report_commodity();
-
-    let report_price_lookup: Option<PriceLookup> = match settings.price.lookup_type {
-        // todo: move this logic to settings and check given_time usage with other targets
-        config::PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
-        config::PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
-        config::PriceLookupType::GivenTime => Some(cli.price_before_ts.map_or_else(
-            || {
-                Err(format!(
-                    "Price lookup type is \"{}\" and there is no timestamp by --{PRICE_BEFORE}",
-                    config::PriceLookupType::GIVEN_TIME
-                )
-                .into())
-            },
-            |ts| settings.parse_timestamp(&ts).map(PriceLookup::GivenTime),
-        )?),
-        config::PriceLookupType::None => None,
-    };
-
     let group_by = cli.group_by.as_deref().map(GroupBy::from).transpose()?;
 
     if !reports.is_empty() {
@@ -137,10 +116,7 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
             cli.output_directory.as_ref(),
             &cli.output_name,
             &reports,
-            report_commodity,
-            report_price_lookup,
             &txn_set,
-            &settings.price.price_db,
             group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),

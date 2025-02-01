@@ -6,9 +6,8 @@
 use crate::kernel::balance::Balance;
 use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::{BalanceSelector, RegisterSelector};
-use crate::kernel::Settings;
+use crate::kernel::{RegisterSettings, Settings};
 use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs};
-use crate::report::RegisterSettings;
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::HashMap;

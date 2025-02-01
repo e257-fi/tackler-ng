@@ -7,7 +7,6 @@
 //! configuration items to be used e.g. with CLI
 
 use crate::config::PriceLookupType;
-use jiff::Zoned;
 use std::path::PathBuf;
 
 /// Price overlap configuration
@@ -15,7 +14,7 @@ use std::path::PathBuf;
 pub struct PriceOverlap {
     pub db_path: Option<PathBuf>,
     pub lookup_type: Option<PriceLookupType>,
-    pub before_time: Option<Zoned>,
+    pub before_time: Option<String>,
 }
 
 /// Report overlap configuration
