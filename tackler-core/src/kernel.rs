@@ -1,6 +1,5 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,7 +12,7 @@ pub use settings::Settings;
 pub(crate) mod accumulator;
 pub mod balance;
 pub mod hash;
-pub(crate) mod price_lookup;
+pub mod price_lookup;
 pub mod report_item_selector;
 pub mod settings;
 

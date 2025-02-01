@@ -158,14 +158,14 @@ impl Balance {
         // Output size: is "small", ~ size of CoA
         let account_sums: Vec<(TxnAccount, Decimal)> = txns
             .flat_map(|txn| price_lookup_ctx.convert_prices(txn))
-            .sorted_by_key(|(acctn, _)| acctn.clone())
-            .chunk_by(|(acctn, _)| acctn.clone())
+            .sorted_by_key(|(acctn, _, _)| acctn.clone())
+            .chunk_by(|(acctn, _, _)| acctn.clone())
             .into_iter()
             .map(|(_, postings)| {
                 let mut ps = postings.peekable();
                 // unwrap: ok: this is inside map, hence there must be at least one element
                 let acctn = ps.peek().unwrap(/*:ok:*/).0.clone();
-                let acc_sum = ps.map(|(_, amount)| amount).sum::<Decimal>();
+                let acc_sum = ps.map(|(_, amount, _)| amount).sum::<Decimal>();
                 (acctn, acc_sum)
             })
             .collect();

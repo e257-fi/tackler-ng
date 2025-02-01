@@ -3,22 +3,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::kernel::accumulator;
+use crate::kernel::price_lookup::PriceLookup;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
 use crate::kernel::Settings;
-use crate::model::{RegisterEntry, TxnSet};
+use crate::model::{Commodity, RegisterEntry, TxnSet};
 use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
 use crate::{config::Scale, model::price_entry::PriceDb};
-use crate::{kernel::accumulator, model::price_entry::PriceLookup};
 use jiff::tz::TimeZone;
 use jiff::Zoned;
 use std::io;
 use std::{error::Error, sync::Arc};
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::TimestampStyle;
-
-use super::Commodity;
 
 #[derive(Debug, Clone)]
 pub struct RegisterSettings {

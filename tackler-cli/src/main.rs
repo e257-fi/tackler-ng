@@ -11,10 +11,10 @@ use crate::cli_args::PRICE_BEFORE;
 use log::error;
 use std::error::Error;
 use std::io;
+use tackler_core::export::write_exports;
 use tackler_core::kernel::settings::Settings;
 use tackler_core::report::write_txt_reports;
 use tackler_core::{config, parser};
-use tackler_core::{export::write_exports, model::price_entry::PriceLookup};
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
@@ -22,6 +22,7 @@ use tackler_core::config::Config;
 
 use crate::cli_args::{Commands, DefaultModeArgs};
 use tackler_api::txn_ts::GroupBy;
+use tackler_core::kernel::price_lookup::PriceLookup;
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -112,6 +113,7 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
     let report_commodity = settings.get_report_commodity();
 
     let report_price_lookup: Option<PriceLookup> = match settings.price.lookup_type {
+        // todo: move this logic to settings and check given_time usage with other targets
         config::PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
         config::PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
         config::PriceLookupType::GivenTime => Some(cli.price_before_ts.map_or_else(

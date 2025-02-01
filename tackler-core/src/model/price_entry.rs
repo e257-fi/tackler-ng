@@ -5,7 +5,6 @@
 
 use std::sync::Arc;
 
-use jiff::Zoned;
 use rust_decimal::Decimal;
 
 use super::Commodity;
@@ -23,14 +22,6 @@ pub struct PriceEntry {
     pub eq_commodity: Arc<Commodity>,
     /// Comments
     pub comments: Option<String>,
-}
-
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
-pub enum PriceLookup {
-    AtTheTimeOfTxn,
-    #[default]
-    LastPriceDbEntry,
-    GivenTime(Zoned),
 }
 
 impl Ord for PriceEntry {

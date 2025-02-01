@@ -46,6 +46,8 @@ $TEST_DIR/tags.sh
 $TEST_DIR/new-and-init.sh
 $TEST_DIR/price.sh
 $TEST_DIR/price-strict.sh
+$TEST_DIR/price-multi.sh
+$TEST_DIR/price-multi-miss.sh
 
 echo
 echo "target: $target - All good"

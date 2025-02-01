@@ -3,18 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use super::Commodity;
 use crate::kernel::balance::{BTNs, Balance, Deltas};
+use crate::kernel::price_lookup::PriceLookup;
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
 };
 use crate::kernel::Settings;
-use crate::model::{BalanceTreeNode, TxnSet};
+use crate::model::{BalanceTreeNode, Commodity, TxnSet};
 use crate::report::{write_acc_sel_checksum, Report};
-use crate::{
-    config::Scale,
-    model::price_entry::{PriceDb, PriceLookup},
-};
+use crate::{config::Scale, model::price_entry::PriceDb};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};

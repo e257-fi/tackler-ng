@@ -74,17 +74,19 @@ where
             .zip(&txn.posts)
             // note-1
             .sorted_by(|a, b| Ord::cmp(&a.1.acctn, &b.1.acctn))
-            .map(|((account, amount), p)| {
+            .map(|((conv_acctn, conv_amount, rate), orig_p)| {
                 let running_total = *register_engine
-                    .entry(account)
+                    .entry(conv_acctn.clone())
                     .and_modify(|v| {
-                        *v += amount;
+                        *v += conv_amount;
                     })
-                    .or_insert(amount);
+                    .or_insert(conv_amount);
 
                 RegisterPosting {
-                    post: p,
+                    post: orig_p,
                     amount: running_total,
+                    target_commodity: conv_acctn.comm,
+                    rate,
                 }
             })
             .collect();

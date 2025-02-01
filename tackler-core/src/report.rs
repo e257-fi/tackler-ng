@@ -2,10 +2,11 @@
  * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
+use crate::kernel::price_lookup::PriceLookup;
+use crate::kernel::Settings;
 use crate::model::TxnSet;
 use crate::{config::ReportType, model::Commodity};
 use crate::{kernel::report_item_selector::ReportItemSelector, model::price_entry::PriceDb};
-use crate::{kernel::Settings, model::price_entry::PriceLookup};
 pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
