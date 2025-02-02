@@ -164,7 +164,7 @@ pub struct Settings {
     strict_mode: bool,
     kernel: Kernel,
     pub price: Price,
-    pub price_lookup: Option<PriceLookup>,
+    price_lookup: PriceLookup,
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
     accounts: AccountTrees,
@@ -181,7 +181,7 @@ impl Default for Settings {
             export: Export::default(),
             kernel: Kernel::default(),
             price: Price::default(),
-            price_lookup: None,
+            price_lookup: PriceLookup::default(),
             global_acc_sel: None,
             targets: Vec::new(),
             accounts: AccountTrees::default(),
@@ -287,7 +287,7 @@ impl Settings {
             audit_mode,
             kernel: cfg.kernel,
             price: Price::default(), // this is not real, see next one
-            price_lookup: None,
+            price_lookup: PriceLookup::default(), // this is not real, see next one
             global_acc_sel: report_overlap.and_then(|ro| ro.account_overlap),
             targets: cfg.report.targets.clone(),
             report: Report {
@@ -303,14 +303,14 @@ impl Settings {
         tmp_settings.report.balance_group.group_by = group_by;
 
         let price_lookup = match lookup_type {
-            PriceLookupType::LastPrice => Some(PriceLookup::LastPriceDbEntry),
-            PriceLookupType::TxnTime => Some(PriceLookup::AtTheTimeOfTxn),
+            PriceLookupType::LastPrice => PriceLookup::LastPriceDbEntry,
+            PriceLookupType::TxnTime => PriceLookup::AtTheTimeOfTxn,
             PriceLookupType::GivenTime => {
                 let msg = format!(
                     "Price lookup type is \"{}\" and there is no timestamp given",
                     PriceLookupType::GIVEN_TIME
                 );
-                let ts = match price_overlap {
+                match price_overlap {
                     Some(po) => po.before_time.map_or_else(
                         || Err(msg.into()),
                         |ts| {
@@ -320,10 +320,9 @@ impl Settings {
                         },
                     ),
                     None => Err(msg.into()),
-                }?;
-                Some(ts)
+                }?
             }
-            PriceLookupType::None => None,
+            PriceLookupType::None => PriceLookup::None,
         };
 
         let price = match &lookup_type {
@@ -506,7 +505,7 @@ impl Settings {
     }
 
     pub fn get_price_lookup(&self) -> PriceLookup {
-        self.price_lookup.clone().unwrap_or_default()
+        self.price_lookup.clone()
     }
 
     pub fn get_input_settings(

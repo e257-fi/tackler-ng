@@ -104,8 +104,9 @@ impl PriceLookupCtx<'_> {
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub enum PriceLookup {
-    AtTheTimeOfTxn,
     #[default]
+    None,
+    AtTheTimeOfTxn,
     LastPriceDbEntry,
     GivenTime(Zoned),
 }
@@ -121,19 +122,22 @@ impl PriceLookup {
             // No commodity conversion, short-circuit out
             return PriceLookupCtx::default();
         };
+        let lookup_timestamp = match self {
+            PriceLookup::AtTheTimeOfTxn => None,
+            PriceLookup::LastPriceDbEntry => Some(Timestamp::MAX.to_zoned(TimeZone::UTC)),
+            PriceLookup::GivenTime(t) => Some(t.clone()),
 
+            PriceLookup::None => return PriceLookupCtx::default(),
+        };
+        //
+        // Ok, we have real commodity conversion case
+        //
         let used_commodities = txns
             .iter()
             .flat_map(|t| &t.posts)
             // This must be acctn.comm as txn_commodity is commodity for whole txn
             .map(|p| p.acctn.comm.clone())
             .collect::<BTreeSet<_>>();
-
-        let lookup_timestamp = match self {
-            PriceLookup::AtTheTimeOfTxn => None,
-            PriceLookup::LastPriceDbEntry => Some(Timestamp::MAX.to_zoned(TimeZone::UTC)),
-            PriceLookup::GivenTime(t) => Some(t.clone()),
-        };
 
         let cache = match lookup_timestamp {
             Some(lookup_timestamp) => Cache::Fixed(

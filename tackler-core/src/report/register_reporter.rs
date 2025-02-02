@@ -52,11 +52,7 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     };
 
     if !re.posts.is_empty() {
-        write!(
-            f,
-            "{}",
-            re.fmt_with_tz(fmt, report_tz, &register_settings.scale)
-        )?;
+        write!(f, "{}", re.fmt_with_cfg(fmt, report_tz, register_settings))?;
     }
     Ok(())
 }

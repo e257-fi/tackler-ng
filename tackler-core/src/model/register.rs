@@ -4,15 +4,16 @@
  */
 
 use crate::config::Scale;
+use crate::kernel::price_lookup::PriceLookup;
+use crate::kernel::RegisterSettings;
 use crate::model::{Commodity, Posting, Transaction};
 use jiff::tz::TimeZone;
-use jiff::{tz, Zoned};
+use jiff::Zoned;
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::{max, Ordering};
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
-use tackler_api::txn_ts;
 
 #[derive(Debug, Clone)]
 pub struct RegisterPosting<'a> {
@@ -65,11 +66,11 @@ pub(crate) struct RegisterEntry<'a> {
 }
 
 impl RegisterEntry<'_> {
-    pub(crate) fn fmt_with_tz(
+    pub(crate) fn fmt_with_cfg(
         &self,
         ts_fmtr: fn(&Zoned, TimeZone) -> String,
         tz: TimeZone,
-        scale: &Scale,
+        reg_cfg: &RegisterSettings,
     ) -> String {
         fn amount_to_string(amount: &Decimal, scale: &Scale, width: usize) -> String {
             let prec = scale.get_precision(amount);
@@ -89,8 +90,12 @@ impl RegisterEntry<'_> {
         let mut line_len = 0;
         let mut reg_entry_txt = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
 
-        let txn_has_conv = self.posts.iter().any(|p| p.is_commodity_conv());
-        let txn_has_rate = self.posts.iter().any(|p| p.rate.is_some());
+        let filler_width = match &reg_cfg.price_lookup {
+            PriceLookup::AtTheTimeOfTxn => 20,
+            PriceLookup::LastPriceDbEntry => 8,
+            PriceLookup::GivenTime(_) => 8,
+            PriceLookup::None => 0,
+        };
 
         for p in &self.posts {
             let (comm, base_comm, width) = if p.is_commodity_conv() {
@@ -100,25 +105,16 @@ impl RegisterEntry<'_> {
                 };
                 (&p.target_commodity, base_comm, width)
             } else {
-                let width = if txn_has_conv {
-                    if txn_has_rate {
-                        20
-                    } else {
-                        8
-                    }
-                } else {
-                    0
-                };
-                (&p.post.acctn.comm, String::default(), width)
+                (&p.post.acctn.comm, String::default(), filler_width)
             };
 
             let line = format!(
                 "{}{:<33}{:>18}{:<w$} {:>18}{}",
                 indent,
                 p.post.acctn.atn.account,
-                amount_to_string(&p.post.amount, scale, 18),
+                amount_to_string(&p.post.amount, &reg_cfg.scale, 18),
                 base_comm,
-                amount_to_string(&p.amount, scale, 18),
+                amount_to_string(&p.amount, &reg_cfg.scale, 18),
                 match &comm.is_any() {
                     true => format!(" {}", comm.name),
                     false => String::new(),
@@ -130,18 +126,5 @@ impl RegisterEntry<'_> {
         }
         let _ = writeln!(reg_entry_txt, "{}", "-".repeat(line_len));
         reg_entry_txt
-    }
-}
-impl Display for RegisterEntry<'_> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            self.fmt_with_tz(
-                |ts, _tz| { txn_ts::rfc_3339(ts) },
-                tz::TimeZone::UTC,
-                &Scale::default()
-            )
-        )
     }
 }
