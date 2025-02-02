@@ -75,24 +75,26 @@ impl PriceLookupCtx<'_> {
                         (acctn, amount, None)
                     }
                     Cache::Timed(comm_cache) => {
-                        let cache = comm_cache
-                            .get(&p.acctn.comm)
-                            .expect("IE: cache logic error");
-                        let i = match cache
-                            .binary_search_by_key(&(&txn.header.timestamp, &p.acctn.comm), |e| {
-                                (&e.timestamp, &e.base_commodity)
-                            }) {
-                            Ok(i) => Some(i),
-                            Err(i) => i.checked_sub(1),
-                        };
-                        let rate = if let Some(i) = i {
-                            acctn.comm = in_commodity.clone();
-                            amount *= cache[i].eq_amount;
-                            Some(cache[i].eq_amount)
+                        if let Some(cache) = comm_cache.get(&p.acctn.comm) {
+                            let i = match cache.binary_search_by_key(
+                                &(&txn.header.timestamp, &p.acctn.comm),
+                                |e| (&e.timestamp, &e.base_commodity),
+                            ) {
+                                Ok(i) => Some(i),
+                                Err(i) => i.checked_sub(1),
+                            };
+                            let rate = if let Some(i) = i {
+                                acctn.comm = in_commodity.clone();
+                                amount *= cache[i].eq_amount;
+                                Some(cache[i].eq_amount)
+                            } else {
+                                None
+                            };
+                            (acctn, amount, rate)
                         } else {
-                            None
-                        };
-                        (acctn, amount, rate)
+                            // Cache miss
+                            (p.acctn.clone(), p.amount, None)
+                        }
                     }
                 }
             } else {
@@ -154,12 +156,15 @@ impl PriceLookup {
             None => {
                 let mut cache = HashMap::new();
                 for comm in used_commodities {
-                    let comm_cache = price_db
+                    let comm_cache: Vec<_> = price_db
                         .iter()
                         .filter(|e| comm == e.base_commodity && e.eq_commodity == in_commodity)
                         .sorted_by_key(|e| &e.timestamp) // make sure it's sorted
                         .collect();
-                    cache.insert(comm, comm_cache);
+
+                    if !comm_cache.is_empty() {
+                        cache.insert(comm, comm_cache);
+                    }
                 }
                 Cache::Timed(cache)
             }
