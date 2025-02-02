@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::config::ReportType;
+use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::ReportItemSelector;
 use crate::kernel::{BalanceGroupSettings, RegisterSettings, Settings};
 use crate::model::TxnSet;
@@ -44,6 +45,22 @@ fn write_report_timezone<W: io::Write + ?Sized>(
     };
     for v in rtz.text(cfg.report.report_tz.clone()) {
         writeln!(writer, "{}", &v)?;
+    }
+    Ok(())
+}
+
+fn write_price_metadata<W: Write + ?Sized>(
+    cfg: &Settings,
+    writer: &mut W,
+    p_ctx: &PriceLookupCtx<'_>,
+) -> Result<(), Box<dyn Error>> {
+    let pr_metadata = p_ctx.metadata().text(cfg.report.report_tz.clone());
+
+    if !pr_metadata.is_empty() {
+        writeln!(writer)?;
+        for l in pr_metadata {
+            writeln!(writer, "{}", l)?;
+        }
     }
     Ok(())
 }

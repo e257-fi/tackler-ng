@@ -8,8 +8,8 @@ use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::{accumulator, BalanceGroupSettings};
 use crate::kernel::{BalanceSettings, Settings};
 use crate::model::{Transaction, TxnSet};
-use crate::report::BalanceReporter;
 use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
+use crate::report::{write_price_metadata, BalanceReporter};
 use jiff::tz::TimeZone;
 use std::error::Error;
 use std::io;
@@ -57,7 +57,7 @@ impl Report for BalanceGroupReporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
-        let price_lookup_ctx = &self.report_settings.price_lookup.make_ctx(
+        let price_lookup_ctx = self.report_settings.price_lookup.make_ctx(
             &txn_data.txns,
             self.report_settings.report_commodity.clone(),
             &cfg.price.price_db,
@@ -67,7 +67,7 @@ impl Report for BalanceGroupReporter {
         let bal_groups = accumulator::balance_groups(
             &txn_data.txns,
             group_by_op,
-            price_lookup_ctx,
+            &price_lookup_ctx,
             bal_acc_sel.as_ref(),
             cfg,
         );
@@ -75,6 +75,8 @@ impl Report for BalanceGroupReporter {
         write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
 
         write_report_timezone(cfg, writer)?;
+
+        write_price_metadata(cfg, writer, &price_lookup_ctx)?;
 
         writeln!(writer)?;
         writeln!(writer)?;

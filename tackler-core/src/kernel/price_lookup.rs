@@ -15,11 +15,20 @@ use std::{
     collections::{BTreeSet, HashMap},
     sync::Arc,
 };
+use tackler_api::metadata::items::{PriceRecord, PriceRecords};
 
 #[derive(Debug)]
 enum Cache<'p> {
     Fixed(HashMap<Arc<Commodity>, (Zoned, Decimal)>),
     Timed(HashMap<Arc<Commodity>, Vec<&'p PriceEntry>>),
+}
+impl Cache<'_> {
+    fn is_empty(&self) -> bool {
+        match &self {
+            Cache::Fixed(map) => map.is_empty(),
+            Cache::Timed(map) => map.is_empty(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -38,6 +47,44 @@ impl Default for PriceLookupCtx<'_> {
 }
 
 impl PriceLookupCtx<'_> {
+    pub fn is_empty(&self) -> bool {
+        self.cache.is_empty()
+    }
+}
+
+impl PriceLookupCtx<'_> {
+    pub fn metadata(&self) -> PriceRecords {
+        let rates = if let Some(target) = self.in_commodity.clone() {
+            let r = match &self.cache {
+                Cache::Fixed(map) => map
+                    .iter()
+                    .sorted_by_key(|k| *k)
+                    .map(|(k, v)| PriceRecord {
+                        ts: Some(v.0.clone()),
+                        source: k.name.clone(),
+                        rate: Some(format!("{}", v.1)),
+                        target: target.name.clone(),
+                    })
+                    .collect(),
+                Cache::Timed(map) => map
+                    .iter()
+                    .sorted_by_key(|k| *k)
+                    .map(|(k, _)| PriceRecord {
+                        ts: None,
+                        source: k.name.clone(),
+                        rate: None,
+                        target: target.name.clone(),
+                    })
+                    .collect(),
+            };
+            r
+        } else {
+            Vec::new()
+        };
+
+        PriceRecords { rates }
+    }
+
     #[inline]
     pub(crate) fn convert_prices<'r, 's, 't>(
         &'s self,

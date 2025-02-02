@@ -166,3 +166,26 @@ cmp_result $module $test_name txt bal
 cmp_result $module $test_name txt balgrp
 cmp_result $module $test_name txt reg
 echo ": ok"
+
+#
+# multi-odd-01
+#
+# test: cbfdf9ae-5f57-4e64-80b4-feec41b127f4
+# desc: multi-odd: txn-time, txns with diff multiple comms, price times
+rm -f $OUTPUT_DIR/*
+test_name=multi-odd-01
+echo "test: $module/$test_name: $mode"
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/price-multi.toml \
+    --pricedb $SUITE_PATH/$module/ok/multi-odd-times.db \
+    --price.lookup-type "last-price" \
+    --input.file $SUITE_PATH/$module/ok/multi-vp-04.txn
+
+echo -n "check:"
+cmp_result $module $test_name txt bal
+cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+echo ": ok"

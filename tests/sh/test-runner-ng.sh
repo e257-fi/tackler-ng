@@ -1,6 +1,7 @@
 #!/bin/bash
+# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
 #
-# Tackler-NG 2024
+# Tackler-NG 2024-2025
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -14,11 +15,18 @@ TACKLER_ROOT=$(realpath "$TEST_DIR/../..")
 export TACKLER_ROOT
 
 target="unknown"
+UPDATE_REF="false"
+
 if [ "$1" == "--debug" ]; then
-	target="debug"
+    target="debug"
+elif [ "$1" == "--update-ref" ]; then
+    target="debug"
+    UPDATE_REF="true"
 else
-	target="release"
+    target="release"
 fi
+export UPDATE_REF
+
 TACKLER_SH=$TACKLER_ROOT/target/$target/tackler
 export TACKLER_SH
 
@@ -50,7 +58,14 @@ $TEST_DIR/price-multi.sh
 $TEST_DIR/price-multi-miss.sh
 
 echo
-echo "target: $target - All good"
+if [ "$UPDATE_REF" = "true" ]; then
+    echo "THIS IS NOT A REAL TEST - THIS IS TEST VECTOR UPDATE!"
+    echo
+    echo "exit status is always 1"
+    exit 1
+else
+    echo "target: $target - All good"
+fi
 
 rm -rf $OUTPUT_DIR
 exit 0

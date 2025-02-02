@@ -10,7 +10,7 @@ use crate::kernel::report_item_selector::{
 use crate::kernel::report_settings::RegisterSettings;
 use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
-use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
+use crate::report::{write_acc_sel_checksum, write_price_metadata, write_report_timezone, Report};
 use jiff::tz::TimeZone;
 use jiff::Zoned;
 use std::error::Error;
@@ -76,6 +76,8 @@ impl Report for RegisterReporter {
         write_acc_sel_checksum(cfg, writer, acc_sel.as_ref())?;
 
         write_report_timezone(cfg, writer)?;
+
+        write_price_metadata(cfg, writer, &price_lookup_ctx)?;
 
         writeln!(writer)?;
         writeln!(writer)?;

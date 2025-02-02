@@ -438,8 +438,8 @@ Normal, ok-case tests to validate functionality:
         *** [-] filter: group-selector == txn-ts-end (Is this desired behaviour?)
 
 * [ ] Metadata testing
-    ** [ ] Fixed conv rate, multiple commodities, different ts
-    ** [ ] Timed conv rate, multiple commodities
+    ** [x] Fixed conv rate, multiple commodities, different ts
+    ** [x] Timed conv rate, multiple commodities
     ** [ ] Multiple possible conversions, but only one real conv (filter txn by comm)
 
 ==== Errors
