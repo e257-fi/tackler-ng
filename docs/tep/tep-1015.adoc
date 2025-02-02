@@ -338,7 +338,7 @@ No changes to Identity Export
 * [ ] Does it warrant own T3DB file?
 ** [ ] update xref:../../suite/tests.adoc[]
 ** [ ] update xref:../../suite/check-tests.sh[]
-** [ ] Add new T3DB file link:https://github.com/e257-fi/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
+** [x] Add new T3DB file link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml]
 * [ ] User docs
 ** [ ] User Manual
 *** [ ] cli-arguments
@@ -398,15 +398,15 @@ Anything which wasn't implemented?
 
 Normal, ok-case tests to validate functionality:
 
-* [ ] strict-mode
+* [x] strict-mode
     ** [x] On
-    ** [ ] Off (without commodities)
+    ** [x] Off (without commodities)
 
-* [ ] txn with empty commodities when price conv is activated
+* [x] txn with empty commodities when price conv is activated
 
-* [ ] No conversion
+* [x] No conversion
     ** [x] commodity but no conversion activated
-    ** [ ] Secondary account with non-conv commodity (val-pos notation)
+    ** [x] Secondary account with non-conv commodity (val-pos notation)
 
 * [x] Selecting correct price by time
     ** [x] at-txn
@@ -419,37 +419,37 @@ Normal, ok-case tests to validate functionality:
         *** [x] too early price
         *** [x] too late price
         *** [x] timestamp is after last filtered txn ts and after last price
-    ** [-X] Filter: Txn-TS-END
-        *** [-X] too early price
-        *** [-X] too late price
-        *** [ ] filter ts is after last filtered txn ts
+    ** [-] Filter: Txn-TS-END
+        *** [-] too early price
+        *** [-] too late price
+        *** [-] filter ts is after last filtered txn ts
 
-* [ ] Multiple sources to same target
-    ** [ ] {aaa, bbb, ccc} -> TCKLR
+* [x] Multiple sources to same target
+    ** [x] {aaa, bbb, ccc} -> TCKLR
 
-* [ ] Multiple target commodities from same base commodity
-    ** [ ] aaa -> {AAA, BBB, CCC, TCKLR}, all with matching timestamps
+* [x] postings with value positions
+    ** [x] value position for source posting
+    ** [x] value position for target posting
 
-* [ ] postings with value positions
-    ** [ ] value position for source posting
-    ** [ ] value position for target posting
+* [x] Balance-Group
+    ** [x] Commodities distributed so that each Balance-Group has different conversion
+        *** [x] Conv: a -> TCKLR, b->TCKLR, etc.
+    ** [-] Each Balance-Group have different conversion value
+        *** [-] filter: group-selector == txn-ts-end (Is this desired behaviour?)
 
-* [ ] Balance-Group
-    ** [ ] Commodities distributed so that each Balance-Group has different conversion
-        *** [ ] Conv: a -> TCKLR, b->TCKLR, etc.
-        *** [ ] Conv: a -> AAA, b->BBB, etc. - is this needed?
-    ** [ ] Each Balance-Group have different conversion value
-        *** [ ] filter: group-selector == txn-ts-end (Is this desired behaviour?)
-
+* [ ] Metadata testing
+    ** [ ] Fixed conv rate, multiple commodities, different ts
+    ** [ ] Timed conv rate, multiple commodities
+    ** [ ] Multiple possible conversions, but only one real conv (filter txn by comm)
 
 ==== Errors
 
 Various error cases:
 
 * [ ] e: target commodity not found (at all) in pricedb
-* [ ] e: no source to target conversion in pricedb
-* [ ] e:
-* [ ] e:
+* [x] e: no source to target conversion in pricedb
+* [ ] e: TS with LookupType != GivenTime
+* [ ] e: GivenTime, no TS
 * [ ] e:
 
 
@@ -457,7 +457,13 @@ Various error cases:
 
 Is there need to run or create new perf tests?
 
-* [ ] perf test
+* [ ] Old tests, no conversion
+    ** [ ] Old tests, activated conversion, no match
+* [ ] New perf data with commodity
+    ** [ ] Perf with conversion
+* [ ] Perf benchmark (cargo bench) for PriceDB + Cache
+    ** [ ] 10, 100, 1000, 10_000 commodities
+            (ECB publish rates for 37 currencies, NYSE has ~3k companies)
 
 ==== Feature and Test Coverage Tracking
 
@@ -473,122 +479,9 @@ Feature-id::
 * subject: "Price conversions"
 
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml: TEP-1015 T3DB]
-
-
 ==== Metadata template for Feature and Test Coverage Tracking
 
-[source,yaml]
-....
-features:
-  - feature:
-      id: 98c2b696-d250-4141-bd82-c4126ec11c1d
-      subject: "Price data support"
-
-  - feature:
-      id:4d6f0dac-c202-45f4-9b95-7682d6c8df94
-      parent: 98c2b696-d250-4141-bd82-c4126ec11c1d
-      subject: "Price conversions"
-      tests:
-        errors:
-          - error:
-              id: uuid
-              name: "todo: name of test class/method or test description file"
-              desc: "todo: description"
-        operations:
-          - test:
-              id: 7cbe3cb4-1b23-44bb-8e5e-ba2c8991e589
-              name: "price/ok/price.sh: price-00"
-              descriptions:
-                - desc: "No conversion"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id: 6ddcb0d4-7dc6-4909-a1b4-ecbb5a33a186
-              name: "price/ok/price.sh: price-01"
-              descriptions:
-                - desc: "price-before: txn-time"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id: af19f8e7-a6f2-4f64-8c5a-b774dba4f58c
-              name: "price/ok/price.sh: price-02"
-              descriptions:
-                - desc: "price-before: last-price"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id: 4075e741-605b-4e67-ab7d-0d13f38956ca
-              name: "price/ok/price.sh: price-03"
-              descriptions:
-                - desc: "TODO: This feature is not implemented"
-                - desc: "conv: filter: ts-end"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id: 0c600957-5c15-42d0-9bb9-b618ad7d597f
-              name: "price/ok/price.sh: price-04"
-              descriptions:
-                - desc: "TODO: This feature is not implemented"
-                - desc: "conv: filter: ts-end > last txn-ts"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id: 39c60c8b-b999-4305-8c57-5c06e99cc919
-              name: "price/ok/price.sh: price-05"
-              descriptions:
-                - desc: "price-before: given-time"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id: f7211562-c69d-4bab-a768-65b15803efdf
-              name: "price/ok/price.sh: price-06"
-              descriptions:
-                - desc: "price-before: given-time"
-                - desc: "timestamp > last txn-ts"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-          - test:
-              id:
-              name: "price/ok/price.sh: price-"
-              descriptions:
-                - desc: "todo: description"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-....
-
+* link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml: TEP-1015 T3DB]
 
 '''
 Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.
