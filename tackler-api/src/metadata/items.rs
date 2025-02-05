@@ -192,7 +192,7 @@ impl Text for PriceRecord {
                 "{:>pad$} : {}",
                 "Time",
                 self.ts.as_ref().map_or("At txn time".to_string(), |ts| {
-                    txn_ts::as_tz_seconds(ts, tz)
+                    txn_ts::as_tz_full(ts, tz)
                 })
             ),
             format!("{:>pad$} : {}", "Commodity", self.source),

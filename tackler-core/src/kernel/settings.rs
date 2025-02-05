@@ -299,36 +299,54 @@ impl Settings {
             commodities,
             tags,
         };
-
         tmp_settings.report.balance_group.group_by = group_by;
 
-        let price_lookup = match lookup_type {
-            PriceLookupType::LastPrice => PriceLookup::LastPriceDbEntry,
-            PriceLookupType::TxnTime => PriceLookup::AtTheTimeOfTxn,
-            PriceLookupType::GivenTime => {
+        let given_time = price_overlap.clone().and_then(|po| po.before_time);
+
+        fn check_given_time_usage(
+            gt: &Option<String>,
+            plt: &PriceLookupType,
+        ) -> Result<(), Box<dyn Error>> {
+            if gt.is_some() {
                 let msg = format!(
-                    "Price lookup type is \"{}\" and there is no timestamp given",
-                    PriceLookupType::GIVEN_TIME
+                    "Price \"before timestamp\" is not allowed when price lookup type is \"{}\"",
+                    plt
                 );
-                match price_overlap {
-                    Some(po) => po.before_time.map_or_else(
-                        || Err(msg.into()),
-                        |ts| {
-                            tmp_settings
-                                .parse_timestamp(&ts)
-                                .map(PriceLookup::GivenTime)
-                        },
-                    ),
-                    None => Err(msg.into()),
-                }?
+                return Err(msg.into());
             }
-            PriceLookupType::None => PriceLookup::None,
+            Ok(())
+        }
+        let price_lookup = match lookup_type {
+            ref plt @ PriceLookupType::LastPrice => {
+                check_given_time_usage(&given_time, plt)?;
+                PriceLookup::LastPriceDbEntry
+            }
+            ref plt @ PriceLookupType::TxnTime => {
+                check_given_time_usage(&given_time, plt)?;
+                PriceLookup::AtTheTimeOfTxn
+            }
+            ref plt @ PriceLookupType::GivenTime => match given_time {
+                Some(ts) => tmp_settings
+                    .parse_timestamp(ts.as_str())
+                    .map(PriceLookup::GivenTime)?,
+                None => {
+                    let msg = format!(
+                        "Price lookup type is \"{}\" and there is no timestamp given",
+                        plt
+                    );
+                    return Err(msg.into());
+                }
+            },
+            ref plt @ PriceLookupType::None => {
+                check_given_time_usage(&given_time, plt)?;
+                PriceLookup::None
+            }
         };
 
         let price = match &lookup_type {
             PriceLookupType::None => Price::default(),
             _ => Price {
-                // we need half-baked settings here bc commodity and timestamps
+                // we need half-baked settings here bc commodity and timestamp lookups
                 price_db: parser::pricedb_from_file(&db_path, &mut tmp_settings)?,
                 lookup_type,
             },

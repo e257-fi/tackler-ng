@@ -41,6 +41,34 @@ cmp_result_ref $module price $test_name txn equity
 echo ": ok"
 
 #
+# price-00-00
+#
+# test: e9e2bc45-94d7-4eaa-9e0d-20667ac8a365
+# desc: no target commodity match
+rm -f $OUTPUT_DIR/*
+test_name=price-00-00
+echo "test: $module/$test_name: $mode"
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/price.toml \
+    --accounts "e:conv" \
+    --input.file $SUITE_PATH/$module/ok/price.txn \
+    --report.commodity "€"
+
+
+echo -n "check:"
+cmp_result_ref $module price-00 $test_name txt bal
+cmp_result_ref $module price-00 $test_name txt balgrp
+cmp_result_ref $module price    $test_name txn identity
+cmp_result_ref $module price    $test_name txn equity
+# output is different when price conv is activated, even with no match
+cmp_result $module $test_name txt reg
+
+echo ": ok"
+
+#
 # price-01
 #
 # test: 29b8ecea-bb2b-4a66-b0a2-178cb7a9f1b4

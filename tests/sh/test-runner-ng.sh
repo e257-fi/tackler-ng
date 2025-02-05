@@ -53,6 +53,7 @@ $TEST_DIR/reporting-time_zones.sh
 $TEST_DIR/tags.sh
 $TEST_DIR/new-and-init.sh
 $TEST_DIR/price.sh
+$TEST_DIR/price-errors.sh
 $TEST_DIR/price-strict.sh
 $TEST_DIR/price-multi.sh
 $TEST_DIR/price-multi-miss.sh

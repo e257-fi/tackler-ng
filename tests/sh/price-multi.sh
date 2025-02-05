@@ -84,6 +84,55 @@ cmp_result $module $test_name txt reg
 echo ": ok"
 
 #
+# multi-03
+#
+# test: 0c659e24-542e-43c9-9bc6-65b39dd0c611
+# desc: multi-value: txn-filter, single commodity
+rm -f $OUTPUT_DIR/*
+test_name=multi-03
+echo "test: $module/$test_name: $mode"
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/price-multi.toml \
+    --input.file $SUITE_PATH/$module/ok/multi.txn \
+    --price.lookup-type "given-time" \
+    --price.before "2024-04-01" \
+    --reports register \
+    --api-filter-def \
+        '{ "txnFilter": { "TxnFilterPostingCommodity": { "regex": "bbb" }}}'
+
+echo -n "check:"
+cmp_result $module $test_name txt reg
+echo ": ok"
+
+#
+# multi-04
+#
+# test: 06a2355b-3567-45ed-b071-dd397febc97f
+# desc: multi-value: txn commodity is target commodity
+rm -f $OUTPUT_DIR/*
+test_name=multi-04
+echo "test: $module/$test_name: $mode"
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/price-multi.toml \
+    --input.file $SUITE_PATH/$module/ok/multi-in-tcklr.txn \
+    --price.lookup-type "given-time" \
+    --price.before "2024-04-01"
+
+echo -n "check:"
+# The multi-02 is same as this
+cmp_result_ref $module multi-02 $test_name txt bal
+cmp_result_ref $module multi-02 $test_name txt balgrp
+cmp_result_ref $module multi-02 $test_name txt reg
+echo ": ok"
+
+
+#
 # multi-vp-01
 #
 # test: 6ad08423-c2d1-4667-9084-10920edfef4c
@@ -187,5 +236,27 @@ $TACKLER_SH \
 echo -n "check:"
 cmp_result $module $test_name txt bal
 cmp_result $module $test_name txt balgrp
+cmp_result $module $test_name txt reg
+echo ": ok"
+
+#
+# timestamps-01
+#
+# test: 3029acb0-ff10-4095-895a-7fa0ba272fb5
+# desc: multi-timestamps: last-price, prices with timestamps and offsets
+rm -f $OUTPUT_DIR/*
+test_name=multi-timestamps-01
+echo "test: $module/$test_name: $mode"
+
+$TACKLER_SH \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix $test_name \
+    --config $SUITE_PATH/$module/price-multi.toml \
+    --pricedb $SUITE_PATH/$module/ok/multi-timestamps.db \
+    --price.lookup-type "last-price" \
+    --input.file $SUITE_PATH/$module/ok/multi-vp-04.txn \
+    --reports register
+
+echo -n "check:"
 cmp_result $module $test_name txt reg
 echo ": ok"

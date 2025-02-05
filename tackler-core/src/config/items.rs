@@ -15,7 +15,7 @@ use jiff::fmt::strtime::BrokenDownTime;
 use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
 use std::error::Error;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{cmp, fs};
@@ -46,6 +46,17 @@ impl PriceLookupType {
     pub const LAST_PRICE: &'static str = "last-price";
     pub const TXN_TIME: &'static str = "txn-time";
     pub const GIVEN_TIME: &'static str = "given-time";
+}
+
+impl Display for PriceLookupType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::None => f.write_str(PriceLookupType::NONE),
+            Self::LastPrice => f.write_str(PriceLookupType::LAST_PRICE),
+            Self::TxnTime => f.write_str(PriceLookupType::TXN_TIME),
+            Self::GivenTime => f.write_str(PriceLookupType::GIVEN_TIME),
+        }
+    }
 }
 
 impl TryFrom<&str> for PriceLookupType {

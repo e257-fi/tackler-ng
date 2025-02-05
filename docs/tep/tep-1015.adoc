@@ -63,12 +63,11 @@ If this would be allowed, it would substantially complicate conversion and rate 
 
 `last-price` and `given-time`::
 1. Used Price is based on rates noted in the pricedb. Possible costs recorded in the transactions are ignored.
-2. If there are multiple price data rates for the same commodity, the latest applicable is used (applicable by price lookup type).
+2. If there are multiple rates in the pricedb for the same commodity, the latest applicable is used (applicable by price lookup type).
 
 `txn-time`::
-1. If a posting has rate or equivalence noted, it gets applied.
-2. If there is no rate or equivalence noted, the price data is used for conversion.
-3. The rate, which has the same time as the transaction or the latest rate before transaction time, is used.
+1. Used Price is based on rates noted in the pricedb. Possible costs recorded in the transactions are ignored.
+2. The price rate, which has the same time as the transaction or the latest rate before transaction time, is used.
 
 
 [#historic-with-filters]
@@ -372,6 +371,9 @@ How and where to go from here?
   ** `--price.at` (exact time, with `--price.resolution`)
   ** `--price.resolution` (e.g. 1h, 1d, 1w, 1m, 1y)
 
+* Inferred prices by recorded costs in transactions
+  ** Option for `txn-time` to use inferred prices
+
 
 [#future-price-date]
 ==== Used Price date
@@ -437,20 +439,35 @@ Normal, ok-case tests to validate functionality:
     ** [-] Each Balance-Group have different conversion value
         *** [-] filter: group-selector == txn-ts-end (Is this desired behaviour?)
 
-* [ ] Metadata testing
+* [x] Metadata testing
     ** [x] Fixed conv rate, multiple commodities, different ts
     ** [x] Timed conv rate, multiple commodities
-    ** [ ] Multiple possible conversions, but only one real conv (filter txn by comm)
+    ** [x] Multiple possible conversions, but only one real conv (filter txn by comm)
+    ** Timestamps
+        *** [x] Date resolution
+        *** [x] Second resolution
+        *** [x] Nanosecond resolution
+
+* [x] PriceDB time handling
+    ** [x] with different time resolutions
+        *** [x] Date resolution
+        *** [x] Second resolution
+        *** [x] Nanosecond resolution
+    ** [x] Missing offset
+        *** [x] Date resolution
+        *** [x] Second resolution
+
+* [x] Target commodity not found (at all) in pricedb
+
+* [x] Transaction commodity is same as target commodity (recorded cost / unit price in target commodity)
 
 ==== Errors
 
 Various error cases:
 
-* [ ] e: target commodity not found (at all) in pricedb
 * [x] e: no source to target conversion in pricedb
-* [ ] e: TS with LookupType != GivenTime
-* [ ] e: GivenTime, no TS
-* [ ] e:
+* [x] e: TS with LookupType != GivenTime
+* [x] e: GivenTime, no TS
 
 
 ==== Perf
