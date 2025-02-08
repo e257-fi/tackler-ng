@@ -41,16 +41,9 @@ fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let price_overlap = cli.get_price_overlap();
-    let report_overlap = cli.get_report_overlap();
+    let overlaps = cli.get_overlaps();
 
-    let mut settings = Settings::try_from(
-        cfg,
-        cli.strict_mode,
-        cli.audit_mode,
-        report_overlap,
-        price_overlap,
-    )?;
+    let mut settings = Settings::try_from(cfg, overlaps)?;
 
     let input_type = cli.get_input_type(&settings)?;
 

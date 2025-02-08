@@ -2,7 +2,7 @@
  * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::config::overlaps::{PriceOverlap, ReportOverlap};
+use crate::config::overlaps::OverlapConfig;
 use crate::config::{
     AccountSelectors, Config, Export, ExportType, Kernel, PriceLookupType, Report, ReportType,
 };
@@ -201,34 +201,13 @@ impl Settings {
 }
 
 impl Settings {
-    pub fn try_from(
-        cfg: Config,
-        strict_mode_opt: Option<bool>,
-        audit_mode_opt: Option<bool>,
-        report_overlap: Option<ReportOverlap>,
-        price_overlap: Option<PriceOverlap>,
-    ) -> Result<Settings, Box<dyn Error>> {
-        let strict_mode = match strict_mode_opt {
-            Some(s) => s,
-            None => cfg.kernel.strict,
-        };
-        let audit_mode = match audit_mode_opt {
-            Some(a) => a,
-            None => cfg.kernel.audit.mode,
-        };
+    pub fn try_from(cfg: Config, overlaps: OverlapConfig) -> Result<Settings, Box<dyn Error>> {
+        let strict_mode = overlaps.strict.mode.unwrap_or(cfg.kernel.strict);
+        let audit_mode = overlaps.audit.mode.unwrap_or(cfg.kernel.audit.mode);
 
-        let lookup_type = price_overlap
-            .clone()
-            .map_or(cfg.price.lookup_type.clone(), |po| {
-                po.lookup_type
-                    .map_or(cfg.price.lookup_type.clone(), |lt| lt)
-            });
+        let lookup_type = overlaps.price.lookup_type.unwrap_or(cfg.price.lookup_type);
 
-        let db_path = price_overlap
-            .clone()
-            .map_or(cfg.price.db_path.clone(), |po| {
-                po.db_path.map_or(cfg.price.db_path.clone(), |lt| lt)
-            });
+        let db_path = overlaps.price.db_path.unwrap_or(cfg.price.db_path.clone());
 
         let account_trees = AccountTrees::from(&cfg.transaction.accounts.names, strict_mode)?;
 
@@ -254,17 +233,13 @@ impl Settings {
         } else {
             None
         };
-        let report_commodity = if let Some(ro) = report_overlap.clone() {
-            match ro.commodity {
-                Some(c) => Some(Self::inner_get_or_create_commodity(
-                    &mut commodities,
-                    strict_mode,
-                    Some(c.as_str()),
-                )?),
-                None => cfg_rpt_commodity,
-            }
-        } else {
-            cfg_rpt_commodity
+        let report_commodity = match overlaps.report.commodity {
+            Some(c) => Some(Self::inner_get_or_create_commodity(
+                &mut commodities,
+                strict_mode,
+                Some(c.as_str()),
+            )?),
+            None => cfg_rpt_commodity,
         };
 
         if report_commodity.is_none() && lookup_type != PriceLookupType::None {
@@ -273,14 +248,11 @@ impl Settings {
             return Err(msg.into());
         }
 
-        let group_by = if let Some(ro) = report_overlap.clone() {
-            ro.group_by
-                .map_or(Ok(cfg.report.balance_group.group_by), |g| {
-                    GroupBy::from(g.as_str())
-                })?
-        } else {
-            cfg.report.balance_group.group_by
-        };
+        let group_by = overlaps
+            .report
+            .group_by
+            .map(|g| GroupBy::from(g.as_str()))
+            .unwrap_or(Ok(cfg.report.balance_group.group_by))?;
 
         let mut tmp_settings = Settings {
             strict_mode,
@@ -288,7 +260,7 @@ impl Settings {
             kernel: cfg.kernel,
             price: Price::default(), // this is not real, see next one
             price_lookup: PriceLookup::default(), // this is not real, see next one
-            global_acc_sel: report_overlap.and_then(|ro| ro.account_overlap),
+            global_acc_sel: overlaps.report.account_overlap,
             targets: cfg.report.targets.clone(),
             report: Report {
                 commodity: report_commodity,
@@ -301,7 +273,7 @@ impl Settings {
         };
         tmp_settings.report.balance_group.group_by = group_by;
 
-        let given_time = price_overlap.clone().and_then(|po| po.before_time);
+        let given_time = overlaps.price.before_time;
 
         fn check_given_time_usage(
             gt: &Option<String>,
@@ -535,7 +507,7 @@ impl Settings {
 
         let storage_type = match storage {
             Some(storage) => config::StorageType::from(storage.as_str())?,
-            None => input.storage.clone(),
+            None => input.storage,
         };
 
         match storage_type {

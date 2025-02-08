@@ -9,7 +9,9 @@ use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
 use tackler_core::config;
-use tackler_core::config::overlaps::{PriceOverlap, ReportOverlap};
+use tackler_core::config::overlaps::{
+    AuditOverlap, OverlapConfig, PriceOverlap, ReportOverlap, StrictOverlap,
+};
 use tackler_core::config::PriceLookupType;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::kernel::Settings;
@@ -320,29 +322,27 @@ pub(crate) struct DefaultModeArgs {
 }
 
 impl DefaultModeArgs {
-    pub(crate) fn get_report_overlap(&self) -> Option<ReportOverlap> {
-        if self.report_commodity.is_some() || self.accounts.is_some() || self.group_by.is_some() {
-            Some(ReportOverlap {
+    pub(crate) fn get_overlaps(&self) -> OverlapConfig {
+        OverlapConfig {
+            audit: AuditOverlap {
+                mode: self.audit_mode,
+            },
+            strict: StrictOverlap {
+                mode: self.strict_mode,
+            },
+            price: PriceOverlap {
+                db_path: self.pricedb_filename.clone(),
+                lookup_type: self.price_lookup_type,
+                before_time: self.price_before_ts.clone(),
+            },
+            report: ReportOverlap {
                 commodity: self.report_commodity.clone(),
                 account_overlap: self.accounts.clone(),
                 group_by: self.group_by.clone(),
-            })
-        } else {
-            None
+            },
         }
     }
 
-    pub(crate) fn get_price_overlap(&self) -> Option<PriceOverlap> {
-        if self.pricedb_filename.is_some() || self.price_lookup_type.is_some() {
-            Some(PriceOverlap {
-                db_path: self.pricedb_filename.clone(),
-                lookup_type: self.price_lookup_type.clone(),
-                before_time: self.price_before_ts.clone(),
-            })
-        } else {
-            None
-        }
-    }
     fn get_git_selector(&self) -> Option<GitInputSelector> {
         match (
             &self.git_input_selector.input_git_commit,

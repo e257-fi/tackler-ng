@@ -9,6 +9,24 @@
 use crate::config::PriceLookupType;
 use std::path::PathBuf;
 
+/// Collections of all configuration overlaps
+pub struct OverlapConfig {
+    pub audit: AuditOverlap,
+    pub strict: StrictOverlap,
+    pub price: PriceOverlap,
+    pub report: ReportOverlap,
+}
+
+/// Audit mode related overlaps
+pub struct AuditOverlap {
+    pub mode: Option<bool>,
+}
+
+/// Strict mode related overlaps
+pub struct StrictOverlap {
+    pub mode: Option<bool>,
+}
+
 /// Price overlap configuration
 #[derive(Debug, Clone)]
 pub struct PriceOverlap {

@@ -25,14 +25,14 @@ use tackler_rs::get_abs_path;
 /// UI/CFG key value for none
 pub const NONE_VALUE: &str = "none";
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default)]
 pub enum StorageType {
     #[default]
     FS,
     Git,
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum PriceLookupType {
     #[default]
     None,
