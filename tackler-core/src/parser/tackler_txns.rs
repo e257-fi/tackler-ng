@@ -156,9 +156,6 @@ pub fn git_to_txns(
     // perf: let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
     // perf: eprintln!("total time: {}ms, parse time: {}ms, git: {}ms", (ts_end.as_millis() - ts_start.as_millis()), ts_par_total, (ts_end.as_millis() - ts_start.as_millis())-ts_par_total);
 
-    TxnData::from(
-        Some(MetadataItem::GitInputReference(gitmd)),
-        txns?,
-        &settings.get_hash(),
-    )
+    let hash = &settings.get_hash();
+    TxnData::from(Some(MetadataItem::GitInputReference(gitmd)), txns?, hash)
 }

@@ -224,15 +224,18 @@ impl Settings {
                 tags
             });
 
-        let cfg_rpt_commodity = if let Some(c) = cfg.report.commodity {
-            Some(Self::inner_get_or_create_commodity(
-                &mut commodities,
-                strict_mode,
-                Some(c.name.as_str()),
-            )?)
-        } else {
-            None
-        };
+        let cfg_rpt_commodity = cfg
+            .report
+            .commodity
+            .map(|c| {
+                Self::inner_get_or_create_commodity(
+                    &mut commodities,
+                    strict_mode,
+                    Some(c.name.as_str()),
+                )
+            })
+            .transpose()?;
+
         let report_commodity = match overlaps.report.commodity {
             Some(c) => Some(Self::inner_get_or_create_commodity(
                 &mut commodities,
@@ -527,7 +530,7 @@ impl Settings {
                 None => Err("Storage type 'fs' is not configured".into()),
             },
             config::StorageType::Git => match &input.git {
-                Some(ref git) => {
+                Some(git) => {
                     let repo = git.repo.as_str();
                     let suffix = &git.suffix;
                     let i = GitInput {
