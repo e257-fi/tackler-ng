@@ -65,6 +65,13 @@ link:https://tackler.e257.fi/docs/export-equity/[Identity]).
 Other notable features are:
 
 * Handling link:https://tackler.e257.fi/docs/commodities/[Commodities] and link:https://tackler.e257.fi/docs/currencies/[Shares]
+
+* link:https://github.com/e257-fi/tackler-ng/blob/main/docs/tep/tep-1015.adoc[TEP-1015]: Support for Price data
+  ** Support for various price data analytics
+     *** The `last-price` of recorded rate in PriceDB
+     *** The historic at `given-time` lookup model
+     *** The historic at `txn-time` lookup model
+
 * link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters] for powerfull selectors of accounting data
 * Accounting based on link:https://tackler.e257.fi/docs/gis/txn-geo-location[Geo Location] and link:https://tackler.e257.fi/docs/gis/txn-geo-filters/[Transaction GIS Filters]
 

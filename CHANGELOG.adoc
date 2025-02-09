@@ -30,8 +30,12 @@ tackler-core = "0.8.0"
 
 New features:
 
-* ...
-** ...
+* link:https://github.com/e257-fi/tackler-ng/blob/main/docs/tep/tep-1015.adoc[TEP-1015]: Support for Price data
+  ** PriceDB support
+  ** Support for various price data analytics
+     *** The `last-price` of recorded rate in PriceDB
+     *** The historic at `given-time` lookup model
+     *** The historic at `txn-time` lookup model
 
 Changed functionality:
 

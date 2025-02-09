@@ -59,6 +59,8 @@ and all exports
 Other notable features are:
 
 * [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
+* [Price data](https://github.com/e257-fi/tackler-ng/blob/main/docs/tep/tep-1015.adoc) support
+  * Support multiple price data model analytics, including historical data
 * [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/) for powerfull selectors of accounting data
 * Accounting based on [Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction GIS Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
 
