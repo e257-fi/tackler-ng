@@ -19,8 +19,7 @@ use clap::Parser;
 use tackler_api::filters::FilterDefinition;
 use tackler_core::config::Config;
 
-use crate::cli_args::{Commands, DefaultArgs};
-use tackler_api::txn_ts::GroupBy;
+use crate::cli_args::{Commands, DefaultModeArgs};
 use tackler_core::kernel::settings::InputSettings;
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -29,7 +28,7 @@ use tikv_jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
+fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
     let cfg = match Config::from(cli.conf_path.as_ref().unwrap()) {
         Ok(cfg) => cfg,
         Err(err) => {
@@ -42,7 +41,9 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let mut settings = Settings::from(cfg, cli.strict_mode, cli.audit_mode, cli.accounts.clone())?;
+    let overlaps = cli.get_overlaps();
+
+    let mut settings = Settings::try_from(cfg, overlaps)?;
 
     let input_type = cli.get_input_type(&settings)?;
 
@@ -98,10 +99,6 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
     };
 
     let reports = settings.get_report_targets(cli.reports)?;
-    let group_by: Option<GroupBy> = match cli.group_by {
-        Some(gp) => Some(GroupBy::from(gp.as_str())?),
-        None => None,
-    };
 
     if !reports.is_empty() {
         write_txt_reports(
@@ -110,7 +107,6 @@ fn run(cli: DefaultArgs) -> Result<(), Box<dyn Error>> {
             &cli.output_name,
             &reports,
             &txn_set,
-            group_by,
             &settings,
             &mut Some(Box::new(io::stdout())),
         )?;

@@ -16,6 +16,8 @@ None at the moment.
 
 === Implemented TEPs
 
+* xref:./tep-1015.adoc[TEP-1015: Price data support]
+
 
 ==== Archived Tackler-Mk1 TEPs
 

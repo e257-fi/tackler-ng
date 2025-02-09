@@ -1,19 +1,22 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::kernel::Settings;
 use crate::model::balance_tree_node::ord_by_btn;
 use crate::model::{BalanceTreeNode, Commodity, Transaction, TxnAccount, TxnSet};
 use itertools::Itertools;
 use rust_decimal::Decimal;
-use std::collections::{HashMap, HashSet};
 use std::error::Error;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 
-pub type Deltas = HashMap<Option<Commodity>, Decimal>;
+pub type Deltas = HashMap<Option<Arc<Commodity>>, Decimal>;
 pub type BTNs = Vec<BalanceTreeNode>;
 #[derive(Debug)]
 pub struct Balance {
@@ -141,7 +144,11 @@ impl Balance {
     ///
     /// * `txns` sequence of transactions
     /// * `returns` unfiltered sequence of BalanceTreeNodes
-    fn balance<'a, I>(txns: I, settings: &Settings) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>>
+    fn balance<'a, I>(
+        txns: I,
+        price_lookup_ctx: &PriceLookupCtx<'_>,
+        settings: &Settings,
+    ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>>
     where
         I: Iterator<Item = &'a &'a Transaction>,
     {
@@ -149,16 +156,16 @@ impl Balance {
         //
         // Input size: is "big",    ~ all transactions
         // Output size: is "small", ~ size of CoA
-        let account_sums: Vec<_> = txns
-            .flat_map(|txn| &txn.posts)
-            .sorted_by_key(|p| &p.acctn)
-            .chunk_by(|p| &p.acctn)
+        let account_sums: Vec<(TxnAccount, Decimal)> = txns
+            .flat_map(|txn| price_lookup_ctx.convert_prices(txn))
+            .sorted_by_key(|(acctn, _, _)| acctn.clone())
+            .chunk_by(|(acctn, _, _)| acctn.clone())
             .into_iter()
             .map(|(_, postings)| {
                 let mut ps = postings.peekable();
                 // unwrap: ok: this is inside map, hence there must be at least one element
-                let acctn = ps.peek().unwrap(/*:ok:*/).acctn.clone();
-                let acc_sum = ps.map(|p| p.amount).sum::<Decimal>();
+                let acctn = ps.peek().unwrap(/*:ok:*/).0.clone();
+                let acc_sum = ps.map(|(_, amount, _)| amount).sum::<Decimal>();
                 (acctn, acc_sum)
             })
             .collect();
@@ -215,18 +222,20 @@ impl Balance {
     pub fn from<T>(
         title: &str,
         txn_set: &TxnSet<'_>,
+        price_lookup_ctx: &PriceLookupCtx<'_>,
         accounts: &T,
         settings: &Settings,
     ) -> Result<Balance, Box<dyn Error>>
     where
         T: BalanceSelector + ?Sized,
     {
-        Self::from_iter(title, &txn_set.txns, accounts, settings)
+        Self::from_iter(title, &txn_set.txns, price_lookup_ctx, accounts, settings)
     }
 
     pub(crate) fn from_iter<'a, I, T>(
         title: &str,
         txns: I,
+        price_lookup_ctx: &PriceLookupCtx<'_>,
         accounts: &T,
         settings: &Settings,
     ) -> Result<Balance, Box<dyn Error>>
@@ -234,7 +243,7 @@ impl Balance {
         T: BalanceSelector + ?Sized,
         I: IntoIterator<Item = &'a &'a Transaction>,
     {
-        let bal = Balance::balance(txns.into_iter(), settings)?;
+        let bal = Balance::balance(txns.into_iter(), price_lookup_ctx, settings)?;
 
         let filt_bal: Vec<_> = bal.into_iter().filter(|b| accounts.eval(b)).collect();
 
@@ -247,15 +256,11 @@ impl Balance {
         } else {
             let deltas = filt_bal
                 .iter()
-                .chunk_by(|btn| &btn.acctn.comm.name)
+                .chunk_by(|btn| btn.acctn.comm.clone())
                 .into_iter()
                 .map(|(c, bs)| {
                     let dsum = bs.map(|b| b.account_sum).sum();
-                    if c.is_empty() {
-                        (None, dsum)
-                    } else {
-                        (Some(Commodity { name: c.clone() }), dsum)
-                    }
+                    (c.is_any().then_some(c), dsum)
                 })
                 .collect();
 

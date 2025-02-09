@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+
+pub use crate::parser::pricedb_parser::{pricedb_from_file, pricedb_from_str};
 pub use crate::parser::tackler_txns::git_to_txns;
 pub use crate::parser::tackler_txns::paths_to_txns;
 pub use crate::parser::tackler_txns::string_to_txns;
@@ -10,6 +12,7 @@ pub use crate::parser::tackler_txns::GitInputSelector;
 use winnow::error::{ErrMode, FromExternalError};
 
 mod error;
+mod pricedb_parser;
 mod tackler_parser;
 mod tackler_txns;
 

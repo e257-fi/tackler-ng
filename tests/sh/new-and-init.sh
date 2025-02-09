@@ -52,3 +52,4 @@ $TACKLER_SH \
 
 echo ": ok"
 
+rm -rf $OUTPUT_DIR/*

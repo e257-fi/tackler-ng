@@ -1,17 +1,15 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::config::Scale;
 use crate::kernel::balance::{BTNs, Balance, Deltas};
 use crate::kernel::report_item_selector::{
     BalanceAllSelector, BalanceByAccountSelector, BalanceSelector,
 };
-use crate::kernel::Settings;
+use crate::kernel::{BalanceSettings, Settings};
 use crate::model::{BalanceTreeNode, TxnSet};
-use crate::report::{write_acc_sel_checksum, Report};
+use crate::report::{write_acc_sel_checksum, write_price_metadata, write_report_timezone, Report};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};
@@ -20,25 +18,18 @@ use std::error::Error;
 use std::io;
 
 #[derive(Debug, Clone)]
-pub struct BalanceSettings {
-    pub(crate) title: String,
-    pub(crate) ras: Vec<String>,
-    pub(crate) scale: Scale,
-}
-
-impl BalanceSettings {
-    pub fn from(settings: &Settings) -> Result<BalanceSettings, Box<dyn Error>> {
-        let bs = BalanceSettings {
-            title: settings.report.balance.title.clone(),
-            ras: settings.get_balance_ras(),
-            scale: settings.report.scale.clone(),
-        };
-        Ok(bs)
-    }
-}
-#[derive(Debug, Clone)]
 pub struct BalanceReporter {
     pub report_settings: BalanceSettings,
+}
+
+impl TryFrom<&Settings> for BalanceReporter {
+    type Error = Box<dyn Error>;
+
+    fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
+        Ok(BalanceReporter {
+            report_settings: BalanceSettings::try_from(settings)?,
+        })
+    }
 }
 
 impl BalanceReporter {
@@ -123,7 +114,7 @@ impl BalanceReporter {
                 " ".repeat(2)
             } else {
                 let comm = &btn.acctn.comm;
-                match &comm.is_some() {
+                match &comm.is_any() {
                     true => {
                         format!(" {: <cl$}  ", comm.name, cl = comm_max_len)
                     }
@@ -210,12 +201,26 @@ impl Report for BalanceReporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
+        let price_lookup_ctx = self.report_settings.price_lookup.make_ctx(
+            &txn_data.txns,
+            self.report_settings.report_commodity.clone(),
+            &cfg.price.price_db,
+        );
+
         write_acc_sel_checksum(cfg, writer, bal_acc_sel.as_ref())?;
+
+        if !price_lookup_ctx.is_empty() {
+            write_report_timezone(cfg, writer)?;
+        }
+
+        write_price_metadata(cfg, writer, &price_lookup_ctx)?;
+
         writeln!(writer)?;
 
         let bal_report = Balance::from(
             &self.report_settings.title,
             txn_data,
+            &price_lookup_ctx,
             bal_acc_sel.as_ref(),
             cfg,
         )?;

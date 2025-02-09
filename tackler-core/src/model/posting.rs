@@ -67,11 +67,11 @@ impl Display for Posting {
             self.acctn.atn,
             sign_space,
             self.amount,
-            match comm.is_some() {
+            match comm.is_any() {
                 true => format!(" {}", comm.name),
                 false => String::new(),
             },
-            if self.txn_commodity.is_some() {
+            if self.txn_commodity.is_any() {
                 #[allow(clippy::collapsible_else_if)]
                 // todo: old-scala comment: fix this
                 if self.txn_commodity.name == self.acctn.comm.name {

@@ -1,82 +1,216 @@
 = TEP-1015: Price data support
 
-See
-link:https://github.com/e257-fi/tackler-ng/tree/tep/tep-1015-price-data/docs/tep/tep-1015.adoc[/tep/tep-1015-price-data]
-branch for actual TEP-1015 content.
-
 Add price data support for currencies, shares and commodities.
+
+Github issue: https://github.com/e257-fi/tackler-ng/issues/36
 
 == Summary
 
-Summary of changes
+There are three different use cases for initial price data support:
 
-* Sub-change 1
-* Sub-change 2
+1. Current valuation of commodities, shares and currencies
+2. Historical valuation of commodities, shares and currencies, at certain point in time
+3. Simulation with historical price data. For example
+    .. Historical purchasing power of money analysis
+    .. Market value analysis of produced commodity (e.g. electricity)
 
-Longer description with high level explanation of this change
+=== Price Data lookup types
+
+1. Last recorded rate in PriceDB
+2. Before given timestamp
+3. At transaction time or nearest before the txn time
 
 
-=== Sub-change 1
+==== Fixed conversions
 
-Lorem ipsum ...
+This TEP-1015 does not propose any method for calculating the fixed conversions (e.g. oz to g, gallons to litres, etc).
 
 
-=== Sub-change 2
+==== Inverted prices
 
-Lorem ipsum ...
+At the moment inverted prices are not supported. With following PriceDB, conversion from `USD` to `EUR` is not supported.
+
+.PriceDB with no USD to EUR rate
+----
+P 2025-01-07 EUR 1.3 USD
+----
+
+For USD to EUR conversion, there must be an own entry for the inverted rate in the price db:
+
+.PriceDB with inverted rate
+----
+P 2025-01-07 EUR 1.3 USD
+P 2025-01-07 USD 0.77 EUR ; 1/1.3 ~ 0.7692; Normally there is official inverted rate
+----
+
+
+==== Price conversion chains
+
+Price conversions chains are not supported. For example, this conversion from EUR to USD via SEK and NOK is not supported:
+
+.PriceDB without direct EUR to USD rate
+----
+P 2025-01-07 EUR 11.50 SEK
+P 2025-01-07 SEK  1.02 NOK
+P 2025-01-07 NOK  0.09 USD ; EUR->SEK-NOK->USD = 1.055700; The real rate is 1.02
+----
+
+If this would be allowed, it would substantially complicate conversion and rate applying logic and could produce surprising results, especially when mixed with direct conversion rates.
+
+
+
+=== Price Data application policy
+
+`last-price` and `given-time`::
+1. Used Price is based on rates noted in the pricedb. Possible costs recorded in the transactions are ignored.
+2. If there are multiple rates in the pricedb for the same commodity, the latest applicable is used (applicable by price lookup type).
+
+`txn-time`::
+1. Used Price is based on rates noted in the pricedb. Possible costs recorded in the transactions are ignored.
+2. The price rate, which has the same time as the transaction or the latest rate before transaction time, is used.
+
+
+[#historic-with-filters]
+==== Historic price data with filters
+
+Let's assume there are following price data entries (three entries per year, distributed evenly):
+
+----
+P 2024-03-31 ACME 240331.00 USD
+P 2024-06-30 ACME 240630.00 USD
+P 2024-09-30 ACME 240930.00 USD
+P 2024-12-31 ACME 241231.00 USD
+----
+
+Today is 2025-01-01 and we run filtering query which will include txns from (inclusive - exclusive) range `[ 2024-01-01 .. 2024-04-01 [` into our reports.
+
+If we like to use the same conversion rate, which was used when the `2024/Q1` report was generated, the price data lookup type should be `2. Before given timestamp` with the same value as filter's end time `--report.price-before=2024-04-01`.
+
+The used price data for reporting would be 240331.00 USD, (the `P 2024-03-31 ACME 240331.00 USD` entry), which is the nearest earlier recorded price in the Price DB.  This will ensure that reported values are same, regardless if the report is run on 2024-04-01 or 2025-01-01.
+
+There is future option to do this automatically, see xref:filtering[].
 
 
 == Journal File Format
 
-Journal file format changes, if any
+No change would be made to the journal file format. A new file type would be added with a format similar to the default format of Ledger CLI as described https://ledger-cli.org/doc/ledger3.html[here].
+
+----
+'P' TIMESTAMP COMMODITY AMOUNT COMMODITY OPT_COMMENT
+----
+
+Where OPT_COMMENT is prefixed with `';' space+`, this is similar as Txn comments.
+
+For example:
+----
+P 2025-01-07 EUR 1.0393 USD ; as reported by Central Bank of Europe
+----
+
+There are some existing usage for this format:
+
+* link:https://github.com/kantord/pricedb[pricedb -project]
+* link:https://hledger.org/1.41/hledger.html#p-directive[hledger P-directive]
+
+=== Timestamp handling
+
+The `timestamp` will use the same logic as transaction timestamps:
+
+* RFC3339 timestamp with offset information
+* Timestamp without zone or offset, then the `kernel.timestamp.timezone` value is used as zone/offset.
+* Date, then `kernel.timestamp.default-time` is used with `kernel.timestamp.timezone`.
+
+The resulting timestamp is always with offset.
 
 
 == Implementation
 
 === CLI Changes
 
-Changes to command line interface
+New command line switch to activate price data, this could be implemented later.
 
-* [ ] item
+`--price.db-path`:: Path to the price data file
+
+`--price.lookup-type`:: Price lookup type, valid values are:
+* `none`
+* `last-price`
+* `txn-time`
+* `given-time`
+
+`--price.before <ts>`:: Date or timestamp to be used in price lookup, see also xref:fppf[].
+* This is valid option only with `last-price` or `given-time` price lookup types.
+* This is exclusive time, e.g. the first price db entry before this time is used.
+* If `ts` is date, then `kernel.timestamp.default-time`
+and `kernel.timestamp.timezone` is used for timestamp.
+* If `ts` has date and time, but it's missing offset/zone information, then `kernel.timestamp.timezone` is used.
+
+
+`--report.commodity`:: Commodity to be used in reports
 
 
 === CONF Changes
 
-Changes to conf-settings
+New configuration keys for pricedb functionality:
 
-* [ ] item
+----
+[price]
+### this is similar as `accounts`, `commodidities` and `tags`.
+### "none" means that no price data is loaded.
+### In that case also `price.lookup-type` must be "none".
+###
+### To temporaryly disable price data functionality,
+### use CONF and CLI switch `price.lookup-type  = "none"`
+###
+db-path = "path/to/price.db"
+###
+### Price lookup type
+###
+### Valid values are:
+###   - "none"
+###   - "last-price"
+###   - "txn-time"
+###   - "given-time", with this CLI `--price.before` must be used
+###
+lookup-type = "txn-time"
 
+[report]
+###
+### Target commodity in reports
+###
+commodity = "TCKLR"
+----
+
+[#filtering]
 === Filtering Changes
+
+Future change:
+
+Add extra attribute to TxnFilter definition `end_ts`, to define which price data will be used with reports when using filtering and restricting reporting to past dates.
 
 
 === Machinery
 
 Changes to machinery
 
-* [ ] item
+* [ ] Add a new model _PriceEntry_ with fields
+  - timestamp with offset
+  - source commodity (with inferred amount 1)
+  - target commodity with rate
+  - optional comment
+
+The `report.report-timezone` is used to convert price data to displayed zone in the reports.
 
 
 ==== API Changes
 
 Api changes to server or client interfaces.
 
-
-===== Server API Changes
-
-Changes to server API
-
-* [ ] item
-
-
-===== Client API Changes
-
-Changes to client API or JSON model
-
-* [ ] item
+* [ ] Future: `end_ts` attribute in `tackler_api::filters::FilterDefinition`
 
 ===== JSON Model
 
 Changes to JSON model
+
+Reporting price and commodity conversion related data in:
 
 * [ ] Metadata
 * [ ] JSON Reports
@@ -87,20 +221,38 @@ Changes to JSON model
 
 ==== New Dependencies
 
-* [ ] link / url of new dependency
-** [ ] Add and check licenses: link / url
-** [ ] Is there NOTICE file(s)?
-** [ ] Add license under link:../licenses/[doc/licenses]
-*** [ ] Add NOTICES under link:../licenses/[doc/licenses]
-** [ ] Add link of license to xref:../readme.adoc[index]
-** [ ] Add link to Site credits
-** [ ] Add license material to binary distribution
-
+No new dependencies
 
 === Reporting
 
 Changes to reports or reporting
 
+The used prices are reported as part of the Metadata section of the report, when single rate for particular conversion is used. In case of `txn-time`, variable cost bases will be noted in the metadata.
+
+Future: This could be behind a switch in the future, so that this can be turned off, especially in the case that there are many commodities / prices to be reported.
+
+
+----
+Git Storage
+         commit : 4aa4e9797501c1aefc92f32dff30ab462dae5545
+      reference : txns-1E1
+      directory : txns
+         suffix : .txn
+        message : txns-1E1: 2016/12
+
+Txn Set Checksum
+        SHA-256 : 9b29071e1bf228cfbd31ca2b8e7263212e4b86e51cfee1e8002c9b795ab03f76
+       Set size : 10
+
+Price Data
+           time : 2025-01-08 12:13:14
+      commodity : EUR
+          value : 1.234 USD
+                -
+           time : 2024-12-31 08:00:00
+      commodity : He·bar_50L·tank
+          value : 3.45 EUR
+----
 
 ==== Balance Report
 
@@ -111,34 +263,70 @@ Changes to balance report
 
 ==== Balance Group Report
 
-Changes to balance group report
+[#balgrp-price-data]
+===== Sub-Group price data
 
-* [ ] item
+This implementation uses the same logic as Balance Report, e.g. single price value is used for all sub-groups with `last-price` and `given-time` price lookup types. There could be an conf/cli option to change this in the future, so that each sub-group could have their own price data based on time to used to greate that group.
 
 
 ==== Register Report
 
 Changes to register report
 
-* [ ] item
 
+.Register report with price data with fixed time based price
+----
+Price Data
+           time : 2024-01-31 00:00:00
+      commodity : aaa
+          value : 31.001 TCKLR
+
+REGISTER
+--------
+2024-01-01
+            e:conv                        1.00 aaa                        31.001 TCKLR
+--------------------------------------------------------------------------------------
+2024-01-12
+            e:conv                        1.00 aaa                        62.002 TCKLR
+--------------------------------------------------------------------------------------
+2024-01-24
+            e:conv                        1.00 aaa                        93.003 TCKLR
+--------------------------------------------------------------------------------------
+----
+
+.Register report with variable price data
+----
+Price Data
+           time : transaction time
+      commodity : aaa
+          value : - TCKLR
+
+REGISTER
+--------
+2024-01-01
+            e:conv                        1.00 aaa @ 1.001 TCKLR           1.001 TCKLR
+--------------------------------------------------------------------------------------
+2024-01-12
+            e:conv                        1.00 aaa @ 12.001 TCKLR         13.002 TCKLR
+--------------------------------------------------------------------------------------
+2024-01-24
+            e:conv                        1.00 aaa @ 24.001 TCKLR         37.003 TCKLR
+--------------------------------------------------------------------------------------
+----
 
 === Exporting
 
 Changes to exports or exporting
 
+
 ==== Equity Export
 
-Changes to equity export
-
-* [ ] item
+No changes to Equity Export
 
 
 ==== Identity Export
 
-Changes to identity export
-
-* [ ] item
+No changes to Identity Export
 
 
 === Documentation
@@ -149,18 +337,18 @@ Changes to identity export
 * [ ] Does it warrant own T3DB file?
 ** [ ] update xref:../../suite/tests.adoc[]
 ** [ ] update xref:../../suite/check-tests.sh[]
-** [ ] Add new T3DB file link:https://github.com/e257-fi/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
+** [x] Add new T3DB file link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml]
 * [ ] User docs
 ** [ ] User Manual
 *** [ ] cli-arguments
-**** [ ] `--arg-1`
-**** [ ] `--arg-2`
+**** [x] `--price.db-path`
+**** [x] `--price.lookup-type`
+**** [x] `--price.before`
+**** [ ] `--report.commodity`
 ** [ ] tackler.toml
-*** [ ] `setting-1`
-*** [ ] `setting-2`
-** [ ] accounts.toml
-** [ ] commodities.toml
-** [ ] tags.toml
+*** [x] `price.db-path`
+*** [x] `price.lookup-type`
+*** [ ] `report.commodity`
 ** [ ] examples
 * [ ] Developer docs
 ** [ ] API changes
@@ -169,78 +357,148 @@ Changes to identity export
 *** [ ] JSON Examples
 
 
+[#fppf]
 === Future Plans and Postponed (PP) Features
 
 How and where to go from here?
 
+* Maybe support for price conversion chains? (`EUR` -> `SEK` -> `NOK` -> `USD`)
+
+* Fixed, constant conversions (e.g. oz to g, gallons to litres, etc)
+
+* More options to select used price data based on time:
+  ** `--price.after`
+  ** `--price.at` (exact time, with `--price.resolution`)
+  ** `--price.resolution` (e.g. 1h, 1d, 1w, 1m, 1y)
+
+* Inferred prices by recorded costs in transactions
+  ** Option for `txn-time` to use inferred prices
+
+
+[#future-price-date]
+==== Used Price date
+
+CLI/CONF option to define machine how price data will be used with reports when using filtering and restricting reporting to past dates, see also xref:filtering[].
+
+Possible idea-level options could be:
+
+* Latest recorded value in PriceDB
+* Latest available price before given filter or timestamp (e.g. `--report.price-before=2024-05-01`)
+* Next, nearest future price
+* Linear fitting between nearest past and nearest future prices
+
+
 ==== Postponed (PP) Features
 
 Anything which wasn't implemented?
+
+* xref:filtering[]
+* xref:balgrp-price-data[]
 
 
 === Tests
 
 Normal, ok-case tests to validate functionality:
 
-* [ ] test
+* [x] strict-mode
+    ** [x] On
+    ** [x] Off (without commodities)
+
+* [x] txn with empty commodities when price conv is activated
+
+* [x] No conversion
+    ** [x] commodity but no conversion activated
+    ** [x] Secondary account with non-conv commodity (val-pos notation)
+
+* [x] Selecting correct price by time
+    ** [x] at-txn
+        *** [x] too early price
+        *** [x] too late price
+    ** [x] last-price
+        *** [x] too early price
+        *** [-] too late price
+    ** [x] CLI given-time
+        *** [x] too early price
+        *** [x] too late price
+        *** [x] timestamp is after last filtered txn ts and after last price
+    ** [-] Filter: Txn-TS-END
+        *** [-] too early price
+        *** [-] too late price
+        *** [-] filter ts is after last filtered txn ts
+
+* [x] Multiple sources to same target
+    ** [x] {aaa, bbb, ccc} -> TCKLR
+
+* [x] postings with value positions
+    ** [x] value position for source posting
+    ** [x] value position for target posting
+
+* [x] Balance-Group
+    ** [x] Commodities distributed so that each Balance-Group has different conversion
+        *** [x] Conv: a -> TCKLR, b->TCKLR, etc.
+    ** [-] Each Balance-Group have different conversion value
+        *** [-] filter: group-selector == txn-ts-end (Is this desired behaviour?)
+
+* [x] Metadata testing
+    ** [x] Fixed conv rate, multiple commodities, different ts
+    ** [x] Timed conv rate, multiple commodities
+    ** [x] Multiple possible conversions, but only one real conv (filter txn by comm)
+    ** Timestamps
+        *** [x] Date resolution
+        *** [x] Second resolution
+        *** [x] Nanosecond resolution
+
+* [x] PriceDB time handling
+    ** [x] with different time resolutions
+        *** [x] Date resolution
+        *** [x] Second resolution
+        *** [x] Nanosecond resolution
+    ** [x] Missing offset
+        *** [x] Date resolution
+        *** [x] Second resolution
+
+* [x] Target commodity not found (at all) in pricedb
+
+* [x] Transaction commodity is same as target commodity (recorded cost / unit price in target commodity)
 
 ==== Errors
 
 Various error cases:
 
-* [ ] e: error test
+* [x] e: no source to target conversion in pricedb
+* [x] e: TS with LookupType != GivenTime
+* [x] e: GivenTime, no TS
+
 
 ==== Perf
 
 Is there need to run or create new perf tests?
 
-* [ ] perf test
+* [ ] Old tests, no conversion
+    ** [ ] Old tests, activated conversion, no match
+* [ ] New perf data with commodity
+    ** [ ] Perf with conversion
+* [ ] Perf benchmark (cargo bench) for PriceDB + Cache
+    ** [ ] 10, 100, 1000, 10_000 commodities
+            (ECB publish rates for 37 currencies, NYSE has ~3k companies)
 
 ==== Feature and Test Coverage Tracking
 
+Feature-id::
 
+* id: 98c2b696-d250-4141-bd82-c4126ec11c1d
+* subject: "Price data support"
 
 Feature-id::
 
-* name: <Feature name / subject-line>
-* uuid: <UUID>
-
-
-link:https://github.com/e257-fi/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
+* id:4d6f0dac-c202-45f4-9b95-7682d6c8df94
+* parent: 98c2b696-d250-4141-bd82-c4126ec11c1d
+* subject: "Price conversions"
 
 
 ==== Metadata template for Feature and Test Coverage Tracking
 
-....
-features:
-  - feature:
-      id: 98c2b696-d250-4141-bd82-c4126ec11c1d
-      subject: "Price data support"
-
-  - feature:
-      id: uuid
-      parent: uuid-of-parent
-      subject: "todo: one-line description of sub feature"
-      tests:
-        errors:
-          - error:
-              id: uuid
-              name: "todo: name of test class/method or test description file"
-              desc: "todo: description"
-        operations:
-          - test:
-              id: uuid
-              name: "todo: name of test class/method or test description file"
-              descriptions:
-                - desc: "todo: description"
-              references:
-                - ref: balance
-                - ref: balance-group
-                - ref: register
-                - ref: identity
-                - ref: equity
-....
-
+* link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml: TEP-1015 T3DB]
 
 '''
 Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.

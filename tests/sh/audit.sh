@@ -267,9 +267,10 @@ echo ": ok"
 #
 # audit-1E2-08
 #
-# test: 85d16b5a-cde9-40d3-9a37-3b7ba7ee7049
+# test: 17d027aa-28d0-4887-b2dd-f342dccb61d1
+# test-ref: 85d16b5a-cde9-40d3-9a37-3b7ba7ee7049
 # base64 filter definition
-# test: 8bbe1d2a-8548-49cf-9d8b-942242b882bd 
+# test-ref: 8bbe1d2a-8548-49cf-9d8b-942242b882bd
 rm -f $OUTPUT_DIR/*
 test_name=audit-1E2-08
 echo "test: $module/$test_name: "

@@ -9,13 +9,17 @@ pub(crate) use items::Export;
 pub use items::ExportType;
 pub use items::Input;
 pub(crate) use items::Kernel;
+pub use items::PriceLookupType;
 pub(crate) use items::Report;
 pub use items::ReportType;
 pub(crate) use items::Scale;
 pub use items::StorageType;
 use std::error::Error;
 
+pub use items::NONE_VALUE;
+
 mod items;
+pub mod overlaps;
 mod raw_items;
 
 pub fn to_report_targets(targets: &[String]) -> Result<Vec<ReportType>, Box<dyn Error>> {

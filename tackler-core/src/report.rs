@@ -1,24 +1,20 @@
 /*
-* Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::config::ReportType;
+use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::ReportItemSelector;
-use crate::kernel::Settings;
+use crate::kernel::{BalanceGroupSettings, RegisterSettings, Settings};
 use crate::model::TxnSet;
 pub use balance_group_reporter::BalanceGroupReporter;
-pub use balance_group_reporter::BalanceGroupSettings;
 pub use balance_reporter::BalanceReporter;
-pub use balance_reporter::BalanceSettings;
 pub use register_reporter::RegisterReporter;
-pub use register_reporter::RegisterSettings;
 use std::error::Error;
 use std::io;
 use std::io::Write;
 use std::path::PathBuf;
 use tackler_api::metadata::items::{AccountSelectorChecksum, ReportTimezone, Text};
-use tackler_api::txn_ts::GroupBy;
 use tackler_rs::create_output_file;
 
 mod balance_group_reporter;
@@ -53,6 +49,22 @@ fn write_report_timezone<W: io::Write + ?Sized>(
     Ok(())
 }
 
+fn write_price_metadata<W: Write + ?Sized>(
+    cfg: &Settings,
+    writer: &mut W,
+    p_ctx: &PriceLookupCtx<'_>,
+) -> Result<(), Box<dyn Error>> {
+    let pr_metadata = p_ctx.metadata().text(cfg.report.report_tz.clone());
+
+    if !pr_metadata.is_empty() {
+        writeln!(writer)?;
+        for l in pr_metadata {
+            writeln!(writer, "{}", l)?;
+        }
+    }
+    Ok(())
+}
+
 fn write_acc_sel_checksum<W: io::Write + ?Sized, R: ReportItemSelector + ?Sized>(
     cfg: &Settings,
     writer: &mut W,
@@ -77,7 +89,6 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     output_prefix: &Option<String>,
     reports: &Vec<ReportType>,
     txn_set: &TxnSet<'_>,
-    group_by: Option<GroupBy>,
     settings: &Settings,
     prog_writer: &mut Option<Box<W>>,
 ) -> Result<(), Box<dyn Error>> {
@@ -101,9 +112,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     for r in reports {
         match r {
             ReportType::Balance => {
-                let bal_reporter = BalanceReporter {
-                    report_settings: BalanceSettings::from(settings)?,
-                };
+                let bal_reporter = BalanceReporter::try_from(settings)?;
 
                 match (output_prefix, output_dir) {
                     (Some(output_name), Some(output_dir)) => {
@@ -130,12 +139,8 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
                 }
             }
             ReportType::BalanceGroup => {
-                let group_by = match group_by {
-                    Some(gb) => gb,
-                    None => settings.report.balance_group.group_by,
-                };
                 let bal_group_reporter = BalanceGroupReporter {
-                    report_settings: BalanceGroupSettings::from(settings, Some(group_by))?,
+                    report_settings: BalanceGroupSettings::try_from(settings)?,
                 };
                 match (output_prefix, output_dir) {
                     (Some(output_name), Some(output_dir)) => {
@@ -163,7 +168,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
             }
             ReportType::Register => {
                 let reg_reporter = RegisterReporter {
-                    report_settings: RegisterSettings::from(settings)?,
+                    report_settings: RegisterSettings::try_from(settings)?,
                 };
 
                 match (output_prefix, output_dir) {

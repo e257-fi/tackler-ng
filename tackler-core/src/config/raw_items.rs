@@ -1,6 +1,5 @@
 /*
- * Tackler-NG 2024
- *
+ * Tackler-NG 2024-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::config::AccountSelectors;
@@ -9,6 +8,7 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Deserialize)]
 pub(super) struct ConfigRaw {
     pub(super) kernel: KernelRaw,
+    pub(super) price: Option<PriceRaw>,
     pub(super) transaction: TransactionRaw,
     pub(super) report: ReportRaw,
     pub(super) export: ExportRaw,
@@ -73,6 +73,14 @@ pub(super) struct GitRaw {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+pub(super) struct PriceRaw {
+    #[serde(rename = "db-path")]
+    pub(super) db_path: String,
+    #[serde(rename = "lookup-type")]
+    pub(super) lookup_type: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub(super) struct TransactionRaw {
     pub(super) accounts: AccountsPathRaw,
     pub(super) commodities: CommoditiesPathRaw,
@@ -122,6 +130,7 @@ pub(super) struct ReportRaw {
     pub(super) targets: Vec<String>,
     pub(super) accounts: Option<Vec<String>>,
     pub(super) scale: ScaleRaw,
+    pub(super) commodity: Option<String>,
     pub(super) register: RegisterRaw,
     #[serde(rename = "balance-group")]
     pub(super) balance_group: BalanceGroupRaw,

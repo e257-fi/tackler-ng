@@ -1,23 +1,32 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::config::Scale;
-use crate::model::{Posting, Transaction};
+use crate::kernel::price_lookup::PriceLookup;
+use crate::kernel::RegisterSettings;
+use crate::model::{Commodity, Posting, Transaction};
 use jiff::tz::TimeZone;
-use jiff::{tz, Zoned};
+use jiff::Zoned;
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::{max, Ordering};
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
-use tackler_api::txn_ts;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct RegisterPosting<'a> {
     pub post: &'a Posting,
     pub amount: Decimal,
+    pub target_commodity: Arc<Commodity>,
+    pub rate: Option<Decimal>,
+}
+
+impl RegisterPosting<'_> {
+    fn is_commodity_conv(&self) -> bool {
+        self.target_commodity != self.post.acctn.comm
+    }
 }
 
 impl Eq for RegisterPosting<'_> {}
@@ -57,11 +66,11 @@ pub(crate) struct RegisterEntry<'a> {
 }
 
 impl RegisterEntry<'_> {
-    pub(crate) fn fmt_with_tz(
+    pub(crate) fn fmt_with_cfg(
         &self,
         ts_fmtr: fn(&Zoned, TimeZone) -> String,
         tz: TimeZone,
-        scale: &Scale,
+        reg_cfg: &RegisterSettings,
     ) -> String {
         fn amount_to_string(amount: &Decimal, scale: &Scale, width: usize) -> String {
             let prec = scale.get_precision(amount);
@@ -81,37 +90,41 @@ impl RegisterEntry<'_> {
         let mut line_len = 0;
         let mut reg_entry_txt = self.txn.header.to_string_with_indent(&indent, ts_fmtr, tz);
 
+        let filler_width = match &reg_cfg.price_lookup {
+            PriceLookup::AtTheTimeOfTxn => 20,
+            PriceLookup::LastPriceDbEntry => 8,
+            PriceLookup::GivenTime(_) => 8,
+            PriceLookup::None => 0,
+        };
+
         for p in &self.posts {
-            let comm = &p.post.acctn.comm;
+            let (comm, base_comm, width) = if p.is_commodity_conv() {
+                let (base_comm, width) = match p.rate {
+                    Some(r) => (format!(" {} @ {}", p.post.acctn.comm, r), 20),
+                    None => (format!(" {}", p.post.acctn.comm), 8),
+                };
+                (&p.target_commodity, base_comm, width)
+            } else {
+                (&p.post.acctn.comm, String::default(), filler_width)
+            };
 
             let line = format!(
-                "{}{:<33}{:>18} {:>18}{}",
+                "{}{:<33}{:>18}{:<w$} {:>18}{}",
                 indent,
                 p.post.acctn.atn.account,
-                amount_to_string(&p.post.amount, scale, 18),
-                amount_to_string(&p.amount, scale, 18),
-                match &comm.is_some() {
+                amount_to_string(&p.post.amount, &reg_cfg.scale, 18),
+                base_comm,
+                amount_to_string(&p.amount, &reg_cfg.scale, 18),
+                match &comm.is_any() {
                     true => format!(" {}", comm.name),
                     false => String::new(),
                 },
+                w = width,
             );
             line_len = max(line_len, line.chars().count());
             let _ = writeln!(reg_entry_txt, "{}", line);
         }
         let _ = writeln!(reg_entry_txt, "{}", "-".repeat(line_len));
         reg_entry_txt
-    }
-}
-impl Display for RegisterEntry<'_> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            self.fmt_with_tz(
-                |ts, _tz| { txn_ts::rfc_3339(ts) },
-                tz::TimeZone::UTC,
-                &Scale::default()
-            )
-        )
     }
 }

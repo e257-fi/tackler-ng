@@ -1,11 +1,11 @@
 /*
- * Tackler-NG 2024
- *
+ * Tackler-NG 2024-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::export::Export;
 use crate::kernel::balance::Balance;
+use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::{
     BalanceNonZeroByAccountSelector, BalanceNonZeroSelector, BalanceSelector,
 };
@@ -63,7 +63,13 @@ impl Export for EquityExporter {
     ) -> Result<(), Box<dyn Error>> {
         let bal_acc_sel = self.get_acc_selector()?;
 
-        let bal = Balance::from(&String::default(), txn_data, bal_acc_sel.as_ref(), cfg)?;
+        let bal = Balance::from(
+            &String::default(),
+            txn_data,
+            &PriceLookupCtx::default(),
+            bal_acc_sel.as_ref(),
+            cfg,
+        )?;
 
         if bal.is_empty() {
             // todo: check if this is actually possible?
@@ -143,7 +149,7 @@ impl Export for EquityExporter {
                             eq_txn_indent,
                             b.acctn.atn.account,
                             b.account_sum,
-                            match comm.is_some() {
+                            match comm.is_any() {
                                 true => { format!(" {}", comm.name) },
                                 false => String::new(),
                             }

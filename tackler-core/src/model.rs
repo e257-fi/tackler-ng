@@ -18,6 +18,7 @@ pub use txn_data::TxnSet;
 pub(crate) mod account_tree_node;
 pub(crate) mod balance_tree_node;
 pub mod posting;
+pub mod price_entry;
 mod register;
 pub mod transaction;
 pub mod txn_data;

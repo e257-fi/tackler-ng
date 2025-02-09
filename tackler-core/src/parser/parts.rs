@@ -8,6 +8,7 @@ mod comment;
 pub(crate) mod identifier;
 pub(crate) mod number;
 mod posting_value;
+pub(super) mod pricedb;
 pub(crate) mod timestamp;
 mod txn_comment;
 mod txn_header;

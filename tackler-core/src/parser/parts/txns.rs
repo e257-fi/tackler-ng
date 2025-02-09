@@ -14,7 +14,7 @@ use winnow::ascii::{line_ending, multispace0, space0};
 use winnow::combinator::{cut_err, eof, opt, preceded, repeat, repeat_till};
 use winnow::error::StrContext;
 
-fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
+pub(crate) fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
     // space0 can't be multispace0 as it's greedy and eats away the last line ending
     repeat(1.., (space0, line_ending))
         .map(|()| ())

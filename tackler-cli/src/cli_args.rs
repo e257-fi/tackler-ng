@@ -2,17 +2,22 @@
  * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use clap::builder::PossibleValue;
-use clap::error::ErrorKind;
+use clap::builder::{PossibleValue, TypedValueParser};
+use clap::error::{ContextKind, ContextValue, ErrorKind};
 use clap::{CommandFactory, Parser, Subcommand};
 use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
 use tackler_core::config;
+use tackler_core::config::overlaps::{
+    AuditOverlap, OverlapConfig, PriceOverlap, ReportOverlap, StrictOverlap,
+};
+use tackler_core::config::PriceLookupType;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::kernel::Settings;
 use tackler_core::parser::GitInputSelector;
 
+pub(crate) const PRICE_BEFORE: &str = "price.before";
 //
 // Default subcommand setup:
 // https://github.com/clap-rs/clap/issues/975
@@ -25,7 +30,7 @@ pub(crate) struct Cli {
     command: Option<Commands>,
 
     #[clap(flatten)]
-    pub args: DefaultArgs,
+    pub args: DefaultModeArgs,
 }
 
 impl Cli {
@@ -73,6 +78,57 @@ pub(crate) struct GitInputGroup {
     pub(crate) input_git_commit: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy)]
+struct PriceLookupParser;
+
+impl TypedValueParser for PriceLookupParser {
+    type Value = PriceLookupType;
+
+    fn parse_ref(
+        &self,
+        cmd: &clap::Command,
+        arg: Option<&clap::Arg>,
+        value: &std::ffi::OsStr,
+    ) -> Result<Self::Value, clap::Error> {
+        let val = value
+            .to_str()
+            .ok_or_else(|| clap::Error::new(clap::error::ErrorKind::InvalidUtf8))?;
+
+        match PriceLookupType::try_from(val) {
+            Ok(v) => Ok(v),
+            Err(_) => {
+                let mut err = clap::Error::new(ErrorKind::ValueValidation).with_cmd(cmd);
+                if let Some(arg) = arg {
+                    err.insert(
+                        ContextKind::InvalidArg,
+                        ContextValue::String(arg.to_string()),
+                    );
+                }
+                err.insert(
+                    ContextKind::InvalidValue,
+                    ContextValue::String(val.to_string()),
+                );
+                Err(err)
+            }
+        }
+    }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
+        Some(Box::new(
+            [
+                config::NONE_VALUE,
+                PriceLookupType::TXN_TIME,
+                PriceLookupType::LAST_PRICE,
+                PriceLookupType::GIVEN_TIME,
+            ]
+            .into_iter()
+            .map(clap::builder::PossibleValue::new),
+        ))
+    }
+}
+
 #[derive(Clone, Subcommand)]
 #[allow(clippy::large_enum_variant)]
 pub(crate) enum Commands {
@@ -81,11 +137,11 @@ pub(crate) enum Commands {
     /// Initialize existing bookkeeping setup
     Init {},
     /// This is the default action: run specified reports and exports
-    Report(DefaultArgs),
+    Report(DefaultModeArgs),
 }
 
 #[derive(Debug, Clone, clap::Args)]
-pub(crate) struct DefaultArgs {
+pub(crate) struct DefaultModeArgs {
     #[arg(long = "config", value_name = "path_to_config-file")]
     pub(crate) conf_path: Option<PathBuf>,
 
@@ -174,7 +230,6 @@ pub(crate) struct DefaultArgs {
         requires("input_git_dir"),
         requires("git_input_group")
     )]
-    //requires("git_input_group"),
     pub(crate) input_git_repo: Option<PathBuf>,
 
     #[clap(flatten)]
@@ -212,6 +267,26 @@ pub(crate) struct DefaultArgs {
     )]
     pub(crate) reports: Option<Vec<String>>,
 
+    /// Path to single PriceDB file
+    #[arg(long = "pricedb", value_name = "path_to_pricedb-file")]
+    pub(crate) pricedb_filename: Option<PathBuf>,
+
+    /// Name of the commodity to do the reports in
+    #[arg(long = "report.commodity", value_name = "commodity")]
+    pub(crate) report_commodity: Option<String>,
+
+    /// Type of price lookup method
+    #[arg(
+        long = "price.lookup-type",
+        value_name = "lookup-type",
+        value_parser = PriceLookupParser
+    )]
+    pub(crate) price_lookup_type: Option<PriceLookupType>,
+
+    /// Timestamp to use for price lookup "<ISO-8066-timestamp>",
+    #[arg(long = PRICE_BEFORE, value_name = "price-before")]
+    pub(crate) price_before_ts: Option<String>,
+
     /// Group-by -selector for 'balance-group' report
     #[arg(long = "group-by", value_name = "group-by", num_args(1),
         value_parser([
@@ -246,7 +321,28 @@ pub(crate) struct DefaultArgs {
     pub(crate) api_filter_def: Option<String>,
 }
 
-impl DefaultArgs {
+impl DefaultModeArgs {
+    pub(crate) fn get_overlaps(&self) -> OverlapConfig {
+        OverlapConfig {
+            audit: AuditOverlap {
+                mode: self.audit_mode,
+            },
+            strict: StrictOverlap {
+                mode: self.strict_mode,
+            },
+            price: PriceOverlap {
+                db_path: self.pricedb_filename.clone(),
+                lookup_type: self.price_lookup_type,
+                before_time: self.price_before_ts.clone(),
+            },
+            report: ReportOverlap {
+                commodity: self.report_commodity.clone(),
+                account_overlap: self.accounts.clone(),
+                group_by: self.group_by.clone(),
+            },
+        }
+    }
+
     fn get_git_selector(&self) -> Option<GitInputSelector> {
         match (
             &self.git_input_selector.input_git_commit,

@@ -1,6 +1,5 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -15,11 +14,18 @@ use std::sync::Arc;
 pub struct Commodity {
     pub name: String,
 }
+
+impl Display for Commodity {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
 impl Commodity {
-    pub fn is_some(&self) -> bool {
+    pub fn is_any(&self) -> bool {
         !self.name.is_empty()
     }
-    pub fn is_none(&self) -> bool {
+    pub fn is_void(&self) -> bool {
         self.name.is_empty()
     }
 }

@@ -1,6 +1,5 @@
 /*
- * Tackler-NG 2022-2024
- *
+ * Tackler-NG 2022-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,7 +8,9 @@
 
 use crate::filters::{FilterDefZoned, FilterDefinition};
 use crate::metadata::Checksum;
+use crate::txn_ts;
 use jiff::tz::TimeZone;
+use jiff::Zoned;
 
 #[doc(hidden)]
 pub type MetadataItems = Vec<MetadataItem>;
@@ -168,5 +169,65 @@ impl Text for GitInputReference {
             format!("{:>pad$} : .{}", "suffix", self.suffix),
             format!("{:>pad$} : {}", "message", self.message.trim()),
         ]
+    }
+}
+
+/// Metadata item for one commodity conversion
+#[derive(Debug, Clone)]
+pub struct PriceRecord {
+    /// Time of price record
+    pub ts: Option<Zoned>,
+    /// Source (from) commodity
+    pub source: String,
+    /// Conversion rate (value in target commodity)
+    pub rate: Option<String>,
+    /// Target (to) commodity
+    pub target: String,
+}
+impl Text for PriceRecord {
+    fn text(&self, tz: TimeZone) -> Vec<String> {
+        let pad = MetadataItem::ITEM_PAD;
+        vec![
+            format!(
+                "{:>pad$} : {}",
+                "Time",
+                self.ts.as_ref().map_or("At txn time".to_string(), |ts| {
+                    txn_ts::as_tz_full(ts, tz)
+                })
+            ),
+            format!("{:>pad$} : {}", "Commodity", self.source),
+            format!(
+                "{:>pad$} : {} {}",
+                "Value",
+                self.rate.clone().map_or("-".to_string(), |v| v),
+                self.target
+            ),
+        ]
+    }
+}
+/// Metadata information of used commodity conversions
+#[derive(Debug, Clone)]
+pub struct PriceRecords {
+    /// Collection of used commodity conversions prices / rates
+    pub rates: Vec<PriceRecord>,
+}
+impl Text for PriceRecords {
+    fn text(&self, tz: TimeZone) -> Vec<String> {
+        let pad = MetadataItem::ITEM_PAD;
+
+        let mut txt = Vec::new();
+
+        if let Some(pr) = self.rates.first() {
+            txt.push("Commodity Prices".to_string());
+            txt.extend(pr.text(tz.clone()));
+
+            if self.rates.len() > 1 {
+                for pr in &self.rates[1..] {
+                    txt.push(format!("{:>pad$} -", ""));
+                    txt.extend(pr.text(tz.clone()));
+                }
+            }
+        }
+        txt
     }
 }

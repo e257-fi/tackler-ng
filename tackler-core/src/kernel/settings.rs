@@ -1,19 +1,25 @@
 /*
- * Tackler-NG 2023-2024
- *
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use crate::config;
-use crate::config::{AccountSelectors, Config, Export, ExportType, Kernel, Report, ReportType};
+use crate::config::overlaps::OverlapConfig;
+use crate::config::{
+    AccountSelectors, Config, Export, ExportType, Kernel, PriceLookupType, Report, ReportType,
+};
 use crate::kernel::hash::Hash;
+use crate::kernel::price_lookup::PriceLookup;
+use crate::model::price_entry::PriceDb;
 use crate::model::TxnAccount;
 use crate::model::{AccountTreeNode, Commodity};
 use crate::parser::GitInputSelector;
+use crate::{config, parser};
+use jiff::Zoned;
 use std::collections::HashMap;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tackler_api::txn_header::Tag;
+use tackler_api::txn_ts::GroupBy;
 
 pub struct GitInput {
     pub repo: PathBuf,
@@ -143,6 +149,13 @@ impl AccountTrees {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct Price {
+    // todo: fix visibility
+    pub price_db: PriceDb,
+    pub lookup_type: PriceLookupType,
+}
+
 #[derive(Debug)]
 pub struct Settings {
     pub(crate) audit_mode: bool,
@@ -150,6 +163,8 @@ pub struct Settings {
     pub(crate) export: Export,
     strict_mode: bool,
     kernel: Kernel,
+    pub price: Price,
+    price_lookup: PriceLookup,
     global_acc_sel: Option<AccountSelectors>,
     targets: Vec<ReportType>,
     accounts: AccountTrees,
@@ -165,6 +180,8 @@ impl Default for Settings {
             report: Report::default(),
             export: Export::default(),
             kernel: Kernel::default(),
+            price: Price::default(),
+            price_lookup: PriceLookup::default(),
             global_acc_sel: None,
             targets: Vec::new(),
             accounts: AccountTrees::default(),
@@ -177,40 +194,24 @@ impl Default for Settings {
 impl Settings {
     pub fn default_audit() -> Self {
         Settings {
-            strict_mode: false,
             audit_mode: true,
-            report: Report::default(),
-            export: Export::default(),
-
-            kernel: Kernel::default(),
-            global_acc_sel: None,
-            targets: Vec::new(),
-            accounts: AccountTrees::default(),
-            commodities: Commodities::default_empty_ok(),
-            tags: HashMap::new(),
+            ..Self::default()
         }
     }
 }
 
 impl Settings {
-    pub fn from(
-        cfg: Config,
-        strict_mode_opt: Option<bool>,
-        audit_mode_opt: Option<bool>,
-        report_accounts: Option<Vec<String>>,
-    ) -> Result<Settings, Box<dyn Error>> {
-        let strict_mode = match strict_mode_opt {
-            Some(s) => s,
-            None => cfg.kernel.strict,
-        };
-        let audit_mode = match audit_mode_opt {
-            Some(a) => a,
-            None => cfg.kernel.audit.mode,
-        };
+    pub fn try_from(cfg: Config, overlaps: OverlapConfig) -> Result<Settings, Box<dyn Error>> {
+        let strict_mode = overlaps.strict.mode.unwrap_or(cfg.kernel.strict);
+        let audit_mode = overlaps.audit.mode.unwrap_or(cfg.kernel.audit.mode);
+
+        let lookup_type = overlaps.price.lookup_type.unwrap_or(cfg.price.lookup_type);
+
+        let db_path = overlaps.price.db_path.unwrap_or(cfg.price.db_path.clone());
 
         let account_trees = AccountTrees::from(&cfg.transaction.accounts.names, strict_mode)?;
 
-        let commodities = Commodities::from(&cfg)?;
+        let mut commodities = Commodities::from(&cfg)?;
 
         let tags = cfg
             .transaction
@@ -223,17 +224,110 @@ impl Settings {
                 tags
             });
 
-        Ok(Settings {
+        let cfg_rpt_commodity = if let Some(c) = cfg.report.commodity {
+            Some(Self::inner_get_or_create_commodity(
+                &mut commodities,
+                strict_mode,
+                Some(c.name.as_str()),
+            )?)
+        } else {
+            None
+        };
+        let report_commodity = match overlaps.report.commodity {
+            Some(c) => Some(Self::inner_get_or_create_commodity(
+                &mut commodities,
+                strict_mode,
+                Some(c.as_str()),
+            )?),
+            None => cfg_rpt_commodity,
+        };
+
+        if report_commodity.is_none() && lookup_type != PriceLookupType::None {
+            let msg =
+                "Price conversion is activated, but there is no `report.commodity`".to_string();
+            return Err(msg.into());
+        }
+
+        let group_by = overlaps
+            .report
+            .group_by
+            .map(|g| GroupBy::from(g.as_str()))
+            .unwrap_or(Ok(cfg.report.balance_group.group_by))?;
+
+        let mut tmp_settings = Settings {
             strict_mode,
             audit_mode,
             kernel: cfg.kernel,
-            global_acc_sel: report_accounts,
+            price: Price::default(), // this is not real, see next one
+            price_lookup: PriceLookup::default(), // this is not real, see next one
+            global_acc_sel: overlaps.report.account_overlap,
             targets: cfg.report.targets.clone(),
-            report: cfg.report,
+            report: Report {
+                commodity: report_commodity,
+                ..cfg.report
+            },
             export: cfg.export,
             accounts: account_trees,
             commodities,
             tags,
+        };
+        tmp_settings.report.balance_group.group_by = group_by;
+
+        let given_time = overlaps.price.before_time;
+
+        fn check_given_time_usage(
+            gt: &Option<String>,
+            plt: &PriceLookupType,
+        ) -> Result<(), Box<dyn Error>> {
+            if gt.is_some() {
+                let msg = format!(
+                    "Price \"before timestamp\" is not allowed when price lookup type is \"{}\"",
+                    plt
+                );
+                return Err(msg.into());
+            }
+            Ok(())
+        }
+        let price_lookup = match lookup_type {
+            ref plt @ PriceLookupType::LastPrice => {
+                check_given_time_usage(&given_time, plt)?;
+                PriceLookup::LastPriceDbEntry
+            }
+            ref plt @ PriceLookupType::TxnTime => {
+                check_given_time_usage(&given_time, plt)?;
+                PriceLookup::AtTheTimeOfTxn
+            }
+            ref plt @ PriceLookupType::GivenTime => match given_time {
+                Some(ts) => tmp_settings
+                    .parse_timestamp(ts.as_str())
+                    .map(PriceLookup::GivenTime)?,
+                None => {
+                    let msg = format!(
+                        "Price lookup type is \"{}\" and there is no timestamp given",
+                        plt
+                    );
+                    return Err(msg.into());
+                }
+            },
+            ref plt @ PriceLookupType::None => {
+                check_given_time_usage(&given_time, plt)?;
+                PriceLookup::None
+            }
+        };
+
+        let price = match &lookup_type {
+            PriceLookupType::None => Price::default(),
+            _ => Price {
+                // we need half-baked settings here bc commodity and timestamp lookups
+                price_db: parser::pricedb_from_file(&db_path, &mut tmp_settings)?,
+                lookup_type,
+            },
+        };
+
+        Ok(Settings {
+            price,
+            price_lookup,
+            ..tmp_settings
         })
     }
 }
@@ -319,7 +413,7 @@ impl Settings {
         Ok(atn)
     }
 
-    pub(crate) fn get_commodity(&self, name: &str) -> Result<Arc<Commodity>, Box<dyn Error>> {
+    pub fn get_commodity(&self, name: &str) -> Result<Arc<Commodity>, Box<dyn Error>> {
         match self.commodities.names.get(name) {
             Some(comm) => Ok(comm.clone()),
             None => {
@@ -328,20 +422,27 @@ impl Settings {
             }
         }
     }
-
     pub(crate) fn get_or_create_commodity(
         &mut self,
+        name: Option<&str>,
+    ) -> Result<Arc<Commodity>, Box<dyn Error>> {
+        Self::inner_get_or_create_commodity(&mut self.commodities, self.strict_mode, name)
+    }
+
+    fn inner_get_or_create_commodity(
+        commodities: &mut Commodities,
+        strict_mode: bool,
         name: Option<&str>,
     ) -> Result<Arc<Commodity>, Box<dyn Error>> {
         match name {
             Some(n) => {
                 if n.is_empty() {
-                    if self.commodities.permit_empty_commodity {
-                        return match self.commodities.names.get(n) {
+                    if commodities.permit_empty_commodity {
+                        return match commodities.names.get(n) {
                             Some(c) => Ok(c.clone()),
                             None => {
                                 let comm = Arc::new(Commodity::default());
-                                self.commodities.names.insert(n.into(), comm.clone());
+                                commodities.names.insert(n.into(), comm.clone());
 
                                 Ok(comm.clone())
                             }
@@ -352,15 +453,15 @@ impl Settings {
                         return Err(msg.into());
                     }
                 }
-                match self.commodities.names.get(n) {
+                match commodities.names.get(n) {
                     Some(comm) => Ok(comm.clone()),
                     None => {
-                        if self.strict_mode {
+                        if strict_mode {
                             let msg = format!("Unknown commodity: '{}'", n);
                             Err(msg.into())
                         } else {
                             let comm = Arc::new(Commodity::from(n.into())?);
-                            self.commodities.names.insert(n.into(), comm.clone());
+                            commodities.names.insert(n.into(), comm.clone());
                             Ok(comm)
                         }
                     }
@@ -393,6 +494,10 @@ impl Settings {
         }
     }
 
+    pub fn get_price_lookup(&self) -> PriceLookup {
+        self.price_lookup.clone()
+    }
+
     pub fn get_input_settings(
         &self,
         storage: Option<&String>,
@@ -402,7 +507,7 @@ impl Settings {
 
         let storage_type = match storage {
             Some(storage) => config::StorageType::from(storage.as_str())?,
-            None => input.storage.clone(),
+            None => input.storage,
         };
 
         match storage_type {
@@ -443,6 +548,17 @@ impl Settings {
 }
 
 impl Settings {
+    pub fn parse_timestamp(&mut self, ts: &str) -> Result<Zoned, Box<dyn Error>> {
+        Ok(winnow::Parser::parse(
+            &mut crate::parser::parts::timestamp::parse_timestamp,
+            winnow::Stateful {
+                input: ts,
+                state: self,
+            },
+        )
+        .map_err(|e| e.to_string())?)
+    }
+
     pub fn get_offset_datetime(
         &self,
         dt: jiff::civil::DateTime,
@@ -464,6 +580,10 @@ impl Settings {
                 Err(msg.into())
             }
         }
+    }
+
+    pub fn get_report_commodity(&self) -> Option<Arc<Commodity>> {
+        self.report.commodity.as_ref().map(|c| c.clone())
     }
 
     pub fn get_report_targets(
