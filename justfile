@@ -20,7 +20,10 @@ clean:
 
 check:
     cargo clippy --workspace --all-targets --no-deps -- -D warnings
-    cargo fmt --all --check
+    cargo +nightly fmt --all --check  -- --style-edition 2024
+
+fmt:
+    cargo +nightly fmt --all  -- --style-edition 2024
 
 test: (_test "debug")
 

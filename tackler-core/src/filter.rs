@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -62,8 +61,8 @@ mod tests {
     use rust_decimal::Decimal;
     use std::sync::Arc;
     use tackler_api::filters::{
-        logic::TxnFilterAND, logic::TxnFilterNOT, logic::TxnFilterOR, NullaryFALSE, NullaryTRUE,
-        TxnFilter,
+        NullaryFALSE, NullaryTRUE, TxnFilter, logic::TxnFilterAND, logic::TxnFilterNOT,
+        logic::TxnFilterOR,
     };
     use tackler_api::location::GeoPoint;
     use tackler_api::txn_header::TxnHeader;

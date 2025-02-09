@@ -1,12 +1,11 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::filters::IndentDisplay;
 use crate::filters::TxnFilter;
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _, engine::general_purpose};
 use jiff::tz::TimeZone;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};

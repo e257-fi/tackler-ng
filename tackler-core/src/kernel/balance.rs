@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::kernel::Settings;
 use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::BalanceSelector;
-use crate::kernel::Settings;
 use crate::model::balance_tree_node::ord_by_btn;
 use crate::model::{BalanceTreeNode, Commodity, Transaction, TxnAccount, TxnSet};
 use itertools::Itertools;

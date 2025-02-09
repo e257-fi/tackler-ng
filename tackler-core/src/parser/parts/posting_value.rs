@@ -1,19 +1,18 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::kernel::Settings;
 use crate::model::Commodity;
 use crate::parser::parts::identifier::p_identifier;
 use crate::parser::parts::number::p_number;
-use crate::parser::{from_error, Stream};
+use crate::parser::{Stream, from_error};
 use rust_decimal::Decimal;
 use std::error::Error;
 use std::sync::Arc;
 use winnow::ascii::{space0, space1};
 use winnow::combinator::{alt, opt};
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 /*
 // The old ANTLR Grammar
 

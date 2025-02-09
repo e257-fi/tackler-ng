@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::kernel::Settings;
 use crate::kernel::accumulator;
 use crate::kernel::report_item_selector::{
     RegisterAllSelector, RegisterByAccountSelector, RegisterSelector,
 };
 use crate::kernel::report_settings::RegisterSettings;
-use crate::kernel::Settings;
 use crate::model::{RegisterEntry, TxnSet};
-use crate::report::{write_acc_sel_checksum, write_price_metadata, write_report_timezone, Report};
-use jiff::tz::TimeZone;
+use crate::report::{Report, write_acc_sel_checksum, write_price_metadata, write_report_timezone};
 use jiff::Zoned;
+use jiff::tz::TimeZone;
 use std::error::Error;
 use std::io;
 use tackler_api::txn_ts;

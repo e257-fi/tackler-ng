@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -33,12 +32,12 @@ impl IndentDisplay for TxnFilterTxnTags {
 mod tests {
     use super::*;
     use crate::filters::{
-        logic::TxnFilterAND, FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter,
+        FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter, logic::TxnFilterAND,
     };
     use indoc::indoc;
     use jiff::tz;
-    use tackler_rs::regex::new_full_haystack_regex;
     use tackler_rs::IndocUtils;
+    use tackler_rs::regex::new_full_haystack_regex;
 
     #[test]
     // test: d2aa8d62-97cb-49e1-ac7b-f81a1a511b6b

@@ -1,12 +1,11 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 use std::error::Error;
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 
-use crate::parser::{from_error, Stream};
+use crate::parser::{Stream, from_error};
 use std::str::FromStr;
 use winnow::combinator::{alt, cut_err, fail, opt};
 use winnow::error::{StrContext, StrContextValue};
@@ -97,7 +96,7 @@ fn p_datetime(is: &mut Stream<'_>) -> PResult<jiff::civil::DateTime> {
     )
     .parse_next(is)?;
 
-    let time = match handle_time(h, m, s, ns_opt.map(|x| x.0 .1)) {
+    let time = match handle_time(h, m, s, ns_opt.map(|x| x.0.1)) {
         Ok(t) => t,
         Err(err) => return Err(from_error(is, err.as_ref())),
     };

@@ -4,8 +4,8 @@
  */
 
 use crate::model::{
-    price_entry::{PriceDb, PriceEntry},
     Commodity, Transaction, TxnAccount, TxnRefs,
+    price_entry::{PriceDb, PriceEntry},
 };
 use itertools::Itertools;
 use jiff::tz::TimeZone;

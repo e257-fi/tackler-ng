@@ -1,18 +1,17 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::kernel::Settings;
 use crate::model::Posting;
 use crate::parser::parts::comment::p_comment;
 use crate::parser::parts::identifier::p_multi_part_id;
-use crate::parser::parts::posting_value::{parse_posting_value, ValuePosition};
-use crate::parser::{from_error, Stream};
+use crate::parser::parts::posting_value::{ValuePosition, parse_posting_value};
+use crate::parser::{Stream, from_error};
 use std::error::Error;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::opt;
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 /*
 // The old ANTLR Grammar
 

@@ -1,10 +1,9 @@
 /*
  * Tackler-NG 2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use indoc::indoc;
 use tackler_core::kernel::Settings;
 use tackler_core::parser::string_to_txns;

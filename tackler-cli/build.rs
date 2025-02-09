@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2022-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 use std::env;
@@ -26,11 +25,7 @@ fn git_version() -> Option<String> {
         .and_then(|output| String::from_utf8(output.stdout).ok())
         .and_then(|tag| {
             let t = tag.trim();
-            if t.is_empty() {
-                None
-            } else {
-                Some(t.into())
-            }
+            if t.is_empty() { None } else { Some(t.into()) }
         });
 
     let commit_id: Option<String> = Command::new("git")

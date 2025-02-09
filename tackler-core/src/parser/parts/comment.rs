@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,12 +7,12 @@ use crate::parser::Stream;
 use winnow::combinator::{alt, cut_err, peek};
 use winnow::stream::AsChar;
 use winnow::token::one_of;
+use winnow::{PResult, Parser, seq};
 use winnow::{
     ascii::line_ending,
     ascii::till_line_ending,
     error::{StrContext, StrContextValue},
 };
-use winnow::{seq, PResult, Parser};
 
 pub(crate) fn p_comment<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
     let m = seq!(

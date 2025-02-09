@@ -378,7 +378,9 @@ impl Accounts {
                 let acc_raw: AccountsRaw = match fs::read_to_string(&accs_path) {
                     Ok(s) => toml::from_str(s.as_str())?,
                     Err(err) => {
-                        let msg = format!("Accounts configuration error while reading file '{accs_path_str}': {err}");
+                        let msg = format!(
+                            "Accounts configuration error while reading file '{accs_path_str}': {err}"
+                        );
                         return Err(msg.into());
                     }
                 };
@@ -412,7 +414,9 @@ impl Commodities {
                 let comm_raw: CommoditiesRaw = match fs::read_to_string(&comm_path) {
                     Ok(s) => toml::from_str(s.as_str())?,
                     Err(err) => {
-                        let msg = format!("Commodities configuration error while reading file '{comm_path_str}': {err}");
+                        let msg = format!(
+                            "Commodities configuration error while reading file '{comm_path_str}': {err}"
+                        );
                         return Err(msg.into());
                     }
                 };

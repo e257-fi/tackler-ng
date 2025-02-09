@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2024
- *
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
@@ -17,7 +16,7 @@ use std::{
 };
 
 use crate::regex::{new_full_haystack_regex, peeled_pattern};
-use serde::{de::Error, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error};
 
 /// A wrapper type which implements `Serialize` and `Deserialize` for
 /// types involving `Regex`

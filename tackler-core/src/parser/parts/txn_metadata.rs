@@ -1,18 +1,17 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::parser::Stream;
 use crate::parser::parts::txn_meta_location::parse_meta_location;
 use crate::parser::parts::txn_meta_tags::parse_meta_tags;
 use crate::parser::parts::txn_meta_uuid::parse_meta_uuid;
-use crate::parser::Stream;
 use tackler_api::location::GeoPoint;
 use tackler_api::txn_header::Tags;
 use uuid::Uuid;
 use winnow::combinator::{alt, opt};
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 
 pub(crate) struct TxnMeta {
     pub(crate) uuid: Option<Uuid>,

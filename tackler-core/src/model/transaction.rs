@@ -1,10 +1,9 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::model::{posting, Posts};
+use crate::model::{Posts, posting};
 use jiff::tz;
 use std::cmp::Ordering;
 use std::error::Error;

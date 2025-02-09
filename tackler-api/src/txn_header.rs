@@ -1,13 +1,12 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 //! Transaction header
 //!
-use jiff::tz::TimeZone;
 use jiff::Zoned;
+use jiff::tz::TimeZone;
 use std::cmp::Ordering;
 use std::fmt::Write;
 use std::sync::Arc;

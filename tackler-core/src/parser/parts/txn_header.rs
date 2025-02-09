@@ -1,18 +1,17 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use std::fmt::Write;
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 
 use crate::parser::parts::timestamp::parse_timestamp;
 use crate::parser::parts::txn_comment::parse_txn_comment;
 use crate::parser::parts::txn_header_code::parse_txn_code;
 use crate::parser::parts::txn_header_desc::parse_txn_description;
-use crate::parser::parts::txn_metadata::{parse_txn_meta, TxnMeta};
-use crate::parser::{make_semantic_error, Stream};
+use crate::parser::parts::txn_metadata::{TxnMeta, parse_txn_meta};
+use crate::parser::{Stream, make_semantic_error};
 use tackler_api::txn_header::TxnHeader;
 use winnow::ascii::{line_ending, space1};
 use winnow::combinator::{cut_err, opt, preceded, repeat};

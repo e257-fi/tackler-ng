@@ -1,15 +1,14 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use itertools::Itertools;
 use std::error::Error;
 
-use crate::kernel::hash::Hash;
 use crate::kernel::Predicate;
-use crate::model::{transaction, TxnRefs, Txns};
+use crate::kernel::hash::Hash;
+use crate::model::{TxnRefs, Txns, transaction};
 use tackler_api::filters::FilterDefinition;
 use tackler_api::metadata::items::{MetadataItem, TxnFilterDescription, TxnSetChecksum};
 use tackler_api::metadata::{Checksum, Metadata};
@@ -126,7 +125,11 @@ fn calc_txn_checksum(txns: &TxnRefs<'_>, hasher: &Hash) -> Result<Checksum, Box<
                 dups.join(",\n")
             )
         } else {
-            format!("Found {} duplicate txn uuids with txn set checksum.\nFirst ten duplicate ids are:\n{}", dups.len(), dups[0..10].join(",\n"))
+            format!(
+                "Found {} duplicate txn uuids with txn set checksum.\nFirst ten duplicate ids are:\n{}",
+                dups.len(),
+                dups[0..10].join(",\n")
+            )
         };
         return Err(msg.into());
     }

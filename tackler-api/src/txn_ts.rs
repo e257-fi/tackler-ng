@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -9,9 +8,9 @@
 //! `txn_ts` is collection of utilities to generate
 //! different representations of Txn timestamps.
 //!
+use jiff::Zoned;
 use jiff::fmt::strtime;
 use jiff::tz::{Offset, TimeZone};
-use jiff::Zoned;
 use std::error::Error;
 
 /// UTC Timezone

@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -30,7 +29,7 @@ impl IndentDisplay for TxnFilterTxnUUID {
 mod tests {
     use super::*;
     use crate::filters::{
-        logic::TxnFilterAND, FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter,
+        FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter, logic::TxnFilterAND,
     };
     use indoc::indoc;
     use jiff::tz;

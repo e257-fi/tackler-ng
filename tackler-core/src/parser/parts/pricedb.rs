@@ -1,18 +1,18 @@
 /*
  * Tackler-NG 2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use winnow::{
+    PResult, Parser,
     ascii::{line_ending, space0, space1},
     combinator::opt,
     error::{StrContext, StrContextValue},
-    seq, PResult, Parser,
+    seq,
 };
 
 use crate::model::price_entry::PriceEntry;
-use crate::parser::{from_error, parts::timestamp::parse_timestamp, Stream};
+use crate::parser::{Stream, from_error, parts::timestamp::parse_timestamp};
 
 use super::{comment::p_comment, identifier::p_identifier, number::p_number};
 
