@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2022-2023
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 #![forbid(unsafe_code)]

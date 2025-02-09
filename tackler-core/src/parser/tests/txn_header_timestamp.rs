@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2019-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 //

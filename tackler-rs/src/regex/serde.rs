@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2024
- *
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  */
 
