@@ -8,9 +8,9 @@ use crate::parser::parts::txn_posting::{parse_txn_last_posting, parse_txn_postin
 use crate::parser::{Stream, from_error};
 use std::ops::Neg;
 use winnow::combinator::{opt, repeat};
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
-pub(crate) fn parse_txn_postings(is: &mut Stream<'_>) -> PResult<Posts> {
+pub(crate) fn parse_txn_postings(is: &mut Stream<'_>) -> ModalResult<Posts> {
     let mut postings = seq!(
         repeat(1.., parse_txn_posting).fold(Vec::new, |mut acc: Vec<_>, item| {
             acc.push(item);

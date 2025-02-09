@@ -8,9 +8,9 @@ use rust_decimal::Decimal;
 use winnow::combinator::{opt, preceded};
 use winnow::stream::AsChar;
 use winnow::token::take_while;
-use winnow::{PResult, Parser};
+use winnow::{ModalResult, Parser};
 
-pub(crate) fn p_number(is: &mut Stream<'_>) -> PResult<Decimal> {
+pub(crate) fn p_number(is: &mut Stream<'_>) -> ModalResult<Decimal> {
     let dec_str: &str = (
         opt('-'),
         take_while(1.., AsChar::is_dec_digit),

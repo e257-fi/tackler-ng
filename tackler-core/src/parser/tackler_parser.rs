@@ -27,7 +27,7 @@ pub(crate) fn txns_text(input: &mut &str, settings: &mut Settings) -> Result<Txn
             let mut msg = "Failed to process txn input\n".to_string();
             //let _ = writeln!(msg, "Error: {}", err);
             match err.into_inner() {
-                Some(ce) => {
+                Ok(ce) => {
                     if let Some(cause) = ce.cause() {
                         let _ = writeln!(msg, "Cause:\n{}\n", cause);
                     }
@@ -36,8 +36,8 @@ pub(crate) fn txns_text(input: &mut &str, settings: &mut Settings) -> Result<Txn
                         let _ = writeln!(msg, "   {}", c);
                     }
                 }
-                None => {
-                    let _ = write!(msg, "No detailed error information available");
+                Err(_err) => {
+                    let _ = write!(msg, "Incomplete input");
                 }
             }
             let i = is.input.lines().next().unwrap_or(is.input);

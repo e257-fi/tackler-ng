@@ -52,6 +52,7 @@ Updated deps and tools:
 ** serde_json: v1.0.138
 ** toml: 0.8.20
 ** uuid: v1.13.1
+** winnow: 0.7.1
 
 ===== Rust toolchain
 

@@ -7,7 +7,7 @@ use crate::parser::Stream;
 use winnow::combinator::cut_err;
 use winnow::error::StrContext;
 use winnow::token::take_while;
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 fn valid_code_char(c: char) -> bool {
     !matches!(
@@ -16,7 +16,7 @@ fn valid_code_char(c: char) -> bool {
     )
 }
 
-pub(crate) fn parse_txn_code<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
+pub(crate) fn parse_txn_code<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
     let code = seq!(
         _: '(',
         take_while(0..,valid_code_char),

@@ -1,15 +1,14 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::parser::Stream;
 use winnow::ascii::till_line_ending;
 use winnow::combinator::preceded;
-use winnow::{PResult, Parser};
+use winnow::{ModalResult, Parser};
 
-pub(crate) fn parse_txn_description<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
+pub(crate) fn parse_txn_description<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
     let desc = preceded('\'', till_line_ending).parse_next(is)?;
 
     Ok(desc.trim_end())

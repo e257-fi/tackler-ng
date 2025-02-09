@@ -11,7 +11,7 @@ use tackler_api::txn_header::Tags;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::{cut_err, repeat};
 use winnow::error::{StrContext, StrContextValue};
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 const CTX_LABEL: &str = "txn metadata tags";
 
@@ -38,7 +38,7 @@ fn handle_tags(v: Vec<&str>, settings: &mut Settings) -> Result<Tags, Box<dyn Er
     Ok(tags)
 }
 
-fn p_tags(is: &mut Stream<'_>) -> PResult<Tags> {
+fn p_tags(is: &mut Stream<'_>) -> ModalResult<Tags> {
     let mut tags = (
         cut_err(p_multi_part_id)
             .context(StrContext::Label(CTX_LABEL))
@@ -73,7 +73,7 @@ fn p_tags(is: &mut Stream<'_>) -> PResult<Tags> {
     }
 }
 
-pub(crate) fn parse_meta_tags(is: &mut Stream<'_>) -> PResult<Tags> {
+pub(crate) fn parse_meta_tags(is: &mut Stream<'_>) -> ModalResult<Tags> {
     let tags = seq!(
         _: space1,
         _: '#',
