@@ -4,7 +4,7 @@
  */
 
 use winnow::{
-    PResult, Parser,
+    ModalResult, Parser,
     ascii::{line_ending, space0, space1},
     combinator::opt,
     error::{StrContext, StrContextValue},
@@ -17,7 +17,7 @@ use crate::parser::{Stream, from_error, parts::timestamp::parse_timestamp};
 use super::{comment::p_comment, identifier::p_identifier, number::p_number};
 
 #[allow(clippy::type_complexity)]
-pub(crate) fn parse_price_entry(is: &mut Stream<'_>) -> PResult<PriceEntry> {
+pub(crate) fn parse_price_entry(is: &mut Stream<'_>) -> ModalResult<PriceEntry> {
     let (timestamp, base_commodity, eq_amount, eq_commodity, comments) = seq!(
         _: 'P'.context(StrContext::Expected(StrContextValue::Description("price entry starts with `P`"))),
         _: space1,

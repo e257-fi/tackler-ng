@@ -12,7 +12,7 @@ use std::error::Error;
 use std::sync::Arc;
 use winnow::ascii::{space0, space1};
 use winnow::combinator::{alt, opt};
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 /*
 // The old ANTLR Grammar
 
@@ -39,7 +39,7 @@ struct Value<'s> {
     commodity: &'s str,
 }
 
-fn p_opening_pos<'s>(is: &mut Stream<'s>) -> PResult<Value<'s>> {
+fn p_opening_pos<'s>(is: &mut Stream<'s>) -> ModalResult<Value<'s>> {
     let m = seq!(
         _: space1,
         _: '{',
@@ -63,7 +63,7 @@ enum PriceType {
     UnitPrice,
 }
 
-fn p_closing_pos<'s>(is: &mut Stream<'s>) -> PResult<(PriceType, Value<'s>)> {
+fn p_closing_pos<'s>(is: &mut Stream<'s>) -> ModalResult<(PriceType, Value<'s>)> {
     let m = seq!(
         _:space1,
         alt(('@', '=')),
@@ -93,7 +93,7 @@ struct Positions<'s> {
     opening: Option<Value<'s>>,
     closing: Option<(PriceType, Value<'s>)>,
 }
-fn p_position<'s>(is: &mut Stream<'s>) -> PResult<Positions<'s>> {
+fn p_position<'s>(is: &mut Stream<'s>) -> ModalResult<Positions<'s>> {
     let m = alt((
         (p_opening_pos, p_closing_pos).map(|x| Positions {
             opening: Some(x.0),
@@ -112,7 +112,7 @@ fn p_position<'s>(is: &mut Stream<'s>) -> PResult<Positions<'s>> {
 
     Ok(m)
 }
-fn p_unit<'s>(is: &mut Stream<'s>) -> PResult<(&'s str, Option<Positions<'s>>)> {
+fn p_unit<'s>(is: &mut Stream<'s>) -> ModalResult<(&'s str, Option<Positions<'s>>)> {
     #[rustfmt::skip]
     let m = (
         space1,
@@ -245,7 +245,7 @@ fn handle_posting_value(
     })
 }
 
-pub(crate) fn parse_posting_value(is: &mut Stream<'_>) -> PResult<ValuePosition> {
+pub(crate) fn parse_posting_value(is: &mut Stream<'_>) -> ModalResult<ValuePosition> {
     #[rustfmt::skip]
     let m: (Decimal, Option<(&str, Option<Positions<'_>>)>) =
         seq!(

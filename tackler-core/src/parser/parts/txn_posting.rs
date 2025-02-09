@@ -11,7 +11,7 @@ use crate::parser::{Stream, from_error};
 use std::error::Error;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::opt;
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 /*
 // The old ANTLR Grammar
 
@@ -43,7 +43,7 @@ unit: ID;
 
 pub(crate) fn parse_txn_last_posting<'s>(
     is: &mut Stream<'s>,
-) -> PResult<(&'s str, Option<&'s str>)> {
+) -> ModalResult<(&'s str, Option<&'s str>)> {
     let m = seq!(
         _: space1,
         p_multi_part_id,
@@ -75,7 +75,7 @@ fn handle_posting(
     )
 }
 
-pub(crate) fn parse_txn_posting(is: &mut Stream<'_>) -> PResult<Posting> {
+pub(crate) fn parse_txn_posting(is: &mut Stream<'_>) -> ModalResult<Posting> {
     let m = seq!(
         _: space1,
         p_multi_part_id,

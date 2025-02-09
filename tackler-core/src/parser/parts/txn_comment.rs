@@ -6,9 +6,9 @@
 use crate::parser::Stream;
 use crate::parser::parts::comment::p_comment;
 use winnow::ascii::{line_ending, space1};
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
-pub(crate) fn parse_txn_comment<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
+pub(crate) fn parse_txn_comment<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
     let m = seq!(
         _: space1,
         p_comment,

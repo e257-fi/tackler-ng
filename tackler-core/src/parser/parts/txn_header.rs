@@ -4,7 +4,7 @@
  */
 
 use std::fmt::Write;
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 use crate::parser::parts::timestamp::parse_timestamp;
 use crate::parser::parts::txn_comment::parse_txn_comment;
@@ -18,7 +18,7 @@ use winnow::combinator::{cut_err, opt, preceded, repeat};
 use winnow::error::{StrContext, StrContextValue};
 
 #[allow(clippy::type_complexity)]
-pub(crate) fn parse_txn_header(is: &mut Stream<'_>) -> PResult<TxnHeader> {
+pub(crate) fn parse_txn_header(is: &mut Stream<'_>) -> ModalResult<TxnHeader> {
     let (ts, code, desc, meta, comments): (
         jiff::Zoned,
         Option<&str>,

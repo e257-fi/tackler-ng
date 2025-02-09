@@ -9,11 +9,11 @@ use tackler_api::location::GeoPoint;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::{cut_err, opt, preceded};
 use winnow::error::{StrContext, StrContextValue};
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 const CTX_LABEL: &str = "txn metadata location";
 
-fn p_geo_uri(is: &mut Stream<'_>) -> PResult<GeoPoint> {
+fn p_geo_uri(is: &mut Stream<'_>) -> ModalResult<GeoPoint> {
     let (lat, lon, alt) = seq!(
         _: cut_err("geo:")
             .context(StrContext::Label(CTX_LABEL))
@@ -49,7 +49,7 @@ fn p_geo_uri(is: &mut Stream<'_>) -> PResult<GeoPoint> {
     }
 }
 
-pub(crate) fn parse_meta_location(is: &mut Stream<'_>) -> PResult<GeoPoint> {
+pub(crate) fn parse_meta_location(is: &mut Stream<'_>) -> ModalResult<GeoPoint> {
     let geo = seq!(
         _: space1,
         _: '#',

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 use itertools::Itertools;
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 use crate::model::{Transaction, Txns};
 use crate::parser::parts::txn_header::parse_txn_header;
@@ -13,7 +13,7 @@ use winnow::ascii::{line_ending, multispace0, space0};
 use winnow::combinator::{cut_err, eof, opt, preceded, repeat, repeat_till};
 use winnow::error::StrContext;
 
-pub(crate) fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s str> {
+pub(crate) fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
     // space0 can't be multispace0 as it's greedy and eats away the last line ending
     repeat(1.., (space0, line_ending))
         .map(|()| ())
@@ -21,7 +21,7 @@ pub(crate) fn multispace0_line_ending<'s>(is: &mut Stream<'s>) -> PResult<&'s st
     Ok("")
 }
 
-fn parse_txn(is: &mut Stream<'_>) -> PResult<Transaction> {
+fn parse_txn(is: &mut Stream<'_>) -> ModalResult<Transaction> {
     let txn = seq!(
         cut_err(parse_txn_header)
             .context(StrContext::Label("Txn Header")),
@@ -49,7 +49,7 @@ fn parse_txn(is: &mut Stream<'_>) -> PResult<Transaction> {
     }
 }
 
-pub(crate) fn parse_txns(input: &mut Stream<'_>) -> PResult<Txns> {
+pub(crate) fn parse_txns(input: &mut Stream<'_>) -> ModalResult<Txns> {
     let txns: (Vec<Transaction>, &str) = preceded(
         opt(multispace0_line_ending),
         repeat_till(1.., parse_txn, eof),

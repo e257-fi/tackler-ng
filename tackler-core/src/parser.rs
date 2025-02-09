@@ -1,8 +1,7 @@
 /*
- * Tackler-NG 2022
+ * Tackler-NG 2022-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-
 pub use crate::parser::pricedb_parser::{pricedb_from_file, pricedb_from_str};
 pub use crate::parser::tackler_txns::GitInputSelector;
 pub use crate::parser::tackler_txns::git_to_txns;
@@ -30,12 +29,7 @@ pub(crate) fn make_semantic_error<
     is: &mut Stream<'is>,
     msg: &str,
 ) -> ErrMode<E> {
-    winnow::error::ErrMode::from_external_error(
-        is,
-        winnow::error::ErrorKind::Verify,
-        TacklerTxnError::semantic_error(msg),
-    )
-    .cut()
+    ErrMode::from_external_error(is, TacklerTxnError::semantic_error(msg)).cut()
 }
 
 pub(crate) fn from_error<
@@ -46,9 +40,8 @@ pub(crate) fn from_error<
     is: &mut Stream<'is>,
     err: &SE,
 ) -> ErrMode<E> {
-    winnow::error::ErrMode::from_external_error(
+    ErrMode::from_external_error(
         is,
-        winnow::error::ErrorKind::Verify,
         TacklerTxnError::semantic_error(err.to_string().as_str()),
     )
     .cut()

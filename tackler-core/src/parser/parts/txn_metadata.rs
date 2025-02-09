@@ -11,7 +11,7 @@ use tackler_api::location::GeoPoint;
 use tackler_api::txn_header::Tags;
 use uuid::Uuid;
 use winnow::combinator::{alt, opt};
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 pub(crate) struct TxnMeta {
     pub(crate) uuid: Option<Uuid>,
@@ -19,7 +19,7 @@ pub(crate) struct TxnMeta {
     pub(crate) location: Option<GeoPoint>,
 }
 
-fn permutation_uuid(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_uuid(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = parse_meta_uuid.parse_next(is)?;
     Ok(TxnMeta {
         uuid: Some(m),
@@ -28,7 +28,7 @@ fn permutation_uuid(is: &mut Stream<'_>) -> PResult<TxnMeta> {
     })
 }
 
-fn permutation_uuid_tags_o_location(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_uuid_tags_o_location(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = seq!(parse_meta_uuid, parse_meta_tags, opt(parse_meta_location)).parse_next(is)?;
     Ok(TxnMeta {
         uuid: Some(m.0),
@@ -36,7 +36,7 @@ fn permutation_uuid_tags_o_location(is: &mut Stream<'_>) -> PResult<TxnMeta> {
         location: m.2,
     })
 }
-fn permutation_uuid_location_o_tags(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_uuid_location_o_tags(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = seq!(parse_meta_uuid, parse_meta_location, opt(parse_meta_tags),).parse_next(is)?;
     Ok(TxnMeta {
         uuid: Some(m.0),
@@ -44,7 +44,7 @@ fn permutation_uuid_location_o_tags(is: &mut Stream<'_>) -> PResult<TxnMeta> {
         location: Some(m.1),
     })
 }
-fn permutation_tags(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_tags(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = parse_meta_tags.parse_next(is)?;
     Ok(TxnMeta {
         uuid: None,
@@ -52,7 +52,7 @@ fn permutation_tags(is: &mut Stream<'_>) -> PResult<TxnMeta> {
         location: None,
     })
 }
-fn permutation_tags_uuid_o_location(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_tags_uuid_o_location(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = seq!(parse_meta_tags, parse_meta_uuid, opt(parse_meta_location)).parse_next(is)?;
     Ok(TxnMeta {
         uuid: Some(m.1),
@@ -60,7 +60,7 @@ fn permutation_tags_uuid_o_location(is: &mut Stream<'_>) -> PResult<TxnMeta> {
         location: m.2,
     })
 }
-fn permutation_tags_location_o_uuid(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_tags_location_o_uuid(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = seq!(parse_meta_tags, parse_meta_location, opt(parse_meta_uuid),).parse_next(is)?;
     Ok(TxnMeta {
         uuid: m.2,
@@ -69,7 +69,7 @@ fn permutation_tags_location_o_uuid(is: &mut Stream<'_>) -> PResult<TxnMeta> {
     })
 }
 
-fn permutation_location(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_location(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = parse_meta_location.parse_next(is)?;
     Ok(TxnMeta {
         uuid: None,
@@ -77,7 +77,7 @@ fn permutation_location(is: &mut Stream<'_>) -> PResult<TxnMeta> {
         location: Some(m),
     })
 }
-fn permutation_location_uuid_o_tags(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_location_uuid_o_tags(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = seq!(parse_meta_location, parse_meta_uuid, opt(parse_meta_tags)).parse_next(is)?;
     Ok(TxnMeta {
         uuid: Some(m.1),
@@ -85,7 +85,7 @@ fn permutation_location_uuid_o_tags(is: &mut Stream<'_>) -> PResult<TxnMeta> {
         location: Some(m.0),
     })
 }
-fn permutation_location_tags_o_uuid(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+fn permutation_location_tags_o_uuid(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     let m = seq!(parse_meta_location, parse_meta_tags, opt(parse_meta_uuid),).parse_next(is)?;
     Ok(TxnMeta {
         uuid: m.2,
@@ -94,7 +94,7 @@ fn permutation_location_tags_o_uuid(is: &mut Stream<'_>) -> PResult<TxnMeta> {
     })
 }
 
-pub(crate) fn parse_txn_meta(is: &mut Stream<'_>) -> PResult<TxnMeta> {
+pub(crate) fn parse_txn_meta(is: &mut Stream<'_>) -> ModalResult<TxnMeta> {
     /*
      * ANTLR definition for metadata
      *

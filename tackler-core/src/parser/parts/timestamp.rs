@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 use std::error::Error;
-use winnow::{PResult, Parser, seq};
+use winnow::{ModalResult, Parser, seq};
 
 use crate::parser::{Stream, from_error};
 use std::str::FromStr;
@@ -14,7 +14,7 @@ use winnow::token::take_while;
 
 const CTX_LABEL: &str = "ISO 8601 timestamp";
 
-fn p_date(is: &mut Stream<'_>) -> PResult<jiff::civil::Date> {
+fn p_date(is: &mut Stream<'_>) -> ModalResult<jiff::civil::Date> {
     let (y, m, d) = seq!(
         take_while(4, AsChar::is_dec_digit).try_map(i16::from_str)
             .context(StrContext::Label(CTX_LABEL))
@@ -40,7 +40,7 @@ fn p_date(is: &mut Stream<'_>) -> PResult<jiff::civil::Date> {
     }
 }
 
-fn parse_date(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
+fn parse_date(is: &mut Stream<'_>) -> ModalResult<jiff::Zoned> {
     let date = p_date(is)?;
 
     match is.state.get_offset_date(date) {
@@ -69,7 +69,7 @@ fn handle_time(
     Ok(t)
 }
 
-fn p_datetime(is: &mut Stream<'_>) -> PResult<jiff::civil::DateTime> {
+fn p_datetime(is: &mut Stream<'_>) -> ModalResult<jiff::civil::DateTime> {
     let (date, h, m, s, ns_opt) = seq!(
         p_date,
         _: "T",
@@ -104,7 +104,7 @@ fn p_datetime(is: &mut Stream<'_>) -> PResult<jiff::civil::DateTime> {
     Ok(date.to_datetime(time))
 }
 
-fn parse_datetime(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
+fn parse_datetime(is: &mut Stream<'_>) -> ModalResult<jiff::Zoned> {
     let dt_jiff: jiff::civil::DateTime = p_datetime(is)?;
 
     match is.state.get_offset_datetime(dt_jiff) {
@@ -113,7 +113,7 @@ fn parse_datetime(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
     }
 }
 
-fn p_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
+fn p_offset(is: &mut Stream<'_>) -> ModalResult<jiff::tz::Offset> {
     #[rustfmt::skip]
     let (sign, h, m) =
         seq!(
@@ -130,7 +130,7 @@ fn p_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
     }
 }
 
-fn p_zulu_or_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
+fn p_zulu_or_offset(is: &mut Stream<'_>) -> ModalResult<jiff::tz::Offset> {
     #[rustfmt::skip]
     let res = alt((
         'Z'.map(|_| jiff::tz::Offset::UTC),
@@ -140,7 +140,7 @@ fn p_zulu_or_offset(is: &mut Stream<'_>) -> PResult<jiff::tz::Offset> {
     Ok(res)
 }
 
-fn parse_datetime_tz(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
+fn parse_datetime_tz(is: &mut Stream<'_>) -> ModalResult<jiff::Zoned> {
     let (ts, tz) = seq!(p_datetime, p_zulu_or_offset,).parse_next(is)?;
 
     let ts_tz = match ts.to_zoned(tz.to_time_zone()) {
@@ -151,7 +151,7 @@ fn parse_datetime_tz(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
     Ok(ts_tz)
 }
 
-pub(crate) fn parse_timestamp(is: &mut Stream<'_>) -> PResult<jiff::Zoned> {
+pub(crate) fn parse_timestamp(is: &mut Stream<'_>) -> ModalResult<jiff::Zoned> {
     let ts = alt((
         parse_datetime_tz,
         parse_datetime,
