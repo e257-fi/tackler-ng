@@ -1,11 +1,10 @@
 /*
  * Tackler-NG 2023
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::kernel::hash::Hash;
 use crate::kernel::Predicate;
+use crate::kernel::hash::Hash;
 use crate::model::{BalanceTreeNode, RegisterPosting};
 use regex::RegexSet;
 use std::error::Error;

@@ -1,13 +1,12 @@
 /*
  * Tackler-NG 2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use itertools::Itertools;
 use winnow::{
-    combinator::{eof, opt, preceded, repeat_till},
     Parser,
+    combinator::{eof, opt, preceded, repeat_till},
 };
 
 use crate::kernel::Settings;

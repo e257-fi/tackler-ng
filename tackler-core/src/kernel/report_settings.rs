@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::config::Scale;
-use crate::kernel::price_lookup::PriceLookup;
 use crate::kernel::Settings;
+use crate::kernel::price_lookup::PriceLookup;
 use crate::model::Commodity;
 use jiff::tz::TimeZone;
 use std::error::Error;

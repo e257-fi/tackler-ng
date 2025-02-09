@@ -1,18 +1,17 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::kernel::Settings;
 use crate::parser::parts::identifier::p_multi_part_id;
-use crate::parser::{from_error, Stream};
+use crate::parser::{Stream, from_error};
 use itertools::Itertools;
 use std::error::Error;
 use tackler_api::txn_header::Tags;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::{cut_err, repeat};
 use winnow::error::{StrContext, StrContextValue};
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 
 const CTX_LABEL: &str = "txn metadata tags";
 

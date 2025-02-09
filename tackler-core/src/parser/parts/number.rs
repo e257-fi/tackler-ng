@@ -1,10 +1,9 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::parser::{make_semantic_error, Stream};
+use crate::parser::{Stream, make_semantic_error};
 use rust_decimal::Decimal;
 use winnow::combinator::{opt, preceded};
 use winnow::stream::AsChar;

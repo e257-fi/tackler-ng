@@ -1,15 +1,14 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 use itertools::Itertools;
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 
 use crate::model::{Transaction, Txns};
 use crate::parser::parts::txn_header::parse_txn_header;
 use crate::parser::parts::txn_postings::parse_txn_postings;
-use crate::parser::{from_error, make_semantic_error, Stream};
+use crate::parser::{Stream, from_error, make_semantic_error};
 use winnow::ascii::{line_ending, multispace0, space0};
 use winnow::combinator::{cut_err, eof, opt, preceded, repeat, repeat_till};
 use winnow::error::StrContext;
@@ -36,7 +35,11 @@ fn parse_txn(is: &mut Stream<'_>) -> PResult<Transaction> {
     if txn.1.iter().map(|p| &p.txn_commodity.name).unique().count() > 1 {
         let msg = format!(
             "Different commodities without value positions are not allowed inside single transaction.{}",
-            txn.0.uuid.map(|u| format!("\n   txn uuid: {u}")).unwrap_or_default());
+            txn.0
+                .uuid
+                .map(|u| format!("\n   txn uuid: {u}"))
+                .unwrap_or_default()
+        );
         return Err(make_semantic_error(is, msg.as_str()));
     }
 

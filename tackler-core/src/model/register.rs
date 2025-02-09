@@ -4,13 +4,13 @@
  */
 
 use crate::config::Scale;
-use crate::kernel::price_lookup::PriceLookup;
 use crate::kernel::RegisterSettings;
+use crate::kernel::price_lookup::PriceLookup;
 use crate::model::{Commodity, Posting, Transaction};
-use jiff::tz::TimeZone;
 use jiff::Zoned;
+use jiff::tz::TimeZone;
 use rust_decimal::{Decimal, RoundingStrategy};
-use std::cmp::{max, Ordering};
+use std::cmp::{Ordering, max};
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;

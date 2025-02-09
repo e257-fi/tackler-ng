@@ -9,12 +9,12 @@ use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
 use tackler_core::config;
+use tackler_core::config::PriceLookupType;
 use tackler_core::config::overlaps::{
     AuditOverlap, OverlapConfig, PriceOverlap, ReportOverlap, StrictOverlap,
 };
-use tackler_core::config::PriceLookupType;
-use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::kernel::Settings;
+use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::parser::GitInputSelector;
 
 pub(crate) const PRICE_BEFORE: &str = "price.before";

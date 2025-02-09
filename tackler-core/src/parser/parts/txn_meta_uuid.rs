@@ -1,18 +1,17 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::parser::{make_semantic_error, Stream};
+use crate::parser::{Stream, make_semantic_error};
 use uuid::Uuid;
+use winnow::Parser;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::cut_err;
 use winnow::error::{StrContext, StrContextValue};
 use winnow::stream::AsChar;
 use winnow::token::take_while;
-use winnow::Parser;
-use winnow::{seq, PResult};
+use winnow::{PResult, seq};
 
 const CTX_LABEL: &str = "txn metadata uuid";
 const UUID_HELP: &str = " # uuid: d77b6b92-42f1-419d-834c-66d69f155ad6";

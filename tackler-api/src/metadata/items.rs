@@ -9,8 +9,8 @@
 use crate::filters::{FilterDefZoned, FilterDefinition};
 use crate::metadata::Checksum;
 use crate::txn_ts;
-use jiff::tz::TimeZone;
 use jiff::Zoned;
+use jiff::tz::TimeZone;
 
 #[doc(hidden)]
 pub type MetadataItems = Vec<MetadataItem>;

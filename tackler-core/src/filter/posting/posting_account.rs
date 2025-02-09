@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -25,7 +24,7 @@ mod tests {
     use crate::filter::tests::make_posts_txn;
     use crate::model::Transaction;
     use regex::Regex;
-    use tackler_api::filters::{posting::TxnFilterPostingAccount, TxnFilter};
+    use tackler_api::filters::{TxnFilter, posting::TxnFilterPostingAccount};
 
     #[test]
     // test: 7784049f-ef3e-4185-8d33-f8c78478eef1

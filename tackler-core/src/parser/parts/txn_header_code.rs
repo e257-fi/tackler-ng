@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2024-2025
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,7 +7,7 @@ use crate::parser::Stream;
 use winnow::combinator::cut_err;
 use winnow::error::StrContext;
 use winnow::token::take_while;
-use winnow::{seq, PResult, Parser};
+use winnow::{PResult, Parser, seq};
 
 fn valid_code_char(c: char) -> bool {
     !matches!(

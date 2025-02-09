@@ -5,11 +5,11 @@
 
 use crate::kernel::accumulator::TxnGroupByOp;
 use crate::kernel::report_item_selector::BalanceSelector;
-use crate::kernel::{accumulator, BalanceGroupSettings};
+use crate::kernel::{BalanceGroupSettings, accumulator};
 use crate::kernel::{BalanceSettings, Settings};
 use crate::model::{Transaction, TxnSet};
-use crate::report::{write_acc_sel_checksum, write_report_timezone, Report};
-use crate::report::{write_price_metadata, BalanceReporter};
+use crate::report::{BalanceReporter, write_price_metadata};
+use crate::report::{Report, write_acc_sel_checksum, write_report_timezone};
 use jiff::tz::TimeZone;
 use std::error::Error;
 use std::io;

@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -12,7 +11,7 @@ use std::fmt::Formatter;
 use tackler_rs::regex::peeled_pattern;
 use tackler_rs::regex::serde::full_haystack_matcher;
 
-use crate::filters::{posting_filter_indent_fmt, IndentDisplay};
+use crate::filters::{IndentDisplay, posting_filter_indent_fmt};
 
 /// Txn Posting "Amount is equal" filter
 ///
@@ -48,12 +47,12 @@ impl IndentDisplay for TxnFilterPostingAmountEqual {
 mod tests {
     use super::*;
     use crate::filters::{
-        logic::TxnFilterAND, FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter,
+        FilterDefZoned, FilterDefinition, NullaryTRUE, TxnFilter, logic::TxnFilterAND,
     };
     use indoc::indoc;
     use jiff::tz;
-    use tackler_rs::regex::new_full_haystack_regex;
     use tackler_rs::IndocUtils;
+    use tackler_rs::regex::new_full_haystack_regex;
 
     #[test]
     // test: c63d9ff7-6039-474b-8b8a-be6b8927510f

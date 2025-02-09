@@ -1,6 +1,5 @@
 /*
  * Tackler-NG 2023-2024
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -25,7 +24,7 @@ mod tests {
     use crate::model::Transaction;
     use regex::Regex;
     use rust_decimal::Decimal;
-    use tackler_api::filters::{posting::TxnFilterPostingAmountEqual, TxnFilter};
+    use tackler_api::filters::{TxnFilter, posting::TxnFilterPostingAmountEqual};
 
     #[test]
     // test: de72fb67-14a7-4032-b2c2-b1049ecd0c35

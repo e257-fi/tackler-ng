@@ -9,7 +9,7 @@ use crate::kernel::report_item_selector::{
 };
 use crate::kernel::{BalanceSettings, Settings};
 use crate::model::{BalanceTreeNode, TxnSet};
-use crate::report::{write_acc_sel_checksum, write_price_metadata, write_report_timezone, Report};
+use crate::report::{Report, write_acc_sel_checksum, write_price_metadata, write_report_timezone};
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};

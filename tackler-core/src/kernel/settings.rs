@@ -8,8 +8,8 @@ use crate::config::{
 };
 use crate::kernel::hash::Hash;
 use crate::kernel::price_lookup::PriceLookup;
-use crate::model::price_entry::PriceDb;
 use crate::model::TxnAccount;
+use crate::model::price_entry::PriceDb;
 use crate::model::{AccountTreeNode, Commodity};
 use crate::parser::GitInputSelector;
 use crate::{config, parser};
@@ -706,9 +706,11 @@ mod tests {
         assert_eq!(txntn_2.atn.get_name(), "c");
 
         // Check that it won't create a synthetic account as real one
-        assert!(settings
-            .get_or_create_txn_account("a:b", comm.clone())
-            .is_err());
+        assert!(
+            settings
+                .get_or_create_txn_account("a:b", comm.clone())
+                .is_err()
+        );
         assert_eq!(settings.accounts.defined_accounts.len(), 1);
         assert_eq!(settings.accounts.synthetic_parents.len(), 2);
 
@@ -778,9 +780,11 @@ mod tests {
         assert_eq!(settings.accounts.synthetic_parents.len(), 1);
 
         // Check that it won't create a synthetic account as real one
-        assert!(settings
-            .get_or_create_txn_account("a:b:c", comm.clone())
-            .is_err());
+        assert!(
+            settings
+                .get_or_create_txn_account("a:b:c", comm.clone())
+                .is_err()
+        );
 
         let txntn_synth = settings.get_txn_account("a:b:c", comm.clone()).unwrap(/*:test:*/);
         assert_eq!(settings.accounts.defined_accounts.len(), 3);
