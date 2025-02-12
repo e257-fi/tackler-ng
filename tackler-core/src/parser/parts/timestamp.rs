@@ -2,10 +2,10 @@
  * Tackler-NG 2024-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use std::error::Error;
 use winnow::{ModalResult, Parser, seq};
 
 use crate::parser::{Stream, from_error};
+use crate::tackler;
 use std::str::FromStr;
 use winnow::combinator::{alt, cut_err, fail, opt};
 use winnow::error::{StrContext, StrContextValue};
@@ -54,7 +54,7 @@ fn handle_time(
     m: i8,
     s: i8,
     ns_opt: Option<&str>,
-) -> Result<jiff::civil::Time, Box<dyn Error>> {
+) -> Result<jiff::civil::Time, tackler::Error> {
     let t = match ns_opt {
         Some(ns_str) => {
             let left_ns = i32::from_str(ns_str)?;

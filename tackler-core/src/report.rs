@@ -7,10 +7,10 @@ use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::ReportItemSelector;
 use crate::kernel::{BalanceGroupSettings, RegisterSettings, Settings};
 use crate::model::TxnSet;
+use crate::tackler;
 pub use balance_group_reporter::BalanceGroupReporter;
 pub use balance_reporter::BalanceReporter;
 pub use register_reporter::RegisterReporter;
-use std::error::Error;
 use std::io;
 use std::io::Write;
 use std::path::PathBuf;
@@ -27,13 +27,13 @@ pub trait Report {
         cfg: &Settings,
         w: &mut W,
         txns: &TxnSet<'_>,
-    ) -> Result<(), Box<dyn Error>>;
+    ) -> Result<(), tackler::Error>;
 }
 
 fn write_report_timezone<W: io::Write + ?Sized>(
     cfg: &Settings,
     writer: &mut W,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), tackler::Error> {
     let rtz = ReportTimezone {
         timezone: match cfg.report.report_tz.iana_name() {
             Some(tz) => tz.to_string(),
@@ -53,7 +53,7 @@ fn write_price_metadata<W: Write + ?Sized>(
     cfg: &Settings,
     writer: &mut W,
     p_ctx: &PriceLookupCtx<'_>,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), tackler::Error> {
     let pr_metadata = p_ctx.metadata().text(cfg.report.report_tz.clone());
 
     if !pr_metadata.is_empty() {
@@ -69,7 +69,7 @@ fn write_acc_sel_checksum<W: io::Write + ?Sized, R: ReportItemSelector + ?Sized>
     cfg: &Settings,
     writer: &mut W,
     acc_sel: &R,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), tackler::Error> {
     if let Some(hash) = cfg.get_hash() {
         let asc = AccountSelectorChecksum {
             hash: acc_sel.checksum(hash)?,
@@ -91,7 +91,7 @@ pub fn write_txt_reports<W: io::Write + ?Sized>(
     txn_set: &TxnSet<'_>,
     settings: &Settings,
     prog_writer: &mut Option<Box<W>>,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), tackler::Error> {
     if !(output_dir.is_some() && output_prefix.is_some() && console_writer.is_none()
         || output_dir.is_none() && output_prefix.is_none() && console_writer.is_some())
     {

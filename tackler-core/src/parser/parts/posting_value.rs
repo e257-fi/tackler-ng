@@ -7,8 +7,8 @@ use crate::model::Commodity;
 use crate::parser::parts::identifier::p_identifier;
 use crate::parser::parts::number::p_number;
 use crate::parser::{Stream, from_error};
+use crate::tackler;
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::sync::Arc;
 use winnow::ascii::{space0, space1};
 use winnow::combinator::{alt, opt};
@@ -135,7 +135,7 @@ fn handle_posting_value(
     amount: Decimal,
     opt_unit: Option<(&str, Option<Positions<'_>>)>,
     settings: &mut Settings,
-) -> Result<ValuePosition, Box<dyn Error>> {
+) -> Result<ValuePosition, tackler::Error> {
     let post_commodity = match &opt_unit {
         Some(u) => settings.get_or_create_commodity(Some(u.0))?,
         None => settings.get_or_create_commodity(None)?,

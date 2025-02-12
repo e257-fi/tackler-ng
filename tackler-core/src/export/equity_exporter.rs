@@ -11,9 +11,9 @@ use crate::kernel::report_item_selector::{
     BalanceNonZeroByAccountSelector, BalanceNonZeroSelector, BalanceSelector,
 };
 use crate::model::{Transaction, TxnSet};
+use crate::tackler;
 use itertools::Itertools;
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::io;
 use tackler_api::metadata::items::{AccountSelectorChecksum, Text};
 use tackler_api::txn_ts::rfc_3339;
@@ -26,7 +26,7 @@ pub struct EquitySettings {
 }
 
 impl EquitySettings {
-    pub fn from(settings: &Settings) -> Result<EquitySettings, Box<dyn Error>> {
+    pub fn from(settings: &Settings) -> Result<EquitySettings, tackler::Error> {
         let bs = EquitySettings {
             eqa: Some(settings.export.equity.equity_account.clone()),
             ras: settings.get_equity_ras(),
@@ -41,7 +41,7 @@ pub struct EquityExporter {
 }
 
 impl EquityExporter {
-    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, tackler::Error> {
         let v = &self.export_settings.ras;
         if v.is_empty() {
             Ok(Box::new(BalanceNonZeroSelector {}))
@@ -60,7 +60,7 @@ impl Export for EquityExporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), tackler::Error> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         let bal = Balance::from(

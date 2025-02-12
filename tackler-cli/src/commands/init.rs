@@ -2,9 +2,9 @@
  * Tackler-NG 2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use std::error::Error;
 use std::fs;
 use std::path::Path;
+use tackler_core::tackler;
 
 mod accounts_toml;
 mod commodities_toml;
@@ -13,7 +13,7 @@ mod tackler_toml;
 mod tags_toml;
 mod welcome_txn;
 
-pub(crate) fn exec(name: &str) -> Result<(), Box<dyn Error>> {
+pub(crate) fn exec(name: &str) -> Result<(), tackler::Error> {
     let conf_dir = Path::new(name).join("conf");
     let txns_dir = Path::new(name).join("txns");
 

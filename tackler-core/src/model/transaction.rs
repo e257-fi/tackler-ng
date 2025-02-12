@@ -1,12 +1,12 @@
 /*
- * Tackler-NG 2023-2024
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::model::{Posts, posting};
+use crate::tackler;
 use jiff::tz;
 use std::cmp::Ordering;
-use std::error::Error;
 use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 use tackler_api::txn_header::TxnHeader;
@@ -19,7 +19,7 @@ pub struct Transaction {
 }
 
 impl Transaction {
-    pub fn from(header: TxnHeader, posts: Posts) -> Result<Transaction, Box<dyn Error>> {
+    pub fn from(header: TxnHeader, posts: Posts) -> Result<Transaction, tackler::Error> {
         let txn_sum = posting::txn_sum(&posts);
         if !txn_sum.is_zero() {
             let msg = format!("TXN postings do not zero: {txn_sum}");

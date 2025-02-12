@@ -1,15 +1,14 @@
 /*
- * Tackler-NG 2019-2024
+ * Tackler-NG 2019-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-use std::error::Error;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tackler_api::metadata::items::MetadataItem;
 use tackler_core::kernel::Settings;
 use tackler_core::model::TxnData;
-use tackler_core::parser;
 use tackler_core::parser::GitInputSelector;
+use tackler_core::{parser, tackler};
 
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -28,7 +27,7 @@ const TXN_SET_1E5_CHECKSUM: &str =
 const TXN_SET_1E5_COMMIT_ID: &str = "cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5";
 
 #[rustfmt::skip]
-fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksum: &str) {
+fn verify_git_run(result: Result<TxnData, tackler::Error>, commit: &str, checksum: &str) {
     match result {
         Ok(txn_data) => {
             let txn_set = txn_data.get_all().unwrap(/*:test:*/);

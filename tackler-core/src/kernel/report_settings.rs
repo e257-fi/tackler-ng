@@ -6,8 +6,8 @@ use crate::config::Scale;
 use crate::kernel::Settings;
 use crate::kernel::price_lookup::PriceLookup;
 use crate::model::Commodity;
+use crate::tackler;
 use jiff::tz::TimeZone;
-use std::error::Error;
 use std::sync::Arc;
 use tackler_api::txn_ts::{GroupBy, TimestampStyle};
 
@@ -21,7 +21,7 @@ pub struct BalanceSettings {
 }
 
 impl TryFrom<&Settings> for BalanceSettings {
-    type Error = Box<dyn Error>;
+    type Error = tackler::Error;
 
     fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
         Ok(BalanceSettings {
@@ -46,7 +46,7 @@ pub struct BalanceGroupSettings {
 }
 
 impl TryFrom<&Settings> for BalanceGroupSettings {
-    type Error = Box<dyn Error>;
+    type Error = tackler::Error;
 
     fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
         let bgs = BalanceGroupSettings {
@@ -74,9 +74,9 @@ pub struct RegisterSettings {
 }
 
 impl TryFrom<&Settings> for RegisterSettings {
-    type Error = Box<dyn Error>;
+    type Error = tackler::Error;
 
-    fn try_from(settings: &Settings) -> Result<RegisterSettings, Box<dyn Error>> {
+    fn try_from(settings: &Settings) -> Result<RegisterSettings, tackler::Error> {
         let rs = RegisterSettings {
             title: settings.report.register.title.clone(),
             ras: settings.get_register_ras(),

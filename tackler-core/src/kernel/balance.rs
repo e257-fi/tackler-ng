@@ -8,9 +8,9 @@ use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::BalanceSelector;
 use crate::model::balance_tree_node::ord_by_btn;
 use crate::model::{BalanceTreeNode, Commodity, Transaction, TxnAccount, TxnSet};
+use crate::tackler;
 use itertools::Itertools;
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
@@ -91,7 +91,7 @@ impl Balance {
         my_acctn_sum: &(TxnAccount, Decimal),
         acc_sums: &[(TxnAccount, Decimal)],
         settings: &Settings,
-    ) -> Result<Vec<(TxnAccount, Decimal)>, Box<dyn Error>> {
+    ) -> Result<Vec<(TxnAccount, Decimal)>, tackler::Error> {
         let my_acctn = &my_acctn_sum.0;
         if my_acctn.is_root() {
             // we are on top, so either this node (my_acctn) exist already
@@ -148,7 +148,7 @@ impl Balance {
         txns: I,
         price_lookup_ctx: &PriceLookupCtx<'_>,
         settings: &Settings,
-    ) -> Result<Vec<BalanceTreeNode>, Box<dyn Error>>
+    ) -> Result<Vec<BalanceTreeNode>, tackler::Error>
     where
         I: Iterator<Item = &'a &'a Transaction>,
     {
@@ -190,7 +190,7 @@ impl Balance {
                 |mut trees: Vec<Vec<(TxnAccount, Decimal)>>, acc| {
                     let bua = Balance::bubble_up_acctn(acc, &account_sums, settings)?;
                     trees.push(bua);
-                    Ok::<Vec<Vec<(TxnAccount, Decimal)>>, Box<dyn Error>>(trees)
+                    Ok::<Vec<Vec<(TxnAccount, Decimal)>>, tackler::Error>(trees)
                 },
             )?
             .into_iter()
@@ -225,7 +225,7 @@ impl Balance {
         price_lookup_ctx: &PriceLookupCtx<'_>,
         accounts: &T,
         settings: &Settings,
-    ) -> Result<Balance, Box<dyn Error>>
+    ) -> Result<Balance, tackler::Error>
     where
         T: BalanceSelector + ?Sized,
     {
@@ -238,7 +238,7 @@ impl Balance {
         price_lookup_ctx: &PriceLookupCtx<'_>,
         accounts: &T,
         settings: &Settings,
-    ) -> Result<Balance, Box<dyn Error>>
+    ) -> Result<Balance, tackler::Error>
     where
         T: BalanceSelector + ?Sized,
         I: IntoIterator<Item = &'a &'a Transaction>,

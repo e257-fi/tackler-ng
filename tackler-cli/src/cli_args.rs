@@ -5,10 +5,8 @@
 use clap::builder::{PossibleValue, TypedValueParser};
 use clap::error::{ContextKind, ContextValue, ErrorKind};
 use clap::{CommandFactory, Parser, Subcommand};
-use std::error::Error;
 use std::path::PathBuf;
 use tackler_api::txn_ts;
-use tackler_core::config;
 use tackler_core::config::PriceLookupType;
 use tackler_core::config::overlaps::{
     AuditOverlap, OverlapConfig, PriceOverlap, ReportOverlap, StrictOverlap,
@@ -16,6 +14,7 @@ use tackler_core::config::overlaps::{
 use tackler_core::kernel::Settings;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
 use tackler_core::parser::GitInputSelector;
+use tackler_core::{config, tackler};
 
 pub(crate) const PRICE_BEFORE: &str = "price.before";
 //
@@ -360,7 +359,7 @@ impl DefaultModeArgs {
     pub(crate) fn get_input_type(
         &self,
         settings: &Settings,
-    ) -> Result<InputSettings, Box<dyn Error>> {
+    ) -> Result<InputSettings, tackler::Error> {
         let git_selector = self.get_git_selector();
 
         if let Some(filename) = &self.input_filename {

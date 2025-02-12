@@ -1,14 +1,13 @@
 /*
- * Tackler-NG 2019-2024
+ * Tackler-NG 2019-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 #![cfg_attr(rustfmt, rustfmt_skip)]
-use std::error::Error;
 use std::path::Path;
 use tackler_api::metadata::items::MetadataItem;
 use tackler_core::kernel::Settings;
 use tackler_core::model::TxnData;
-use tackler_core::parser;
+use tackler_core::{parser, tackler};
 use tackler_core::parser::GitInputSelector;
 
 
@@ -37,7 +36,7 @@ const TXN_SET_1E5_CHECKSUM: &str = "27060dc1ebde35bebd8f7af2fd9815bc9949558d3e3c
 const TXN_SET_1E5_COMMIT_ID: &str = "cb56fdcdd2b56d41fc08cc5af4a3b410896f03b5";
 
 #[rustfmt::skip]
-fn verify_git_run(result: Result<TxnData, Box<dyn Error>>, commit: &str, checksum: &str) {
+fn verify_git_run(result: Result<TxnData, tackler::Error>, commit: &str, checksum: &str) {
     match result {
         Ok(txn_data) => {
             let txn_set = txn_data.get_all().unwrap(/*:test:*/);

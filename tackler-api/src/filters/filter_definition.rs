@@ -1,10 +1,10 @@
 /*
- * Tackler-NG 2023-2024
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
-
 use crate::filters::IndentDisplay;
 use crate::filters::TxnFilter;
+use crate::tackler;
 use base64::{Engine as _, engine::general_purpose};
 use jiff::tz::TimeZone;
 use serde::{Deserialize, Serialize};
@@ -63,7 +63,7 @@ impl FilterDefinition {
     ///
     /// # Examples
     /// ```
-    /// # use std::error::Error;
+    /// # use tackler_api::tackler;
     /// # use tackler_api::filters::FilterDefinition;
     /// # use tackler_api::filters::TxnFilter;
     ///
@@ -76,9 +76,9 @@ impl FilterDefinition {
     ///      _ => panic!(),
     /// }
     ///
-    /// # Ok::<(), Box<dyn Error>>(())
+    /// # Ok::<(), tackler::Error>(())
     /// ```
-    pub fn from_json_str(filt_str: &str) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
+    pub fn from_json_str(filt_str: &str) -> Result<FilterDefinition, tackler::Error> {
         match serde_json::from_str::<FilterDefinition>(filt_str) {
             Ok(flt) => Ok(flt),
             Err(err) => {
@@ -99,7 +99,7 @@ impl FilterDefinition {
     ///
     /// # Examples
     /// ```
-    /// # use std::error::Error;
+    /// # use tackler_api::tackler;
     /// # use tackler_api::filters::FilterDefinition;
     /// # use tackler_api::filters::TxnFilter;
     ///
@@ -112,11 +112,9 @@ impl FilterDefinition {
     ///      _ => panic!(),
     /// }
     ///
-    /// # Ok::<(), Box<dyn Error>>(())
+    /// # Ok::<(), tackler::Error>(())
     /// ```
-    pub fn from_armor(
-        filt_armor_str: &str,
-    ) -> Result<FilterDefinition, Box<dyn std::error::Error>> {
+    pub fn from_armor(filt_armor_str: &str) -> Result<FilterDefinition, tackler::Error> {
         let filt_armor = if FilterDefinition::is_armored(filt_armor_str) {
             filt_armor_str.trim_start_matches(FilterDefinition::FILTER_ARMOR)
         } else {

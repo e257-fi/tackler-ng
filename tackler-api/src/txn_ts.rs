@@ -1,5 +1,5 @@
 /*
- * Tackler-NG 2023-2024
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -8,10 +8,10 @@
 //! `txn_ts` is collection of utilities to generate
 //! different representations of Txn timestamps.
 //!
+use crate::tackler;
 use jiff::Zoned;
 use jiff::fmt::strtime;
 use jiff::tz::{Offset, TimeZone};
-use std::error::Error;
 
 /// UTC Timezone
 pub static TZ_UTC: Offset = jiff::tz::Offset::UTC;
@@ -41,7 +41,7 @@ impl TimestampStyle {
     pub const FULL: &'static str = "full";
 
     /// Get Timestamp style by name
-    pub fn from(name: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn from(name: &str) -> Result<Self, tackler::Error> {
         match name {
             TimestampStyle::DATE => Ok(TimestampStyle::Date),
             TimestampStyle::SECONDS => Ok(TimestampStyle::Secodns),
@@ -85,7 +85,7 @@ impl GroupBy {
     pub const ISO_WEEK_DATE: &'static str = "iso-week-date";
 
     /// Get 'group by' -selector based on UI/CFG name
-    pub fn from(group_by: &str) -> Result<GroupBy, Box<dyn Error>> {
+    pub fn from(group_by: &str) -> Result<GroupBy, tackler::Error> {
         match group_by {
             GroupBy::ISO_WEEK_DATE => Ok(GroupBy::IsoWeekDate),
             GroupBy::ISO_WEEK => Ok(GroupBy::IsoWeek),
@@ -107,7 +107,7 @@ impl GroupBy {
     }
 }
 /// Get zoned ts from RFC 3339 string
-pub fn rfc3339_to_zoned(rfc3339_str: &str) -> Result<Zoned, Box<dyn Error>> {
+pub fn rfc3339_to_zoned(rfc3339_str: &str) -> Result<Zoned, tackler::Error> {
     strtime::parse("%Y-%m-%dT%H:%M:%S%.f%:z", rfc3339_str)?
         .to_zoned()
         .map_err(|e| {

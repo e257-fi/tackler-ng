@@ -4,7 +4,6 @@
  */
 use itertools::Itertools;
 use std::collections::HashSet;
-use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::str;
 //use std::time::{SystemTime, UNIX_EPOCH};
@@ -12,6 +11,7 @@ use std::str;
 use crate::kernel::Settings;
 use crate::model::{TxnData, Txns};
 use crate::parser::tackler_parser;
+use crate::tackler;
 use gix as git;
 use gix::hash as gix_hash;
 use gix::objs::tree::EntryKind;
@@ -25,7 +25,7 @@ pub enum GitInputSelector {
 pub fn string_to_txns(
     input: &mut &str,
     settings: &mut Settings,
-) -> Result<TxnData, Box<dyn Error>> {
+) -> Result<TxnData, tackler::Error> {
     let txns = tackler_parser::txns_text(input, settings)?;
 
     // feature: a94d4a60-40dc-4ec0-97a3-eeb69399f01b
@@ -37,8 +37,8 @@ pub fn string_to_txns(
 pub fn paths_to_txns(
     paths: &[PathBuf],
     settings: &mut Settings,
-) -> Result<TxnData, Box<dyn Error>> {
-    let txns: Result<Txns, Box<dyn Error>> = paths
+) -> Result<TxnData, tackler::Error> {
+    let txns: Result<Txns, tackler::Error> = paths
         .iter()
         .map(|p| tackler_parser::txns_file(p, settings))
         .flatten_ok()
@@ -53,7 +53,7 @@ pub fn git_to_txns(
     extension: &str,
     input_selector: GitInputSelector,
     settings: &mut Settings,
-) -> Result<TxnData, Box<dyn Error>> {
+) -> Result<TxnData, tackler::Error> {
     // perf: let mut ts_par_total: u128 = 0;
     // perf: let ts_start = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
 
@@ -104,7 +104,7 @@ pub fn git_to_txns(
     // fixme: Optimization
     //      In the future, this could be optimized with custom walker,
     //      which does the filtering in the first place.
-    let txns: Result<Txns, Box<dyn Error>> = tree
+    let txns: Result<Txns, tackler::Error> = tree
         .traverse()
         .breadthfirst
         .files()?
@@ -150,7 +150,7 @@ pub fn git_to_txns(
             }
         })
         .flatten_ok()
-        .collect::<Result<Txns, Box<dyn Error>>>();
+        .collect::<Result<Txns, tackler::Error>>();
 
     // perf: let ts_end = SystemTime::now().duration_since(UNIX_EPOCH).unwrap(/*:test:*/);
     // perf: eprintln!("total time: {}ms, parse time: {}ms, git: {}ms", (ts_end.as_millis() - ts_start.as_millis()), ts_par_total, (ts_end.as_millis() - ts_start.as_millis())-ts_par_total);

@@ -1,12 +1,12 @@
 /*
- * Tackler-NG 2022
+ * Tackler-NG 2022-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 //! Transaction Geo location
 //!
+use crate::tackler;
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 /// Geo Point
@@ -46,7 +46,7 @@ impl GeoPoint {
         lat: Decimal,
         lon: Decimal,
         alt: Option<Decimal>,
-    ) -> Result<GeoPoint, Box<dyn Error>> {
+    ) -> Result<GeoPoint, tackler::Error> {
         if lat < Self::MIN_LAT || Self::MAX_LAT < lat {
             let msg = format!("Value out of specification for Latitude: {lat}");
             return Err(msg.into());

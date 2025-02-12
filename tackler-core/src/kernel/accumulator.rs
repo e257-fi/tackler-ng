@@ -8,14 +8,14 @@ use crate::kernel::price_lookup::PriceLookupCtx;
 use crate::kernel::report_item_selector::{BalanceSelector, RegisterSelector};
 use crate::kernel::{RegisterSettings, Settings};
 use crate::model::{RegisterEntry, RegisterPosting, Transaction, TxnAccount, TxnRefs};
+use crate::tackler;
 use itertools::Itertools;
 use rust_decimal::Decimal;
 use std::collections::HashMap;
-use std::error::Error;
 use std::io;
 
 pub(crate) type RegisterReporterFn<W> =
-    fn(writer: &mut W, &RegisterEntry<'_>, &RegisterSettings) -> Result<(), Box<dyn Error>>;
+    fn(writer: &mut W, &RegisterEntry<'_>, &RegisterSettings) -> Result<(), tackler::Error>;
 
 pub(crate) type TxnGroupByOp<'a> = Box<dyn Fn(&Transaction) -> String + 'a>;
 
@@ -49,7 +49,7 @@ pub(crate) fn register_engine<'a, W, T>(
     w: &mut W,
     reporter: RegisterReporterFn<W>,
     register_settings: &RegisterSettings,
-) -> Result<(), Box<dyn Error>>
+) -> Result<(), tackler::Error>
 where
     W: io::Write + ?Sized,
     T: RegisterSelector<'a> + ?Sized,

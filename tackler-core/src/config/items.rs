@@ -11,10 +11,10 @@ use crate::config::raw_items::{
 use crate::config::{to_export_targets, to_report_targets};
 use crate::kernel::hash::Hash;
 use crate::model::Commodity;
+use crate::tackler;
 use jiff::fmt::strtime::BrokenDownTime;
 use jiff::tz::TimeZone;
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::fmt::{Debug, Display};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -60,9 +60,9 @@ impl Display for PriceLookupType {
 }
 
 impl TryFrom<&str> for PriceLookupType {
-    type Error = Box<dyn Error>;
+    type Error = tackler::Error;
 
-    fn try_from(lookup: &str) -> Result<PriceLookupType, Box<dyn Error>> {
+    fn try_from(lookup: &str) -> Result<PriceLookupType, tackler::Error> {
         match lookup {
             PriceLookupType::NONE => Ok(PriceLookupType::None),
             PriceLookupType::LAST_PRICE => Ok(PriceLookupType::LastPrice),
@@ -78,7 +78,7 @@ impl StorageType {
     pub const STORAGE_FS:   &'static str = "fs";
     pub const STORAGE_GIT:  &'static str = "git";
 
-    pub(crate) fn from(storage: &str) -> Result<StorageType, Box<dyn Error>> {
+    pub(crate) fn from(storage: &str) -> Result<StorageType, tackler::Error> {
         match storage {
             StorageType::STORAGE_FS => Ok(StorageType::FS),
             StorageType::STORAGE_GIT => Ok(StorageType::Git),
@@ -95,7 +95,7 @@ pub enum ReportType {
     Register,
 }
 impl ReportType {
-    pub fn from(r: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn from(r: &str) -> Result<Self, tackler::Error> {
         match r {
             "balance" => Ok(ReportType::Balance),
             "balance-group" => Ok(ReportType::BalanceGroup),
@@ -112,7 +112,7 @@ pub enum ExportType {
     Identity,
 }
 impl ExportType {
-    pub fn from(r: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn from(r: &str) -> Result<Self, tackler::Error> {
         match r {
             "equity" => Ok(ExportType::Equity),
             "identity" => Ok(ExportType::Identity),
@@ -136,7 +136,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from<P: AsRef<Path>>(cfg_path: P) -> Result<Config, Box<dyn Error>> {
+    pub fn from<P: AsRef<Path>>(cfg_path: P) -> Result<Config, tackler::Error> {
         let cfg_raw: ConfigRaw = toml::from_str(fs::read_to_string(&cfg_path)?.as_str())?;
 
         Ok(Config {
@@ -160,7 +160,7 @@ pub(crate) struct Kernel {
     pub input: Input,
 }
 impl Kernel {
-    fn from(k_raw: &KernelRaw) -> Result<Kernel, Box<dyn Error>> {
+    fn from(k_raw: &KernelRaw) -> Result<Kernel, tackler::Error> {
         let k = Kernel {
             strict: k_raw.strict,
             timestamp: Timestamp::from(&k_raw.timestamp)?,
@@ -187,7 +187,7 @@ impl Default for Timestamp {
 }
 
 impl Timestamp {
-    fn from(ts_raw: &TimestampRaw) -> Result<Timestamp, Box<dyn Error>> {
+    fn from(ts_raw: &TimestampRaw) -> Result<Timestamp, tackler::Error> {
         let ts = Timestamp {
             default_time: {
                 let t = ts_raw.default_time;
@@ -205,7 +205,7 @@ impl Timestamp {
 }
 
 impl Timezone {
-    fn from(tz_raw: &TimezoneRaw) -> Result<jiff::tz::TimeZone, Box<dyn Error>> {
+    fn from(tz_raw: &TimezoneRaw) -> Result<jiff::tz::TimeZone, tackler::Error> {
         let tz = match (&tz_raw.name, &tz_raw.offset) {
             (Some(_), Some(_)) => {
                 let msg = "timezone: 'name' and 'offset' are both defined".to_string();
@@ -232,7 +232,7 @@ pub(crate) struct Audit {
     pub(crate) mode: bool,
 }
 impl Audit {
-    fn from(a_raw: &AuditRaw) -> Result<Audit, Box<dyn Error>> {
+    fn from(a_raw: &AuditRaw) -> Result<Audit, tackler::Error> {
         let a = Audit {
             hash: Hash::from(&a_raw.hash)?,
             mode: a_raw.mode,
@@ -249,7 +249,7 @@ pub struct Input {
     pub git: Option<Git>,
 }
 impl Input {
-    fn from(input_raw: &InputRaw) -> Result<Input, Box<dyn Error>> {
+    fn from(input_raw: &InputRaw) -> Result<Input, tackler::Error> {
         // todo: checks
         let i = Input {
             storage: StorageType::from(input_raw.storage.as_str())?,
@@ -272,7 +272,7 @@ pub struct FS {
     pub suffix: String,
 }
 impl FS {
-    fn from(fs_raw: &FsRaw) -> Result<FS, Box<dyn Error>> {
+    fn from(fs_raw: &FsRaw) -> Result<FS, tackler::Error> {
         let dir = match &fs_raw.path {
             Some(path) => format!("{}/{}", path, fs_raw.dir),
             None => fs_raw.dir.clone(),
@@ -292,7 +292,7 @@ pub struct Git {
     pub suffix: String,
 }
 impl Git {
-    fn from(git_raw: &GitRaw) -> Result<Git, Box<dyn Error>> {
+    fn from(git_raw: &GitRaw) -> Result<Git, tackler::Error> {
         let repo = match &git_raw.repo {
             Some(repo) => repo.clone(),
             None => match &git_raw.repository {
@@ -321,7 +321,7 @@ impl Price {
     fn try_from<P: AsRef<Path>>(
         base_path: P,
         price_raw: &PriceRaw,
-    ) -> Result<Price, Box<dyn Error>> {
+    ) -> Result<Price, tackler::Error> {
         let db_path_str = price_raw.db_path.as_str();
         let lookup_type = PriceLookupType::try_from(price_raw.lookup_type.as_str())?;
 
@@ -352,7 +352,7 @@ impl Transaction {
     fn from<P: AsRef<Path>>(
         path: P,
         txn_raw: &TransactionRaw,
-    ) -> Result<Transaction, Box<dyn Error>> {
+    ) -> Result<Transaction, tackler::Error> {
         Ok(Transaction {
             accounts: Accounts::from(&path, &txn_raw.accounts)?,
             commodities: Commodities::from(&path, &txn_raw.commodities)?,
@@ -369,7 +369,7 @@ impl Accounts {
     fn from<P: AsRef<Path>>(
         path: P,
         accs_path_raw: &AccountsPathRaw,
-    ) -> Result<Accounts, Box<dyn Error>> {
+    ) -> Result<Accounts, tackler::Error> {
         let accs_path_str = accs_path_raw.path.as_str();
         match accs_path_str {
             NONE_VALUE => Ok(Accounts::default()),
@@ -402,7 +402,7 @@ impl Commodities {
     fn from<P: AsRef<Path>>(
         path: P,
         comm_path_raw: &CommoditiesPathRaw,
-    ) -> Result<Commodities, Box<dyn Error>> {
+    ) -> Result<Commodities, tackler::Error> {
         let comm_path_str = comm_path_raw.path.as_str();
         match comm_path_str {
             NONE_VALUE => Ok(Commodities {
@@ -436,7 +436,7 @@ pub(crate) struct Tags {
 }
 
 impl Tags {
-    fn from<P: AsRef<Path>>(path: P, tags_path_raw: &TagsPathRaw) -> Result<Tags, Box<dyn Error>> {
+    fn from<P: AsRef<Path>>(path: P, tags_path_raw: &TagsPathRaw) -> Result<Tags, tackler::Error> {
         let tags_path_str = tags_path_raw.path.as_str();
         match tags_path_str {
             NONE_VALUE => Ok(Tags::default()),
@@ -485,7 +485,7 @@ impl Default for Report {
 }
 
 impl Report {
-    fn from(report_raw: &ReportRaw) -> Result<Report, Box<dyn Error>> {
+    fn from(report_raw: &ReportRaw) -> Result<Report, tackler::Error> {
         let trgs = to_report_targets(&report_raw.targets)?;
         Ok(Report {
             report_tz: TimeZone::get(report_raw.report_tz.as_str())?,
@@ -508,7 +508,7 @@ pub struct Scale {
     max: u32,
 }
 impl Scale {
-    fn from(scale_raw: &ScaleRaw) -> Result<Scale, Box<dyn Error>> {
+    fn from(scale_raw: &ScaleRaw) -> Result<Scale, tackler::Error> {
         let max_scale = 28;
         if scale_raw.min > max_scale || scale_raw.max > max_scale {
             let msg = format!(
@@ -557,7 +557,7 @@ pub(crate) struct Register {
 }
 
 impl Register {
-    fn from(reg_raw: &RegisterRaw, report: &ReportRaw) -> Result<Register, Box<dyn Error>> {
+    fn from(reg_raw: &RegisterRaw, report: &ReportRaw) -> Result<Register, tackler::Error> {
         Ok(Register {
             title: reg_raw.title.clone(),
             timestamp_style: match &reg_raw.timestamp_style {
@@ -580,7 +580,7 @@ impl BalanceGroup {
     fn from(
         balgrp_raw: &BalanceGroupRaw,
         report: &ReportRaw,
-    ) -> Result<BalanceGroup, Box<dyn Error>> {
+    ) -> Result<BalanceGroup, tackler::Error> {
         Ok(BalanceGroup {
             title: balgrp_raw.title.clone(),
             group_by: GroupBy::from(balgrp_raw.group_by.as_str())?,
@@ -596,7 +596,7 @@ pub(crate) struct Balance {
 }
 
 impl Balance {
-    fn from(bal_raw: &BalanceRaw, report: &ReportRaw) -> Result<Balance, Box<dyn Error>> {
+    fn from(bal_raw: &BalanceRaw, report: &ReportRaw) -> Result<Balance, tackler::Error> {
         Ok(Balance {
             title: bal_raw.title.clone(),
             acc_sel: get_account_selector(&bal_raw.acc_sel, report),
@@ -610,7 +610,7 @@ pub(crate) struct Export {
     pub equity: Equity,
 }
 impl Export {
-    fn from(export_raw: &ExportRaw, report: &ReportRaw) -> Result<Export, Box<dyn Error>> {
+    fn from(export_raw: &ExportRaw, report: &ReportRaw) -> Result<Export, tackler::Error> {
         let trgs = to_export_targets(&export_raw.targets)?;
         Ok(Export {
             targets: trgs,
@@ -626,7 +626,7 @@ pub(crate) struct Equity {
 }
 
 impl Equity {
-    fn from(eq_raw: &EquityRaw, report: &ReportRaw) -> Result<Equity, Box<dyn Error>> {
+    fn from(eq_raw: &EquityRaw, report: &ReportRaw) -> Result<Equity, tackler::Error> {
         Ok(Equity {
             equity_account: eq_raw.equity_account.clone(),
             acc_sel: get_account_selector(&eq_raw.acc_sel, report),

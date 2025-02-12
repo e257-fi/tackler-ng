@@ -8,7 +8,7 @@ use crate::parser::parts::comment::p_comment;
 use crate::parser::parts::identifier::p_multi_part_id;
 use crate::parser::parts::posting_value::{ValuePosition, parse_posting_value};
 use crate::parser::{Stream, from_error};
-use std::error::Error;
+use crate::tackler;
 use winnow::ascii::{line_ending, space0, space1};
 use winnow::combinator::opt;
 use winnow::{ModalResult, Parser, seq};
@@ -61,7 +61,7 @@ fn handle_posting(
     vp: ValuePosition,
     comment: Option<&str>,
     settings: &mut Settings,
-) -> Result<Posting, Box<dyn Error>> {
+) -> Result<Posting, tackler::Error> {
     let comm = vp.post_commodity;
     let acctn = settings.get_or_create_txn_account(acc_id, comm.clone())?;
 

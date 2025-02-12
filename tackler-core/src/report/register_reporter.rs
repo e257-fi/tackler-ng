@@ -11,9 +11,9 @@ use crate::kernel::report_item_selector::{
 use crate::kernel::report_settings::RegisterSettings;
 use crate::model::{RegisterEntry, TxnSet};
 use crate::report::{Report, write_acc_sel_checksum, write_price_metadata, write_report_timezone};
+use crate::tackler;
 use jiff::Zoned;
 use jiff::tz::TimeZone;
-use std::error::Error;
 use std::io;
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::TimestampStyle;
@@ -24,7 +24,7 @@ pub struct RegisterReporter {
 }
 
 impl RegisterReporter {
-    fn get_acc_selector(&self) -> Result<Box<dyn RegisterSelector<'_>>, Box<dyn Error>> {
+    fn get_acc_selector(&self) -> Result<Box<dyn RegisterSelector<'_>>, tackler::Error> {
         let ras = &self.report_settings.ras;
         if ras.is_empty() {
             Ok(Box::<RegisterAllSelector>::default())
@@ -41,7 +41,7 @@ fn reg_entry_txt_writer<W: io::Write + ?Sized>(
     f: &mut W,
     re: &RegisterEntry<'_>,
     register_settings: &RegisterSettings,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), tackler::Error> {
     let ts_style = register_settings.timestamp_style;
     let report_tz = register_settings.report_tz.clone();
 
@@ -63,7 +63,7 @@ impl Report for RegisterReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), tackler::Error> {
         let acc_sel = self.get_acc_selector()?;
 
         let report_commodity = self.report_settings.report_commodity.clone();

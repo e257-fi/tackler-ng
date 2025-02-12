@@ -10,8 +10,8 @@ use crate::kernel::{BalanceSettings, Settings};
 use crate::model::{Transaction, TxnSet};
 use crate::report::{BalanceReporter, write_price_metadata};
 use crate::report::{Report, write_acc_sel_checksum, write_report_timezone};
+use crate::tackler;
 use jiff::tz::TimeZone;
-use std::error::Error;
 use std::io;
 use tackler_api::txn_ts;
 use tackler_api::txn_ts::GroupBy;
@@ -22,7 +22,7 @@ pub struct BalanceGroupReporter {
 }
 
 impl BalanceGroupReporter {
-    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, tackler::Error> {
         BalanceReporter::acc_selector(&self.report_settings.ras)
     }
 
@@ -54,7 +54,7 @@ impl Report for BalanceGroupReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), tackler::Error> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         let price_lookup_ctx = self.report_settings.price_lookup.make_ctx(

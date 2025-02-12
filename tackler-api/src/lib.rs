@@ -1,5 +1,5 @@
 /*
- * Tackler-NG 2022-2023
+ * Tackler-NG 2022-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 #![forbid(unsafe_code)]
@@ -12,3 +12,9 @@ pub mod filters;
 pub mod location;
 pub mod txn_header;
 pub mod txn_ts;
+
+/// Generic Tackler namespace
+pub mod tackler {
+    /// Generic error type
+    pub type Error = Box<dyn std::error::Error + Send + Sync>;
+}

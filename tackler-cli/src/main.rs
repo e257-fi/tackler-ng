@@ -8,12 +8,11 @@ mod cli_args;
 mod commands;
 
 use log::error;
-use std::error::Error;
 use std::io;
 use tackler_core::export::write_exports;
 use tackler_core::kernel::settings::Settings;
-use tackler_core::parser;
 use tackler_core::report::write_txt_reports;
+use tackler_core::{parser, tackler};
 
 use clap::Parser;
 use tackler_api::filters::FilterDefinition;
@@ -28,7 +27,7 @@ use tikv_jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-fn run(cli: DefaultModeArgs) -> Result<(), Box<dyn Error>> {
+fn run(cli: DefaultModeArgs) -> Result<(), tackler::Error> {
     let cfg = match Config::from(cli.conf_path.as_ref().unwrap()) {
         Ok(cfg) => cfg,
         Err(err) => {

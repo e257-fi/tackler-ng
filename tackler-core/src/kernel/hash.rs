@@ -1,10 +1,10 @@
 /*
- * Tackler-NG 2023-2024
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
+use crate::tackler;
 use digest::DynDigest;
-use std::error::Error;
 use std::fmt::{Debug, Formatter, Write};
 use tackler_api::metadata::Checksum;
 
@@ -30,7 +30,7 @@ impl Debug for Hash {
 }
 
 impl Hash {
-    pub fn from(algo: &str) -> Result<Hash, Box<dyn Error>> {
+    pub fn from(algo: &str) -> Result<Hash, tackler::Error> {
         match algo {
             "SHA-256" => Ok(Hash {
                 hash_algo: "SHA-256".to_string(),
@@ -59,7 +59,7 @@ impl Hash {
         }
     }
 
-    pub fn checksum(&self, items: &[String], separator: &[u8]) -> Result<Checksum, Box<dyn Error>> {
+    pub fn checksum(&self, items: &[String], separator: &[u8]) -> Result<Checksum, tackler::Error> {
         let mut hasher = self.hasher.clone();
 
         for i in items {

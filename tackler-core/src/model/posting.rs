@@ -1,13 +1,13 @@
 /*
- * Tackler-NG 2023-2024
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use crate::model::Commodity;
 use crate::model::Posts;
 use crate::model::TxnAccount;
+use crate::tackler;
 use rust_decimal::Decimal;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::sync::Arc;
 
@@ -31,7 +31,7 @@ impl Posting {
         is_total_amount: bool,
         txn_commodity: Arc<Commodity>,
         comment: Option<String>,
-    ) -> Result<Posting, Box<dyn Error>> {
+    ) -> Result<Posting, tackler::Error> {
         if amount.is_zero() {
             let msg = format!("Zero sum postings are not allowed: {}", acctn.atn.account);
             return Err(msg.into());

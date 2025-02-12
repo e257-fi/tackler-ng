@@ -7,15 +7,15 @@ use crate::parser::Stream;
 use crate::parser::parts::txns::parse_txns;
 use std::fmt::Write;
 
-use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 
 use crate::kernel::Settings;
 use crate::model::Txns;
+use crate::tackler;
 
-pub(crate) fn txns_text(input: &mut &str, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
+pub(crate) fn txns_text(input: &mut &str, settings: &mut Settings) -> Result<Txns, tackler::Error> {
     let mut is = Stream {
         input,
         state: settings,
@@ -54,7 +54,7 @@ pub(crate) fn txns_text(input: &mut &str, settings: &mut Settings) -> Result<Txn
     }
 }
 
-pub(crate) fn txns_file(path: &Path, settings: &mut Settings) -> Result<Txns, Box<dyn Error>> {
+pub(crate) fn txns_file(path: &Path, settings: &mut Settings) -> Result<Txns, tackler::Error> {
     let f = File::open(path);
 
     let mut txn_file = match f {

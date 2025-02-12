@@ -1,14 +1,14 @@
 /*
- * Tackler-NG 2023-2024
+ * Tackler-NG 2023-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
 use itertools::Itertools;
-use std::error::Error;
 
 use crate::kernel::Predicate;
 use crate::kernel::hash::Hash;
 use crate::model::{TxnRefs, Txns, transaction};
+use crate::tackler;
 use tackler_api::filters::FilterDefinition;
 use tackler_api::metadata::items::{MetadataItem, TxnFilterDescription, TxnSetChecksum};
 use tackler_api::metadata::{Checksum, Metadata};
@@ -42,7 +42,7 @@ impl TxnData {
         mdi_opt: Option<MetadataItem>,
         txns: Txns,
         hash: &Option<Hash>,
-    ) -> Result<TxnData, Box<dyn Error>> {
+    ) -> Result<TxnData, tackler::Error> {
         let metadata = mdi_opt.map(Metadata::from_mdi);
 
         let mut t = txns;
@@ -55,7 +55,7 @@ impl TxnData {
         })
     }
 
-    fn make_metadata(&self, txns: &TxnRefs<'_>) -> Result<Metadata, Box<dyn Error>> {
+    fn make_metadata(&self, txns: &TxnRefs<'_>) -> Result<Metadata, tackler::Error> {
         let mut metadata = match &self.metadata {
             Some(md) => Metadata::from_metadata(md),
             None => Metadata::new(),
@@ -73,7 +73,7 @@ impl TxnData {
         Ok(metadata)
     }
 
-    pub fn filter<'a>(&'a self, tf: &FilterDefinition) -> Result<TxnSet<'a>, Box<dyn Error>> {
+    pub fn filter<'a>(&'a self, tf: &FilterDefinition) -> Result<TxnSet<'a>, tackler::Error> {
         let refvec: TxnRefs<'_> = self.txns.iter().filter(|txn| tf.eval(txn)).collect();
 
         let mut metadata = self.make_metadata(&refvec)?;
@@ -87,7 +87,7 @@ impl TxnData {
         })
     }
 
-    pub fn get_all(&self) -> Result<TxnSet<'_>, Box<dyn Error>> {
+    pub fn get_all(&self) -> Result<TxnSet<'_>, tackler::Error> {
         let txns: TxnRefs<'_> = self.txns.iter().collect();
 
         let metadata = if self.hash.is_some() || self.metadata.is_some() {
@@ -100,8 +100,8 @@ impl TxnData {
     }
 }
 
-fn calc_txn_checksum(txns: &TxnRefs<'_>, hasher: &Hash) -> Result<Checksum, Box<dyn Error>> {
-    let uuids: Result<Vec<String>, Box<dyn Error>> = txns
+fn calc_txn_checksum(txns: &TxnRefs<'_>, hasher: &Hash) -> Result<Checksum, tackler::Error> {
+    let uuids: Result<Vec<String>, tackler::Error> = txns
         .iter()
         .map(|txn| match txn.header.uuid {
             Some(uuid) => Ok(uuid.to_string()),

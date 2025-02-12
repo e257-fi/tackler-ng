@@ -1,16 +1,16 @@
 /*
- * Tackler-NG 2024
+ * Tackler-NG 2024-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 use crate::kernel::Settings;
 use crate::model::TxnSet;
 pub use equity_exporter::EquityExporter;
 pub use equity_exporter::EquitySettings;
-use std::error::Error;
 use std::io;
 use std::path::Path;
 
 use crate::config::ExportType;
+use crate::tackler;
 pub use identity_exporter::IdentityExporter;
 use tackler_rs::create_output_file;
 
@@ -23,7 +23,7 @@ pub trait Export {
         cfg: &Settings,
         w: &mut W,
         txns: &TxnSet<'_>,
-    ) -> Result<(), Box<dyn Error>>;
+    ) -> Result<(), tackler::Error>;
 }
 
 pub fn write_exports<ProgW: io::Write + ?Sized>(
@@ -33,7 +33,7 @@ pub fn write_exports<ProgW: io::Write + ?Sized>(
     txn_set: &TxnSet<'_>,
     settings: &mut Settings,
     prog_writer: &mut Option<Box<ProgW>>,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), tackler::Error> {
     for e in exports {
         match e {
             ExportType::Equity => {

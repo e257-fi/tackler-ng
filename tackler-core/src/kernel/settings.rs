@@ -12,10 +12,9 @@ use crate::model::TxnAccount;
 use crate::model::price_entry::PriceDb;
 use crate::model::{AccountTreeNode, Commodity};
 use crate::parser::GitInputSelector;
-use crate::{config, parser};
+use crate::{config, parser, tackler};
 use jiff::Zoned;
 use std::collections::HashMap;
-use std::error::Error;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tackler_api::txn_header::Tag;
@@ -57,7 +56,7 @@ impl Commodities {
         }
     }
 
-    fn from(cfg: &Config) -> Result<Commodities, Box<dyn Error>> {
+    fn from(cfg: &Config) -> Result<Commodities, tackler::Error> {
         let cfg_comm = &cfg.transaction.commodities;
         let permit_empty_commodity = cfg_comm.permit_empty_commodity.unwrap_or(false);
 
@@ -93,7 +92,7 @@ impl AccountTrees {
         target_account_tree: &mut HashMap<String, Arc<AccountTreeNode>>,
         atn: Arc<AccountTreeNode>,
         other_account_tree: Option<&HashMap<String, Arc<AccountTreeNode>>>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), tackler::Error> {
         let parent = atn.parent.as_str();
         let has_parent = other_account_tree.is_some_and(|a| a.contains_key(parent))
             || target_account_tree.contains_key(parent);
@@ -110,7 +109,7 @@ impl AccountTrees {
         }
     }
 
-    fn from(account_names: &[String], strict_mode: bool) -> Result<AccountTrees, Box<dyn Error>> {
+    fn from(account_names: &[String], strict_mode: bool) -> Result<AccountTrees, tackler::Error> {
         let defined_accounts =
             account_names
                 .iter()
@@ -201,7 +200,7 @@ impl Settings {
 }
 
 impl Settings {
-    pub fn try_from(cfg: Config, overlaps: OverlapConfig) -> Result<Settings, Box<dyn Error>> {
+    pub fn try_from(cfg: Config, overlaps: OverlapConfig) -> Result<Settings, tackler::Error> {
         let strict_mode = overlaps.strict.mode.unwrap_or(cfg.kernel.strict);
         let audit_mode = overlaps.audit.mode.unwrap_or(cfg.kernel.audit.mode);
 
@@ -281,7 +280,7 @@ impl Settings {
         fn check_given_time_usage(
             gt: &Option<String>,
             plt: &PriceLookupType,
-        ) -> Result<(), Box<dyn Error>> {
+        ) -> Result<(), tackler::Error> {
             if gt.is_some() {
                 let msg = format!(
                     "Price \"before timestamp\" is not allowed when price lookup type is \"{}\"",
@@ -347,7 +346,7 @@ impl Settings {
         &self,
         name: &str,
         commodity: Arc<Commodity>,
-    ) -> Result<TxnAccount, Box<dyn Error>> {
+    ) -> Result<TxnAccount, tackler::Error> {
         let comm = self.get_commodity(commodity.name.as_str())?;
 
         match self.accounts.defined_accounts.get(name) {
@@ -373,7 +372,7 @@ impl Settings {
         &mut self,
         name: &str,
         commodity: Arc<Commodity>,
-    ) -> Result<TxnAccount, Box<dyn Error>> {
+    ) -> Result<TxnAccount, tackler::Error> {
         let comm = self.get_or_create_commodity(Some(commodity.name.as_str()))?;
 
         let strict_mode = self.strict_mode;
@@ -416,7 +415,7 @@ impl Settings {
         Ok(atn)
     }
 
-    pub fn get_commodity(&self, name: &str) -> Result<Arc<Commodity>, Box<dyn Error>> {
+    pub fn get_commodity(&self, name: &str) -> Result<Arc<Commodity>, tackler::Error> {
         match self.commodities.names.get(name) {
             Some(comm) => Ok(comm.clone()),
             None => {
@@ -428,7 +427,7 @@ impl Settings {
     pub(crate) fn get_or_create_commodity(
         &mut self,
         name: Option<&str>,
-    ) -> Result<Arc<Commodity>, Box<dyn Error>> {
+    ) -> Result<Arc<Commodity>, tackler::Error> {
         Self::inner_get_or_create_commodity(&mut self.commodities, self.strict_mode, name)
     }
 
@@ -436,7 +435,7 @@ impl Settings {
         commodities: &mut Commodities,
         strict_mode: bool,
         name: Option<&str>,
-    ) -> Result<Arc<Commodity>, Box<dyn Error>> {
+    ) -> Result<Arc<Commodity>, tackler::Error> {
         match name {
             Some(n) => {
                 if n.is_empty() {
@@ -477,7 +476,7 @@ impl Settings {
         }
     }
 
-    pub(crate) fn get_or_create_tag(&mut self, name: &str) -> Result<Arc<Tag>, Box<dyn Error>> {
+    pub(crate) fn get_or_create_tag(&mut self, name: &str) -> Result<Arc<Tag>, tackler::Error> {
         if name.is_empty() {
             let msg = "Tag name is empty string".to_string();
             return Err(msg.into());
@@ -505,7 +504,7 @@ impl Settings {
         &self,
         storage: Option<&String>,
         ref_path: Option<&Path>,
-    ) -> Result<InputSettings, Box<dyn Error>> {
+    ) -> Result<InputSettings, tackler::Error> {
         let input = &self.kernel.input;
 
         let storage_type = match storage {
@@ -551,7 +550,7 @@ impl Settings {
 }
 
 impl Settings {
-    pub fn parse_timestamp(&mut self, ts: &str) -> Result<Zoned, Box<dyn Error>> {
+    pub fn parse_timestamp(&mut self, ts: &str) -> Result<Zoned, tackler::Error> {
         Ok(winnow::Parser::parse(
             &mut crate::parser::parts::timestamp::parse_timestamp,
             winnow::Stateful {
@@ -565,7 +564,7 @@ impl Settings {
     pub fn get_offset_datetime(
         &self,
         dt: jiff::civil::DateTime,
-    ) -> Result<jiff::Zoned, Box<dyn Error>> {
+    ) -> Result<jiff::Zoned, tackler::Error> {
         match dt.to_zoned(self.kernel.timestamp.timezone.clone()) {
             Ok(ts) => Ok(ts),
             Err(err) => {
@@ -574,7 +573,7 @@ impl Settings {
             }
         }
     }
-    pub fn get_offset_date(&self, date: jiff::civil::Date) -> Result<jiff::Zoned, Box<dyn Error>> {
+    pub fn get_offset_date(&self, date: jiff::civil::Date) -> Result<jiff::Zoned, tackler::Error> {
         let ts = date.to_datetime(self.kernel.timestamp.default_time);
         match ts.to_zoned(self.kernel.timestamp.timezone.clone()) {
             Ok(ts) => Ok(ts),
@@ -592,7 +591,7 @@ impl Settings {
     pub fn get_report_targets(
         &self,
         arg_trgs: Option<Vec<String>>,
-    ) -> Result<Vec<ReportType>, Box<dyn Error>> {
+    ) -> Result<Vec<ReportType>, tackler::Error> {
         match arg_trgs {
             Some(trgs) => config::to_report_targets(&trgs),
             None => Ok(self.targets.clone()),
@@ -602,7 +601,7 @@ impl Settings {
     pub fn get_export_targets(
         &self,
         arg_trgs: Option<Vec<String>>,
-    ) -> Result<Vec<ExportType>, Box<dyn Error>> {
+    ) -> Result<Vec<ExportType>, tackler::Error> {
         match arg_trgs {
             Some(trgs) => config::to_export_targets(&trgs),
             None => Ok(self.export.targets.clone()),

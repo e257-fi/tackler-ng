@@ -15,13 +15,13 @@ use crate::parser::Stream;
 
 use super::parts::{pricedb::parse_price_entry, txns::multispace0_line_ending};
 
-use std::error::Error;
+use crate::tackler;
 use std::path::Path;
 
 pub fn pricedb_from_str(
     input: &mut &str,
     settings: &mut Settings,
-) -> Result<PriceDb, Box<dyn Error>> {
+) -> Result<PriceDb, tackler::Error> {
     let is = Stream {
         input,
         state: settings,
@@ -36,7 +36,7 @@ pub fn pricedb_from_str(
     .map_err(|err| err.to_string().into())
 }
 
-pub fn pricedb_from_file(path: &Path, settings: &mut Settings) -> Result<PriceDb, Box<dyn Error>> {
+pub fn pricedb_from_file(path: &Path, settings: &mut Settings) -> Result<PriceDb, tackler::Error> {
     let pricedb_str = std::fs::read_to_string(path)
         .map_err(|err| format!("Can't open file: '{}' - {}", path.display(), err))?;
 

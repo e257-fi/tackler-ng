@@ -10,11 +10,11 @@ use crate::kernel::report_item_selector::{
 use crate::kernel::{BalanceSettings, Settings};
 use crate::model::{BalanceTreeNode, TxnSet};
 use crate::report::{Report, write_acc_sel_checksum, write_price_metadata, write_report_timezone};
+use crate::tackler;
 use itertools::Itertools;
 use rust_decimal::prelude::Zero;
 use rust_decimal::{Decimal, RoundingStrategy};
 use std::cmp::max;
-use std::error::Error;
 use std::io;
 
 #[derive(Debug, Clone)]
@@ -23,7 +23,7 @@ pub struct BalanceReporter {
 }
 
 impl TryFrom<&Settings> for BalanceReporter {
-    type Error = Box<dyn Error>;
+    type Error = tackler::Error;
 
     fn try_from(settings: &Settings) -> Result<Self, Self::Error> {
         Ok(BalanceReporter {
@@ -33,7 +33,7 @@ impl TryFrom<&Settings> for BalanceReporter {
 }
 
 impl BalanceReporter {
-    pub(crate) fn acc_selector(ras: &[String]) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+    pub(crate) fn acc_selector(ras: &[String]) -> Result<Box<dyn BalanceSelector>, tackler::Error> {
         if ras.is_empty() {
             Ok(Box::<BalanceAllSelector>::default())
         } else {
@@ -43,7 +43,7 @@ impl BalanceReporter {
         }
     }
 
-    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, Box<dyn Error>> {
+    fn get_acc_selector(&self) -> Result<Box<dyn BalanceSelector>, tackler::Error> {
         BalanceReporter::acc_selector(&self.report_settings.ras)
     }
 }
@@ -53,7 +53,7 @@ impl BalanceReporter {
         writer: &mut W,
         bal_report: &Balance,
         bal_settings: &BalanceSettings,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), tackler::Error> {
         let get_max_sum_len = |bal: &BTNs, f: fn(&BalanceTreeNode) -> Decimal| -> usize {
             bal.iter()
                 .map(|btn| {
@@ -198,7 +198,7 @@ impl Report for BalanceReporter {
         cfg: &Settings,
         writer: &mut W,
         txn_data: &TxnSet<'_>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), tackler::Error> {
         let bal_acc_sel = self.get_acc_selector()?;
 
         let price_lookup_ctx = self.report_settings.price_lookup.make_ctx(

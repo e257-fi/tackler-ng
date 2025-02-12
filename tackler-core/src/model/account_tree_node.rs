@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-use crate::parser;
+use crate::{parser, tackler};
 use std::cmp::Ordering;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
@@ -31,7 +30,7 @@ impl Commodity {
 }
 
 impl Commodity {
-    pub fn from(name: String) -> Result<Commodity, Box<dyn Error>> {
+    pub fn from(name: String) -> Result<Commodity, tackler::Error> {
         if !parser::is_valid_id(&name) {
             let msg = format!("This is not a valid commodity: '{name}'");
             return Err(msg.into());
@@ -129,7 +128,7 @@ impl AccountTreeNode {
 }
 
 impl AccountTreeNode {
-    pub(crate) fn from(account: &str) -> Result<AccountTreeNode, Box<dyn Error>> {
+    pub(crate) fn from(account: &str) -> Result<AccountTreeNode, tackler::Error> {
         {
             let acc = account.trim();
 

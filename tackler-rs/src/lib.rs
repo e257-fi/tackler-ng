@@ -1,5 +1,5 @@
 /*
- * Tackler-NG 2022-2023
+ * Tackler-NG 2022-2025
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -11,7 +11,6 @@
 #![forbid(unsafe_code)]
 
 use log::error;
-use std::error::Error;
 use std::fs::File;
 use std::io;
 use std::io::BufWriter;
@@ -20,6 +19,12 @@ use walkdir::{DirEntry, WalkDir};
 
 /// Regex helpers to have full haystack matcher (JDK matches())
 pub mod regex;
+
+/// Generic tackler namespace
+pub mod tackler {
+    /// Generic Error type
+    pub type Error = Box<dyn std::error::Error + Send + Sync>;
+}
 
 ///
 /// Get full path based on
@@ -30,7 +35,7 @@ pub fn get_path_by_parts(
     prefix: &str,
     name: &str,
     ext: &str,
-) -> Result<PathBuf, Box<dyn Error>> {
+) -> Result<PathBuf, tackler::Error> {
     // #[unstable(feature = "path_add_extension", issue = "127292")]
     // pub fn with_added_extension<S: AsRef<OsStr>>(&self, extension: S) -> PathBuf {
     let filename = prefix.to_string() + name + "." + ext;
@@ -48,7 +53,7 @@ pub fn create_output_file(
     prefix: &str,
     name: &str,
     ext: &str,
-) -> Result<(Box<dyn io::Write>, String), Box<dyn Error>> {
+) -> Result<(Box<dyn io::Write>, String), tackler::Error> {
     let rpt = ".".to_string() + name;
     let p = get_path_by_parts(dir, prefix, rpt.as_str(), ext)?;
     let f = match File::create_new(&p) {
@@ -68,7 +73,7 @@ pub fn create_output_file(
 /// Convert path to absolute by anchor file
 /// If the path is already absolute, then use the path as it is
 ///
-pub fn get_abs_path<P: AsRef<Path>>(anchor: P, path: &str) -> Result<PathBuf, Box<dyn Error>> {
+pub fn get_abs_path<P: AsRef<Path>>(anchor: P, path: &str) -> Result<PathBuf, tackler::Error> {
     let p = Path::new(path);
     if p.is_absolute() {
         return Ok(p.to_path_buf());
@@ -85,7 +90,7 @@ pub fn get_abs_path<P: AsRef<Path>>(anchor: P, path: &str) -> Result<PathBuf, Bo
 ///
 /// Get a list of paths by base dir and file extension
 ///
-pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>, Box<dyn Error>> {
+pub fn get_paths_by_ext(base_dir: &Path, extension: &str) -> Result<Vec<PathBuf>, tackler::Error> {
     fn is_txn_file(entry: &walkdir::DirEntry, extension: &str) -> bool {
         (entry.file_type().is_file() || entry.file_type().is_symlink())
             && match entry.path().extension() {
