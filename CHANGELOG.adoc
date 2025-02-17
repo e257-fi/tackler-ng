@@ -51,8 +51,8 @@ Fixes in this release ...
 Updated deps and tools:
 
 * Dependencies
-** clap: v4.5.29
-** jiff: v0.2.0
+** clap: v4.5.30
+** jiff: v0.2.1
 ** serde_json: v1.0.138
 ** toml: 0.8.20
 ** uuid: v1.13.1
