@@ -88,7 +88,7 @@ pub fn git_to_txns(
                 Some(ref_str.clone())
             };
             // Peel it so that tags are ok
-            (repo.find_object(id)?.peel_to_commit()?, reference)
+            (id.object()?.peel_to_commit()?, reference)
         }
     };
 
