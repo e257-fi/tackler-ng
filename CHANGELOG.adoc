@@ -60,7 +60,7 @@ Updated deps and tools:
 
 ===== Rust toolchain
 
-MSRV: 1.82.0
+MSRV: 1.85.0
 
 '''
 

@@ -10,17 +10,17 @@ members = [
   "tackler-core",
   "tackler-cli",
 ]
-resolver = "2"
+resolver = "3"
 
 [workspace.package]
-edition = "2021"
+edition = "2024"
 license = "Apache-2.0"
 homepage = "https://tackler.e257.fi/"
 repository = "https://github.com/e257-fi/tackler-ng"
 categories = [ "finance", "parser-implementations" ]
 keywords = [ "accounting", "finance" ]
-include = [ "src/**/*.rs", "CRATES.md", "README.adoc", "build.rs" ]
-rust-version = "1.82.0"
+include = [ "src/**/*.rs", "CRATES.md", "README.adoc", "build.rs", "NOTICE" ]
+rust-version = "1.85.0"
 
 [workspace.lints.rust]
 rust_2018_idioms = { level = "warn", priority = -1 }

@@ -18,12 +18,13 @@ alias rb := release-build
 clean:
     cargo clean
 
-check:
+check: clippy fmt
+
+clippy:
     cargo clippy --workspace --all-targets --no-deps -- -D warnings
-    cargo +nightly fmt --all --check  -- --style-edition 2024
 
 fmt:
-    cargo +nightly fmt --all  -- --style-edition 2024
+    cargo fmt --all -- --style-edition 2024
 
 test: (_test "debug")
 
