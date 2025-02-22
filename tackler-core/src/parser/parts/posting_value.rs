@@ -34,21 +34,39 @@ amount: INT | NUMBER;
 unit: ID;
  */
 
+use winnow::combinator::cut_err;
+use winnow::error::StrContext;
+use winnow::error::StrContextValue;
+
 struct Value<'s> {
     value: Decimal,
     commodity: &'s str,
 }
 
 fn p_opening_pos<'s>(is: &mut Stream<'s>) -> ModalResult<Value<'s>> {
+    const CTX_LABEL: &str = "opening position";
     let m = seq!(
         _: space1,
         _: '{',
         _: space0,
-        p_number,
-        _: space1,
-        p_identifier,
+
+        cut_err(p_number)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("number"))),
+
+        _: cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("space"))),
+
+        cut_err(p_identifier)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("commodity name"))),
+
         _: space0,
-        _: '}'
+
+        _: cut_err('}')
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("closing '}'"))),
     )
     .parse_next(is)?;
 
@@ -64,13 +82,26 @@ enum PriceType {
 }
 
 fn p_closing_pos<'s>(is: &mut Stream<'s>) -> ModalResult<(PriceType, Value<'s>)> {
+    const CTX_LABEL: &str = "closing position";
     let m = seq!(
         _:space1,
         alt(('@', '=')),
-        _:space1,
-        p_number,
-        _:space1,
-        p_identifier,
+        _:cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("space"))),
+
+        cut_err(p_number)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("number"))),
+
+        _:cut_err(space1)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("space"))),
+
+        cut_err(p_identifier)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description("commodity name"))),
+
     )
     .parse_next(is)?;
 
@@ -279,18 +310,10 @@ mod tests {
                 |"
             ).strip_margin(),),
             (indoc!(
-               "|1.23 ACME·INC @ 1.23
-                |"
-            ).strip_margin(),),
-            (indoc!(
                "|1.23 ACME·INC @ 1.23 €
                 |"
             ).strip_margin(),),
 
-            (indoc!(
-               "|1.23 ACME·INC = 1.23
-                |"
-            ).strip_margin(),),
             (indoc!(
                "|1.23 ACME·INC = 1.23 €
                 |"
@@ -306,14 +329,6 @@ mod tests {
             ).strip_margin(),),
 
             (indoc!(
-               "|1.23 {4.56} ACME·INC = 5.67
-                |"
-            ).strip_margin(),),
-            (indoc!(
-               "|1.23 {4.56 $} ACME·INC = 5.67
-                |"
-            ).strip_margin(),),
-            (indoc!(
                "|1.23 {4.56} ACME·INC = 5.67 £
                 |"
             ).strip_margin(),),
@@ -323,14 +338,6 @@ mod tests {
             ).strip_margin(),),
 
 
-            (indoc!(
-               "|1.23 {4.56} ACME·INC @ 5.67
-                |"
-            ).strip_margin(),),
-            (indoc!(
-               "|1.23 {4.56 $} ACME·INC @ 5.67
-                |"
-            ).strip_margin(),),
             (indoc!(
                "|1.23 {4.56} ACME·INC @ 5.67 £
                 |"
@@ -355,7 +362,7 @@ mod tests {
         ];
 
         let mut count = 0;
-        for t in pok_values {
+        for t in &pok_values {
             let mut settings = Settings::default();
             let mut is = Stream {
                 input: t.0.as_str(),
@@ -370,6 +377,6 @@ mod tests {
             );
             count += 1;
         }
-        assert_eq!(count, 19);
+        assert_eq!(count, pok_values.len());
     }
 }

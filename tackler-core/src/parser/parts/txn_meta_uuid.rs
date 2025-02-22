@@ -17,7 +17,6 @@ const CTX_LABEL: &str = "txn metadata uuid";
 const UUID_HELP: &str = " # uuid: d77b6b92-42f1-419d-834c-66d69f155ad6";
 
 fn p_uuid(is: &mut Stream<'_>) -> ModalResult<Uuid> {
-    // todo: check uuid from bytes
     let uuid_str = seq!(
         cut_err(take_while(8, AsChar::is_hex_digit))
             .context(StrContext::Label(CTX_LABEL))

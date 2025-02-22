@@ -39,8 +39,8 @@ New features:
 
 Changed functionality:
 
-* ...
-** ...
+* Better and more informative error messages of invalid transaction data ("parse errors")
+
 
 ==== Fixes
 

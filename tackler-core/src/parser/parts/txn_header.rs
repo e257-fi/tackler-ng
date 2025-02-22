@@ -32,7 +32,14 @@ pub(crate) fn parse_txn_header(is: &mut Stream<'_>) -> ModalResult<TxnHeader> {
         _: preceded(opt(space1),
             cut_err(line_ending)
                 .context(StrContext::Label("Txn Header"))
-                .context(StrContext::Expected(StrContextValue::Description("format: timestamp [(code)] ['description]"))),
+                .context(StrContext::Expected(StrContextValue::Description(
+"format: timestamp [(code)] ['description]
+ISO 8601 Timestamp:
+    YYYY-MM-DD
+    YYYY-MM-DDThh:mm:ss[+-HH:MM]
+    YYYY-MM-DDThh:mm:ss.sss[+-HH:MM]
+"
+            ))),
         ),
         opt(parse_txn_meta),
         opt(repeat(1.., parse_txn_comment))

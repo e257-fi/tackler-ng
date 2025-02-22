@@ -6,6 +6,7 @@
 use crate::parser::Stream;
 use winnow::combinator::cut_err;
 use winnow::error::StrContext;
+use winnow::error::StrContextValue;
 use winnow::token::take_while;
 use winnow::{ModalResult, Parser, seq};
 
@@ -21,7 +22,13 @@ pub(crate) fn parse_txn_code<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
         _: '(',
         take_while(0..,valid_code_char),
         _: cut_err(')')
-            .context(StrContext::Label("code")),
+            .context(StrContext::Label("transaction code"))
+            .context(StrContext::Expected(StrContextValue::Description(
+"valid characters or closing ')'
+Invalid characters for code value are:
+    '\\'', '(', ')', '[', ']', '{', '}', '<', '>', \\r', '\\n'
+"
+        ))),
     )
     .parse_next(is)?;
 

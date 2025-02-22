@@ -118,9 +118,17 @@ fn p_offset(is: &mut Stream<'_>) -> ModalResult<jiff::tz::Offset> {
     let (sign, h, m) =
         seq!(
             alt(('+'.value(1i32), '-'.value(-1i32))),
-            take_while(2, AsChar::is_dec_digit).try_map(i32::from_str),
-            _: ":",
-            take_while(2, AsChar::is_dec_digit).try_map(i32::from_str),
+            cut_err(take_while(2, AsChar::is_dec_digit))
+                .context(StrContext::Label(CTX_LABEL))
+                .context(StrContext::Expected(StrContextValue::Description("offset hours 'HH' for offset 'HH:MM'")))
+        .try_map(i32::from_str),
+            _: cut_err(":")
+                .context(StrContext::Label(CTX_LABEL))
+                .context(StrContext::Expected(StrContextValue::Description("offset separator ':' for offset 'HH:MM'"))),
+            cut_err(take_while(2, AsChar::is_dec_digit))
+                .context(StrContext::Label(CTX_LABEL))
+                .context(StrContext::Expected(StrContextValue::Description("offset minutes 'MM' for offset 'HH:MM'")))
+            .try_map(i32::from_str),
         )
         .parse_next(is)?;
 

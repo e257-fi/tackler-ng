@@ -4,7 +4,8 @@
  */
 
 use crate::parser::Stream;
-use winnow::combinator::repeat;
+use winnow::combinator::{cut_err, repeat};
+use winnow::error::{StrContext, StrContextValue};
 use winnow::token::{one_of, take_while};
 use winnow::{ModalResult, Parser};
 /*
@@ -44,6 +45,8 @@ NameStartChar
    | '\uFDF0'..'\uFFFD'
    ;
  */
+
+const CTX_LABEL: &str = "name";
 
 fn id_char(c: char) -> bool {
     id_start_char(c)
@@ -91,16 +94,31 @@ pub(crate) fn p_identifier<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
 }
 
 fn p_id_part_helper<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
-    (take_while(1, ':'), p_id_part).take().parse_next(is)
+    (
+        take_while(1, ':'),
+        cut_err(p_id_part)
+            .context(StrContext::Label(CTX_LABEL))
+            .context(StrContext::Expected(StrContextValue::Description(
+                "sub-part of name",
+            ))),
+    )
+        .take()
+        .parse_next(is)
 }
 
 pub(crate) fn p_multi_part_id<'s>(is: &mut Stream<'s>) -> ModalResult<&'s str> {
     let dec_str = (
         p_identifier,
-        repeat(0.., p_id_part_helper).fold(String::new, |mut string, s| {
-            string.push_str(s);
-            string
-        }),
+        cut_err(
+            repeat(0.., p_id_part_helper).fold(String::new, |mut string, s| {
+                string.push_str(s);
+                string
+            }),
+        )
+        .context(StrContext::Label(CTX_LABEL))
+        .context(StrContext::Expected(StrContextValue::Description(
+            "for multi part name",
+        ))),
     )
         .take()
         .parse_next(is)?;
