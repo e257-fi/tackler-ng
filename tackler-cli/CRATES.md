@@ -12,7 +12,7 @@
 with native GIT SCM  support for plain text accounting, written in Rust. 
 
 ````bash
-cargo install tackler
+cargo install --locked tackler
 tackler new demo
 tackler --config demo/conf/tackler.toml
 ````
@@ -40,9 +40,11 @@ Register Report
 
 ## Project Status
 
-Tackler-NG is the basis of all Tackler development, and it's in [feature](https://tackler.e257.fi/features/) parity and beyond of the old scala code base.
+Tackler-NG is the basis of all Tackler development.
+It's in [feature](https://tackler.e257.fi/features/) parity
+and beyond of the old Scala code base.
 
-**NOTE: Tackler-NG is tested with 310 tracked test vectors at the moment**
+**NOTE: Tackler-NG is tested with 341 tracked test vectors at the moment**
 
 All Tackler CLI functionality is supported, including 
 [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
@@ -59,15 +61,25 @@ and all exports
 Other notable features are:
 
 * [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
-* [Price data](https://github.com/e257-fi/tackler-ng/blob/main/docs/tep/tep-1015.adoc) support
-  * Support multiple price data model analytics, including historical data
+* Support for [Market Value of Commodities and Shares](https://tackler.e257.fi/docs/price/), including different valuation methods:
+  * [Current Market Value](https://tackler.e257.fi/docs/price/current-market-value/)
+  * [Historic Market Value](https://tackler.e257.fi/docs/price/historic-market-value/) at the given time
+  * [Variable Market Value](https://tackler.e257.fi/docs/price/variable-market-value/) at the transaction time
 * [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/) for powerfull selectors of accounting data
 * Accounting based on [Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction GIS Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
 
 See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use tackler-ng.
 
 
-## How to build tackler and play with test vectors
+## Source code and test vectors
+
+If you would just like to have tackler binary, use can use
+
+````bash
+cargo install --locked tackler
+````
+
+### How to get the test vectors and build the source code
 
 Get the source code of Tackler, the `main` branch should build and pass all tests.
 
@@ -77,10 +89,14 @@ git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
 cd tackler-ng
 
 # Build tackler
-cargo build --bin tackler
+cargo build --release --locked --bin tackler
 ````
 
-## Simple example
+## Examples
+
+Test data for these examples is located in tackler source code tree, so get it first.
+
+### Simple example
 
 
 This setup doesn't have any checks enabled and it uses plain filesystem as transaction storage.
@@ -238,7 +254,7 @@ Balance Report
 target/release/tackler \
     --config examples/audit.toml \
     --input.git.ref txns-1E5 \
-    --api-filter-def '{"txnFilter":{"TxnFilterPostingAccount":{"regex":"^a:ay2016:am12"}}}'
+    --api-filter-def '{"txnFilter":{"TxnFilterPostingAccount":{"regex":"a:ay2016:am12"}}}'
 ````
 
 The transaction filter definition could be given also 
@@ -246,7 +262,7 @@ as Base64 ascii armored string:
 
 ````
 --api-filter-def \
-base64:eyJ0eG5GaWx0ZXIiOnsiVHhuRmlsdGVyUG9zdGluZ0FjY291bnQiOnsicmVnZXgiOiJeYTpheTIwMTY6YW0xMiJ9fX0=
+base64:eyJ0eG5GaWx0ZXIiOnsiVHhuRmlsdGVyUG9zdGluZ0FjY291bnQiOnsicmVnZXgiOiJhOmF5MjAxNjphbTEyIn19fQ==
 ````
 
 
@@ -265,7 +281,7 @@ Txn Set Checksum
        Set size : 8406
 
 Filter
-  Posting Account: "^a:ay2016:am12"
+  Posting Account: "a:ay2016:am12"
 
 **********************************************************************************
 Account Selector Checksum

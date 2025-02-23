@@ -11,7 +11,7 @@ link:https://tackler.e257.fi/[Tackler] is fast (1), reliable bookkeeping engine
 with native GIT SCM support for plain text accounting, written in Rust.
 
 ----
-cargo install tackler
+cargo install --locked tackler # (2)
 tackler new demo
 tackler --config demo/conf/tackler.toml
 ----
@@ -34,20 +34,22 @@ Register Report
 ...
 ----
 
-1) Tackler can process 120_000 - 250_000 transactions per second on modern laptop. See link:https://tackler.e257.fi/docs/performance/[Performance] for details.
+1) Tackler can process 120_000 - 250_000 transactions per second on modern laptop.
+See link:https://tackler.e257.fi/docs/performance/[Performance] for details.
 
-2) If you don't have Rust toolchain installed, get it link:https://www.rust-lang.org/tools/install[from here].
+2) If you don't have Rust toolchain installed,
+get it link:https://www.rust-lang.org/tools/install[from here].
 
 
 == Project Status
 
-Tackler-NG is basis of all Tackler development, and it's
-in link:https://tackler.e257.fi/features/[feature] parity and beyond
-of the old scala code base.
+Tackler-NG is basis of all Tackler development. It's
+in link:https://tackler.e257.fi/features/[feature] parity
+and beyond of the old Scala code base.
 
 [NOTE]
 ====
-*Tackler-NG is tested with 310 tracked test vectors at the moment*
+*Tackler-NG is tested with 341 tracked test vectors at the moment*
 ====
 
 All Tackler CLI functionality is supported, including
@@ -66,13 +68,12 @@ Other notable features are:
 
 * Handling link:https://tackler.e257.fi/docs/commodities/[Commodities] and link:https://tackler.e257.fi/docs/currencies/[Shares]
 
-* link:https://github.com/e257-fi/tackler-ng/blob/main/docs/tep/tep-1015.adoc[TEP-1015]: Support for Price data
-  ** Support for various price data analytics
-     *** The `last-price` of recorded rate in PriceDB
-     *** The historic at `given-time` lookup model
-     *** The historic at `txn-time` lookup model
+* Support for link:https://tackler.e257.fi/docs/price/[Market Value of Commodities and Shares], including different valuation methods:
+    ** link:https://tackler.e257.fi/docs/price/current-market-value/[Current Market Value]
+    ** link:https://tackler.e257.fi/docs/price/historic-market-value/[Historic Market Value] at the given time
+    ** link:https://tackler.e257.fi/docs/price/variable-market-value/[Variable Market Value] at the transaction time
 
-* link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters] for powerfull selectors of accounting data
+* link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters] for powerfull selectors of used accounting data
 * Accounting based on link:https://tackler.e257.fi/docs/gis/txn-geo-location[Geo Location] and link:https://tackler.e257.fi/docs/gis/txn-geo-filters/[Transaction GIS Filters]
 
 See `tackler --help`, link:https://tackler.e257.fi/docs/[Documentation] and  link:examples/tackler.toml[Tackler Configuration] how to use tackler-ng.
