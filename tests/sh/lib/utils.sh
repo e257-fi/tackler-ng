@@ -62,3 +62,18 @@ cmp_result_ref () {
     fi
     echo -n " $target"
 }
+
+check_suite () {
+    if [ ! -e "$SUITE_PATH/audit/audit-repo.git" ] || [ ! -d "$SUITE_PATH/audit/audit-repo.git" ]; then
+        echo ""
+        echo "Tackler-NG test setup error"
+        echo ""
+        echo "Tackler-NG test suite is missing at the location '$SUITE_PATH'"
+        echo "The test suite is git submodule, so you must update it by running:"
+        echo ""
+        echo "   git submodule init"
+        echo "   git submodule update"
+        echo ""
+        exit 1
+    fi
+}

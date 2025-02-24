@@ -38,6 +38,7 @@ export OUTPUT_DIR
 
 source $TEST_DIR/lib/utils.sh
 
+check_suite
 
 $TEST_DIR/accumulator.sh
 $TEST_DIR/audit.sh
