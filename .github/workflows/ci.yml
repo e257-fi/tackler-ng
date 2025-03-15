@@ -53,5 +53,6 @@ jobs:
       - run: target/release/tackler --version
       - run: target/release/tackler --config examples/simple.toml
       - run: target/release/tackler --config examples/audit.toml
+      - run: target/release/tackler --config examples/maple.toml
       - run: tests/sh/test-runner-ng.sh
 

@@ -1,0 +1,37 @@
+###
+### Maple: Commodity value (price) example
+###
+[kernel]
+strict = false
+audit = { mode = false, hash = "SHA-256" }
+timestamp = { default-time = 00:00:00, timezone = { name = "UTC" } }
+
+input = { storage = "fs", fs = { path = "maple", dir = "txns", suffix = "txn" } }
+
+[price]
+db-path = "maple/txns/price.db"
+lookup-type = "last-price"
+
+[transaction]
+accounts    = { path = "none" }
+commodities = { path = "none" }
+tags        = { path = "none" }
+
+
+### Report Configuration
+[report]
+report-timezone = "UTC"
+scale = { min = 2, max = 12 }
+targets = [ "balance", "register" ]
+commodity = "CAD"
+accounts = [ ]
+
+balance       = { title = "Balance Report" }
+balance-group = { title = "Balance Group Report", group-by = "month" }
+register      = { title = "Register Report", accounts = [ "Assets:.*", "Expenses:.*", "Income:.*" ]}
+
+
+### Export Configuration
+[export]
+targets = [ ]
+equity = { accounts = [ ], equity-account = "Equity:Balance" }
