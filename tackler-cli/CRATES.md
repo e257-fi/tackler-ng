@@ -61,7 +61,7 @@ and all exports
 Other notable features are:
 
 * [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
-* Support for [Market Value of Commodities and Shares](https://tackler.e257.fi/docs/price/), including different valuation methods:
+* [Market Value of Commodities and Shares](https://tackler.e257.fi/docs/price/), including different valuation methods:
   * [Current Market Value](https://tackler.e257.fi/docs/price/current-market-value/)
   * [Historic Market Value](https://tackler.e257.fi/docs/price/historic-market-value/) at the given time
   * [Variable Market Value](https://tackler.e257.fi/docs/price/variable-market-value/) at the transaction time

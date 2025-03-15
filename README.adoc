@@ -68,7 +68,7 @@ Other notable features are:
 
 * Handling link:https://tackler.e257.fi/docs/commodities/[Commodities] and link:https://tackler.e257.fi/docs/currencies/[Shares]
 
-* Support for link:https://tackler.e257.fi/docs/price/[Market Value of Commodities and Shares], including different valuation methods:
+* link:https://tackler.e257.fi/docs/price/[Market Value of Commodities and Shares], including different valuation methods:
     ** link:https://tackler.e257.fi/docs/price/current-market-value/[Current Market Value]
     ** link:https://tackler.e257.fi/docs/price/historic-market-value/[Historic Market Value] at the given time
     ** link:https://tackler.e257.fi/docs/price/variable-market-value/[Variable Market Value] at the transaction time
