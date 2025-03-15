@@ -1,9 +1,0 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
-#
-# This is the Chart of Transaction Tags
-#
-
-tags = [
-    "t1",
-    "t1:t1_2",
-]
