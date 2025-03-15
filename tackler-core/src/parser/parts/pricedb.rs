@@ -5,7 +5,7 @@
 
 use winnow::{
     ModalResult, Parser,
-    ascii::{line_ending, space0, space1},
+    ascii::{line_ending, multispace0, space0, space1},
     combinator::opt,
     error::{StrContext, StrContextValue},
     seq,
@@ -34,6 +34,7 @@ pub(crate) fn parse_price_entry(is: &mut Stream<'_>) -> ModalResult<PriceEntry> 
         _: space0,
         opt(p_comment),
         _: line_ending,
+        _: multispace0,
     )
     .parse_next(is)?;
 
