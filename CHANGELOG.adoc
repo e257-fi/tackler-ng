@@ -53,10 +53,11 @@ Updated deps and tools:
 * Dependencies
 ** clap: v4.5.31
 ** jiff: v0.2.3
+** serde: v1.0.219
 ** serde_json: v1.0.140
 ** toml: 0.8.20
-** uuid: v1.15.1
-** winnow: 0.7.3
+** uuid: v1.16.0
+** winnow: 0.7.4
 
 ===== Rust toolchain
 
