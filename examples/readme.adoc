@@ -1,0 +1,92 @@
+= Tackler Examples
+
+These examples are supposed to be run from project root folder.
+
+== Simple Journal
+
+Example of simple journal setup:
+
+----
+target/release/tackler --config examples/simple.toml
+----
+
+
+== Audit and Account Auditing Setup
+
+To run this example, make sure that you have cloned the
+repository with submodules. If not, run first:
+
+----
+git submodule init
+git submodule update
+----
+
+And then:
+
+----
+target/release/tackler --config examples/audit.toml
+----
+
+Audit test data has a branch with 100_000 transactions, this query will execute in few seconds:
+
+----
+target/release/tackler \
+   --config examples/audit.toml \
+   --input.git.ref txns-1E5 \
+   --accounts 'a:ay2016:am12'
+----
+
+Structure of the test data is described in Tackler's link:https://tackler.e257.fi/docs/performance/#test_data[Performance Test] documentation.
+
+== Commodity Prices
+
+These are a set of examples to demonstrate link:https://tackler.e257.fi/docs/price/[commodity price functionalities].
+
+=== Current Market Value
+
+The full example is on Tackler's site: link:https://tackler.e257.fi/docs/price/current-market-value/[Current Market value]
+
+
+----
+target/release/tackler \
+    --config examples/maple.toml \
+    --reports balance \
+    --accounts "Assets:Coins" \
+    --price.lookup-type last-price \
+    --report.commodity CAD
+----
+
+=== Historic Market Value
+
+The full example is on Tackler's site: link:https://tackler.e257.fi/docs/price/historic-market-value/[Historic Market value]
+
+----
+target/release/tackler \
+    --config examples/maple.toml \
+    --reports balance \
+    --accounts "Assets:Coins" \
+    --price.lookup-type given-time \
+    --price.before 2024-03-01 \
+    --report.commodity CAD
+----
+
+=== Solar Energy Examples
+
+The full example is on Tackler's site: link:https://tackler.e257.fi/docs/examples/solar-energy-value/[Solar Energy Value]
+
+==== Value of the energy when used at the site
+
+----
+target/release/tackler \
+   --config examples/solar.toml \
+   --reports balance
+----
+
+==== Value of the Energy if sold to the grid
+
+----
+target/release/tackler \
+   --config examples/solar.toml \
+   --reports balance \
+   --pricedb examples/solar/txns/se-sold.db
+----

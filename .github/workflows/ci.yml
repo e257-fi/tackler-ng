@@ -54,5 +54,7 @@ jobs:
       - run: target/release/tackler --config examples/simple.toml
       - run: target/release/tackler --config examples/audit.toml
       - run: target/release/tackler --config examples/maple.toml
+      - run: target/release/tackler --config examples/solar.toml
+      - run: target/release/tackler --config examples/solar.toml --pricedb examples/solar/txns/se-sold.db
       - run: tests/sh/test-runner-ng.sh
 

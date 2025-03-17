@@ -1,5 +1,5 @@
 ###
-### Maple: Commodity value (price) example
+### Maple: Commodity value example (price functionality)
 ###
 [kernel]
 strict = false
