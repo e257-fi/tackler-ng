@@ -38,6 +38,35 @@ target/release/tackler \
 
 Structure of the test data is described in Tackler's link:https://tackler.e257.fi/docs/performance/#test_data[Performance Test] documentation.
 
+== Transaction filters
+
+Filter definition as plain JSON:
+
+----
+target/release/tackler \
+    --config examples/audit.toml \
+    --input.git.ref txns-1E2 \
+    --reports register \
+    --accounts 'a:.*' \
+    --audit.mode true \
+    --api-filter-def \
+      '{ "txnFilter": { "TxnFilterTxnDescription": { "regex": "1E2 txn-(1|17|100)" }}}'
+----
+
+Same filter with base64 armor:
+
+----
+target/release/tackler \
+    --config examples/audit.toml \
+    --input.git.ref txns-1E2 \
+    --reports register \
+    --accounts 'a:.*' \
+    --audit.mode true \
+    --api-filter-def \
+      base64:eyAidHhuRmlsdGVyIjogeyAiVHhuRmlsdGVyVHhuRGVzY3JpcHRpb24iOiB7ICJyZWdleCI6ICJeMUUyIHR4bi0oMXwxN3wxMDApJCIgfX19Cg==
+----
+
+
 == Commodity Prices
 
 These are a set of examples to demonstrate link:https://tackler.e257.fi/docs/price/[commodity price functionalities].

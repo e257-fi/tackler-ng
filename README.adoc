@@ -105,6 +105,12 @@ cargo build --release --locked --bin tackler
 # the binary is located at 'target/release/tackler'
 ----
 
+== Examples
+
+See link:https://github.com/e257-fi/tackler-ng/tree/main/examples[Examples] folder
+in the repository for full list of examples.
+
+
 === Simple example with Filesystem Journal
 
 ----
@@ -154,9 +160,9 @@ Balance Report
 ----
 
 
-See `tackler --help`, link:examples/tackler.toml[Tackler configuration] file, example link:docs/examples.adoc[commands] and link:tackler-cli/CRATES.md[Tackler CLI documentation] how to use the rusty version of tackler.
+See `tackler --help`, link:examples/tackler.toml[Tackler configuration] file, tackler link:https://github.com/e257-fi/tackler-ng/tree/main/examples[examples] and link:tackler-cli/CRATES.md[Tackler CLI documentation] how to use the rusty version of tackler.
 
-link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG. For the general information about Tackler, see the link:https://tackler.e257.fi/docs/[Tackler site].
+link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG. For Tackler user manual, see the link:https://tackler.e257.fi/docs/[Tackler Documentation].
 
 == Credits
 
@@ -179,8 +185,8 @@ Following people have helped or contributed to the development of Tackler-NG:
 link:https://github.com/byron[Byron],
 link:https://github.com/zamazan4ik[zamazan4ik],
 link:https://github.com/epage/[epage],
-link:https://github.com/BurntSushi[BurntSushi],
-link:https://github.com/RagibHasin[RagibHasin],
+link:https://github.com/BurntSushi[BurntSushi] and
+link:https://github.com/RagibHasin[RagibHasin]
 
 Thank you!
 
