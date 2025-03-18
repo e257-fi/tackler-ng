@@ -51,8 +51,10 @@ Fixes in this release ...
 Updated deps and tools:
 
 * Dependencies
-** clap: v4.5.31
+** clap: v4.5.32
+** itertools: 0.14.0
 ** jiff: v0.2.3
+** rust_decimal: 1.37.0
 ** serde: v1.0.219
 ** serde_json: v1.0.140
 ** toml: 0.8.20
