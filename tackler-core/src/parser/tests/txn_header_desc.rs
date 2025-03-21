@@ -5,7 +5,6 @@
 //
 // This is tackler test:
 //    - https://gitlab.com/e257/accounting/tackler
-//    - https://github.com/e257-fi/tackler
 // * core/src/test/scala/fi/e257/tackler/parser/TacklerParserHeaderDescriptionTest.scala
 //
 #![cfg_attr(rustfmt, rustfmt_skip)]
