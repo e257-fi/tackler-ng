@@ -30,12 +30,12 @@ tackler-core = "0.8.0"
 
 New features:
 
-* link:https://github.com/tackler-ng/tackler/blob/main/docs/tep/tep-1015.adoc[TEP-1015]: Support for Price data
+* New feature: link:https://tackler.e257.fi/docs/price/[Support for Commodity Price data] (link:https://github.com/tackler-ng/tackler/blob/main/docs/tep/tep-1015.adoc[TEP-1015])
   ** PriceDB support
-  ** Support for various price data analytics
-     *** The `last-price` of recorded rate in PriceDB
-     *** The historic at `given-time` lookup model
-     *** The historic at `txn-time` lookup model
+  ** Support for various commodity price (Mark-to-Market) models:
+    *** link:https://tackler.e257.fi/docs/price/current-market-value/[Current Market Value]
+    *** link:https://tackler.e257.fi/docs/price/historic-market-value/[Historic Market Value]
+    *** link:https://tackler.e257.fi/docs/price/variable-market-value/[Variable Market Value]
 
 Changed functionality:
 
