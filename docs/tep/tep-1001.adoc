@@ -26,7 +26,7 @@ xref:tep-1003.adoc[TEP-1003: Profit and Loss].
 
 == Feature and test coverage tracking
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tep-1001.yml[TEP-1001 test cases]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tep-1001.yml[TEP-1001 test cases]
 
 
 '''

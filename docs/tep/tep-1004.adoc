@@ -183,7 +183,7 @@ Test performance with new output format, especially streaming case.
 
 === Metadata for test coverage tracking
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tep-1004.yml[TEP-1004 Test Coverage]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tep-1004.yml[TEP-1004 Test Coverage]
 
 '''
 Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.

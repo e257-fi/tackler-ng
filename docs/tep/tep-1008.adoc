@@ -231,7 +231,7 @@ this change has no impact on performance.
 
 Feature-id:: bfc11481-21e2-4d12-8d9d-c4b434fd9228
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1008.yml[TEP-1008 Test Coverage]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1008.yml[TEP-1008 Test Coverage]
 
 
 

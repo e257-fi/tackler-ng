@@ -357,7 +357,7 @@ Add new perf test target for txn set checksum
 
 ==== Feature and Test case tracking
 
-xref:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1007.yml[TEP-1007 Test Coverage]
+xref:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1007.yml[TEP-1007 Test Coverage]
 
 
 '''

@@ -222,7 +222,7 @@ Feature-id::
 * uuid: bd2adc2c-0a34-4f12-a3fa-52142520ccbd
 
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1014.yml[TEP-1014 Test Coverage]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1014.yml[TEP-1014 Test Coverage]
 
 
 '''

@@ -1,10 +1,10 @@
 # Tackler-NG: Tackler CLI Application
 
-[![Build Status](https://github.com/e257-fi/tackler-ng/actions/workflows/ci.yml/badge.svg)](https://github.com/e257-fi/tackler-ng/actions)
-[![Github Releases](https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da)](https://github.com/e257-fi/tackler-ng/releases)
+[![Build Status](https://github.com/tackler-ng/tackler/actions/workflows/ci.yml/badge.svg)](https://github.com/tackler-ng/tackler/actions)
+[![Github Releases](https://img.shields.io/github/v/release/tackler-ng/tackler?include_prereleases&color=%230868da)](https://github.com/tackler-ng/tackler/releases)
 [![crates.io](https://tackler.e257.fi/img/badge-crates.svg)](https://crates.io/crates/tackler)
 [![Tackler Docs](https://img.shields.io/badge/tackler-documentation-%23ffcb00)](https://tackler.e257.fi/docs)
-[![GitHub Discussions](https://img.shields.io/github/discussions/e257-fi/tackler-ng)](https://github.com/e257-fi/tackler-ng/discussions)
+[![GitHub Discussions](https://img.shields.io/github/discussions/tackler-ng/tackler)](https://github.com/tackler-ng/tackler/discussions)
 [![Chat on Matrix](https://tackler.e257.fi/img/badge-matrix.svg)](https://matrix.to/#/#tackler:matrix.org)
 
 
@@ -68,7 +68,7 @@ Other notable features are:
 * [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/) for powerfull selectors of accounting data
 * Accounting based on [Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction GIS Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
 
-See `tackler --help` and [Tackler Configuration](https://github.com/e257-fi/tackler-ng/blob/main/examples/tackler.toml) how to use tackler-ng.
+See `tackler --help` and [Tackler Configuration](https://github.com/tackler-ng/tackler/blob/main/examples/tackler.toml) how to use tackler-ng.
 
 
 ## Source code and test vectors
@@ -84,7 +84,7 @@ cargo install --locked tackler
 Get the source code of Tackler, the `main` branch should build and pass all tests.
 
 ````bash
-git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
+git clone --recurse-submodules https://github.com/tackler-ng/tackler
 
 cd tackler-ng
 
@@ -300,7 +300,7 @@ Balance Report
 
 * [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/)
 * [Txn Filters with Shell Script](https://tackler.e257.fi/docs/usage/#txn-filters-shell)
-* [Tackler-NG repository](https://github.com/e257-fi/tackler-ng)
+* [Tackler-NG repository](https://github.com/tackler-ng/tackler)
 * [Tackler website](https://tackler.e257.fi/)
 * [Plain Text Accounting](https://plaintextaccounting.org/)
 

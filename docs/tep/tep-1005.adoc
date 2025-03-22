@@ -201,7 +201,7 @@ Tests for error cases:
 
 === Test coverage tracking
 
-xref:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1005.yml[TEP-1005 Test Coverage]
+xref:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1005.yml[TEP-1005 Test Coverage]
 
 
 '''

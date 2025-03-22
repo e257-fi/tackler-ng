@@ -307,7 +307,7 @@ Feature-id::
 * uuid: cfa92a0d-a8af-4fb5-a3c6-723029febc5a
 
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1010.yml[TEP-1010 Test Coverage]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1010.yml[TEP-1010 Test Coverage]
 
 
 '''

@@ -1,7 +1,7 @@
 = TEP-XXXX: short-name
 
 See branch
-link:https://github.com/e257-fi/tackler-ng/tree/tep/tep-XXXX-SHORT-NAME/docs/tep/tep-XXXX.adoc[/tep/tep-XXXX-SHORT-NAME]
+link:https://github.com/tackler-ng/tackler/tree/tep/tep-XXXX-SHORT-NAME/docs/tep/tep-XXXX.adoc[/tep/tep-XXXX-SHORT-NAME]
 for actual TEP-XXXX content.
 
 Single line description
@@ -149,7 +149,7 @@ Changes to identity export
 * [ ] Does it warrant own T3DB file?
 ** [ ] update xref:../../suite/tests.adoc[]
 ** [ ] update xref:../../suite/check-tests.sh[]
-** [ ] Add new T3DB file link:https://github.com/e257-fi/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
+** [ ] Add new T3DB file link:https://github.com/tackler-ng/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
 * [ ] User docs
 ** [ ] User Manual
 *** [ ] cli-arguments
@@ -206,7 +206,7 @@ Feature-id::
 * uuid: <UUID>
 
 
-link:https://github.com/e257-fi/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
+link:https://github.com/tackler-ng/tackler-t3db/[tests-XXXX.yml: TEP-XXXX T3DB]
 
 
 ==== Metadata template for Feature and Test Coverage Tracking

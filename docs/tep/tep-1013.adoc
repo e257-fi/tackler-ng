@@ -64,7 +64,7 @@ Feature-id::
 * uuid: 5de84172-6eb7-4d70-acab-ba7c7f5b2114
 
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1013.yml[TEP-1013 Test Coverage]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1013.yml[TEP-1013 Test Coverage]
 
 
 '''

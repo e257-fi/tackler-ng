@@ -7,11 +7,10 @@ fast and hard and won’t process dubious input as valid one.
 Tackler-NG will strive for the same
 link:https://tackler.e257.fi/docs/reliability/[reliability level as Tackler].
 
-At the moment as RIIR is still in progress, things are in flux a bit, but
-Tackler's original test-vectors and Tackler Test Tracking Database (T3DB) are here:
+Tackler test vectors and Tackler Test Tracking Database (T3DB) are located here:
 
-* link:https://github.com/e257-fi/tackler-tests[Test vectors]
-* link:https://gitlab.com/e257/accounting/tackler-t3db[T3DB]
+* link:https://github.com/tackler-ng/tackler-tests[Test vectors]
+* link:https://github.com/tackler-ng/tackler-t3db[T3DB]
 
 
 == Unsafe and unwrap
@@ -42,8 +41,8 @@ Decimal represents a 128 bit representation of a fixed-precision decimal number.
 
 At the moment design and code structure follows Tackler's structure:
 
-* link:https://github.com/e257-fi/tackler/blob/main/docs/devel/design.adoc[Design]
-* link:https://github.com/e257-fi/tackler/blob/main/docs/tep/readme.adoc[TEP Index (Tackler Enhancement Proposals)]
+* link:https://github.com/tackler-ng/tackler/blob/main/docs/devel/design.adoc[Design]
+* link:https://github.com/tackler-ng/tackler/blob/main/docs/tep/readme.adoc[TEP Index (Tackler Enhancement Proposals)]
 
 
 === Parser definition

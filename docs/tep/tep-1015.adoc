@@ -2,7 +2,7 @@
 
 Add price data support for currencies, shares and commodities.
 
-Github issue: https://github.com/e257-fi/tackler-ng/issues/36
+Github issue: https://github.com/tackler-ng/tackler/issues/36
 
 == Summary
 
@@ -337,7 +337,7 @@ No changes to Identity Export
 * [ ] Does it warrant own T3DB file?
 ** [ ] update xref:../../suite/tests.adoc[]
 ** [ ] update xref:../../suite/check-tests.sh[]
-** [x] Add new T3DB file link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml]
+** [x] Add new T3DB file link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml]
 * [ ] User docs
 ** [ ] User Manual
 *** [ ] cli-arguments
@@ -498,7 +498,7 @@ Feature-id::
 
 ==== Metadata template for Feature and Test Coverage Tracking
 
-* link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml: TEP-1015 T3DB]
+* link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1015.yml[test-1015.yml: TEP-1015 T3DB]
 
 '''
 Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*, either express or implied.

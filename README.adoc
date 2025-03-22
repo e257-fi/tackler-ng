@@ -1,8 +1,8 @@
-image:https://github.com/e257-fi/tackler-ng/actions/workflows/ci.yml/badge.svg["ci status", link="https://github.com/e257-fi/tackler-ng/actions"]
-image:https://img.shields.io/github/v/release/e257-fi/tackler-ng?include_prereleases&color=%230868da["Github Release", link="https://github.com/e257-fi/tackler-ng/releases"]
+image:https://github.com/tackler-ng/tackler/actions/workflows/ci.yml/badge.svg["ci status", link="https://github.com/tackler-ng/tackler/actions"]
+image:https://img.shields.io/github/v/release/tackler-ng/tackler?include_prereleases&color=%230868da["Github Release", link="https://github.com/tackler-ng/tackler/releases"]
 image:https://tackler.e257.fi/img/badge-crates.svg["crates.io: tackler", link="https://crates.io/crates/tackler"]
 image:https://img.shields.io/badge/tackler-documentation-%23ffcb00["Tackler Docs", link="https://tackler.e257.fi/docs"]
-image:https://img.shields.io/github/discussions/e257-fi/tackler-ng["GitHub Discussions", link="https://github.com/e257-fi/tackler-ng/discussions"]
+image:https://img.shields.io/github/discussions/tackler-ng/tackler["GitHub Discussions", link="https://github.com/tackler-ng/tackler/discussions"]
 image:https://tackler.e257.fi/img/badge-matrix.svg["matrix: tackler", link="https://matrix.to/#/#tackler:matrix.org"]
 
 = Tackler-NG
@@ -84,7 +84,7 @@ See `tackler --help`, link:https://tackler.e257.fi/docs/[Documentation] and  lin
 Get the source code and test cases to play around and for building `main`:
 
 ----
-git clone --recurse-submodules https://github.com/e257-fi/tackler-ng
+git clone --recurse-submodules https://github.com/tackler-ng/tackler
 ----
 
 Then build the tackler binary:
@@ -107,7 +107,7 @@ cargo build --release --locked --bin tackler
 
 == Examples
 
-See link:https://github.com/e257-fi/tackler-ng/tree/main/examples[Examples] folder
+See link:https://github.com/tackler-ng/tackler/tree/main/examples[Examples] folder
 in the repository for full list of examples.
 
 
@@ -160,7 +160,7 @@ Balance Report
 ----
 
 
-See `tackler --help`, link:examples/tackler.toml[Tackler configuration] file, tackler link:https://github.com/e257-fi/tackler-ng/tree/main/examples[examples] and link:tackler-cli/CRATES.md[Tackler CLI documentation] how to use the rusty version of tackler.
+See `tackler --help`, link:examples/tackler.toml[Tackler configuration] file, tackler link:https://github.com/tackler-ng/tackler/tree/main/examples[examples] and link:tackler-cli/CRATES.md[Tackler CLI documentation] how to use the rusty version of tackler.
 
 link:docs/devel/readme.adoc[Developer's Guides] have technical information about Tackler-NG. For Tackler user manual, see the link:https://tackler.e257.fi/docs/[Tackler Documentation].
 

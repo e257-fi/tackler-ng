@@ -300,7 +300,7 @@ Feature-id::
 * id:   be31bd6b-9ece-4f5d-9179-3ca66f057339
 
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tests-1009.yml[TEP-1009 Test Coverage]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tests-1009.yml[TEP-1009 Test Coverage]
 
 '''
 Tackler is distributed on an *"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND*,

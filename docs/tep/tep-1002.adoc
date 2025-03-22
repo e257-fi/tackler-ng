@@ -189,7 +189,7 @@ None at the moment (journal sidecar file?)
 
 === Metadata for test coverage tracking
 
-link:https://github.com/e257-fi/tackler-t3db/blob/main/tep-1002.yml[TEP-1002 test cases]
+link:https://github.com/tackler-ng/tackler-t3db/blob/main/tep-1002.yml[TEP-1002 test cases]
 
 ....
 features:
