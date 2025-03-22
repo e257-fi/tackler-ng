@@ -16,6 +16,8 @@ commodities = [
     "$",
     "EUR",
     "USD",
+    "CAD",
+    "GML",
     "He·litre",
     "O2·litre"
 ]

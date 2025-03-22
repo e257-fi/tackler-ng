@@ -28,8 +28,50 @@ $TACKLER_SH \
 echo "check:"
 $TACKLER_SH \
     --config $journal_path/conf/tackler.toml
-
 echo ": ok"
+
+
+#
+# new-02
+#
+# test: eddeb65b-630b-4d8b-a236-f9caa298a08b
+rm -rf $OUTPUT_DIR/*
+test_name=new-02
+echo "test: $module/$test_name: "
+
+journal_path=$OUTPUT_DIR/$module/$test_name
+
+$TACKLER_SH \
+    new $journal_path
+
+echo "check:"
+$TACKLER_SH \
+    --config $journal_path/conf/tackler.toml \
+    --reports balance \
+    --price.lookup-type last-price
+echo ": ok"
+
+#
+# new-03
+#
+# test: ffe35948-b42d-4b43-a71a-483d1da048bc
+rm -rf $OUTPUT_DIR/*
+test_name=new-03
+echo "test: $module/$test_name: "
+
+journal_path=$OUTPUT_DIR/$module/$test_name
+
+$TACKLER_SH \
+    new $journal_path
+
+echo "check:"
+$TACKLER_SH \
+    --config $journal_path/conf/tackler.toml \
+    --reports balance \
+    --price.lookup-type last-price \
+    --strict.mode true
+echo ": ok"
+
 
 #
 # init-01
@@ -49,7 +91,6 @@ journal_path=$OUTPUT_DIR/$module/$test_name
 echo "check:"
 $TACKLER_SH \
     --config $journal_path/conf/tackler.toml
-
 echo ": ok"
 
 rm -rf $OUTPUT_DIR/*

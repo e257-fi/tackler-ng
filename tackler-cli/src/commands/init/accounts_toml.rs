@@ -11,6 +11,7 @@ pub(super) const TXT: &str = r#"#
 #
 accounts = [
     "Assets:Cash",
+    "Assets:Coins",
     "Expenses:Food:Fast-Food",
     "Expenses:Sweets:Candy",
     "Expenses:Sweets:Ice·Cream",

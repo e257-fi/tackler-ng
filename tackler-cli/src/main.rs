@@ -27,7 +27,7 @@ use tikv_jemallocator::Jemalloc;
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
-fn run(cli: DefaultModeArgs) -> Result<(), tackler::Error> {
+fn run(cli: DefaultModeArgs) -> Result<Option<String>, tackler::Error> {
     let cfg = match Config::from(cli.conf_path.as_ref().unwrap()) {
         Ok(cfg) => cfg,
         Err(err) => {
@@ -126,22 +126,28 @@ fn run(cli: DefaultModeArgs) -> Result<(), tackler::Error> {
             &mut Some(Box::new(io::stdout())),
         )?;
     }
-    Ok(())
+    Ok(None)
 }
 
 fn main() {
+    let exe_name = std::env::args().next().expect("No executable name");
     let cli = cli_args::Cli::parse();
 
     let command = cli.cmd();
 
     let res = match command {
-        Commands::New { name } => commands::new::exec(name.as_str()),
-        Commands::Init {} => commands::init::exec("."),
+        Commands::New { name } => commands::new::exec(&exe_name, name.as_str()),
+        Commands::Init {} => commands::init::exec(&exe_name, "."),
         Commands::Report(args) => run(args),
     };
 
     match res {
-        Ok(_) => std::process::exit(0),
+        Ok(msg) => {
+            if let Some(msg) = msg {
+                println!("{}", msg);
+            }
+            std::process::exit(0)
+        }
         Err(err) => {
             let msg = format!("Tackler error: {err}");
             error!("{msg}");
