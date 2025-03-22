@@ -2,6 +2,13 @@
 
 These examples are supposed to be run from project root folder.
 
+== Create a new Journal Setup
+
+----
+target/release/tackler new journal
+----
+
+
 == Simple Journal
 
 Example of simple journal setup:

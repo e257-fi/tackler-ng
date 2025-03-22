@@ -86,7 +86,7 @@ Get the source code of Tackler, the `main` branch should build and pass all test
 ````bash
 git clone --recurse-submodules https://github.com/tackler-ng/tackler
 
-cd tackler-ng
+cd tackler
 
 # Build tackler
 cargo build --release --locked --bin tackler
@@ -94,7 +94,18 @@ cargo build --release --locked --bin tackler
 
 ## Examples
 
-Test data for these examples is located in tackler source code tree, so get it first.
+Check out Tackler's repository for [full list of examples](https://github.com/tackler-ng/tackler/blob/main/examples/readme.adoc).
+
+These examples need tackler source code and test vectors,
+so make sure you have checked it out with submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/tackler-ng/tackler
+# or
+git submodule init
+git submodule update
+```
+
 
 ### Simple example
 
