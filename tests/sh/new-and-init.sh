@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-set -e
+set -e -o pipefail
 
 source $TEST_DIR/lib/utils.sh
 

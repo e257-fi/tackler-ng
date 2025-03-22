@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-set -e
+set -e -o pipefail
 
 TEST_DIR="$(readlink -f $(dirname $(realpath $0)))"
 export TEST_DIR
