@@ -40,8 +40,8 @@ Register Report
 
 ## Project Status
 
-Tackler-NG is the basis of all Tackler development.
-It's in [feature](https://tackler.e257.fi/features/) parity
+Tackler-NG is basis of all Tackler development.
+It's in [feature](https://tackler.e257.fi/features/) parity with
 and beyond of the old Scala code base.
 
 **NOTE: Tackler-NG is tested with 341 tracked test vectors at the moment**
@@ -60,12 +60,13 @@ and all exports
 
 Other notable features are:
 
-* [Commodities](https://tackler.e257.fi/docs/commodities/) and [Shares](https://tackler.e257.fi/docs/currencies/)
-* [Market Value of Commodities and Shares](https://tackler.e257.fi/docs/price/), including different valuation methods:
+* [Commodities](https://tackler.e257.fi/docs/commodities/), [Currencies and Shares](https://tackler.e257.fi/docs/currencies/)
+* [Market Value of Commodities and Shares](https://tackler.e257.fi/docs/price/), including different valuation (Mark-to-Market) methods:
   * [Current Market Value](https://tackler.e257.fi/docs/price/current-market-value/)
-  * [Historic Market Value](https://tackler.e257.fi/docs/price/historic-market-value/) at the given time
-  * [Variable Market Value](https://tackler.e257.fi/docs/price/variable-market-value/) at the transaction time
+  * [Historic Market Value](https://tackler.e257.fi/docs/price/historic-market-value/)
+  * [Variable Market Value](https://tackler.e257.fi/docs/price/variable-market-value/)
 * [Transaction Filters](https://tackler.e257.fi/docs/txn-filters/) for powerfull selectors of accounting data
+* Real transaction [timestamps up to nanosecond](https://tackler.e257.fi/docs/journal/format/#timestamps) resolution and with timezone information
 * Accounting based on [Geo Location](https://tackler.e257.fi/docs/gis/txn-geo-location/) and [Transaction GIS Filters](https://tackler.e257.fi/docs/gis/txn-geo-filters/)
 
 See `tackler --help` and [Tackler Configuration](https://github.com/tackler-ng/tackler/blob/main/examples/tackler.toml) how to use tackler-ng.
@@ -88,7 +89,7 @@ git clone --recurse-submodules https://github.com/tackler-ng/tackler
 
 cd tackler
 
-# Build tackler
+# If you didn't install tackler in the previous step, build it now
 cargo build --release --locked --bin tackler
 ````
 

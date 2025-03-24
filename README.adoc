@@ -66,20 +66,21 @@ link:https://tackler.e257.fi/docs/export-equity/[Identity]).
 
 Other notable features are:
 
-* Handling link:https://tackler.e257.fi/docs/commodities/[Commodities] and link:https://tackler.e257.fi/docs/currencies/[Shares]
+* Support for link:https://tackler.e257.fi/docs/commodities/[Commodities], link:https://tackler.e257.fi/docs/currencies/[Currencies and Shares]
 
-* link:https://tackler.e257.fi/docs/price/[Market Value of Commodities and Shares], including different valuation methods:
+* link:https://tackler.e257.fi/docs/price/[Market Value of Commodities and Shares], including different valuation (Mark-to-Market) methods:
     ** link:https://tackler.e257.fi/docs/price/current-market-value/[Current Market Value]
-    ** link:https://tackler.e257.fi/docs/price/historic-market-value/[Historic Market Value] at the given time
-    ** link:https://tackler.e257.fi/docs/price/variable-market-value/[Variable Market Value] at the transaction time
+    ** link:https://tackler.e257.fi/docs/price/historic-market-value/[Historic Market Value]
+    ** link:https://tackler.e257.fi/docs/price/variable-market-value/[Variable Market Value]
 
-* link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters] for powerfull selectors of used accounting data
+* link:https://tackler.e257.fi/docs/txn-filters/[Transaction Filters] for powerful selectors of used accounting data
+* Real transaction link:https://tackler.e257.fi/docs/journal/format/#timestamps[timestamps up to nanosecond] resolution and with timezone information
 * Accounting based on link:https://tackler.e257.fi/docs/gis/txn-geo-location[Geo Location] and link:https://tackler.e257.fi/docs/gis/txn-geo-filters/[Transaction GIS Filters]
 
 See `tackler --help`, link:https://tackler.e257.fi/docs/[Documentation] and  link:examples/tackler.toml[Tackler Configuration] how to use tackler-ng.
 
 
-== How to build Tackler CLI application
+== How to build development version of Tackler
 
 Get the source code and test cases to play around and for building `main`:
 
@@ -92,14 +93,7 @@ Then build the tackler binary:
 ----
 cd tackler-ng
 
-# The main branch should build and pass all tests.
-# To build a release, check relased versions:
-git tag -l
-
-# Get the release, e.g. v25.01.1
-git checkout v25.01.1
-
-# Build tackler
+# The main branch should build and pass all tests
 cargo build --release --locked --bin tackler
 
 # the binary is located at 'target/release/tackler'

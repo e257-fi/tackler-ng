@@ -2,29 +2,9 @@
 
 = Tackler-NG: Changelog
 
-Currently published crates are:
-
-....
-tackler      = "25.1.1"
-tackler-rs   = "0.8.0"
-tackler-api  = "0.8.0"
-tackler-core = "0.8.0"
-....
-
-
 == Releases
 
 === Tackler release XX.YY.Z
-
-[cols="1,2",width=50%]
-|===
-|Component    | Version
-
-|Tackler CLI  | TODO: XX.YY.Z
-|tackler-core | TODO: No changes
-|tackler-api  | TODO: No changes
-|tackler-rs   | TODO: No changes
-|===
 
 ==== New features and changes
 
@@ -48,37 +28,36 @@ Fixes in this release ...
 
 ==== Development
 
-Updated deps and tools:
+Updated dependencies (major or minor version):
 
-* Dependencies
-** clap: v4.5.32
-** itertools: 0.14.0
-** jiff: v0.2.3
-** rust_decimal: 1.37.0
-** serde: v1.0.219
-** serde_json: v1.0.140
-** toml: 0.8.20
-** uuid: v1.16.0
-** winnow: 0.7.4
+* itertools: 0.14
+* jiff: v0.2
+* rust_decimal: 1.37
+* uuid: v1.16
+* winnow: 0.7
 
 ===== Rust toolchain
 
-MSRV: 1.85.0
+Rust Edition:: 2024
+MSRV:: 1.85.0
 
-'''
-
-
-=== Tackler release 25.01.1
+==== Release Artifacts
 
 [cols="1,2",width=50%]
 |===
 |Component    | Version
 
-|Tackler CLI  | 25.01.1
-|tackler-core | 0.8.0
-|tackler-api  | 0.8.0
-|tackler-rs   | 0.8.0
+|Tackler CLI  | TODO: XX.YY.Z
+|tackler-core | TODO: No changes
+|tackler-api  | TODO: No changes
+|tackler-rs   | TODO: No changes
 |===
+
+
+'''
+
+
+=== Tackler release 25.01.1
 
 ==== New features and changes
 
@@ -124,23 +103,24 @@ Updated deps and tools:
 
 ===== Rust toolchain
 
-MSRV: 1.82.0
+MSRV:: 1.82.0
 
-'''
-
-
-=== Tackler release 24.12.2
+==== Release Artifacts
 
 [cols="1,2",width=50%]
 |===
 |Component    | Version
 
-|Tackler CLI  | 24.12.2
-|tackler-core | 0.7.0
-|tackler-api  | 0.7.0
-|tackler-rs   | 0.7.0
+|Tackler CLI  | 25.01.1
+|tackler-core | 0.8.0
+|tackler-api  | 0.8.0
+|tackler-rs   | 0.8.0
 |===
 
+'''
+
+
+=== Tackler release 24.12.2
 
 ==== New features and changes
 
@@ -178,24 +158,25 @@ Updated dependencies and tools:
 
 ===== Rust toolchain
 
-MSRV: 1.81.0
+MSRV:: 1.81.0
+
+==== Release Artifacts
+
+[cols="1,2",width=50%]
+|===
+|Component    | Version
+
+|Tackler CLI  | 24.12.2
+|tackler-core | 0.7.0
+|tackler-api  | 0.7.0
+|tackler-rs   | 0.7.0
+|===
 
 '''
 
 
 
 === Tackler release 24.12.1
-
-[cols="1,2",width=50%]
-|===
-|Component | Version
-
-|Tackler CLI  | 24.12.1
-|tackler-core | 0.6.0
-|tackler-api  | 0.6.0
-|tackler-rs   | 0.6.0
-|===
-
 
 ==== New features and changes
 
@@ -227,23 +208,25 @@ Updated dependencies and tools:
 
 ===== Rust toolchain
 
-MSRV: 1.77.2
+MSRV:: 1.77.2
 
-'''
-
-
-=== Tackler release 24.11.2
+==== Release Artifacts
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 24.11.2
-|tackler-core | 0.5.0
-|tackler-api  | 0.5.0
-|tackler-rs   | 0.5.0
+|Tackler CLI  | 24.12.1
+|tackler-core | 0.6.0
+|tackler-api  | 0.6.0
+|tackler-rs   | 0.6.0
 |===
 
+
+'''
+
+
+=== Tackler release 24.11.2
 
 ==== New features and changes
 
@@ -274,21 +257,22 @@ Updated dependencies and tools:
 
 Used unstable features: None
 
-'''
-
-
-=== Tackler release 24.11.1
+==== Release Artifacts
 
 [cols="1,2",width=50%]
 |===
 |Component | Version
 
-|Tackler CLI  | 24.11.1
-|tackler-core | 0.4.0
-|tackler-api  | 0.4.0
-|tackler-rs   | 0.4.0
+|Tackler CLI  | 24.11.2
+|tackler-core | 0.5.0
+|tackler-api  | 0.5.0
+|tackler-rs   | 0.5.0
 |===
 
+'''
+
+
+=== Tackler release 24.11.1
 
 ==== New features and changes
 
@@ -325,23 +309,23 @@ Updated dependencies and tools:
 
 Used unstable features: None
 
+==== Release Artifacts
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 24.11.1
+|tackler-core | 0.4.0
+|tackler-api  | 0.4.0
+|tackler-rs   | 0.4.0
+|===
 
 '''
 
 
 
 === Tackler release 24.11.0
-
-[cols="1,2",width=50%]
-|===
-|Component | Version
-
-|Tackler CLI  | 0.3.0
-|tackler-core | 0.3.0
-|tackler-api  | 0.3.0
-|tackler-rs   | 0.3.0
-|===
-
 
 ==== New features and changes
 
@@ -382,24 +366,25 @@ Updated dependencies and tools:
 
 Used unstable features: None
 
+==== Release Artifacts
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 0.3.0
+|tackler-core | 0.3.0
+|tackler-api  | 0.3.0
+|tackler-rs   | 0.3.0
+|===
+
 
 '''
 
 
 === Tackler release 23.04.01
 
-[cols="1,2",width=50%]
-|===
-|Component | Version
-
-|Tackler CLI  | 0.2.0
-|tackler-core | 0.2.0
-|tackler-api  | 0.2.0
-|tackler-rs   | 0.2.0
-|===
-
 This is the first Technology Preview Release of rusty Tackler.
-
 
 ==== New features and changes
 
@@ -456,6 +441,17 @@ rust::
 rustfmt::
 * tackler-core: https://github.com/rust-lang/rustfmt/issues/3395[rustfmt: ++#++3395] -- option `ignore`
 
+==== Release Artifacts
+
+[cols="1,2",width=50%]
+|===
+|Component | Version
+
+|Tackler CLI  | 0.2.0
+|tackler-core | 0.2.0
+|tackler-api  | 0.2.0
+|tackler-rs   | 0.2.0
+|===
 
 '''
 
