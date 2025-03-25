@@ -40,11 +40,10 @@ Register Report
 
 ## Project Status
 
-Tackler-NG is basis of all Tackler development.
-It's in [feature](https://tackler.e257.fi/features/) parity with
-and beyond of the old Scala code base.
+Tackler-NG is in [feature](https://tackler.e257.fi/features/) parity with and beyond of the old Scala code base.
+It's basis of all Tackler development.
 
-**NOTE: Tackler-NG is tested with 341 tracked test vectors at the moment**
+**NOTE: Tackler-NG is tested with 341 [tracked test vectors](https://github.com/tackler-ng/tackler-t3db)**
 
 All Tackler CLI functionality is supported, including 
 [Tackler Journal Format](https://tackler.e257.fi/docs/journal/format/), 
@@ -72,37 +71,36 @@ Other notable features are:
 See `tackler --help` and [Tackler Configuration](https://github.com/tackler-ng/tackler/blob/main/examples/tackler.toml) how to use tackler-ng.
 
 
-## Source code and test vectors
+## Installation
 
-If you would just like to have tackler binary, use can use
+You can install tackler binary by cargo:
 
 ````bash
 cargo install --locked tackler
 ````
+Or build it from the source.
 
-### How to get the test vectors and build the source code
+### Build the Source Code
 
-Get the source code of Tackler, the `main` branch should build and pass all tests.
+The `main` branch should [build and pass](https://github.com/tackler-ng/tackler/actions/workflows/ci.yml) all tests:
 
 ````bash
 git clone --recurse-submodules https://github.com/tackler-ng/tackler
 
 cd tackler
 
-# If you didn't install tackler in the previous step, build it now
 cargo build --release --locked --bin tackler
 ````
 
 ## Examples
 
-Check out Tackler's repository for [full list of examples](https://github.com/tackler-ng/tackler/blob/main/examples/readme.adoc).
+Check out Tackler's [repository for full list of examples](https://github.com/tackler-ng/tackler/blob/main/examples/readme.adoc).
 
 These examples need tackler source code and test vectors,
-so make sure you have checked it out with submodules:
+so make sure you have cloned it out with submodules.
+If not, update the test suite submodule:
 
 ```bash
-git clone --recurse-submodules https://github.com/tackler-ng/tackler
-# or
 git submodule init
 git submodule update
 ```

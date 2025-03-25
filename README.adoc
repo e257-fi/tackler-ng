@@ -43,13 +43,13 @@ get it link:https://www.rust-lang.org/tools/install[from here].
 
 == Project Status
 
-Tackler-NG is basis of all Tackler development. It's
-in link:https://tackler.e257.fi/features/[feature] parity
-and beyond of the old Scala code base.
+Tackler-NG is in link:https://tackler.e257.fi/features/[feature] parity with
+and beyond of the old Scala code base. It's basis of all Tackler development.
 
 [NOTE]
 ====
-*Tackler-NG is tested with 341 tracked test vectors at the moment*
+*Tackler-NG is tested with 341
+link:https://github.com/tackler-ng/tackler-t3db[tracked test vectors]*
 ====
 
 All Tackler CLI functionality is supported, including
@@ -79,10 +79,19 @@ Other notable features are:
 
 See `tackler --help`, link:https://tackler.e257.fi/docs/[Documentation] and  link:examples/tackler.toml[Tackler Configuration] how to use tackler-ng.
 
+== Installation
 
-== How to build development version of Tackler
+You can install tackler binary by cargo:
 
-Get the source code and test cases to play around and for building `main`:
+----
+cargo install --locked tackler
+----
+
+Or build it from the source.
+
+== Build the Source Code
+
+The `main` branch should link:https://github.com/tackler-ng/tackler/actions/workflows/ci.yml[build and pass] all tests:
 
 ----
 git clone --recurse-submodules https://github.com/tackler-ng/tackler
@@ -101,8 +110,8 @@ cargo build --release --locked --bin tackler
 
 == Examples
 
-See link:https://github.com/tackler-ng/tackler/tree/main/examples[Examples] folder
-in the repository for full list of examples.
+See link:https://github.com/tackler-ng/tackler/tree/main/examples[examples folder
+in the repository] for full list of examples.
 
 
 === Simple example with Filesystem Journal

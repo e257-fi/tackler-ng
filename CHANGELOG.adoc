@@ -26,6 +26,12 @@ Changed functionality:
 
 Fixes in this release ...
 
+==== Contributions
+
+* Thanks to link:https://github.com/RagibHasin[@RagibHasin] for contributing
+and helping with Commodity Price Support feature
+(link:https://github.com/tackler-ng/tackler/blob/main/docs/tep/tep-1015.adoc[TEP-1015])
+
 ==== Development
 
 Updated dependencies (major or minor version):
@@ -84,9 +90,9 @@ Fixes in this release:
 
 ==== Contributions
 
-* Thanks to @zamazan4ik for pointing out missing LTO settings
-* Thanks to @epage for pointing the `rust-2018-idioms` lint
-* Thanks to @BurntSushi for helping with offset parsing
+* Thanks to link:https://github.com/zamazan4ik/[@zamazan4ik] for pointing out missing LTO settings
+* Thanks to link:https://github.com/epage/[@epage] for pointing the `rust-2018-idioms` lint
+* Thanks to link:https://github.com/burntsushi/[@BurntSushi] for helping with offset parsing
 
 ==== Development
 
@@ -143,7 +149,7 @@ Fixes in this release:
 
 ==== Contributions
 
-* Thanks to @Byron for pointing out the Git Backend fix
+* Thanks to link:https://github.com/byron/[@Byron] for pointing out the Git Backend fix
   and suggesting the use of `revspecs` API
 
 ==== Development
