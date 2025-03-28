@@ -27,6 +27,7 @@ Changed functionality:
 Fixes in this release:
 
  * Enforce blank line between transactions as ANTLR / Tackler-mk1 did
+ * Print error message if transaction set is empty
 
 ==== Contributions
 

@@ -91,6 +91,12 @@ fn run(cli: DefaultModeArgs) -> Result<Option<String>, tackler::Error> {
         None => txn_data.get_all()?,
     };
 
+    if txn_set.is_empty() {
+        let msg = "Txn Data: no transactions (txn set is empty)";
+        error!("{}", msg);
+        return Err(msg.into());
+    }
+
     let mut console_output = if cli.output_directory.is_none() {
         Some(Box::new(io::stdout()))
     } else {

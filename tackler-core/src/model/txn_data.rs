@@ -28,6 +28,9 @@ impl TxnSet<'_> {
     pub fn metadata(&self) -> Option<&Metadata> {
         self.metadata.as_ref()
     }
+    pub fn is_empty(&self) -> bool {
+        self.txns.is_empty()
+    }
 }
 
 impl TxnData {
