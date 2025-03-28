@@ -35,6 +35,7 @@ echo ": ok"
 # new-02
 #
 # test: eddeb65b-630b-4d8b-a236-f9caa298a08b
+# desc: new with price
 rm -rf $OUTPUT_DIR/*
 test_name=new-02
 echo "test: $module/$test_name: "
@@ -55,6 +56,7 @@ echo ": ok"
 # new-03
 #
 # test: ffe35948-b42d-4b43-a71a-483d1da048bc
+# desc: new with price, strict
 rm -rf $OUTPUT_DIR/*
 test_name=new-03
 echo "test: $module/$test_name: "

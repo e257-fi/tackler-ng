@@ -19,6 +19,7 @@ mode="strict=true"
 # price-00
 #
 # test: 7cbe3cb4-1b23-44bb-8e5e-ba2c8991e589
+# desc: strict, none
 rm -f $OUTPUT_DIR/*
 test_name=price-00
 echo "test: $module/$test_name: $mode"
@@ -44,6 +45,7 @@ echo ": ok"
 # price-01
 #
 # test: 6ddcb0d4-7dc6-4909-a1b4-ecbb5a33a186
+# desc: strict, txn-time
 # balance: 1.001 + 12.001 + 24.001 + 31.001 + \
 #          1000.001 + 1200.001 + 2400.001 + 2900.001 + \
 #          100000.001 + 120000.001 + 240000.001 + 310000.001
@@ -77,6 +79,7 @@ echo ": ok"
 # price-02
 #
 # test: af19f8e7-a6f2-4f64-8c5a-b774dba4f58c
+# desc: strict, last-time
 rm -f $OUTPUT_DIR/*
 test_name=price-02
 echo "test: $module/$test_name: $mode"
@@ -102,6 +105,7 @@ echo ": ok"
 # price-03
 #
 # test: 4075e741-605b-4e67-ab7d-0d13f38956ca
+# desc: strict, given-time, filter
 rm -f $OUTPUT_DIR/*
 test_name=price-03
 echo "test: $module/$test_name: $mode"
@@ -129,6 +133,7 @@ echo ": ok"
 # price-04
 #
 # test: 0c600957-5c15-42d0-9bb9-b618ad7d597f
+# desc: strict, given-time, filter
 rm -f $OUTPUT_DIR/*
 test_name=price-04
 echo "test: $module/$test_name: $mode"
@@ -157,6 +162,7 @@ echo ": ok"
 # price-05
 #
 # test: 39c60c8b-b999-4305-8c57-5c06e99cc919
+# desc: strict, given-time
 rm -f $OUTPUT_DIR/*
 test_name=price-05
 echo "test: $module/$test_name: $mode"
@@ -183,6 +189,7 @@ echo ": ok"
 # price-06
 #
 # test: f7211562-c69d-4bab-a768-65b15803efdf
+# desc: strict, given-time
 rm -f $OUTPUT_DIR/*
 test_name=price-06
 echo "test: $module/$test_name: $mode"
@@ -209,6 +216,7 @@ echo ": ok"
 # price-07
 #
 # test: e1754c8d-ac71-4344-942f-0c78d69bb1b3
+# desc: strict, given-time == last-price
 rm -f $OUTPUT_DIR/*
 test_name=price-07
 echo "test: $module/$test_name: $mode"

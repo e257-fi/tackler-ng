@@ -19,6 +19,7 @@ mode=""
 # multi-00
 #
 # test: 83d831d5-5947-4906-9bf0-d561c6c48349
+# desc: multi, lookup none
 rm -f $OUTPUT_DIR/*
 test_name=multi-00
 echo "test: $module/$test_name: $mode"

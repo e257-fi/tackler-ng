@@ -19,6 +19,7 @@ mode="strict=false"
 # price-00
 #
 # test: 42297bb3-c816-496f-83a3-924f52702e42
+# desc: cli: lookup-type none
 rm -f $OUTPUT_DIR/*
 test_name=price-00
 echo "test: $module/$test_name: $mode"
@@ -72,6 +73,7 @@ echo ": ok"
 # price-01
 #
 # test: 29b8ecea-bb2b-4a66-b0a2-178cb7a9f1b4
+# desc: txn-time
 # balance: 1.001 + 12.001 + 24.001 + 31.001 + \
 #          1000.001 + 1200.001 + 2400.001 + 2900.001 + \
 #          100000.001 + 120000.001 + 240000.001 + 310000.001
@@ -105,6 +107,7 @@ echo ": ok"
 # price-02
 #
 # test: 8a29b198-6e87-4d4c-885d-a888be485d92
+# desc: last-price
 rm -f $OUTPUT_DIR/*
 test_name=price-02
 echo "test: $module/$test_name: $mode"
@@ -130,6 +133,7 @@ echo ": ok"
 # price-05
 #
 # test: e767afa7-cd1e-4979-a76a-a1371a5b2a90
+# desc: given-time
 rm -f $OUTPUT_DIR/*
 test_name=price-05
 echo "test: $module/$test_name: $mode"
