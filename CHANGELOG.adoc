@@ -26,8 +26,9 @@ Changed functionality:
 
 Fixes in this release:
 
- * Enforce blank line between transactions as ANTLR / Tackler-mk1 did
- * Print error message if transaction set is empty
+ * Enforce blank line between transactions (Tackler-mk1 / ANTLR)
+ * Print error message if repository contains links (Tackler-mk1)
+ * Print error message if transaction set is empty (Tackler-mk1)
 
 ==== Contributions
 

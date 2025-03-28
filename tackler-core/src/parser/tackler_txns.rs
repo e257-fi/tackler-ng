@@ -110,7 +110,7 @@ pub fn git_to_txns(
         .files()?
         .iter()
         .map(|entry| {
-            use git::objs::tree::EntryKind::Blob;
+            use git::objs::tree::EntryKind::{Blob, Link};
             match EntryKind::from(entry.mode) {
                 Blob => {
                     if entry.filepath.starts_with(str::as_bytes(dir))
@@ -144,6 +144,23 @@ pub fn git_to_txns(
                         // It's blob but outside of our file path filter
                         Ok(Vec::default())
                     }
+                }
+                Link => {
+                    let obj = repo.find_object(entry.oid)?;
+                    let msg = format!(
+                        "\
+                        GIT: Error while processing git object\n\
+                        \x20  commit id: {}\n\
+                        \x20  object id: {}\n\
+                        \x20  path: {}\n\
+                        \x20  msg: {}\
+                        ",
+                        object.id,
+                        obj.id,
+                        entry.filepath,
+                        "Links inside repository are not supported"
+                    );
+                    Err(msg.into())
                 }
                 // It's not a blob
                 _ => Ok(Vec::default()),
