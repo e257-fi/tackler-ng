@@ -22,7 +22,62 @@ fn txn_data_errors() {
                 |"
             ).strip_margin(),
             "TXN postings do not zero: 2",
-        )
+        ),
+        (
+            // test: 4078aee1-b2e7-40fc-ae82-661d29cbaa74
+            // desc: account with missing indentation
+            indoc!(
+               "|2017-01-01
+                |a  1
+                | e
+                |"
+            ).strip_margin(),
+            "at line 2, column 1",
+        ),
+        (
+            // test: 399fb5f8-0f03-4aa7-8f2e-1ae8ab2d6645
+            // desc: missing blank line between txns
+            indoc!(
+               "|2017-01-10
+                | a  1
+                | e -1
+                |2017-01-11
+                | a  1
+                | e -1
+                |"
+            ).strip_margin(),
+            "at line 4, column 1",
+        ),
+        (
+            // test: e23d8e3f-db93-425d-8f3d-690f6d8d84a6
+            // desc: "#1: catch multispace0 without line ending between txns"
+            indoc!(
+               "|2017-01-10
+                | a  1
+                | e -1
+                |   2017-01-11
+                | a  1
+                | e -1
+                |"
+            ).strip_margin(),
+            "at line 4, column 1",
+        ),
+        (
+            // test: efa25d85-96e4-435b-88c1-0728551c2c2a
+            // desc: "#2: catch multispace0 without line ending between txns"
+            indoc!(
+               "|2017-01-10
+                | a  1
+                | e -1
+                |
+                |   2017-01-11
+                | a  1
+                | e -1
+                |"
+            ).strip_margin(),
+            "at line 5, column 1",
+        ),
+
     ];
     let mut count = 0;
     let should_be_count = txns_str.len();

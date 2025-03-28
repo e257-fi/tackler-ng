@@ -9,7 +9,8 @@ use crate::model::{Transaction, Txns};
 use crate::parser::parts::txn_header::parse_txn_header;
 use crate::parser::parts::txn_postings::parse_txn_postings;
 use crate::parser::{Stream, from_error, make_semantic_error};
-use winnow::ascii::{line_ending, multispace0, space0};
+use winnow::ascii::{line_ending, space0};
+use winnow::combinator::alt;
 use winnow::combinator::{cut_err, eof, opt, preceded, repeat, repeat_till};
 use winnow::error::StrContext;
 
@@ -27,7 +28,7 @@ fn parse_txn(is: &mut Stream<'_>) -> ModalResult<Transaction> {
             .context(StrContext::Label("Txn Header")),
         cut_err(parse_txn_postings)
             .context(StrContext::Label("Txn Postings")),
-        _: multispace0,
+        _: alt((multispace0_line_ending, eof)),
     )
     .context(StrContext::Label("Transaction"))
     .parse_next(is)?;

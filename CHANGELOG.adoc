@@ -24,7 +24,9 @@ Changed functionality:
 
 ==== Fixes
 
-Fixes in this release ...
+Fixes in this release:
+
+ * Enforce blank line between transactions as ANTLR / Tackler-mk1 did
 
 ==== Contributions
 
