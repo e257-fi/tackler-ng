@@ -165,7 +165,6 @@ pub struct Settings {
     pub price: Price,
     price_lookup: PriceLookup,
     global_acc_sel: Option<AccountSelectors>,
-    targets: Vec<ReportType>,
     accounts: AccountTrees,
     commodities: Commodities,
     tags: HashMap<String, Arc<Tag>>,
@@ -182,7 +181,6 @@ impl Default for Settings {
             price: Price::default(),
             price_lookup: PriceLookup::default(),
             global_acc_sel: None,
-            targets: Vec::new(),
             accounts: AccountTrees::default(),
             commodities: Commodities::default_empty_ok(),
             tags: HashMap::new(),
@@ -204,6 +202,15 @@ impl Settings {
         let strict_mode = overlaps.strict.mode.unwrap_or(cfg.kernel.strict);
         let audit_mode = overlaps.audit.mode.unwrap_or(cfg.kernel.audit.mode);
 
+        let reports = match overlaps.target.reports {
+            Some(reports) => config::to_report_targets(&reports)?,
+            None => cfg.report.targets.clone(),
+        };
+        let exports = match overlaps.target.exports {
+            Some(exports) => config::to_export_targets(&exports)?,
+            None => cfg.export.targets.clone(),
+        };
+
         let lookup_type = overlaps.price.lookup_type.unwrap_or(cfg.price.lookup_type);
 
         let db_path = overlaps.price.db_path.unwrap_or(cfg.price.db_path.clone());
@@ -222,6 +229,16 @@ impl Settings {
                 tags.insert(tag.into(), Arc::new(t));
                 tags
             });
+
+        if strict_mode
+            && exports.contains(&ExportType::Equity)
+            && !account_trees
+                .defined_accounts
+                .contains_key(cfg.export.equity.equity_account.as_str())
+        {
+            let msg = "Unknown `equity.equity-account` and `strict` mode is on".to_string();
+            return Err(msg.into());
+        }
 
         let cfg_rpt_commodity = cfg
             .report
@@ -263,12 +280,15 @@ impl Settings {
             price: Price::default(), // this is not real, see next one
             price_lookup: PriceLookup::default(), // this is not real, see next one
             global_acc_sel: overlaps.report.account_overlap,
-            targets: cfg.report.targets.clone(),
             report: Report {
                 commodity: report_commodity,
+                targets: reports,
                 ..cfg.report
             },
-            export: cfg.export,
+            export: Export {
+                targets: exports,
+                ..cfg.export
+            },
             accounts: account_trees,
             commodities,
             tags,
@@ -588,24 +608,12 @@ impl Settings {
         self.report.commodity.as_ref().map(|c| c.clone())
     }
 
-    pub fn get_report_targets(
-        &self,
-        arg_trgs: Option<Vec<String>>,
-    ) -> Result<Vec<ReportType>, tackler::Error> {
-        match arg_trgs {
-            Some(trgs) => config::to_report_targets(&trgs),
-            None => Ok(self.targets.clone()),
-        }
+    pub fn get_report_targets(&self) -> Vec<ReportType> {
+        self.report.targets.clone()
     }
 
-    pub fn get_export_targets(
-        &self,
-        arg_trgs: Option<Vec<String>>,
-    ) -> Result<Vec<ExportType>, tackler::Error> {
-        match arg_trgs {
-            Some(trgs) => config::to_export_targets(&trgs),
-            None => Ok(self.export.targets.clone()),
-        }
+    pub fn get_export_targets(&self) -> Vec<ExportType> {
+        self.export.targets.clone()
     }
 
     fn get_account_selector(&self, acc_sel: &AccountSelectors) -> AccountSelectors {

@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use tackler_api::txn_ts;
 use tackler_core::config::PriceLookupType;
 use tackler_core::config::overlaps::{
-    AuditOverlap, OverlapConfig, PriceOverlap, ReportOverlap, StrictOverlap,
+    AuditOverlap, OverlapConfig, PriceOverlap, ReportOverlap, StrictOverlap, TargetOverlap,
 };
 use tackler_core::kernel::Settings;
 use tackler_core::kernel::settings::{FileInput, FsInput, GitInput, InputSettings};
@@ -347,6 +347,10 @@ impl DefaultModeArgs {
                 commodity: self.report_commodity.clone(),
                 account_overlap: self.accounts.clone(),
                 group_by: self.group_by.clone(),
+            },
+            target: TargetOverlap {
+                reports: self.reports.clone(),
+                exports: self.exports.clone(),
             },
         }
     }

@@ -30,6 +30,7 @@ Fixes in this release:
  * Print error message if repository contains links (Tackler-mk1)
  * Print error message if transaction set is empty (Tackler-mk1)
  * Don't accept invalid cli input arg combinations
+ * Check equity account name when strict mode is on (Tackler-Mk1)
 
 ==== Contributions
 

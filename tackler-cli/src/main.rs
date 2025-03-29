@@ -103,7 +103,7 @@ fn run(cli: DefaultModeArgs) -> Result<Option<String>, tackler::Error> {
         None
     };
 
-    let reports = settings.get_report_targets(cli.reports)?;
+    let reports = settings.get_report_targets();
 
     if !reports.is_empty() {
         write_txt_reports(
@@ -117,7 +117,7 @@ fn run(cli: DefaultModeArgs) -> Result<Option<String>, tackler::Error> {
         )?;
     }
 
-    let exports = settings.get_export_targets(cli.exports)?;
+    let exports = settings.get_export_targets();
     if !exports.is_empty() && cli.output_directory.is_some() {
         write_exports(
             cli.output_directory

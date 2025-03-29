@@ -18,5 +18,6 @@ accounts = [
     "Liabilities:Visa:4012_8888_8888_1881",
     "Welcome:Message",
     "Messages",
+    "Equity:Balance",
 ]
 "#;

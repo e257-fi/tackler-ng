@@ -20,6 +20,8 @@ pub struct OverlapConfig {
     pub price: PriceOverlap,
     /// Reporting related overlaps
     pub report: ReportOverlap,
+    /// Target (reports, exports) related overlaps
+    pub target: TargetOverlap,
 }
 
 /// Audit mode related overlaps
@@ -56,4 +58,13 @@ pub struct ReportOverlap {
     pub account_overlap: Option<Vec<String>>,
     /// Group-By operator
     pub group_by: Option<String>,
+}
+
+/// Target (reports, exports) overlap configuration
+#[derive(Debug, Default, Clone)]
+pub struct TargetOverlap {
+    /// reports
+    pub reports: Option<Vec<String>>,
+    /// exports
+    pub exports: Option<Vec<String>>,
 }
