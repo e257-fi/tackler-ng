@@ -181,6 +181,7 @@ pub(crate) struct DefaultModeArgs {
             "input_fs_ext",
             "input_git_repo",
             "input_git_ref",
+            "input_git_commit",
             "input_git_dir"])
     )]
     pub(crate) input_filename: Option<PathBuf>,
@@ -193,7 +194,14 @@ pub(crate) struct DefaultModeArgs {
         value_parser([
             PossibleValue::new(config::StorageType::STORAGE_FS),
             PossibleValue::new(config::StorageType::STORAGE_GIT),
-        ])
+        ]),
+        conflicts_with_all([
+            "input_fs_dir",
+            "input_fs_ext",
+            "input_git_repo",
+            "input_git_ref",
+            "input_git_commit",
+            "input_git_dir"])
     )]
     pub(crate) input_storage: Option<String>,
 
@@ -206,6 +214,7 @@ pub(crate) struct DefaultModeArgs {
         conflicts_with_all([
             "input_git_repo",
             "input_git_ref",
+            "input_git_commit",
             "input_git_dir"])
     )]
     pub(crate) input_fs_dir: Option<PathBuf>,

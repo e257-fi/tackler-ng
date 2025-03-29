@@ -29,6 +29,7 @@ Fixes in this release:
  * Enforce blank line between transactions (Tackler-mk1 / ANTLR)
  * Print error message if repository contains links (Tackler-mk1)
  * Print error message if transaction set is empty (Tackler-mk1)
+ * Don't accept invalid cli input arg combinations
 
 ==== Contributions
 
