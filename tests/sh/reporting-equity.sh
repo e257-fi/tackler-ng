@@ -1,6 +1,5 @@
 #
-# Tackler-NG 2024
-#
+# Tackler-NG 2024-2025
 # SPDX-License-Identifier: Apache-2.0
 #
 
@@ -15,9 +14,6 @@ source $TEST_DIR/lib/utils.sh
 module=reporting/equity
 
 #####################################################################
-#
-# equity-acc-01
-#
 # test: 29d24d2e-702f-4c27-b5de-82ac88ca68ca
 rm -f $OUTPUT_DIR/*
 test_name=equity-acc-01-ng
@@ -39,12 +35,11 @@ echo ": ok"
 
 #####################################################################
 #
-# equity-tep1014-02
-#
 # This is variant of c0b34ebb-a5d2-4b09-96cb-2594b3635650 with
 # maximum precision points of rust-decimal
 #
 # test: 8542680a-2e94-437f-b0a5-cdef46ef8521
+# test-ref: c0b34ebb-a5d2-4b09-96cb-2594b3635650
 rm -f $OUTPUT_DIR/*
 test_name=equity-tep1014-01-ng
 echo "test: $module/$test_name: "
@@ -63,12 +58,11 @@ echo ": ok"
 
 #####################################################################
 #
-# equity-tep1014-as-input
-#
 # This is variant of 78982e06-4f11-4f52-8689-df400b8c3a93 with
 # maximum precision points of rust-decimal
 #
 # test: c2e27940-a141-41ed-adc2-da294d519804
+# test-ref: 78982e06-4f11-4f52-8689-df400b8c3a93
 rm -f $OUTPUT_DIR/*
 test_name=equity-tep1014-as-input
 echo "test: $module/$test_name: "

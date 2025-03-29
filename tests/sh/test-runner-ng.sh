@@ -2,7 +2,6 @@
 # vim: tabstop=4 shiftwidth=4 softtabstop=4 smarttab expandtab autoindent
 #
 # Tackler-NG 2024-2025
-#
 # SPDX-License-Identifier: Apache-2.0
 #
 
@@ -42,16 +41,26 @@ check_suite
 
 $TEST_DIR/accumulator.sh
 $TEST_DIR/audit.sh
+$TEST_DIR/audit-errors.sh
+$TEST_DIR/cli.sh
+$TEST_DIR/cli-errors.sh
 $TEST_DIR/commodity.sh
+$TEST_DIR/commodity-errors.sh
 $TEST_DIR/core.sh
+$TEST_DIR/core-fs-errors.sh
+$TEST_DIR/core-git-errors.sh
 $TEST_DIR/gas-blender.sh
 $TEST_DIR/location.sh
+$TEST_DIR/location-errors.sh
 $TEST_DIR/parser.sh
+$TEST_DIR/parser-errors.sh
 $TEST_DIR/reporting-equity.sh
 $TEST_DIR/reporting-group_by.sh
 $TEST_DIR/reporting-ok.sh
 $TEST_DIR/reporting-time_zones.sh
+$TEST_DIR/reporting-errors.sh
 $TEST_DIR/tags.sh
+$TEST_DIR/tags-errors.sh
 $TEST_DIR/new-and-init.sh
 $TEST_DIR/price.sh
 $TEST_DIR/price-errors.sh

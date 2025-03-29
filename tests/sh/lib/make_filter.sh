@@ -163,11 +163,11 @@ make_filter_with_time_window () {
 
 
 # fltdef=$(time_span_filter $startts $endts)
-# opts="--reporting.reports balance --api-filter-def $fltdef"
+# opts="--reports balance --api-filter-def $fltdef"
 #
 #
 # fltdef=$(time_window_filter "$1" "$2")
-# opts="--reporting.reports balance --api-filter-def $fltdef"
+# opts="--reports balance --api-filter-def $fltdef"
 #
 # fltdef=$(make_filter "account_flt_body" "$account")
 # opts="--api-filter-def $fltdef"

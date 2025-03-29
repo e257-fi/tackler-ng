@@ -77,6 +77,104 @@ fn txn_data_errors() {
             ).strip_margin(),
             "at line 5, column 1",
         ),
+        (
+            // test: fd2e49c0-bb60-4f5b-8ddd-f3745fcc6015
+            // desc: Ensure code is not over eager in case of txn syntax error
+            // sandwich error txn with ok txn
+            // If code-parser is too eager, it will resync parsing
+            // by using faulty txn as code
+            indoc!(
+               "|2017-01-10 (123)
+                |  a  1
+                |  e -1
+                |2017-01-11 (123)
+                |  a
+                |  e -1
+                |2017-01-12 (123)
+                |  a  1
+                |  e -1
+                |"
+            ).strip_margin(),
+            "at line 4, column 1",
+        ),
+        (
+            // test: a9c742e8-9f9a-42dc-8e09-f1ffe5e6e728
+            // desc: "txn comment #1"
+            indoc!(
+               "|2017-01-10 'desc
+                |  a  1
+                |  e -1
+                |
+                |; comment
+                |"
+            ).strip_margin(),
+            "at line 5, column 1",
+        ),
+        (
+            // test: 73a17e9d-3a91-4c29-bbc7-bf8c7b1b347e
+            // desc: "txn comment #2"
+            indoc!(
+               "|2017-01-10 'desc
+                |  a  1
+                |  e -1
+                |
+                |; comment
+                |2017-01-10 'desc
+                |  a  1
+                |  e -1
+                |"
+            ).strip_margin(),
+            "at line 5, column 1",
+        ),
+        (
+            // test: 132f11c4-facd-4fbc-9550-eafd751a2cd8
+            // desc: "txn comment #3"
+            indoc!(
+               "|; comment
+                |2017-01-10 'desc
+                |  a  1
+                |  e -1
+                |"
+            ).strip_margin(),
+            "at line 1, column 1",
+        ),
+        (
+            // test: 0c1a7d18-90eb-4f2b-b8b6-9bc36cd5ff73
+            // desc: mixed commodities are not accepted
+            indoc!(
+               "|2017-05-05
+                | e  1000 USD
+                | a -1000 USD
+                | e  1000 EUR
+                | a -1000 EUR
+                |"
+            ).strip_margin(),
+            "Semantic error: Different commodities without",
+        ),
+        (
+            // test: edf1c7b6-fac6-4b58-8b5b-6c37b59609f5
+            // desc: Mixed commodities with value position (third commodity)
+            indoc!(
+               "|2017-05-04 'sell four ACME at 120.04 EUR
+                | ; value position and fixed commodity differs
+                | Assets:Stocks -4 ACME @ 120.04 EUR
+                | Assets:Cash 480.16 USD
+                |"
+            ).strip_margin(),
+            "Semantic error: Different commodities without",
+        ),
+        (
+            // test: 8994ca76-615f-4977-bb48-299f85b2b861
+            // desc: Mixed commodities with value position (original commodity)
+            indoc!(
+               "|2017-05-04 'sell four ACME at 120.04 EUR
+                | ; mis-match with value position commodities
+                | Assets:Stocks -4 ACME @ 120.04 EUR
+                | Assets:Cash 480.16 ACME
+                |"
+            ).strip_margin(),
+            "Semantic error: Different commodities without",
+        ),
 
     ];
     let mut count = 0;

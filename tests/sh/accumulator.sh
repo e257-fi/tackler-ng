@@ -1,6 +1,5 @@
 #
-# Tackler-NG 2024
-#
+# Tackler-NG 2024-2025
 # SPDX-License-Identifier: Apache-2.0
 #
 
@@ -53,9 +52,8 @@ accumulator_test eq-zeros
 
 #####################################################################
 #
-# eq-uuid-01
-#
 # test: 76da1ba6-b17d-4260-bc2d-7d1dcca54d50
+# test-ref: 25d62f31-e420-4c46-8397-664983753c7f
 rm -f $OUTPUT_DIR/*
 test_name=eq-uuid-01
 echo "test: $module/$test_name: "
@@ -84,8 +82,6 @@ cmp_result $module $test_name txn identity
 echo ": ok"
 
 #####################################################################
-#
-# eq-uuid-02
 #
 # test: f46b00a3-b4dc-44e0-a8ae-b8039e2a33a7
 rm -f $OUTPUT_DIR/*

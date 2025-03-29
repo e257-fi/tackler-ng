@@ -1,6 +1,5 @@
 #
-# Tackler-NG 2024
-#
+# Tackler-NG 2024-2025
 # SPDX-License-Identifier: Apache-2.0
 #
 
@@ -33,8 +32,7 @@ cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
 
-#
-# audit-1E1-02
+#####################################################################
 #
 # test: f8c0fe2b-f189-4338-b75e-3c8e68a8c7e2
 rm -f $OUTPUT_DIR/*
@@ -53,8 +51,7 @@ cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
 
-#
-# audit-1E1-03
+#####################################################################
 #
 # test: 5c34d752-8d17-40df-be91-5dc1b107478e
 rm -f $OUTPUT_DIR/*
@@ -97,8 +94,7 @@ cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
 
-#
-# audit-1E2-02
+#####################################################################
 #
 # test: 2250f5f5-7eb4-456b-a693-3ea63c219584
 rm -f $OUTPUT_DIR/*
@@ -122,8 +118,7 @@ cmp_result $module $test_name txn equity
 echo ": ok"
 
 
-#
-# audit-1E2-03
+#####################################################################
 #
 # test: b2ea4102-40a2-46e5-aca3-398cf4849058
 # plain filter definition
@@ -148,8 +143,8 @@ cmp_result $module $test_name txt balgrp
 cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
-#
-# audit-1E2-04
+
+#####################################################################
 #
 # test: 41a9479b-1907-44bb-88bc-48c3cbe8c00f
 rm -f $OUTPUT_DIR/*
@@ -173,8 +168,8 @@ cmp_result $module $test_name txt balgrp
 cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
-#
-# audit-1E2-05
+
+#####################################################################
 #
 # test: 7a887956-a350-4663-9638-715bfa3c9040
 rm -f $OUTPUT_DIR/*
@@ -198,8 +193,8 @@ cmp_result $module $test_name txt balgrp
 cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
-#
-# audit-1E2-06
+
+#####################################################################
 #
 # test: 224709cb-c96c-47f5-83e1-6e94c333e5c6
 rm -f $OUTPUT_DIR/*
@@ -237,8 +232,7 @@ echo -n "check:"
 cmp_result $module audit-1E2-06-step2 txn identity
 echo ": ok"
 
-#
-# audit-1E2-07
+#####################################################################
 #
 # test: 20ce2b43-e433-4edb-894a-48e955cdcd01
 rm -f $OUTPUT_DIR/*
@@ -264,8 +258,7 @@ cmp_result $module $test_name txn equity
 echo ": ok"
 
 
-#
-# audit-1E2-08
+#####################################################################
 #
 # test: 17d027aa-28d0-4887-b2dd-f342dccb61d1
 # test-ref: 85d16b5a-cde9-40d3-9a37-3b7ba7ee7049
@@ -296,10 +289,10 @@ cmp_result $module $test_name txt reg
 cmp_result $module $test_name txn equity
 echo ": ok"
 
-#
-# audit-1E2-09
+#####################################################################
 #
 # test: 82fe2414-9e20-45da-8f7f-6f21ae8c71f2
+# test-ref: 3ef0b17b-3e0f-4033-962b-0ca1de8d2ca4
 rm -f $OUTPUT_DIR/*
 test_name=audit-1E2-09
 echo "test: $module/$test_name: "
@@ -318,8 +311,7 @@ echo -n "check:"
 cmp_result $module $test_name txt bal
 echo ": ok"
 
-#
-# audit-1E2-10
+#####################################################################
 #
 # test: 248707bc-7c58-4bab-a4a6-4cc1471fd936
 rm -f $OUTPUT_DIR/*
@@ -340,6 +332,7 @@ echo -n "check:"
 cmp_result $module $test_name txt bal
 echo ": ok"
 
+#####################################################################
 #
 # audit-1E2-11, use abbreviated commit id, this is same
 #               (with the same reference) as audit-1E2-10

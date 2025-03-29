@@ -1,6 +1,5 @@
 #
-# Tackler-NG 2024
-#
+# Tackler-NG 2024-2025
 # SPDX-License-Identifier: Apache-2.0
 #
 
@@ -15,8 +14,6 @@ source $TEST_DIR/lib/utils.sh
 module=reporting
 
 #####################################################################
-#
-# big-01
 #
 # test: 0f862997-95b1-4e06-bc5f-bc170c7594ff
 rm -f $OUTPUT_DIR/*
@@ -39,8 +36,6 @@ echo ": ok"
 
 #####################################################################
 #
-# big-02
-#
 # test: 92780169-2419-4a88-8cf5-84994dbca782
 rm -f $OUTPUT_DIR/*
 test_name=big-02
@@ -62,8 +57,6 @@ echo ": ok"
 
 #####################################################################
 #
-# bal-zero
-#
 # test: e242f20d-4b96-4b9b-8eb3-2eb7b6e2dc6b
 rm -f $OUTPUT_DIR/*
 test_name=bal-zero
@@ -84,8 +77,6 @@ cmp_result $module ${test_name} txn identity
 echo ": ok"
 
 #####################################################################
-#
-# bal-acc-01
 #
 # test: 53f67fea-6307-44ca-9834-7a2f9b71a15a
 rm -f $OUTPUT_DIR/*
@@ -120,8 +111,6 @@ echo ": ok"
 
 #####################################################################
 #
-# balgrp-acc-01
-#
 # test: 3ec3e091-dc23-455b-963a-4ba66db7223f
 rm -f $OUTPUT_DIR/*
 test_name=balgrp-acc-01
@@ -155,8 +144,6 @@ echo ": ok"
 
 #####################################################################
 #
-# register-acc-01
-#
 # test: 7d95bef8-6aaa-4706-a276-d206752d017b
 rm -f $OUTPUT_DIR/*
 test_name=register-acc-01
@@ -178,8 +165,6 @@ echo ": ok"
 
 #####################################################################
 #
-# rep-01
-#
 # test: c6da0aef-125f-4d33-9780-ffaa9e724499
 rm -f $OUTPUT_DIR/*
 test_name=rep-01
@@ -190,6 +175,28 @@ $TACKLER_SH \
     --input.file $SUITE_PATH/$module/ok/reporting.txn \
     --output.dir $OUTPUT_DIR \
     --output.prefix ${test_name} \
+
+echo -n "check:"
+cmp_result $module ${test_name} txt bal
+cmp_result $module ${test_name} txt balgrp
+cmp_result $module ${test_name} txt reg
+cmp_result $module ${test_name} txn equity
+cmp_result $module ${test_name} txn identity
+echo ": ok"
+
+#####################################################################
+#
+# test: 289df07b-a047-488f-bbe0-4d61cce21421
+rm -f $OUTPUT_DIR/*
+test_name=rep-02-nothing
+echo "test: $module/$test_name: "
+
+$TACKLER_SH \
+    --config $SUITE_PATH/$module/ok.toml \
+    --input.file $SUITE_PATH/$module/ok/reporting.txn \
+    --output.dir $OUTPUT_DIR \
+    --output.prefix ${test_name} \
+    --accounts "match-nothing"
 
 echo -n "check:"
 cmp_result $module ${test_name} txt bal

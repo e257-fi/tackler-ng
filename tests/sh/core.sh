@@ -1,6 +1,5 @@
 #
-# Tackler-NG 2024
-#
+# Tackler-NG 2024-2025
 # SPDX-License-Identifier: Apache-2.0
 #
 
@@ -37,6 +36,7 @@ echo ": ok"
 # git-shard-01
 #
 # test: 1d2c22c1-e3fa-4cd4-a526-45318c15d13e
+# test-ref: 9f0d3896-ce0b-415b-8d96-ad40e5177b45
 rm -f $OUTPUT_DIR/*
 test_name=git-shard-01
 echo "test: $module/$test_name: "
